@@ -1,0 +1,77 @@
+<!--
+  BloggerPage.html - paste this whole file into a Blogger page (Pages > New Page > the pencil's "HTML view").
+
+  It hides everything else on the page (header, sidebar, title, comments, footer), fills the window with the
+  coil generator, and puts a Back and a Home button at the top right.  The generator itself is served from the
+  GitHub repository (GitHub Pages) and runs in the visitor's browser; phones get a short message instead.
+
+  Change APP_URL below if the GitHub Pages address changes.
+-->
+<style>
+  html, body { overflow: hidden !important; height: 100% !important; }
+  body * { visibility: hidden !important; }                      /* the blog stays, unseen and unclickable */
+  #coilgen-shell, #coilgen-shell * { visibility: visible !important; }
+  #coilgen-shell { position: fixed; inset: 0; z-index: 2147483000; margin: 0; padding: 0; }
+  #coilgen-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; }
+  #coilgen-nav { position: absolute; top: 12px; right: 16px; display: flex; gap: 8px; z-index: 2; }
+  #coilgen-nav a {
+    width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.3s ease; cursor: pointer;
+  }
+  #coilgen-nav a:hover { background: rgba(248, 236, 198, 0.4); }
+  #coilgen-nav svg { width: 20px; height: 20px; fill: none; stroke: #333; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: all 0.3s ease; }
+  #coilgen-nav a:hover svg { stroke: #a93e33; }
+  #coilgen-phone { display: none; position: absolute; inset: 0; padding: 80px 28px; text-align: center; color: #333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  #coilgen-phone h1 { font-family: "Permanent Marker", cursive; font-weight: normal; font-size: 26px; margin: 0 0 16px; }
+  #coilgen-phone p { font-size: 16px; line-height: 1.5; color: #555555; }
+  #coilgen-shell.phone #coilgen-phone { display: block; }
+  #coilgen-shell.phone #coilgen-frame { display: none; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+
+<div id="coilgen-shell">
+  <iframe id="coilgen-frame" title="Inductive Encoder Coil Generator" allow="fullscreen; clipboard-write" allowfullscreen></iframe>
+  <div id="coilgen-phone">
+    <h1>Inductive Encoder Coil Generator</h1>
+    <p>The coil generator needs a computer. Open this page on a laptop or desktop.</p>
+    <p>It runs the full Python generator inside your browser, which needs a big screen and a mouse.</p>
+  </div>
+  <nav id="coilgen-nav">
+    <a id="coilgen-back" title="Back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <a id="coilgen-home" title="Home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h4.5v-6h3v6H18V9.5"/></svg></a>
+  </nav>
+</div>
+
+<script>
+(function () {
+  var APP_URL = "https://rolandthsive.github.io/Inductive-Encoder-Sinusoidal-Coil-Generator/WebGUI/";
+  var HOME = location.origin + "/";
+
+  var shell = document.getElementById("coilgen-shell");
+  var frame = document.getElementById("coilgen-frame");
+  document.body.appendChild(shell);           // out of the theme's wrappers, so nothing can clip or shift it
+
+  // Home: the blog's front page.  Back: the page the visitor came from on this blog, else the front page.
+  document.getElementById("coilgen-home").href = HOME;
+  var back = document.getElementById("coilgen-back");
+  back.href = HOME;
+  back.addEventListener("click", function (e) {
+    var cameFromBlog = document.referrer && document.referrer.indexOf(location.origin) === 0;
+    if (cameFromBlog && history.length > 1) { e.preventDefault(); history.back(); }
+  });
+
+  // Phones and small tablets get the message only (the same test the tool uses).
+  var narrow = window.matchMedia("(max-width: 1023px)").matches;
+  var touchOnly = window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches;
+  if (narrow || touchOnly) { shell.className = "phone"; return; }
+
+  // The tool: the page's address (for Share Link) and a shared design (#d=...) are passed on to it.
+  var appOrigin = new URL(APP_URL, location.href).origin;
+  frame.addEventListener("load", function () {
+    frame.contentWindow.postMessage({ coilgenPage: location.href.split("#")[0], coilgenHash: location.hash }, appOrigin);
+  });
+  frame.src = APP_URL + (location.hash.indexOf("#d=") === 0 ? location.hash : "");
+})();
+</script>

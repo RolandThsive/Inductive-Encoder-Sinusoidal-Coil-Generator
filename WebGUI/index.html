@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inductive Encoder Coil Generator</title>
+<meta name="description" content="Configure, preview and download KiCad stator and rotor boards for rotary inductive encoders.">
+<script>
+  // Computers only: decide before anything heavy loads, so phones never download Python.
+  (function () {
+    var narrow = window.matchMedia("(max-width: 1023px)").matches;
+    var touchOnly = window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches;
+    window.COILGEN_PHONE = narrow || touchOnly;
+    if (window.COILGEN_PHONE) document.documentElement.className += " phone";
+    if (window.self !== window.top) document.documentElement.className += " embedded";
+  })();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2213%22 fill=%22none%22 stroke=%22%23a93e33%22 stroke-width=%224%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%225%22 fill=%22none%22 stroke=%22%232F6FD0%22 stroke-width=%223%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Permanent+Marker&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="WebGUI.css">
+</head>
+<body>
+
+<!-- Phones and small tablets: a message instead of the tool -->
+<section id="phone-message" class="phone-only">
+  <h1 class="marker">Inductive Encoder Coil Generator</h1>
+  <p>The coil generator needs a computer. Open this page on a laptop or desktop.</p>
+  <p class="caption">It runs the full Python generator inside your browser, which needs a big screen and a mouse.</p>
+  <p><a class="glass-btn" href="https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator" target="_top">See The Project On GitHub</a></p>
+</section>
+
+<div id="app" class="desktop-only">
+  <header id="topbar">
+    <h1 class="marker">Inductive Encoder Coil Generator</h1>
+    <div class="segmented" id="mode-switch" role="tablist" aria-label="Mode">
+      <button role="tab" data-mode="basic" class="on">Basic</button>
+      <button role="tab" data-mode="advanced">Advanced</button>
+    </div>
+    <div class="top-actions">
+      <button class="glass-btn small" id="btn-import" title="Load a Parameters.txt or parameter files">Import</button>
+      <button class="glass-btn small" id="btn-export" title="Download the four parameter files with these values">Export</button>
+      <button class="glass-btn small" id="btn-share" title="Copy a link that opens this design">Share Link</button>
+      <button class="glass-btn small" id="btn-reset" title="Back to the starting design">Reset</button>
+      <input type="file" id="import-file" accept=".txt,.py" multiple hidden>
+    </div>
+    <nav class="standalone-nav">
+      <a class="round-btn" id="nav-back" href="#" title="Back" aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg></a>
+      <a class="round-btn" id="nav-home" href="https://ro-h-bots.blogspot.com/" target="_top" title="Home" aria-label="Home">
+        <svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h4.5v-6h3v6H18V9.5" /></svg></a>
+    </nav>
+  </header>
+
+  <main id="workspace">
+    <!-- Controls -->
+    <aside id="controls" class="panel">
+      <div id="basic-panel">
+        <h2 class="pacifico">Controls</h2>
+        <div id="basic-controls"></div>
+      </div>
+      <div id="advanced-panel" hidden>
+        <h2 class="pacifico">All Parameters</h2>
+        <div class="segmented wide" id="adv-tabs" role="tablist"></div>
+        <div id="adv-note" class="hint"></div>
+        <div id="advanced-controls"></div>
+      </div>
+      <div id="results" class="results"></div>
+      <div class="generate-row">
+        <label class="switch-row" title="Treat warnings as errors, like --strict">
+          <span>Strict</span>
+          <span class="switch"><input type="checkbox" id="strict"><span class="knob"></span></span>
+        </label>
+        <button id="btn-generate" class="primary-btn" disabled>Loading Python…</button>
+      </div>
+      <div id="progress"><div class="bar"></div></div>
+    </aside>
+
+    <!-- Preview -->
+    <section id="preview" class="panel">
+      <div class="preview-head">
+        <div class="segmented" id="view-tabs">
+          <button data-view="sketch" class="on">Sketch</button>
+          <button data-view="stator">Stator</button>
+          <button data-view="rotor">Rotor</button>
+          <button data-view="overlay">Overlay</button>
+        </div>
+        <div class="layer-toggles" id="layer-toggles"></div>
+      </div>
+      <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="board-canvas"></canvas>
+        <button class="fs-btn" id="btn-fullscreen">Fullscreen</button>
+        <div class="canvas-tools">
+          <button class="glass-btn small" id="btn-fit" title="Fit the board (or double-click)">Fit</button>
+          <button class="glass-btn small" id="btn-measure" title="Click two points to measure">Measure</button>
+        </div>
+        <div class="stale-badge" id="stale-badge" hidden>Settings changed: press Generate to update the board</div>
+        <div class="readout" id="readout"></div>
+        <div class="rotor-angle" id="rotor-angle-box" hidden>
+          <span>Rotor Angle</span>
+          <input type="range" id="rotor-angle" min="0" max="360" step="0.5" value="0">
+          <output id="rotor-angle-out">0°</output>
+        </div>
+      </div>
+      <p class="caption" id="preview-caption">Sketch</p>
+    </section>
+
+    <!-- Checks and download -->
+    <section id="checks" class="panel">
+      <div class="checks-head">
+        <h2 class="pacifico">Checks</h2>
+        <div class="counts" id="counts"></div>
+        <label class="switch-row small" title="Show the information lines too">
+          <span>Info</span>
+          <span class="switch"><input type="checkbox" id="show-info"><span class="knob"></span></span>
+        </label>
+        <button class="glass-btn small" id="btn-summary" disabled>Summary</button>
+        <button class="primary-btn" id="btn-download" disabled>Download Zip</button>
+      </div>
+      <div class="checks-list" id="checks-list"><p class="hint">Starting Python in your browser. The first visit downloads about 20 MB; later visits are cached.</p></div>
+    </section>
+  </main>
+
+  <footer id="foot">
+    Generator: <a href="https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator" target="_blank" rel="noopener">Sinusoidal Coil Generator</a>, running in your browser with Pyodide. Nothing leaves your computer.
+    The coils are not yet validated on hardware. Free for non-commercial use.
+    <span id="code-version"></span>
+  </footer>
+</div>
+
+<div class="popover" id="popover" hidden></div>
+<dialog id="summary-dialog"><form method="dialog"><pre id="summary-text"></pre><button class="glass-btn">Close</button></form></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script src="BoardPreview.js"></script>
+<script src="WebGUI.js"></script>
+</body>
+</html>

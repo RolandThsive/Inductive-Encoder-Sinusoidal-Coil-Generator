@@ -1,0 +1,49 @@
+# Publishes the web GUI (WebGUI/) and the generator it runs (Generator/, Parameters/) to GitHub Pages.
+# Visitors' browsers fetch the generator's .py files from here, so a new release updates the tool on the blog.
+name: Web GUI On GitHub Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the generator is in the repository
+        run: |
+          for f in Generator/ParameterChecker.py Generator/StatorGenerator.py Generator/RotorGenerator.py \
+                   Generator/TXLayout.py Generator/OutputDirectoryManager.py \
+                   Parameters/Board_Parameters.py Parameters/RX_Parameters.py Parameters/TX_Parameters.py \
+                   Parameters/Rotor_Parameters.py Parameters/Parameters.py WebGUI/WebGenerator.py WebGUI/index.html; do
+            test -f "$f" || { echo "::error::$f is missing (push the V10 generator first)"; exit 1; }
+          done
+
+      - name: Collect the site
+        run: |
+          mkdir -p _site
+          cp -r Generator Parameters WebGUI _site/
+          rm -f _site/WebGUI/BloggerPage.html
+          printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=WebGUI/"><a href="WebGUI/">Coil Generator</a>\n' > _site/index.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
