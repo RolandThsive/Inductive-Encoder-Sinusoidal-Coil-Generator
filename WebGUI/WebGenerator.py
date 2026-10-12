@@ -85,6 +85,19 @@ def _assignments(source):
     return out
 
 
+# help for the few parameters the parameter files leave without a comment
+FALLBACK_HELP = {
+    "RX_TRACE_WIDTH_MM": "Width of the RX coil traces, in mm.",
+    "TX_NET": "KiCad net name of the TX coil (its pads and traces carry this net).",
+    "ROTOR_CUSTOM_SECTORS": "Custom rotor (ROTOR_MODE = \"custom\"): number of metal sectors around the rotor.",
+    "ROTOR_CUSTOM_DUTY": "Custom rotor (ROTOR_MODE = \"custom\"): metal fraction of each sector period (0.5 = half metal).",
+    "ROTOR_CUSTOM_START_ANGLE_DEG": "Custom rotor (ROTOR_MODE = \"custom\"): mechanical angle where the first sector starts, in degrees.",
+    "ROTOR_CUSTOM_INNER_RADIUS_MM": "Custom rotor (ROTOR_MODE = \"custom\"): inner radius of the metal sectors, in mm.",
+    "ROTOR_CUSTOM_OUTER_RADIUS_MM": "Custom rotor (ROTOR_MODE = \"custom\"): outer radius of the metal sectors, in mm.",
+    "ROTOR_CUSTOM_COPPER_LAYERS": "Custom rotor (ROTOR_MODE = \"custom\"): layer(s) carrying the metal sectors; mount the copper side towards the stator.",
+}
+
+
 def _help_texts(source):
     """{NAME: help text}: the comment block right above the assignment, its trailing comment and the
     comment-only lines that continue it below (the parameter files are written that way)."""
@@ -95,7 +108,8 @@ def _help_texts(source):
         i = ln - 1                                        # 0-based line of the assignment
         above = []
         j = i - 1
-        while j >= 0 and lines[j].lstrip().startswith("#") and not set(lines[j].strip()) <= set("#= -"):
+        while j >= 0 and lines[j].lstrip().startswith("#") and not set(lines[j].strip()) <= set("#= -") \
+                and not lines[j].strip().startswith("# ----"):            # a section heading ends the block
             above.insert(0, lines[j].strip().lstrip("#").rstrip())
             j -= 1
         trailing = []
@@ -115,6 +129,9 @@ def _help_texts(source):
         # (TX_LAYERS / TX_LAYER_A / TX_LAYER_B / TX_SERIES)
         if not text and prev_end.get("line") == i - 1 and prev_end.get("name"):
             text = out[prev_end["name"]]
+        # "... or set a fixed radius here" finishes the sentence of the parameter above ("... - this ...")
+        if text.startswith("...") and prev_end.get("name") and out[prev_end["name"]].endswith("..."):
+            text = out[prev_end["name"]] + " " + text[3:].lstrip()
         out[name] = text
         prev_end = {"line": end_ln - 1, "name": name}
     return out
@@ -218,7 +235,7 @@ def describe():
                                                                   "optional", "default")}
         default = getattr(P, name) if hasattr(P, name) else o.get("default")
         out.append({"file": file, "name": name, "kind": kind, "options": opts,
-                    "default": _jsonable(default), "help": helps.get(name, ""), "group": groups.get(name, "General"),
+                    "default": _jsonable(default), "help": helps.get(name) or FALLBACK_HELP.get(name, ""), "group": groups.get(name, "General"),
                     "readOnly": name in READ_ONLY})
     return json.dumps({"parameters": out, "files": list(PARAMETER_FILES)})
 

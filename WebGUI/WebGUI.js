@@ -139,24 +139,52 @@ function download(bytes, name, type = "application/zip") {
 
 /* help pop-up */
 function attachHelp(node, name, extra) {
-  const p = state.byName[name];
-  const text = (extra ? extra + "\n\n" : "") + (p && p.help ? p.help : "");
-  if (!text.trim()) return node;
-  const dot = el("i", { class: "info-dot", "aria-label": "Help" }, "i");
-  dot.addEventListener("mouseenter", (e) => {
-    const pop = $("popover");
-    pop.innerHTML = "";
-    pop.append(el("span", { class: "mono-name" }, name), text);
-    pop.hidden = false;
-    const r = dot.getBoundingClientRect();
-    const top = Math.min(window.innerHeight - pop.offsetHeight - 10, r.bottom + 8);
-    pop.style.top = Math.max(10, top) + "px";
-    pop.style.left = Math.min(window.innerWidth - pop.offsetWidth - 10, r.left) + "px";
-  });
-  dot.addEventListener("mouseleave", () => ($("popover").hidden = true));
-  node.append(dot);
+  // hovering the label or its (i) shows the parameter's help, from the comments in the parameter files
+  node.dataset.help = name;
+  if (extra) node.dataset.helpExtra = extra;
+  node.append(el("i", { class: "info-dot", "aria-label": "Help" }, "i"));
   return node;
 }
+
+/* ---- tooltips: every parameter (data-help = its name) and every button (data-tip = the text) ---- */
+function showValue(v) {
+  if (v === null || v === undefined) return "None";
+  if (typeof v === "boolean") return v ? "True" : "False";
+  if (Array.isArray(v)) return `(${v.map(showValue).join(", ")})`;
+  if (typeof v === "string") return v;
+  return fmt(v);
+}
+let tipTimer = null, tipFor = null;
+function hideTip() { clearTimeout(tipTimer); tipFor = null; $("popover").hidden = true; }
+function showTip(node) {
+  const pop = $("popover");
+  pop.innerHTML = "";
+  if (node.dataset.help) {
+    const name = node.dataset.help, p = state.byName[name];
+    pop.append(el("span", { class: "mono-name" }, name));
+    if (node.dataset.helpExtra) pop.append(node.dataset.helpExtra + "\n\n");
+    pop.append((p && p.help) || "No notes in the parameter file.");
+    if (name in state.start) pop.append(el("span", { class: "tip-foot" }, `Starting Value: ${showValue(state.start[name])}`));
+  } else {
+    pop.append(node.dataset.tip);
+  }
+  pop.hidden = false;
+  const r = node.getBoundingClientRect();
+  const below = r.bottom + 8, above = r.top - pop.offsetHeight - 8;
+  pop.style.top = (below + pop.offsetHeight < window.innerHeight - 6 || above < 6 ? Math.max(6, Math.min(below, window.innerHeight - pop.offsetHeight - 6)) : above) + "px";
+  pop.style.left = Math.max(6, Math.min(window.innerWidth - pop.offsetWidth - 6, r.left)) + "px";
+}
+document.addEventListener("mouseover", (e) => {
+  const node = e.target.closest("[data-tip], [data-help]");
+  if (node === tipFor) return;
+  hideTip();
+  if (!node || (node.dataset.tip !== undefined && !node.dataset.tip)) return;
+  tipFor = node;
+  tipTimer = setTimeout(() => showTip(node), e.target.closest(".info-dot") ? 0 : 450);
+});
+document.addEventListener("mousedown", hideTip);
+document.addEventListener("scroll", hideTip, true);
+function tip(node, text) { node.dataset.tip = text; return node; }
 
 /* ---- value changes ----------------------------------------------------------------------------- */
 function setValues(changes, from) {
@@ -193,7 +221,8 @@ function updateStale() {
     : "Not generated: this is the last board that worked";
   const dl = $("btn-download");
   dl.disabled = !(state.result && state.result.ok) || state.stale;
-  dl.title = state.stale ? "The settings changed: press Generate first" : "";
+  dl.dataset.tip = state.stale ? "The settings changed: press Generate first"
+    : "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt and the four parameter files";
 }
 
 /* ---- Basic mode ------------------------------------------------------------------------------- */
@@ -269,7 +298,7 @@ function presetCard(p, selected) {
     if (tx.includes(n)) for (let k = 0; k < 3; k++) s += `<rect x="${64 + k * 10}" y="${y - 2.2}" width="7" height="4.4" rx="1" fill="${col}"/>`;
   });
   svg.innerHTML = s;
-  return el("div", { class: "slide" + (selected ? " selected" : ""), title: p.note, role: "button", tabindex: 0,
+  return el("div", { class: "slide" + (selected ? " selected" : ""), "data-tip": `${p.name}: ${p.note}`, role: "button", tabindex: 0,
     onclick: () => pickPreset(p.id),
     onkeydown: (e) => (e.key === "Enter" || e.key === " ") && pickPreset(p.id) },
     svg, el("div", { class: "slide-name" }, p.name));
@@ -455,7 +484,7 @@ function renderAdvanced() {
   const tabs = $("adv-tabs");
   tabs.innerHTML = "";
   for (const [file, title] of Object.entries(TAB_TITLES)) {
-    tabs.append(el("button", { type: "button", class: file === state.advTab ? "on" : "",
+    tabs.append(el("button", { type: "button", class: file === state.advTab ? "on" : "", "data-tip": `The parameters in ${file}`,
       onclick: () => { state.advTab = file; renderAdvanced(); } }, title));
   }
   const box = $("advanced-controls");
@@ -475,7 +504,7 @@ function renderAdvanced() {
     const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, lab.text, lab.unit ? el("span", { class: "unit" }, " " + lab.unit) : null));
     attachHelp(head, p.name);
     head.append(el("span", { class: "field-note" }, el("span", { class: "mono-name" }, p.name)));
-    if (!p.readOnly) head.append(el("button", { type: "button", class: "reset-one", title: "Back to the starting value",
+    if (!p.readOnly) head.append(el("button", { type: "button", class: "reset-one", "data-tip": "Back to the starting value",
       onclick: () => setValues({ [p.name]: state.start[p.name] }, "advanced-field") }, "↺"));
     card.append(el("div", { class: "field", "data-name": p.name }, head, advancedWidget(p)));
   }
@@ -610,6 +639,7 @@ function renderLayerToggles() {
   box.innerHTML = "";
   for (const cu of ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]) {
     const chip = el("span", { class: "layer-chip" + (view.hidden.has(cu) ? " off" : ""), role: "switch",
+      "data-tip": `Show or hide the ${CU_NAME[cu]} copper (${cu})`,
       onclick: () => { view.toggleLayer(cu); renderLayerToggles(); } },
       el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }), CU_NAME[cu]);
     box.append(chip);

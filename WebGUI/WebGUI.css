@@ -331,3 +331,7 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
   .top-actions { gap: 5px; }
   .top-actions .glass-btn { white-space: nowrap; padding-left: 10px; padding-right: 10px; }
 }
+
+/* tooltips */
+.popover .tip-foot { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid #eee; color: var(--text-2); }
+.field-head[data-help] .field-label { cursor: help; }

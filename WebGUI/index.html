@@ -35,20 +35,20 @@
   <header id="topbar">
     <h1 class="marker">Inductive Encoder Sinusoidal Coil Generator</h1>
     <div class="segmented" id="mode-switch" role="tablist" aria-label="Mode">
-      <button role="tab" data-mode="basic" class="on">Basic</button>
-      <button role="tab" data-mode="advanced">Advanced</button>
+      <button role="tab" data-mode="basic" class="on" data-tip="The main settings: board size, loops, sub-coils, TX turns, board layers, TX layout and air gap">Basic</button>
+      <button role="tab" data-mode="advanced" data-tip="Every parameter in the four parameter files, grouped as in the files">Advanced</button>
     </div>
     <div class="top-actions">
-      <button class="glass-btn small" id="btn-import" title="Load a Parameters.txt or parameter files">Import</button>
-      <button class="glass-btn small" id="btn-export" title="Download the four parameter files with these values">Export</button>
-      <button class="glass-btn small" id="btn-share" title="Copy a link that opens this design">Share Link</button>
-      <button class="glass-btn small" id="btn-reset" title="Back to the starting design">Reset</button>
+      <button class="glass-btn small" id="btn-import" data-tip="Load a design: a Parameters.txt from any run (web or desktop) or your own .py parameter files. Every control takes those values.">Import</button>
+      <button class="glass-btn small" id="btn-export" data-tip="Download the four parameter files (Board, RX, TX, Rotor) with these values, ready for RunCoilGenerator.py on a desktop">Export</button>
+      <button class="glass-btn small" id="btn-share" data-tip="Copy a link that opens the tool with this design. Only the changed values go in the link; nothing is uploaded.">Share Link</button>
+      <button class="glass-btn small" id="btn-reset" data-tip="Go back to the starting design: 2 layers, 25 to 50 mm, 4 loops, 3 TX turns">Reset</button>
       <input type="file" id="import-file" accept=".txt,.py" multiple hidden>
     </div>
     <nav class="standalone-nav">
-      <a class="round-btn" id="nav-back" href="#" title="Back" aria-label="Back">
+      <a class="round-btn" id="nav-back" href="#" data-tip="Back to the previous page" aria-label="Back">
         <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg></a>
-      <a class="round-btn" id="nav-home" href="https://ro-h-bots.blogspot.com/" target="_top" title="Home" aria-label="Home">
+      <a class="round-btn" id="nav-home" href="https://ro-h-bots.blogspot.com/" target="_top" data-tip="The blog's home page" aria-label="Home">
         <svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 9.5V20h4.5v-6h3v6H18V9.5" /></svg></a>
     </nav>
   </header>
@@ -68,11 +68,11 @@
       </div>
       <div id="results" class="results"></div>
       <div class="generate-row">
-        <label class="switch-row" title="Treat warnings as errors, like --strict">
+        <label class="switch-row" data-tip="Treat warnings as errors: a design with any warning is not generated (like --strict on the desktop)">
           <span>Strict</span>
           <span class="switch"><input type="checkbox" id="strict"><span class="knob"></span></span>
         </label>
-        <button id="btn-generate" class="primary-btn" disabled>Loading Python…</button>
+        <button id="btn-generate" class="primary-btn" disabled data-tip="Run the checks and the generator with these settings (Ctrl+Enter)">Loading Python…</button>
       </div>
       <div id="progress"><div class="bar"></div></div>
     </aside>
@@ -81,23 +81,23 @@
     <section id="preview" class="panel">
       <div class="preview-head">
         <div class="segmented" id="view-tabs">
-          <button data-view="sketch" class="on">Sketch</button>
-          <button data-view="stator">Stator</button>
-          <button data-view="rotor">Rotor</button>
-          <button data-view="overlay">Overlay</button>
+          <button data-view="sketch" class="on" data-tip="A quick drawing that follows the controls at once (an estimate, not the real copper)">Sketch</button>
+          <button data-view="stator" data-tip="The generated Stator.kicad_pcb: RX and TX copper, vias and board edge">Stator</button>
+          <button data-view="rotor" data-tip="The generated Rotor.kicad_pcb: the copper target">Rotor</button>
+          <button data-view="overlay" data-tip="The rotor drawn over the stator; turn it with the Rotor Angle slider">Overlay</button>
         </div>
         <div class="layer-toggles" id="layer-toggles"></div>
       </div>
       <div class="canvas-wrap" id="canvas-wrap">
         <canvas id="board-canvas"></canvas>
-        <button class="fs-btn" id="btn-fullscreen">Fullscreen</button>
+        <button class="fs-btn" id="btn-fullscreen" data-tip="Show the preview full screen (Esc to leave)">Fullscreen</button>
         <div class="canvas-tools">
-          <button class="glass-btn small" id="btn-fit" title="Fit the board (or double-click)">Fit</button>
-          <button class="glass-btn small" id="btn-measure" title="Click two points to measure">Measure</button>
+          <button class="glass-btn small" id="btn-fit" data-tip="Fit the whole board in view (or double-click the preview). Scroll to zoom, drag to pan.">Fit</button>
+          <button class="glass-btn small" id="btn-measure" data-tip="Click two points on the board to get the distance between them">Measure</button>
         </div>
         <div class="stale-badge" id="stale-badge" hidden>Settings changed: press Generate to update the board</div>
-        <div class="readout" id="readout"></div>
-        <div class="rotor-angle" id="rotor-angle-box" hidden>
+        <div class="readout" id="readout" data-tip="Radius and angle under the cursor, from the board centre"></div>
+        <div class="rotor-angle" id="rotor-angle-box" hidden data-tip="Turn the rotor over the stator to see how the target sweeps the coils">
           <span>Rotor Angle</span>
           <input type="range" id="rotor-angle" min="0" max="360" step="0.5" value="0">
           <output id="rotor-angle-out">0°</output>
@@ -111,12 +111,12 @@
       <div class="checks-head">
         <h2 class="pacifico">Checks</h2>
         <div class="counts" id="counts"></div>
-        <label class="switch-row small" title="Show the information lines too">
+        <label class="switch-row small" data-tip="Also list the generator's information notes, not only warnings and errors">
           <span>Info</span>
           <span class="switch"><input type="checkbox" id="show-info"><span class="knob"></span></span>
         </label>
-        <button class="glass-btn small" id="btn-summary" disabled>Summary</button>
-        <button class="primary-btn" id="btn-download" disabled>Download Zip</button>
+        <button class="glass-btn small" id="btn-summary" disabled data-tip="The generator's full text summary of the stator and rotor">Summary</button>
+        <button class="primary-btn" id="btn-download" disabled data-tip="Download this run as one zip">Download Zip</button>
       </div>
       <div class="checks-list" id="checks-list"><p class="hint">Starting Python in your browser. The first visit downloads about 20 MB; later visits are cached.</p></div>
     </section>
