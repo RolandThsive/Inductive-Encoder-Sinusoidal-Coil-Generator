@@ -343,7 +343,10 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 .checks-head > .pacifico, .checks-head > .counts, .checks-head > .switch-row, .checks-head > #btn-summary {
   align-self: flex-start; min-height: 34px; display: flex; align-items: center; }
 .checks-head > .counts { display: block; line-height: 34px; }
-.download-box { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
-.download-box .primary-btn { min-height: 34px; }
-.download-row { display: flex; gap: 6px; }
+.download-box { position: relative; width: 264px; }
+.download-box .primary-btn { min-height: 34px; width: 100%; }
+/* the board buttons hang below Download Zip without pushing the list down: the list starts right under
+   the header and its first lines flow around a float the size of the buttons */
+.download-row { position: absolute; top: calc(100% + 6px); left: 0; right: 0; display: flex; gap: 6px; }
 .download-row .glass-btn { flex: 1; white-space: nowrap; }
+.checks-list::before { content: ""; float: right; width: 270px; height: 34px; }
