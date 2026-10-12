@@ -31,8 +31,11 @@
   /* classic silver switch */
   --silver-knob: linear-gradient(#F4F4F4, #C9C9C9);
   --silver-on: linear-gradient(#D6D6D6, #A9A9A9);
-  --error: #b3261e;
-  --warning: #9a6700;
+  --error: #a93e33;                        /* the blog's red accent */
+  --error-bg: rgba(169, 62, 51, 0.07);
+  --warning: #8f7208;                      /* the blog's dark yellow (Inner-2 #B8930A), deepened for text */
+  --warning-edge: #B8930A;
+  --warning-bg: rgba(248, 236, 198, 0.6);  /* the blog's cream hover */
 }
 
 * { box-sizing: border-box; }
@@ -304,8 +307,11 @@ input[type=range]:focus::-webkit-slider-thumb { border-color: var(--accent); }
 .checks-list { flex: 1; overflow-y: auto; margin-top: 6px; font-family: var(--mono); font-size: 11.5px; line-height: 1.5; color: var(--text-2); }
 .check { display: grid; grid-template-columns: 74px 70px 1fr; gap: 8px; padding: 3px 0; border-bottom: 1px dashed var(--divider); }
 .check .lvl { font-weight: 700; }
+.check.error, .check.warning { border-bottom: 0; border-radius: 6px; padding: 5px 8px 5px 6px; margin: 3px 0; border-left: 3px solid; }
+.check.error { background: var(--error-bg); border-left-color: var(--error); }
 .check.error .lvl, .check.error .msg { color: var(--error); }
-.check.warning .lvl { color: var(--warning); }
+.check.warning { background: var(--warning-bg); border-left-color: var(--warning-edge); }
+.check.warning .lvl, .check.warning .msg { color: var(--warning); }
 .check .stage { color: var(--text-3); }
 .check .msg { white-space: pre-wrap; }
 .check.info { color: var(--text-3); }
