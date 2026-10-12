@@ -337,8 +337,13 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 .field-head[data-help] .field-label { cursor: help; }
 
 /* downloads: the zip, and each board on its own */
+/* the title, the counts, Info and Summary stay on the top line, level with Download Zip;
+   the two board buttons hang below it */
+.checks-head { align-items: flex-start; }
+.checks-head > .pacifico, .checks-head > .counts, .checks-head > .switch-row, .checks-head > #btn-summary {
+  align-self: flex-start; min-height: 34px; display: flex; align-items: center; }
+.checks-head > .counts { display: block; line-height: 34px; }
 .download-box { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.download-box .primary-btn { min-height: 34px; }
 .download-row { display: flex; gap: 6px; }
 .download-row .glass-btn { flex: 1; white-space: nowrap; }
-.checks-head { align-items: flex-start; }
-.checks-head > .pacifico, .checks-head > .counts, .checks-head > .switch-row, .checks-head > #btn-summary { align-self: center; }
