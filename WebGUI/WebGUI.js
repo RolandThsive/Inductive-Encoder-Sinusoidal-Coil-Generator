@@ -767,7 +767,6 @@ async function main() {
   state.values = JSON.parse(JSON.stringify(state.start));
   const shared = decodeDesign(location.hash);
   if (shared) Object.assign(state.values, shared);
-  $("code-version").textContent = `Python ready in ${init.seconds.toFixed(1)} s.`;
   state.ready = true;
   busy(false);
   $("btn-generate").disabled = false;
