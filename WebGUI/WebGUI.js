@@ -219,6 +219,12 @@ function updateStale() {
   badge.hidden = !((state.stale && r) || failed);
   badge.textContent = state.stale ? "Settings changed: press Generate to update the board"
     : "Not generated: this is the last board that worked";
+  for (const part of ["stator", "rotor"]) {
+    const b = $(`btn-dl-${part}`), name = part === "stator" ? "stator" : "rotor";
+    b.disabled = !(state.result && state.result.ok && state.result.files[part]) || state.stale;
+    b.dataset.tip = state.stale ? "The settings changed: press Generate first"
+      : `Download only the ${name} board of this run (${state.result && state.result.name ? state.result.name + "_" : ""}${part === "stator" ? "Stator" : "Rotor"}.kicad_pcb), ready to open in KiCad`;
+  }
   const dl = $("btn-download");
   dl.disabled = !(state.result && state.result.ok) || state.stale;
   dl.dataset.tip = state.stale ? "The settings changed: press Generate first"
@@ -703,6 +709,14 @@ async function main() {
   document.querySelectorAll("#view-tabs button").forEach((b) => b.addEventListener("click", () => pickView(b.dataset.view)));
   $("btn-generate").addEventListener("click", generate);
   $("btn-download").addEventListener("click", () => state.result && state.result.ok && download(state.result.zipBytes, state.result.name + ".zip"));
+  for (const part of ["stator", "rotor"]) {
+    $(`btn-dl-${part}`).addEventListener("click", () => {
+      const r = state.result;
+      if (!r || !r.ok || state.stale || !r.files[part]) return;
+      const file = part === "stator" ? "Stator" : "Rotor";
+      download(r.files[part], `${r.name}_${file}.kicad_pcb`, "application/octet-stream");
+    });
+  }
   $("btn-fit").addEventListener("click", () => view.fit());
   $("btn-measure").addEventListener("click", (e) => {
     view.measure = !view.measure; view.mA = view.mB = null;

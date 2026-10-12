@@ -116,7 +116,13 @@
           <span class="switch"><input type="checkbox" id="show-info"><span class="knob"></span></span>
         </label>
         <button class="glass-btn small" id="btn-summary" disabled data-tip="The generator's full text summary of the stator and rotor">Summary</button>
-        <button class="primary-btn" id="btn-download" disabled data-tip="Download this run as one zip">Download Zip</button>
+        <div class="download-box">
+          <button class="primary-btn" id="btn-download" disabled data-tip="Download this run as one zip">Download Zip</button>
+          <div class="download-row">
+            <button class="glass-btn small" id="btn-dl-stator" disabled data-tip="Download only the stator board (.kicad_pcb)">Download Stator</button>
+            <button class="glass-btn small" id="btn-dl-rotor" disabled data-tip="Download only the rotor board (.kicad_pcb)">Download Rotor</button>
+          </div>
+        </div>
       </div>
       <div class="checks-list" id="checks-list"><p class="hint">Starting Python in your browser. The first visit downloads about 20 MB; later visits are cached.</p></div>
     </section>

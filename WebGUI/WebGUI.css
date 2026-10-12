@@ -335,3 +335,10 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 /* tooltips */
 .popover .tip-foot { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid #eee; color: var(--text-2); }
 .field-head[data-help] .field-label { cursor: help; }
+
+/* downloads: the zip, and each board on its own */
+.download-box { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.download-row { display: flex; gap: 6px; }
+.download-row .glass-btn { flex: 1; white-space: nowrap; }
+.checks-head { align-items: flex-start; }
+.checks-head > .pacifico, .checks-head > .counts, .checks-head > .switch-row, .checks-head > #btn-summary { align-self: center; }
