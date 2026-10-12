@@ -384,3 +384,8 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
   .checks-head > .pacifico { margin-right: auto; }
   .checks-list::before { display: none; }
 }
+
+/* the three download buttons: black text, the blog's accent all around */
+#btn-download, .download-row .glass-btn { color: #000; border: 2px solid var(--accent); font-weight: 600; }
+.download-row .glass-btn { padding: 4px 10px; }
+#btn-download:hover:not(:disabled), .download-row .glass-btn:hover:not(:disabled) { color: var(--accent); background: var(--cream); }
