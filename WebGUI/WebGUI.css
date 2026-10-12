@@ -323,3 +323,11 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* narrow laptops: the long title shrinks so the top bar stays one line */
+@media (max-width: 1240px) {
+  #topbar h1 { font-size: 19px; }
+  #topbar { gap: 10px; }
+  .top-actions { gap: 5px; }
+  .top-actions .glass-btn { white-space: nowrap; padding-left: 10px; padding-right: 10px; }
+}
