@@ -381,7 +381,9 @@ function updateAdvNote() {
 /* ---- Advanced mode -------------------------------------------------------------------------- */
 function choiceText(name, val) {
   if (val === "auto") return "Auto";
-  if (typeof val === "number" && /LAYER/.test(name) && LAYER_NUM_NAME[val]) return LAYER_NUM_NAME[val];
+  // layer numbers (TX_LAYER_A, RX_TAB_LAYER, ...) read as layer names; layer counts (PCB_LAYERS, TX_LAYERS) as counts
+  if (typeof val === "number" && /LAYERS$/.test(name)) return `${val} Layer${val === 1 ? "" : "s"}`;
+  if (typeof val === "number" && /LAYER(_[AB])?$/.test(name) && LAYER_NUM_NAME[val]) return LAYER_NUM_NAME[val];
   if (CU_NAME[val]) return CU_NAME[val];
   if (typeof val === "boolean") return val ? "True" : "False";
   if (typeof val === "string") return val.split("_").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
@@ -408,6 +410,8 @@ document.addEventListener("click", () => document.querySelectorAll(".dropdown.op
 
 function advStepper(value, onCommit, { step = 0.1, integer = false, disabled = false } = {}) {
   const input = el("input", { type: "text", inputmode: "decimal", value: value == null ? "" : fmt(value), disabled });
+  const len = (value == null ? "" : fmt(value)).length;
+  if (len > 5) input.style.width = `${len + 2}ch`;                      // 3500000 Hz fits
   const commit = (x) => {
     if (!Number.isFinite(x)) { input.value = value == null ? "" : fmt(value); return; }
     if (integer) x = Math.round(x);

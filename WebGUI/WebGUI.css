@@ -350,3 +350,24 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 .download-row { position: absolute; top: calc(100% + 6px); left: 0; right: 0; display: flex; gap: 6px; }
 .download-row .glass-btn { flex: 1; white-space: nowrap; }
 .checks-list::before { content: ""; float: right; width: 270px; height: 34px; }
+
+/* narrow checks panel (portrait monitors, small laptops): the counts line shortens instead of wrapping,
+   and the download buttons keep their size */
+.checks-head > .pacifico, .checks-head > .switch-row, .checks-head > #btn-summary { flex: none; }
+.checks-head > .counts { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.download-box { flex: none; }
+
+/* portrait monitors: the preview is tall anyway, so the checks get more room */
+@media (orientation: portrait) and (min-width: 1024px) {
+  #workspace { grid-template-rows: minmax(0, 1fr) 380px; }
+}
+
+/* a narrow checks panel (Advanced on a portrait monitor): the counts move to a second line, beside the
+   board buttons */
+#checks { container-type: inline-size; }
+@container (max-width: 760px) {
+  .checks-head { flex-wrap: wrap; row-gap: 6px; }
+  .checks-head > .counts { order: 10; flex: 0 0 calc(100% - 280px); display: block; white-space: normal; line-height: 1.45; min-height: 0; padding-top: 6px; }
+  .checks-head > .pacifico { margin-right: auto; }
+  .checks-list::before { display: none; }
+}
