@@ -531,14 +531,26 @@ function markAdvanced() {
 // a field edited in Advanced redraws Advanced (widgets show the new value)
 
 /* ---- mode switch -------------------------------------------------------------------------------- */
+let modeTimer = null;
 function setMode(mode) {
+  if (mode === state.mode) return;
   state.mode = mode;
   document.querySelectorAll("#mode-switch button").forEach((b) => b.classList.toggle("on", b.dataset.mode === mode));
+  // the panel widens (Advanced) or narrows (Basic) while the old controls fade out and the new ones fade in
+  const ctr = $("controls");
+  ctr.classList.remove("enter");
+  ctr.classList.add("leave");
   $("app").classList.toggle("advanced", mode === "advanced");
-  $("basic-panel").hidden = mode !== "basic";
-  $("advanced-panel").hidden = mode !== "advanced";
-  if (mode === "advanced") renderAdvanced(); else renderBasic();
-  setTimeout(() => view.resize(), 320);
+  clearTimeout(modeTimer);
+  modeTimer = setTimeout(() => {
+    $("basic-panel").hidden = state.mode !== "basic";
+    $("advanced-panel").hidden = state.mode !== "advanced";
+    if (state.mode === "advanced") renderAdvanced(); else renderBasic();
+    ctr.classList.remove("leave");
+    void ctr.offsetWidth;                                  // restart the fade-in
+    ctr.classList.add("enter");
+  }, 180);
+  setTimeout(() => view.resize(), 560);
 }
 
 /* ---- sketch -------------------------------------------------------------------------------------- */

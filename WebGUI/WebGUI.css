@@ -76,7 +76,7 @@ html.embedded .standalone-nav { display: none; }
   grid-template-columns: 340px minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) 230px;
   grid-template-areas: "controls preview" "controls checks";
-  transition: grid-template-columns var(--ease);
+  transition: grid-template-columns 0.5s cubic-bezier(0.32, 0.72, 0, 1);   /* Apple-style ease-out */
 }
 #app.advanced #workspace { grid-template-columns: 470px minmax(0, 1fr); }
 #controls { grid-area: controls; }
@@ -323,6 +323,12 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Basic <-> Advanced: the controls fade and slide out, the panel resizes, the new controls fade in */
+#controls.leave #basic-panel, #controls.leave #advanced-panel {
+  opacity: 0; transform: translateX(-10px) scale(0.985); transition: opacity 0.17s ease-in, transform 0.17s ease-in; }
+#controls.enter #basic-panel, #controls.enter #advanced-panel { animation: controls-in 0.38s cubic-bezier(0.32, 0.72, 0, 1); }
+@keyframes controls-in { from { opacity: 0; transform: translateX(14px) scale(0.985); } to { opacity: 1; transform: none; } }
 
 /* narrow laptops: the long title shrinks so the top bar stays one line */
 @media (max-width: 1240px) {
