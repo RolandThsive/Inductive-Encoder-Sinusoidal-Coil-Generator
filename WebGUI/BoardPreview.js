@@ -219,7 +219,7 @@ class BoardView {
     ctx.strokeStyle = cssVar("--edge");
     for (const c of b.circles) {
       if (c.layer !== "Edge.Cuts") continue;
-      ctx.lineWidth = c.width;                           // EDGE_LINE_WIDTH_MM, as in the file
+      ctx.lineWidth = 1.5 * px;                          // the one exception to true scale: always a visible 1.5 px
       ctx.beginPath(); ctx.arc(c.cx, c.cy, c.r, 0, 2 * Math.PI); ctx.stroke();
     }
   }
