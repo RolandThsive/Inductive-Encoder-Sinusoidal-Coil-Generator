@@ -188,7 +188,8 @@ html.embedded .standalone-nav { display: none; }
 /* ---- controls panel --------------------------------------------------------- */
 #controls { display: flex; flex-direction: column; padding: 14px 14px 10px; overflow: hidden; }
 #basic-panel, #advanced-panel { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
-/* the scrollbar: a brushed aluminium bar (like the knobs) with three engraved grip lines, in a soft groove.  The panel
+/* the scrollbar: a brushed aluminium bar with the knobs' bevelled rim and shadow and three engraved grip lines, in an
+   empty recessed slot.  The panel
    reaches 9 px into the right padding and keeps that as its own padding, so the bar sits out near the panel's edge
    with a 13 px gap before the cards, and the cards keep their width. */
 #basic-panel, #advanced-panel { margin-right: -9px; padding-right: 13px; }
@@ -196,7 +197,7 @@ html.embedded .standalone-nav { display: none; }
 #basic-panel::-webkit-scrollbar-track, #advanced-panel::-webkit-scrollbar-track {
   border-radius: 6px; background: rgba(0, 0, 0, 0.06); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06), inset 1px 0 2px rgba(0, 0, 0, 0.12); }
 #basic-panel::-webkit-scrollbar-thumb, #advanced-panel::-webkit-scrollbar-thumb {
-  border-radius: 6px; border: 1px solid #8d8d8d; background-origin: border-box;
+  border-radius: 6px; border: 1.5px solid transparent; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   background:                                                  /* grip: three dark grooves, each with a light lip under it */
     linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)) center calc(50% - 4px) / 6px 1px no-repeat,
     linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)) center calc(50% - 3px) / 6px 1px no-repeat,
@@ -206,10 +207,12 @@ html.embedded .standalone-nav { display: none; }
     linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)) center calc(50% + 5px) / 6px 1px no-repeat,
     /* grain along the bar, over a rod-like sheen across it */
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0) 0 0.4px, rgba(255, 255, 255, 0.22) 0.6px, rgba(0, 0, 0, 0) 0.9px,
-                              rgba(0, 0, 0, 0.06) 1.3px, rgba(0, 0, 0, 0) 1.7px),
-    linear-gradient(90deg, #8e8e8e 0%, #c9c9c9 18%, #f7f7f7 38%, #ffffff 46%, #d9d9d9 62%, #a8a8a8 84%, #8a8a8a 100%);
+                              rgba(0, 0, 0, 0.06) 1.3px, rgba(0, 0, 0, 0) 1.7px) padding-box,
+    linear-gradient(90deg, #8e8e8e 0%, #c9c9c9 18%, #f7f7f7 38%, #ffffff 46%, #d9d9d9 62%, #a8a8a8 84%, #8a8a8a 100%) padding-box,
+    var(--metal-rim) border-box;                                /* the bevelled rim, through the transparent border */
+  background-origin: border-box;                                /* after the shorthand, which resets it */
 }
-#basic-panel::-webkit-scrollbar-thumb:hover, #advanced-panel::-webkit-scrollbar-thumb:hover { border-color: #6f6f6f; }
+#basic-panel::-webkit-scrollbar-thumb:hover, #advanced-panel::-webkit-scrollbar-thumb:hover { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
 /* browsers without ::-webkit-scrollbar (Firefox): a plain silver bar.  Not set elsewhere: in Chrome scrollbar-color
    would switch the styling above off. */
 @supports not selector(::-webkit-scrollbar) {
