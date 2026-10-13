@@ -40,7 +40,7 @@
   --warning-bg: rgba(248, 236, 198, 0.6);  /* the blog's cream hover */
 }
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
 body {
   font-family: var(--ui-font);
@@ -162,6 +162,7 @@ html.embedded .standalone-nav { display: none; }
 }
 .switch .knob::after {
   content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+  box-sizing: border-box;                    /* "* { box-sizing }" does not reach ::after: without this the knob is 20 px */
   background: var(--silver-knob); border: 1px solid #A8A8A8; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   transition: transform var(--ease);
 }
