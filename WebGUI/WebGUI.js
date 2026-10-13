@@ -624,7 +624,6 @@ async function generate() {
       $("btn-summary").disabled = false;
     }
     renderResults();
-    updateCaption();
   } catch (e) {
     state.result = { ok: false, items: [{ stage: "Python", level: "error", msg: String(e.message || e) }], failed: "the generator stopped" };
     renderChecks();
@@ -677,15 +676,6 @@ function pickView(mode) {
   renderNetToggles();
   renderLayerToggles();
   view.fit();
-  updateCaption();
-}
-function updateCaption() {
-  const r = state.result;
-  if (!r || !r.ok) {
-    $("preview-caption").textContent = r ? "Not generated: see the checks below" : "Press Generate to make the boards";
-    return;
-  }
-  $("preview-caption").textContent = `Zip Folder Name: ${r.name}`;     // the same in every view
 }
 function renderLayerToggles() {
   const box = $("layer-toggles");
