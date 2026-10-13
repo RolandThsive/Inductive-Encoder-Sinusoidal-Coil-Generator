@@ -233,8 +233,8 @@ function updateStale() {
     : "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt and the four parameter files";
 }
 
-/* The notice sits in the header, centred on the page.  When the header is too full for that (narrower than about
-   1900 px) the title steps aside while the notice shows, and the notice is centred in the title's place. */
+/* The notice sits in the header, centred between Basic / Advanced and the buttons.  When that gap is too narrow
+   (below about 1900 px) the title steps aside while the notice shows, and the notice is centred in the title's place. */
 function placeBadge() {
   const badge = $("stale-badge"), bar = $("topbar"), h1 = bar.querySelector("h1");
   badge.classList.remove("in-title"); badge.style.left = ""; h1.classList.remove("yield");
@@ -243,8 +243,9 @@ function placeBadge() {
     : "Not generated: this is the last board that worked";
   const b = badge.getBoundingClientRect(), ms = $("mode-switch").getBoundingClientRect();
   const ta = bar.querySelector(".top-actions").getBoundingClientRect();
-  if (b.left >= ms.right + 12 && b.right <= ta.left - 12) return;
-  const t = h1.getBoundingClientRect(), x0 = bar.getBoundingClientRect().left;
+  const x0 = bar.getBoundingClientRect().left;
+  if (b.width <= ta.left - ms.right - 24) { badge.style.left = `${(ms.right + ta.left) / 2 - x0}px`; return; }
+  const t = h1.getBoundingClientRect();
   h1.classList.add("yield"); badge.classList.add("in-title");
   const right = Math.min(t.right, ms.left - 12);
   badge.style.left = `${(t.left + right) / 2 - x0}px`;
