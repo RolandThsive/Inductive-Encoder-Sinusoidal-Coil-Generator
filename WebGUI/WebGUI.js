@@ -686,8 +686,11 @@ function renderLayerToggles() {
   box.innerHTML = "";
   for (const cu of ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]) {
     const chip = el("span", { class: "layer-chip" + (view.hidden.has(cu) ? " off" : ""), role: "switch",
-      "data-tip": `Show or hide the ${CU_NAME[cu]} copper (${cu})`,
-      onclick: () => { view.toggleLayer(cu); renderLayerToggles(); } },
+      "data-tip": view.hidden.has(cu) ? `Show the ${CU_NAME[cu]} copper (${cu})`
+        : `Hover to highlight the ${CU_NAME[cu]} copper (${cu}), click to hide it (the preview only)`,
+      onclick: () => { view.toggleLayer(cu); view.setLayerHighlight(null); renderLayerToggles(); },
+      onmouseenter: () => { if (!view.hidden.has(cu)) view.setLayerHighlight(cu); },
+      onmouseleave: () => view.setLayerHighlight(null) },
       el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }), CU_NAME[cu]);
     box.append(chip);
   }

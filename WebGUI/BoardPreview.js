@@ -73,6 +73,7 @@ class BoardView {
     this.netRole = {};               // net name -> "sin" | "cos" | "tx" (from the parameters of the run)
     this.hiddenNets = new Set();     // roles switched off with the Sin / Cos / TX Loops buttons
     this.highlight = null;           // the role under the mouse: drawn thicker, the rest faded
+    this.highlightLayer = null;      // the copper layer under the mouse (Top / Inner-1 / Inner-2 / Bottom chips), the same way
     this.showOrigin = true;          // the board centre marker (Origin button); originBoost = hovered, drawn in the accent colour
     this.rotorAngle = 0;
     this.view = { scale: 4, ox: 0, oy: 0 };
@@ -93,6 +94,7 @@ class BoardView {
   setNetRoles(roles) { this.netRole = roles; this.draw(); }
   toggleNet(role) { this.hiddenNets.has(role) ? this.hiddenNets.delete(role) : this.hiddenNets.add(role); this.draw(); }
   setHighlight(role) { if (this.highlight !== role) { this.highlight = role; this.draw(); } }
+  setLayerHighlight(cu) { if (this.highlightLayer !== cu) { this.highlightLayer = cu; this.draw(); } }
   toggleOrigin() { this.showOrigin = !this.showOrigin; this.draw(); }
   setOriginBoost(on) { if (this.originBoost !== on) { this.originBoost = on; this.draw(); } }
   setViaBoost(on) { if (this.viaBoost !== on) { this.viaBoost = on; this.draw(); } }
@@ -193,18 +195,24 @@ class BoardView {
   _drawBoard(b, px, angle, rotorAlone) {
     if (!b) return;
     const ctx = this.ctx;
+    const hlCu = this.highlightLayer && !this.hidden.has(this.highlightLayer) ? this.highlightLayer : null;
     // rotor copper as filled polygons
     for (const p of b.polys) {
       if (!LAYER_INFO[p.layer]) continue;
       if (this.hidden.has(p.layer)) continue;
+      ctx.globalAlpha = hlCu && p.layer !== hlCu ? 0.18 : 1;
       ctx.fillStyle = rotorAlone ? "rgba(184, 115, 51, 0.75)" : cssVar("--rotor");
       ctx.beginPath(); this._polyPath(p.pts, angle); ctx.fill();
     }
-    // traces: true width from the file (no minimum).  A loop set under the mouse (highlight) is drawn last,
-    // thicker, over the others faded; a set switched off (hiddenNets) is not drawn, nor are its vias.
+    ctx.globalAlpha = 1;
+    // traces: true width from the file (no minimum).  A loop set or a layer under the mouse (highlight,
+    // highlightLayer) is drawn last, thicker, over the others faded; a set switched off (hiddenNets) is not
+    // drawn, nor are its vias.
     const role = (net) => this.netRole[net];
     const off = (net) => this.hiddenNets.has(role(net));
-    const hl = this.highlight && !this.hiddenNets.has(this.highlight) ? this.highlight : null;
+    const hlRole = this.highlight && !this.hiddenNets.has(this.highlight) ? this.highlight : null;
+    const hl = hlRole || hlCu;
+    const lit = (g) => hlRole ? role(g.net) === hlRole : g.layer === hlCu;
     const segs = Object.values(b.segments);
     for (const pass of hl ? ["rest", "hl"] : ["all"]) {
       ctx.globalAlpha = pass === "rest" ? 0.18 : 1;
@@ -213,7 +221,7 @@ class BoardView {
         ctx.strokeStyle = this._layerColour(layer);
         for (const g of segs) {
           if (g.layer !== layer || off(g.net)) continue;
-          if (pass !== "all" && (role(g.net) === hl) !== (pass === "hl")) continue;
+          if (pass !== "all" && lit(g) !== (pass === "hl")) continue;
           ctx.lineWidth = pass === "hl" ? Math.max(2.5 * g.width, g.width + 2.5 * px) : g.width;
           ctx.beginPath();
           const q = g.pts;
@@ -228,7 +236,7 @@ class BoardView {
     const viaFill = cssVar("--via"), viaRim = cssVar("--via-rim");
     for (let v of this.hidden.has("Vias") ? [] : b.vias) {
       if (off(v.net)) continue;
-      ctx.globalAlpha = hl && role(v.net) !== hl ? 0.18 : 1;
+      ctx.globalAlpha = hlRole ? (role(v.net) === hlRole ? 1 : 0.18) : hlCu ? 0.18 : 1;
       const k = this.viaBoost ? Math.max(1, 3 * px / (v.d / 2)) : 1;          // scale up only if smaller than 6 px
       v = { ...v, d: v.d * k, drill: v.drill * k };
       const r = v.d / 2, rim = (v.d - v.drill) / 2 * 0.3;
