@@ -15,10 +15,14 @@ const CONFIG = {
 };
 
 /* ---- the starting design ---------------------------------------------------------------------------
-   The page starts from the defaults in the parameter files, so its first board is the board RunCoilGenerator.py
-   makes with the files as they are (only the RX net names differ: WEB_DEFAULTS in WebGenerator.py).
-   Values set here would replace those defaults on the web only; keep it empty unless that is wanted. */
-const START_DESIGN = {};
+   The web's default board (Roland's choice): 2 layers, 25 to 50 mm, 4 loops, a single TX on the Bottom layer.
+   It replaces these values of the parameter files on the web only (the files are unchanged); every other value,
+   Reset and the first board come from the files plus this.  Empty it to start from the files as they are. */
+const START_DESIGN = {
+  PCB_LAYERS: 2, INNER_EDGE_RADIUS_MM: 25, OUTER_EDGE_RADIUS_MM: 50,
+  LOOPS: 4, RX_SUBCOILS: 1, TX_TURNS: 3, AIR_GAP_MM: 1.0,
+  TX_LAYERS: 1, TX_LAYER_A: 4, TX_LAYER_B: 1, TX_SERIES: true,
+};
 
 const LAYER_NUM_NAME = { 1: "Top", 2: "Inner-1", 3: "Inner-2", 4: "Bottom" };
 const LAYER_NUM_CU = { 1: "F.Cu", 2: "In1.Cu", 3: "In2.Cu", 4: "B.Cu" };
