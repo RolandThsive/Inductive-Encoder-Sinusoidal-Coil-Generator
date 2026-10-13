@@ -344,7 +344,12 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .layer-chip .sw { width: 12px; height: 12px; border-radius: 3px; }
 .layer-chip.off { opacity: 0.4; }
 .layer-chip:hover { background: var(--cream); }
-.layer-chip.locked, .layer-chip.locked:hover { opacity: 0.3; cursor: not-allowed; background: var(--glass); }   /* no copper on that layer */
+/* no copper on that layer: faded and struck through corner to corner, unlike a chip switched off (only faded) */
+.layer-chip.locked, .layer-chip.locked:hover { position: relative; cursor: not-allowed; background: var(--glass); color: rgba(0, 0, 0, 0.3); }
+.layer-chip.locked .sw { opacity: 0.3; }
+.layer-chip.locked::after { content: ""; position: absolute; inset: 3px 9px; pointer-events: none;            /* kept inside the round ends */
+  background: linear-gradient(to top right, transparent calc(50% - 0.7px), rgba(0, 0, 0, 0.45) calc(50% - 0.7px) calc(50% + 0.7px),
+              transparent calc(50% + 0.7px)); }
 /* Sin / Cos / TX Loops, top right of the preview (under the layer chips) */
 .net-toggles { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: stretch; gap: 6px; z-index: 2; }
 .net-btn { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 12.5px; color: var(--text); cursor: pointer;
