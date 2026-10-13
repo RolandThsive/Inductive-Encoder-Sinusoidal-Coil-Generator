@@ -818,7 +818,7 @@ async function main() {
   }
   $("btn-fit").addEventListener("click", () => view.fit());
   $("btn-measure").addEventListener("click", (e) => {
-    view.measure = !view.measure; view.mA = view.mB = null;
+    view.measure = !view.measure; view.clearMeasure();     // switching Measure off or on clears every line
     e.currentTarget.classList.toggle("on", view.measure);
     $("board-canvas").classList.toggle("measuring", view.measure);
     view.draw();
@@ -858,6 +858,14 @@ async function main() {
   $("nav-back").addEventListener("click", (e) => { e.preventDefault(); history.length > 1 ? history.back() : (location.href = CONFIG.blogHome); });
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") generate();
+    // Measure: L keeps the finished line and starts a new one (not while typing in a field)
+    const t = e.target, typing = t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName)
+      || (t.tagName === "INPUT" && !/^(range|checkbox|radio|button)$/.test(t.type));
+    if ((e.key === "l" || e.key === "L") && view.measure && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (view.mLocked.length >= BoardView.MAX_LOCKED) return toast(`${BoardView.MAX_LOCKED} lines kept: that is the limit`);
+      const n = view.lockMeasure();
+      if (n) toast(`Line ${n} kept: click two points for the next one`);
+    }
   });
 
   // Python

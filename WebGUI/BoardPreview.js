@@ -62,6 +62,7 @@ function parseBoard(text) {
 
 /* ------------------------------------------------------------------------------------------------ */
 class BoardView {
+  static MAX_LOCKED = 256;          // measured lines the L key can keep
   constructor(canvas, readout) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
@@ -79,6 +80,7 @@ class BoardView {
     this.view = { scale: 4, ox: 0, oy: 0 };
     this.fitted = false;
     this.measure = false; this.mA = null; this.mB = null;
+    this.mLocked = [];               // measured lines kept with the L key: [[A, B], ...], at most MAX_LOCKED
     this._wire();
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
   }
@@ -297,17 +299,32 @@ class BoardView {
     ctx.beginPath(); ctx.arc(cx, cy, 3.9 * px, 0, 2 * Math.PI); ctx.stroke();        // ring: about 9 px across
   }
 
+  /* L key: keep the finished line on screen and start a new one.  Returns the number kept, or 0 if there was no
+     finished line or the limit is reached. */
+  lockMeasure() {
+    if (!this.measure || !this.mA || !this.mB || this.mLocked.length >= BoardView.MAX_LOCKED) return 0;
+    this.mLocked.push([this.mA, this.mB]);
+    this.mA = this.mB = null;
+    this.draw();
+    return this.mLocked.length;
+  }
+  clearMeasure() { this.mA = this.mB = null; this.mLocked = []; }
+
   _drawMeasure(px) {
-    if (!this.measure || !this.mA) return;
+    if (!this.measure) return;
+    for (const [a, b] of this.mLocked) this._drawLine(px, a, b);
+    if (this.mA) this._drawLine(px, this.mA, this.mB);
+  }
+  _drawLine(px, a, b) {                                   // one measured line: end dots, the line, its length
     const ctx = this.ctx;
     ctx.fillStyle = cssVar("--accent"); ctx.strokeStyle = cssVar("--accent"); ctx.lineWidth = 1.5 * px;
-    for (const p of [this.mA, this.mB].filter(Boolean)) { ctx.beginPath(); ctx.arc(p[0], p[1], 3 * px, 0, 2 * Math.PI); ctx.fill(); }
-    if (this.mB) {
-      ctx.beginPath(); ctx.moveTo(...this.mA); ctx.lineTo(...this.mB); ctx.stroke();
-      const d = Math.hypot(this.mB[0] - this.mA[0], this.mB[1] - this.mA[1]);
+    for (const p of [a, b].filter(Boolean)) { ctx.beginPath(); ctx.arc(p[0], p[1], 3 * px, 0, 2 * Math.PI); ctx.fill(); }
+    if (b) {
+      ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
+      const d = Math.hypot(b[0] - a[0], b[1] - a[1]);
       ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
       const dpr = window.devicePixelRatio || 1;
-      const sx = this.mB[0] * this.view.scale + this.view.ox, sy = this.mB[1] * this.view.scale + this.view.oy;
+      const sx = b[0] * this.view.scale + this.view.ox, sy = b[1] * this.view.scale + this.view.oy;
       ctx.font = `${13 * dpr}px ${cssVar("--ui-font")}`;
       const label = `${d.toFixed(3)} mm`;
       ctx.fillStyle = "rgba(255,255,255,0.9)";
