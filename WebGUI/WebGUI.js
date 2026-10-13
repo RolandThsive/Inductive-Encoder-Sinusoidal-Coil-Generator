@@ -217,8 +217,7 @@ function updateStale() {
   const r = state.result, badge = $("stale-badge");
   const failed = r && !r.ok && view.hasBoard;
   badge.hidden = !((state.stale && r) || failed);
-  badge.textContent = state.stale ? "Settings changed: press Generate to update the board"
-    : "Not generated: this is the last board that worked";
+  placeBadge();
   for (const part of ["stator", "rotor"]) {
     const b = $(`btn-dl-${part}`), name = part === "stator" ? "stator" : "rotor";
     b.disabled = !(state.result && state.result.ok && state.result.files[part]) || state.stale;
@@ -230,6 +229,26 @@ function updateStale() {
   dl.dataset.tip = state.stale ? "The settings changed: press Generate first"
     : "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt and the four parameter files";
 }
+
+/* The notice sits in the header, centred on the page.  When the header is too full for that (narrower than about
+   1900 px) the title steps aside while the notice shows, and the notice is centred in the title's place. */
+function placeBadge() {
+  const badge = $("stale-badge"), bar = $("topbar"), h1 = bar.querySelector("h1");
+  badge.classList.remove("in-title"); badge.style.left = ""; h1.classList.remove("yield");
+  if (badge.hidden) return;
+  badge.textContent = state.stale ? "Settings changed: press Generate to update the board"
+    : "Not generated: this is the last board that worked";
+  const b = badge.getBoundingClientRect(), ms = $("mode-switch").getBoundingClientRect();
+  const ta = bar.querySelector(".top-actions").getBoundingClientRect();
+  if (b.left >= ms.right + 12 && b.right <= ta.left - 12) return;
+  const t = h1.getBoundingClientRect(), x0 = bar.getBoundingClientRect().left;
+  h1.classList.add("yield"); badge.classList.add("in-title");
+  const right = Math.min(t.right, ms.left - 12);
+  badge.style.left = `${(t.left + right) / 2 - x0}px`;
+  if (badge.getBoundingClientRect().width > right - t.left)
+    badge.textContent = state.stale ? "Settings changed: press Generate" : "Not generated: last good board shown";
+}
+window.addEventListener("resize", placeBadge);
 
 /* ---- Basic mode ------------------------------------------------------------------------------- */
 function presetOf(v) {
@@ -268,9 +287,10 @@ function numberField({ name, label, unit, min, max, step, slider, ticks, note })
   const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, label, unit ? el("span", { class: "unit" }, ` (${unit})`) : null));
   attachHelp(head, name);
   if (note !== undefined) head.append(el("span", { class: "field-note", "data-note": name }, note));
-  const f = el("div", { class: "field" }, head, el("div", { class: "num-row" }, stepper, range));
-  if (ticks) f.append(el("div", { class: "ticks" }, ticks.map((t) => el("span", {}, t))));
-  return f;
+  // tick labels sit under the track itself, each at its value (the thumb is 20 px, so the track runs 10 px in)
+  const track = range && ticks ? el("div", { class: "range-wrap" }, range, el("div", { class: "ticks" }, ticks.map((t) =>
+    el("span", { style: `left: calc(10px + (100% - 20px) * ${(parseFloat(t) - slider[0]) / (slider[1] - slider[0])})` }, t)))) : range;
+  return el("div", { class: "field" + (track !== range ? " has-ticks" : "") }, head, el("div", { class: "num-row" }, stepper, track));
 }
 
 function segmentedField({ name, label, options, note, onPick }) {

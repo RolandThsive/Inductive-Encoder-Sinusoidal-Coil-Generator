@@ -38,6 +38,7 @@
       <button role="tab" data-mode="basic" class="on" data-tip="The main settings: board size, loops, sub-coils, TX turns, board layers, TX layout and air gap">Basic</button>
       <button role="tab" data-mode="advanced" data-tip="Every parameter in the four parameter files, grouped as in the files">Advanced</button>
     </div>
+    <div class="stale-badge" id="stale-badge" hidden>Settings changed: press Generate to update the board</div>
     <div class="top-actions">
       <button class="glass-btn small" id="btn-import" data-tip="Load a design: a Parameters.txt from any run (web or desktop) or your own .py parameter files. Every control takes those values.">Import Parameters</button>
       <button class="glass-btn small" id="btn-export" data-tip="Download the four parameter files (Board, RX, TX, Rotor) with these values, ready for RunCoilGenerator.py on a desktop">Export Parameters</button>
@@ -95,7 +96,6 @@
           <button class="glass-btn small" id="btn-fit" data-tip="Fit the whole board in view (or double-click the preview). Scroll to zoom, drag to pan.">Fit</button>
           <button class="glass-btn small" id="btn-measure" data-tip="Click two points on the board to get the distance between them">Measure</button>
         </div>
-        <div class="stale-badge" id="stale-badge" hidden>Settings changed: press Generate to update the board</div>
         <div class="readout" id="readout" data-tip="Radius and angle under the cursor, from the board centre"></div>
         <div class="rotor-angle" id="rotor-angle-box" hidden data-tip="Turn the rotor over the stator to see how the target sweeps the coils">
           <span>Rotor Angle</span>
