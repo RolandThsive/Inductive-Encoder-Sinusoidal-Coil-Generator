@@ -838,6 +838,11 @@ async function main() {
     $("summary-text").textContent = r.summaries.stator + "\n\n" + r.summaries.rotor;
     $("summary-dialog").showModal();
   });
+  // a click outside the Summary box (on the dimmed page) closes it
+  $("summary-dialog").addEventListener("click", (e) => {
+    const d = e.currentTarget, r = d.getBoundingClientRect();
+    if (e.target === d && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) d.close();
+  });
   $("btn-share").addEventListener("click", share);
   $("btn-export").addEventListener("click", exportFiles);
   $("btn-import").addEventListener("click", () => $("import-file").click());
