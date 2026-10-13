@@ -43,7 +43,6 @@
       <button class="glass-btn small" id="btn-import" data-tip="Load a design: a Parameters.txt from any run (web or desktop) or your own .py parameter files. Every control takes those values.">Import Parameters</button>
       <button class="glass-btn small" id="btn-export" data-tip="Download the four parameter files (Board, RX, TX, Rotor) with these values, ready for RunCoilGenerator.py on a desktop">Export Parameters</button>
       <button class="glass-btn small" id="btn-share" data-tip="Copy a link that opens the tool with this design. Only the changed values go in the link; nothing is uploaded.">Share Link</button>
-      <button class="glass-btn small" id="btn-reset" data-tip="Go back to the starting design: 2 layers, 25 to 50 mm, 4 loops, 3 TX turns">Reset</button>
       <input type="file" id="import-file" accept=".txt,.py" multiple hidden>
     </div>
     <nav class="standalone-nav">
@@ -69,6 +68,7 @@
       </div>
       <div id="results" class="results"></div>
       <div class="generate-row">
+        <button id="btn-reset" class="reset-btn" data-tip="Go back to the starting design: 2 layers, 25 to 50 mm, 4 loops, 3 TX turns">Reset</button>
         <label class="switch-row" data-tip="Treat warnings as errors: a design with any warning is not generated (like --strict on the desktop)">
           <span>Strict</span>
           <span class="switch"><input type="checkbox" id="strict"><span class="knob"></span></span>

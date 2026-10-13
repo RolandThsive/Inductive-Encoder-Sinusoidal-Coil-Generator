@@ -276,8 +276,17 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 /* results under the controls */
 .results { font-size: 12.5px; color: var(--text-2); border-top: 1px dashed var(--divider); padding: 8px 2px 4px; margin-top: 6px; line-height: 1.6; }
 .results b { color: var(--text); font-weight: 600; }
-.generate-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 6px; }
-.generate-row .primary-btn { flex: 1; }
+/* Reset above Generate, Strict beside Generate */
+.generate-row { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px 10px; padding-top: 6px; }
+.generate-row .reset-btn { grid-column: 2; }
+.generate-row .switch-row { grid-column: 1; }
+.generate-row .primary-btn { grid-column: 2; }
+.reset-btn {                                     /* the blog's yellow: --warning-edge border, cream fill */
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+  background: var(--glass); border: 2px solid var(--warning-edge); border-radius: var(--radius);
+  padding: 6px 20px; cursor: pointer; box-shadow: var(--shadow-btn); transition: all var(--ease);
+}
+.reset-btn:hover { background: rgba(248, 236, 198, 0.75); color: #7a5f00; }
 #progress { height: 3px; margin-top: 8px; border-radius: 2px; overflow: hidden; background: transparent; }
 #progress .bar { height: 100%; width: 0; background: var(--accent); transition: width 0.4s ease; }
 #progress.busy .bar { width: 35%; animation: slide 1.1s ease-in-out infinite; }
