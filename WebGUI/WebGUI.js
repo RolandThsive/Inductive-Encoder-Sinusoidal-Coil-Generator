@@ -822,7 +822,10 @@ async function main() {
     document.fullscreenElement ? document.exitFullscreen() : (w.requestFullscreen || w.webkitRequestFullscreen).call(w);
   });
   document.addEventListener("fullscreenchange", () => {
-    $("btn-fullscreen").textContent = document.fullscreenElement ? "Exit Fullscreen" : "Fullscreen";
+    const on = !!document.fullscreenElement, b = $("btn-fullscreen");      // corner brackets out, or in to leave
+    b.querySelector("path").setAttribute("d", on ? "M8 3v5H3M16 3v5h5M21 16h-5v5M3 16h5v5" : "M3 8V3h5M16 3h5v5M21 16v5h-5M8 21H3v-5");
+    b.setAttribute("aria-label", on ? "Exit Fullscreen" : "Fullscreen");
+    b.dataset.tip = on ? "Leave full screen (Esc)" : "Show the preview full screen (Esc to leave)";
     setTimeout(() => view.resize(), 100);
   });
   $("rotor-angle").addEventListener("input", (e) => { view.setRotorAngle(+e.target.value); $("rotor-angle-out").textContent = `${e.target.value}°`; });
