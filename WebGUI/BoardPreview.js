@@ -199,11 +199,14 @@ class BoardView {
         ctx.stroke();
       }
     }
+    // vias: bright gold with a darker rim, never smaller than a few pixels, so they stand out when zoomed out
+    const viaFill = cssVar("--via"), viaRim = cssVar("--via-rim");
     for (const v of b.vias) {
-      ctx.fillStyle = "#6b6b6b";
-      ctx.beginPath(); ctx.arc(v.x, v.y, v.d / 2, 0, 2 * Math.PI); ctx.fill();
+      const r = Math.max(v.d / 2, 3 * px);
+      ctx.fillStyle = viaFill; ctx.strokeStyle = viaRim; ctx.lineWidth = Math.max(0.6 * px, r * 0.18);
+      ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
       ctx.fillStyle = "#f4f1ea";
-      ctx.beginPath(); ctx.arc(v.x, v.y, v.drill / 2, 0, 2 * Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(v.x, v.y, r * (v.drill / v.d), 0, 2 * Math.PI); ctx.fill();
     }
     ctx.strokeStyle = cssVar("--edge"); ctx.lineWidth = 1.5 * px;
     for (const c of b.circles) {

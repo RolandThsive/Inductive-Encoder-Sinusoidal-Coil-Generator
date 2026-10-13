@@ -27,6 +27,8 @@
   --in2: #B8930A;
   --bottom: #2F6FD0;
   --rotor: rgba(184, 115, 51, 0.35);
+  --via: #FFC400;                          /* vias: super bright gold */
+  --via-rim: #A87A00;
   --edge: #333;
   /* classic silver switch */
   --silver-knob: linear-gradient(#F4F4F4, #C9C9C9);
@@ -389,3 +391,16 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 #btn-download, .download-row .glass-btn { color: #000; border: 2px solid var(--accent); font-weight: 600; }
 .download-row .glass-btn { padding: 4px 10px; }
 #btn-download:hover:not(:disabled), .download-row .glass-btn:hover:not(:disabled) { color: var(--accent); background: var(--cream); }
+
+/* the narrowest laptops: the title and the top buttons tighten further */
+@media (max-width: 1140px) {
+  #topbar h1 { font-size: 16px; }
+  #topbar { gap: 8px; }
+  .top-actions .glass-btn { padding-left: 8px; padding-right: 8px; font-size: 12.5px; }
+  #mode-switch button { padding-left: 12px; padding-right: 12px; }
+}
+@media (max-width: 1070px) {
+  #topbar h1 { font-size: 14px; }
+  #topbar, .top-actions { gap: 5px; }
+  .top-actions .glass-btn { padding-left: 7px; padding-right: 7px; }
+}
