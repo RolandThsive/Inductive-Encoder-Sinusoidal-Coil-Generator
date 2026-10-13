@@ -404,3 +404,7 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
   #topbar, .top-actions { gap: 5px; }
   .top-actions .glass-btn { padding-left: 7px; padding-right: 7px; }
 }
+
+/* the Vias chip: a gold pad with a hole */
+.via-icon { width: 12px; height: 12px; border-radius: 50%; box-sizing: border-box;
+  background: radial-gradient(circle, #f4f1ea 0 2px, var(--via-rim) 2px 2.6px, var(--via) 2.6px); border: 1px solid var(--via-rim); }

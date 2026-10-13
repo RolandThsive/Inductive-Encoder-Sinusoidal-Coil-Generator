@@ -666,6 +666,15 @@ function renderLayerToggles() {
       el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }), CU_NAME[cu]);
     box.append(chip);
   }
+  // vias: hide / show like a layer; hovering makes tiny vias big enough to see (preview only)
+  const off = view.hidden.has("Vias");
+  const icon = el("span", { class: "via-icon" });
+  const chip = el("span", { class: "layer-chip" + (off ? " off" : ""), role: "switch",
+    "data-tip": off ? "Show the vias" : "Show or hide the vias. Hover to enlarge small vias to at least 6 px (the preview only, the boards are unchanged)",
+    onclick: () => { view.setViaBoost(false); view.toggleLayer("Vias"); renderLayerToggles(); },
+    onmouseenter: () => { if (!view.hidden.has("Vias")) view.setViaBoost(true); },
+    onmouseleave: () => view.setViaBoost(false) }, icon, "Vias");
+  box.append(chip);
 }
 
 /* ---- share, import, export ------------------------------------------------------------------- */

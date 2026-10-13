@@ -82,6 +82,7 @@ class BoardView {
   }
   setSketch(sketch) { this.sketch = sketch; if (this.mode === "sketch") this.draw(); }
   setMode(mode) { this.mode = mode; this.draw(); }
+  setViaBoost(on) { if (this.viaBoost !== on) { this.viaBoost = on; this.draw(); } }
   toggleLayer(layer) { this.hidden.has(layer) ? this.hidden.delete(layer) : this.hidden.add(layer); this.draw(); }
   setRotorAngle(deg) { this.rotorAngle = deg; this.draw(); }
 
@@ -201,9 +202,12 @@ class BoardView {
         ctx.stroke();
       }
     }
-    // vias: bright gold at their true size (pad = size, hole = drill); the darker rim is drawn inside the pad
+    // vias: bright gold at their true size (pad = size, hole = drill); the darker rim is drawn inside the pad.
+    // "Vias" in the layer chips hides them; hovering that chip (viaBoost) shows small ones at least 6 px across.
     const viaFill = cssVar("--via"), viaRim = cssVar("--via-rim");
-    for (const v of b.vias) {
+    for (let v of this.hidden.has("Vias") ? [] : b.vias) {
+      const k = this.viaBoost ? Math.max(1, 3 * px / (v.d / 2)) : 1;          // scale up only if smaller than 6 px
+      v = { ...v, d: v.d * k, drill: v.drill * k };
       const r = v.d / 2, rim = (v.d - v.drill) / 2 * 0.3;
       ctx.fillStyle = viaFill;
       ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, 2 * Math.PI); ctx.fill();
