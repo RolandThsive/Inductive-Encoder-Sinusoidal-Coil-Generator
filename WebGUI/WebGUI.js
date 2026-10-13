@@ -31,7 +31,7 @@ const PRESETS = [
     set: { PCB_LAYERS: 2, TX_LAYERS: 1, TX_LAYER_A: 4, TX_LAYER_B: 1, TX_SERIES: true } },
   { id: "2-top", layers: 2, name: "Single On Top", note: "Next to the rotor: more signal in the model",
     set: { PCB_LAYERS: 2, TX_LAYERS: 1, TX_LAYER_A: 1, TX_LAYER_B: 4, TX_SERIES: true } },
-  { id: "2-series", layers: 2, name: "Series Top + Bottom", note: "Hoxha et al. 2022, go-around fingers",
+  { id: "2-series", layers: 2, name: "Series Top + Bottom", note: "The fingers go around the Top turns",
     set: { PCB_LAYERS: 2, TX_LAYERS: 2, TX_LAYER_A: 1, TX_LAYER_B: 4, TX_SERIES: true } },
   { id: "4-bottom", layers: 4, name: "Single On Bottom", note: "RX on Top + Inner-1",
     set: { PCB_LAYERS: 4, TX_LAYERS: 1, TX_LAYER_A: 4, TX_LAYER_B: 1, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },

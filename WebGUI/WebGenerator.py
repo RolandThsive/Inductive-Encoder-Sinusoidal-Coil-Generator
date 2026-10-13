@@ -24,6 +24,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import shutil
 import sys
 import types
@@ -38,6 +39,21 @@ GENERATOR_MODULES = ("ParameterChecker", "StatorGenerator", "RotorGenerator", "T
 # and the settings of earlier versions (read only from old parameter files).
 HIDDEN = {"RECEIVER_IC", "COPPER_THICKNESS_UM", "TX_AMPLITUDE_VPP",
           "TX_PLACEMENT", "TX_SECOND_LAYER", "TX_BREAK_STYLE"}
+# The web page names no research papers: references to them in the help texts and the checker's notes (they come
+# from the generator's own files, which stay unchanged) are taken out before the page shows them.
+_PAPER = re.compile(r"(?:,\s*)?(?:as in\s+|the layout of\s+)?Hoxha\s+et\s+al\.?,?(?:\s+Sensors)?\s+2022(?:,\s*22,\s*4683)?"
+                    r"(?:,?\s*(?:\(Fig\.\s*2\)|Fig\.\s*2))?")
+
+
+def _no_papers(text):
+    t = re.sub(r"the 2-layer layout of\s+Hoxha\s+et\s+al\.?\s+2022\s*\(Fig\.\s*2\)", "the 2-layer go-around layout", text)
+    t = _PAPER.sub("", t)
+    t = re.sub(r"\s*\(as in the paper(?:'s layout)?\)", "", t)
+    t = re.sub(r"\(go-around,\s*\)", "(go-around)", t)
+    t = re.sub(r"\(\s*\)", "", t)
+    return re.sub(r"[ \t]{2,}", " ", t)
+
+
 # Starting values that differ from the parameter files in the web version only (the generator is unchanged).
 WEB_DEFAULTS = {"RX_NET_PHASE_0_2": "SIN_Signal", "RX_NET_PHASE_1_3": "COS_Signal"}
 # Shown, but not editable: they only name files and place the board on the KiCad page.
@@ -238,7 +254,7 @@ def describe():
         default = getattr(P, name) if hasattr(P, name) else o.get("default")
         default = WEB_DEFAULTS.get(name, default)
         out.append({"file": file, "name": name, "kind": kind, "options": opts,
-                    "default": _jsonable(default), "help": helps.get(name) or FALLBACK_HELP.get(name, ""), "group": groups.get(name, "General"),
+                    "default": _jsonable(default), "help": _no_papers(helps.get(name) or FALLBACK_HELP.get(name, "")), "group": groups.get(name, "General"),
                     "readOnly": name in READ_ONLY})
     return json.dumps({"parameters": out, "files": list(PARAMETER_FILES)})
 
@@ -271,7 +287,7 @@ def generate(values_json, strict=False):
 
     def take(stage, rep):
         for level, msg in rep.items:
-            items.append({"stage": stage, "level": level, "msg": msg})
+            items.append({"stage": stage, "level": level, "msg": _no_papers(msg)})
 
     def fail(why):
         result["failed"] = why
