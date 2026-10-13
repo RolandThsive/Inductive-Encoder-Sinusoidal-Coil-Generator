@@ -92,15 +92,20 @@ const TAB_TITLES = { "Board_Parameters.py": "Board", "RX_Parameters.py": "RX", "
 const FILE_GROUP_GENERAL = { "TX_Parameters.py": "TX Turns", "Rotor_Parameters.py": "Rotor Mode" };
 
 /* ---- labels for Advanced fields ---------------------------------------------------------------- */
-// names the word rule in labelOf would make unclear
-const LABELS = { RX_NET_PHASE_0_2: "RX Net SIN (Phases 0 / 2)", RX_NET_PHASE_1_3: "RX Net COS (Phases 1 / 3)" };
+// names the word rule in labelOf would make unclear, and the Basic labels (keep these in step with the Basic pages)
+const LABELS = { RX_NET_PHASE_0_2: "RX Net SIN (Phases 0 / 2)", RX_NET_PHASE_1_3: "RX Net COS (Phases 1 / 3)",
+  INNER_EDGE_RADIUS_MM: "Board Inner Radius", OUTER_EDGE_RADIUS_MM: "Board Outer Radius", PCB_LAYERS: "Board Layers",
+  RX_SUBCOILS: "RX Sub-Coils", INSIDE_RADIUS_MM: "RX Inside Radius", OUTSIDE_RADIUS_MM: "RX Outside Radius", RX_A_MM: "RX Swing A",
+  TX_TURNS: "TX Turns Per Layer", ROTOR_AUTO_DUTY: "Rotor Metal Fraction", ROTOR_AUTO_COVER_TX: "Copper Over The TX Turns",
+  ROTOR_CUSTOM_SECTORS: "Rotor Metal Sectors", ROTOR_CUSTOM_DUTY: "Rotor Metal Fraction" };
+const CHOICE_WORDS = { according_to_stator: "Automatic" };
 // the parameter name in capitalised words, with its unit split off
 function labelOf(name) {
-  if (LABELS[name]) return { text: LABELS[name], unit: "" };
   const special = { MM: "(mm)", DEG: "(deg)", HZ: "(Hz)", UM: "(µm)" };
   const parts = name.split("_");
   let unit = "";
   if (special[parts[parts.length - 1]]) unit = special[parts.pop()];
+  if (LABELS[name]) return { text: LABELS[name], unit };
   const words = parts.map((w) => (["RX", "TX", "PCB", "IC"].includes(w) ? w : w[0] + w.slice(1).toLowerCase()));
   return { text: words.join(" "), unit };
 }
@@ -496,16 +501,20 @@ function basicRxFields() {
     numberField({ name: "RX_A_MM", label: "RX Swing A", unit: "mm", min: 0.1, max: 125, step: 0.1, slider: [0.5, 40], none: true }),
   ];
 }
-function basicTxFields() {
+function txLayoutField() {
   const v = state.values, current = presetOf(v);
   const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, "TX Layout"));
   attachHelp(head, "TX_LAYERS");
-  head.append(el("span", { class: "field-note" }, current ? PRESETS.find((p) => p.id === current).note : "Custom (set in Advanced)"));
+  head.append(el("span", { class: "field-note" }, current ? PRESETS.find((p) => p.id === current).note
+    : state.mode === "advanced" ? "Custom (set below)" : "Custom (set in Advanced)"));
   const slider = el("div", { class: "slider" });
   for (const p of PRESETS.filter((p) => p.layers === v.PCB_LAYERS)) slider.append(presetCard(p, p.id === current));
+  return el("div", { class: "field" }, head, slider);
+}
+function basicTxFields() {
   return [
     numberField({ name: "TX_TURNS", label: "TX Turns Per Layer", min: 1, max: 12, step: 1, note: noteFor("TX_TURNS") }),
-    el("div", { class: "field" }, head, slider),
+    txLayoutField(),
   ];
 }
 function basicRotorFields() {
@@ -558,6 +567,7 @@ function choiceText(name, val) {
   if (typeof val === "number" && /LAYER(_[AB])?$/.test(name) && LAYER_NUM_NAME[val]) return LAYER_NUM_NAME[val];
   if (CU_NAME[val]) return CU_NAME[val];
   if (typeof val === "boolean") return val ? "True" : "False";
+  if (typeof val === "string" && CHOICE_WORDS[val.toLowerCase()]) return CHOICE_WORDS[val.toLowerCase()];
   if (typeof val === "string") return val.split("_").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
   return String(val);
 }
@@ -695,6 +705,7 @@ function renderAdvanced() {
       box.append(shell);
       card = inner;
     }
+    if (p.name === "TX_LAYERS") card.append(txLayoutField());      // Basic's layout cards, set TX_LAYERS / _A / _B / TX_SERIES at once
     const lab = labelOf(p.name);
     const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, lab.text, lab.unit ? el("span", { class: "unit" }, " " + lab.unit) : null));
     attachHelp(head, p.name);
