@@ -61,7 +61,10 @@ const TAB_TITLES = { "Board_Parameters.py": "Board", "RX_Parameters.py": "RX", "
 const FILE_GROUP_GENERAL = { "TX_Parameters.py": "TX Turns", "Rotor_Parameters.py": "Rotor Mode" };
 
 /* human labels for Advanced fields: the parameter name in capitalised words */
+// names the word rule below would make unclear
+const LABELS = { RX_NET_PHASE_0_2: "RX Net SIN (Phases 0 / 2)", RX_NET_PHASE_1_3: "RX Net COS (Phases 1 / 3)" };
 function labelOf(name) {
+  if (LABELS[name]) return { text: LABELS[name], unit: "" };
   const special = { MM: "(mm)", DEG: "(deg)", HZ: "(Hz)", UM: "(µm)" };
   const parts = name.split("_");
   let unit = "";
