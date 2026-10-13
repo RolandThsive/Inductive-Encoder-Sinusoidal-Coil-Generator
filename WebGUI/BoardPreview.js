@@ -312,10 +312,10 @@ class BoardView {
 
   _drawMeasure(px) {
     if (!this.measure) return;
-    for (const [a, b] of this.mLocked) this._drawLine(px, a, b);
-    if (this.mA) this._drawLine(px, this.mA, this.mB);
+    this.mLocked.forEach(([a, b], i) => this._drawLine(px, a, b, i + 1));
+    if (this.mA) this._drawLine(px, this.mA, this.mB, this.mLocked.length + 1);   // the line being drawn is the next one
   }
-  _drawLine(px, a, b) {                                   // one measured line: end dots, the line, its length
+  _drawLine(px, a, b, n) {                                // line n: end dots, the line, "Ln: length"
     const ctx = this.ctx;
     ctx.fillStyle = cssVar("--accent"); ctx.strokeStyle = cssVar("--accent"); ctx.lineWidth = 1.5 * px;
     for (const p of [a, b].filter(Boolean)) { ctx.beginPath(); ctx.arc(p[0], p[1], 3 * px, 0, 2 * Math.PI); ctx.fill(); }
@@ -326,7 +326,7 @@ class BoardView {
       const dpr = window.devicePixelRatio || 1;
       const sx = b[0] * this.view.scale + this.view.ox, sy = b[1] * this.view.scale + this.view.oy;
       ctx.font = `${13 * dpr}px ${cssVar("--ui-font")}`;
-      const label = `${d.toFixed(3)} mm`;
+      const label = `L${n}: ${d.toFixed(3)} mm`;
       ctx.fillStyle = "rgba(255,255,255,0.9)";
       ctx.fillRect(sx + 8 * dpr, sy - 18 * dpr, ctx.measureText(label).width + 12 * dpr, 20 * dpr);
       ctx.fillStyle = cssVar("--accent"); ctx.fillText(label, sx + 14 * dpr, sy - 3 * dpr);
