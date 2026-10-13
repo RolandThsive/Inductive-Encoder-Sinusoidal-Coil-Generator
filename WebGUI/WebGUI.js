@@ -14,12 +14,11 @@ const CONFIG = {
   blogHome: "https://ro-h-bots.blogspot.com/",
 };
 
-/* ---- the starting design (Roland's default) -------------------------------------------------- */
-const START_DESIGN = {
-  PCB_LAYERS: 2, INNER_EDGE_RADIUS_MM: 25, OUTER_EDGE_RADIUS_MM: 50,
-  LOOPS: 4, RX_SUBCOILS: 1, TX_TURNS: 3, AIR_GAP_MM: 1.0,
-  TX_LAYERS: 1, TX_LAYER_A: 4, TX_LAYER_B: 1, TX_SERIES: true,
-};
+/* ---- the starting design ---------------------------------------------------------------------------
+   The page starts from the defaults in the parameter files, so its first board is the board RunCoilGenerator.py
+   makes with the files as they are (only the RX net names differ: WEB_DEFAULTS in WebGenerator.py).
+   Values set here would replace those defaults on the web only; keep it empty unless that is wanted. */
+const START_DESIGN = {};
 
 const LAYER_NUM_NAME = { 1: "Top", 2: "Inner-1", 3: "Inner-2", 4: "Bottom" };
 const LAYER_NUM_CU = { 1: "F.Cu", 2: "In1.Cu", 3: "In2.Cu", 4: "B.Cu" };
@@ -37,7 +36,7 @@ const PRESETS = [
     set: { PCB_LAYERS: 4, TX_LAYERS: 1, TX_LAYER_A: 4, TX_LAYER_B: 1, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
   { id: "4-renesas", layers: 4, name: "Series Top + Inner-2", note: "The Renesas IPS2200 reference",
     set: { PCB_LAYERS: 4, TX_LAYERS: 2, TX_LAYER_A: 1, TX_LAYER_B: 3, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
-  { id: "4-inner1", layers: 4, name: "Series Top + Inner-1", note: "As in TX_Parameters.py",
+  { id: "4-inner1", layers: 4, name: "Series Top + Inner-1", note: "The default in TX_Parameters.py",
     set: { PCB_LAYERS: 4, TX_LAYERS: 2, TX_LAYER_A: 1, TX_LAYER_B: 2, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
 ];
 const BASIC_NAMES = new Set(["INNER_EDGE_RADIUS_MM", "OUTER_EDGE_RADIUS_MM", "LOOPS", "RX_SUBCOILS",
@@ -80,7 +79,7 @@ function labelOf(name) {
 const state = {
   spec: [], byName: {}, values: {}, start: {}, inactive: new Set(),
   mode: "basic", advTab: "Board_Parameters.py", ready: false, busy: false,
-  result: null, stale: false, preset: "2-bottom", showInfo: false,
+  result: null, stale: false, preset: null, showInfo: false,
 };
 const $ = (id) => document.getElementById(id);
 
