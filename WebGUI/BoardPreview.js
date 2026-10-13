@@ -62,7 +62,7 @@ function parseBoard(text) {
 
 /* ------------------------------------------------------------------------------------------------ */
 class BoardView {
-  static MAX_LOCKED = 256;          // measured lines the L key can keep
+  static MAX_LOCKED = 256;          // measured lines the S key can keep
   constructor(canvas, readout) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
@@ -80,7 +80,7 @@ class BoardView {
     this.view = { scale: 4, ox: 0, oy: 0 };
     this.fitted = false;
     this.measure = false; this.mA = null; this.mB = null;
-    this.mLocked = [];               // measured lines kept with the L key: [[A, B], ...], at most MAX_LOCKED
+    this.mLocked = [];               // measured lines kept with the S key: [[A, B], ...], at most MAX_LOCKED
     this._wire();
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
   }
@@ -299,7 +299,7 @@ class BoardView {
     ctx.beginPath(); ctx.arc(cx, cy, 3.9 * px, 0, 2 * Math.PI); ctx.stroke();        // ring: about 9 px across
   }
 
-  /* L key: keep the finished line on screen and start a new one.  Returns the number kept, or 0 if there was no
+  /* S key: keep the finished line on screen and start a new one.  Returns the number kept, or 0 if there was no
      finished line or the limit is reached. */
   lockMeasure() {
     if (!this.measure || !this.mA || !this.mB || this.mLocked.length >= BoardView.MAX_LOCKED) return 0;
