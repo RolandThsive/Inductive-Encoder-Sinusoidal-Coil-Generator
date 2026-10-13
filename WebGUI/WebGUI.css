@@ -417,6 +417,8 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .check.info { color: var(--text-2); background: rgba(0, 0, 0, 0.035); border-left-color: #b5b5b5; }
 .check.info .lvl { color: var(--text-3); }
 .checks-list .hint { font-family: var(--ui-font); }
+.checks-list { scrollbar-width: none; }                       /* no scrollbar: the mouse wheel scrolls it */
+.checks-list::-webkit-scrollbar { display: none; }
 
 /* ---- pop-ups ------------------------------------------------------------------ */
 .popover { position: fixed; z-index: 100; max-width: 380px; background: #ffffff; border: 1px solid #ddd; border-radius: 8px;
@@ -468,11 +470,11 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 .checks-head > .counts { display: block; line-height: 34px; }
 .download-box { position: relative; width: 264px; }
 .download-box .primary-btn { min-height: 34px; width: 100%; }
-/* the board buttons hang below Download Zip without pushing the list down: the list starts right under
-   the header and its first lines flow around a float the size of the buttons */
+/* the board buttons hang below Download Zip without pushing the list down: the list starts right under the header
+   and stays left of the download buttons, so its text never runs past Summary's right edge (264 px box + 12 px gap) */
 .download-row { position: absolute; top: calc(100% + 6px); left: 0; right: 0; display: flex; gap: 6px; }
 .download-row .glass-btn { flex: 1; white-space: nowrap; }
-.checks-list::before { content: ""; float: right; width: 270px; height: 34px; }
+.checks-list { margin-right: 276px; overflow-wrap: anywhere; }
 
 /* narrow checks panel (portrait monitors, small laptops): the counts line shortens instead of wrapping,
    and the download buttons keep their size */
@@ -492,7 +494,6 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
   .checks-head { flex-wrap: wrap; row-gap: 6px; }
   .checks-head > .counts { order: 10; flex: 0 0 calc(100% - 280px); display: block; white-space: normal; line-height: 1.45; min-height: 0; padding-top: 6px; }
   .checks-head > .pacifico { margin-right: auto; }
-  .checks-list::before { display: none; }
 }
 
 /* the three download buttons: black text, the blog's accent all around */
