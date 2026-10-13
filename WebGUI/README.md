@@ -77,4 +77,8 @@ generator from another repository root.
 
 Phones and small tablets (narrower than 1024 px, or touch only) get a short message instead of the tool.
 
-Free for non-commercial use, like the generator.
+## License
+
+The Web UI and every aspect of it are under the PolyForm Strict License 1.0.0, separate from the generator's
+license: see [LICENSE.md](LICENSE.md). It may be used for noncommercial purposes only, and may not be changed or
+redistributed. The core generator it runs stays under the repository's own [LICENSE.md](../LICENSE.md).
