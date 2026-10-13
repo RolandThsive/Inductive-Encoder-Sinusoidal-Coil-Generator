@@ -47,9 +47,28 @@ const PRESETS = [
   { id: "4-inner1", layers: 4, name: "Series Top + Inner-1", note: "The default in TX_Parameters.py",
     set: { PCB_LAYERS: 4, TX_LAYERS: 2, TX_LAYER_A: 1, TX_LAYER_B: 2, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
 ];
-const BASIC_NAMES = new Set(["INNER_EDGE_RADIUS_MM", "OUTER_EDGE_RADIUS_MM", "LOOPS", "RX_SUBCOILS",
-  "RX_SUBCOIL_SPLIT_ELEC_DEG", "TX_TURNS", "PCB_LAYERS", "TX_LAYERS", "TX_LAYER_A", "TX_LAYER_B", "TX_SERIES",
-  "RX_LAYER_A", "RX_LAYER_B", "AIR_GAP_MM", "TX_START_ANGLE_DEG"]);
+// every parameter Basic can change (Advanced lists all of them, these included); the others are counted in the note
+// under Basic's controls
+const BASIC_NAMES = new Set(["INNER_EDGE_RADIUS_MM", "OUTER_EDGE_RADIUS_MM", "PCB_LAYERS", "AIR_GAP_MM",
+  "LOOPS", "RX_SUBCOILS", "RX_SUBCOIL_SPLIT_ELEC_DEG", "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM",
+  "RX_LAYER_A", "RX_LAYER_B", "TX_START_ANGLE_DEG", "TX_TURNS", "TX_LAYERS", "TX_LAYER_A", "TX_LAYER_B", "TX_SERIES",
+  "ROTOR_MODE", "ROTOR_AUTO_DUTY", "ROTOR_AUTO_COVER_TX", "ROTOR_CUSTOM_SECTORS", "ROTOR_CUSTOM_DUTY"]);
+
+/* The RX band (BandLayout.py) is given as an inside and outside radius, or as a centre (R Base) and a swing (A), or by
+   neither (both pairs None: it is fitted to the board edges).  The two members of a pair go together (both numbers or
+   both None) and only one pair may be given: setValues keeps to that, so a change never leaves the checker an error
+   it could have been spared. */
+const BAND_RADII = ["INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM"];
+const BAND_CENTRE = ["RX_R_BASE_MM", "RX_A_MM"];
+const NUMBER_FALLBACK = { RX_R_BASE_MM: 18.8, RX_A_MM: 2.6 };           // when a None parameter has no number to go back to
+const NONE_TIPS = {
+  INNER_EDGE_RADIUS_MM: "None: the centre hole follows the RX band (the band start minus the inset)",
+  OUTER_EDGE_RADIUS_MM: "None: the outer edge is calculated from the finished stator",
+  INSIDE_RADIUS_MM: "None: the RX band is given by its centre and swing, or fitted to the board edges. Inside and outside radius go together",
+  OUTSIDE_RADIUS_MM: "None: the RX band is given by its centre and swing, or fitted to the board edges. Inside and outside radius go together",
+  RX_R_BASE_MM: "None: the RX band is given by its inside and outside radius, or fitted to the board edges. R Base and A go together",
+  RX_A_MM: "None: the RX band is given by its inside and outside radius, or fitted to the board edges. R Base and A go together",
+};
 
 /* nicer names for the parameter files' section headings */
 const GROUP_TITLES = {
@@ -89,7 +108,7 @@ function labelOf(name) {
 /* ---- state --------------------------------------------------------------------------------------- */
 const state = {
   spec: [], byName: {}, values: {}, start: {}, inactive: new Set(),
-  mode: "basic", advTab: "Board_Parameters.py", ready: false, busy: false,
+  mode: "basic", basicTab: "Board_Parameters.py", advTab: "Board_Parameters.py", ready: false, busy: false,
   result: null, stale: false, showInfo: false,
   folded: new Set(),            // Advanced group blocks that are folded away
   lastNumbers: {},              // the last number of each Auto / None parameter, for when the switch is turned off again
@@ -212,7 +231,44 @@ document.addEventListener("mousedown", hideTip);
 document.addEventListener("scroll", hideTip, true);
 
 /* ---- value changes ----------------------------------------------------------------------------- */
+function pairOf(name) { return BAND_RADII.includes(name) ? BAND_RADII : BAND_CENTRE.includes(name) ? BAND_CENTRE : null; }
+
+/* The number a None parameter goes back to when its switch is turned off.  A band member follows the other pair, so
+   switching between "radii" and "centre and swing" keeps the same band; otherwise the last number it had, then its
+   starting value. */
+function numberFor(name, v) {
+  const num = (x) => typeof x === "number", round = (x) => Math.round(x * 1000) / 1000;
+  const [ri, ro, base, a] = [...BAND_RADII, ...BAND_CENTRE].map((n) => v[n]);
+  if (name === "INSIDE_RADIUS_MM" && num(base) && num(a)) return round(base - a);
+  if (name === "OUTSIDE_RADIUS_MM" && num(base) && num(a)) return round(base + a);
+  if (name === "RX_R_BASE_MM" && num(ri) && num(ro)) return round((ri + ro) / 2);
+  if (name === "RX_A_MM" && num(ri) && num(ro)) return round((ro - ri) / 2);
+  if (num(state.lastNumbers[name])) return state.lastNumbers[name];
+  if (num(state.start[name])) return state.start[name];
+  return NUMBER_FALLBACK[name] ?? 1;
+}
+
+/* the changes plus what the RX band rules add to them: a pair's members go together, and a pair that gets numbers
+   puts the other pair to None (remembering its numbers for when it is switched back on) */
+function withBandRules(changes) {
+  const out = { ...changes }, v = { ...state.values, ...changes };
+  const remember = (n) => { if (typeof v[n] === "number") state.lastNumbers[n] = v[n]; };
+  for (const name of Object.keys(changes)) {
+    const pair = pairOf(name);
+    if (!pair) continue;
+    const partner = pair.find((n) => n !== name), other = pair === BAND_RADII ? BAND_CENTRE : BAND_RADII;
+    if (changes[name] === null) {
+      if (v[partner] !== null) { remember(partner); out[partner] = v[partner] = null; }
+    } else {
+      if (v[partner] === null) out[partner] = v[partner] = numberFor(partner, v);     // read the other pair before it is cleared
+      for (const n of other) if (v[n] !== null) { remember(n); out[n] = v[n] = null; }
+    }
+  }
+  return out;
+}
+
 function setValues(changes, from) {
+  if (from !== "import" && from !== "reset") changes = withBandRules(changes);      // a loaded design is taken as it is
   let any = false;
   for (const [k, v] of Object.entries(changes)) {
     if (!same(state.values[k], v)) { state.values[k] = v; any = true; }
@@ -286,10 +342,25 @@ function presetOf(v) {
   return null;
 }
 
-function numberField({ name, label, unit, min, max, step, slider, ticks, note }) {
-  const v = state.values[name];
-  const input = el("input", { type: "text", inputmode: "decimal", value: fmt(v), "aria-label": label });
-  const range = slider ? el("input", { type: "range", min: slider[0], max: slider[1], step, value: v, "aria-label": label }) : null;
+/* the small "None" switch at the right of a field's name: on = the parameter is None (its number is greyed out) */
+function noneSwitch(name, on) {
+  const cb = el("input", { type: "checkbox", "data-focus": `none-${name}`, "aria-label": "None" });
+  cb.checked = on;
+  cb.addEventListener("change", () => {
+    if (cb.checked) state.lastNumbers[name] = state.values[name];
+    setValues({ [name]: cb.checked ? null : numberFor(name, state.values) }, "basic-none");
+    updateBasicNotes();
+    renderResults();
+  });
+  return el("label", { class: "switch-row small none-switch", "data-tip": NONE_TIPS[name] }, el("span", {}, "None"),
+    el("span", { class: "switch" }, cb, el("span", { class: "knob" })));
+}
+
+function numberField({ name, label, unit, min, max, step, slider, ticks, note, none }) {
+  const v = state.values[name], isNone = v === null;
+  const shown = isNone ? numberFor(name, state.values) : v;              // a None field keeps showing the number it would return to
+  const input = el("input", { type: "text", inputmode: "decimal", value: isNone ? "None" : fmt(v), disabled: isNone, "aria-label": label });
+  const range = slider ? el("input", { type: "range", min: slider[0], max: slider[1], step, value: shown, disabled: isNone, "aria-label": label }) : null;
   const clamp = (x) => Math.min(max, Math.max(min, x));
   const commit = (x, src) => {
     if (!Number.isFinite(x)) { input.value = fmt(state.values[name]); return; }
@@ -305,12 +376,13 @@ function numberField({ name, label, unit, min, max, step, slider, ticks, note })
   });
   if (range) range.addEventListener("input", () => commit(parseFloat(range.value), "range"));
   const stepper = el("span", { class: "stepper" },
-    el("button", { type: "button", "aria-label": "Less", onclick: () => commit(state.values[name] - step) }, "−"),
+    el("button", { type: "button", "aria-label": "Less", disabled: isNone, onclick: () => commit(state.values[name] - step) }, "−"),
     input,
-    el("button", { type: "button", "aria-label": "More", onclick: () => commit(state.values[name] + step) }, "+"));
+    el("button", { type: "button", "aria-label": "More", disabled: isNone, onclick: () => commit(state.values[name] + step) }, "+"));
   const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, label, unit ? el("span", { class: "unit" }, ` (${unit})`) : null));
   attachHelp(head, name);
   if (note !== undefined) head.append(el("span", { class: "field-note", "data-note": name }, note));
+  if (none) head.append(noneSwitch(name, isNone));
   // tick labels sit under the track itself, each at its value (the thumb is 20 px, so the track runs 10 px in)
   const withTicks = !!(range && ticks);
   const track = withTicks ? el("div", { class: "range-wrap" }, range, el("div", { class: "ticks" }, ticks.map((t) =>
@@ -318,13 +390,13 @@ function numberField({ name, label, unit, min, max, step, slider, ticks, note })
   return el("div", { class: "field" + (withTicks ? " has-ticks" : "") }, head, el("div", { class: "num-row" }, stepper, track));
 }
 
-function segmentedField({ name, label, options, note, onPick }) {
+function segmentedField({ name, label, options, note, onPick, value = state.values[name] }) {
   const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, label));
   attachHelp(head, name);
   if (note !== undefined) head.append(el("span", { class: "field-note", "data-note": name }, note));
   const seg = el("div", { class: "segmented" });
   for (const [val, text] of options) {
-    seg.append(el("button", { type: "button", class: same(state.values[name], val) ? "on" : "",
+    seg.append(el("button", { type: "button", class: same(value, val) ? "on" : "",
       onclick: (e) => {
         if (onPick) { onPick(val); return; }
         seg.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b === e.currentTarget));
@@ -332,6 +404,16 @@ function segmentedField({ name, label, options, note, onPick }) {
       } }, text));
   }
   return el("div", { class: "field" }, head, seg);
+}
+
+function boolField({ name, label }) {
+  const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, label));
+  attachHelp(head, name);
+  const cb = el("input", { type: "checkbox" }), word = el("span", {}, state.values[name] ? "On" : "Off");
+  cb.checked = !!state.values[name];
+  cb.addEventListener("change", () => { word.textContent = cb.checked ? "On" : "Off"; basicChange(name, cb.checked); });
+  return el("div", { class: "field" }, head,
+    el("label", { class: "switch-row" }, el("span", { class: "switch" }, cb, el("span", { class: "knob" })), word));
 }
 
 function presetCard(p, selected) {
@@ -379,39 +461,85 @@ function noteFor(name) {
   if (name === "LOOPS") return `Range: ${fmt(v.LOOPS ? 360 / v.LOOPS : 360)}°`;
   if (name === "RX_SUBCOILS") return v.RX_SUBCOILS > 1 ? `Split: ${fmt(v.RX_SUBCOIL_SPLIT_ELEC_DEG)}° el` : "";
   if (name === "TX_TURNS") return `Total: ${v.TX_LAYERS === 2 ? v.TX_TURNS * 2 : v.TX_TURNS}`;
+  if (name === "RX_BAND") {                                    // which of the three ways the band is given (BandLayout.py)
+    if (BAND_RADII.every((n) => v[n] !== null)) return "From the radii";
+    if (BAND_CENTRE.every((n) => v[n] !== null)) return "From R Base and A";
+    return v.INNER_EDGE_RADIUS_MM === null || v.OUTER_EDGE_RADIUS_MM === null ? "Needs both board edges" : "From the board edges";
+  }
   return "";
 }
 function updateBasicNotes() {
   document.querySelectorAll("#basic-controls [data-note]").forEach((n) => (n.textContent = noteFor(n.dataset.note)));
 }
 
-function renderBasic() {
-  const box = $("basic-controls");
-  const scroll = $("basic-panel").scrollTop;
-  box.innerHTML = "";
+/* Basic has the same four categories as Advanced (the parameter files); each page holds the main settings of one. */
+function basicBoardFields() {
   const v = state.values;
-  box.append(
-    numberField({ name: "INNER_EDGE_RADIUS_MM", label: "Board Inner Radius", unit: "mm", min: 1, max: 200, step: 0.5, slider: [5, 120] }),
-    numberField({ name: "OUTER_EDGE_RADIUS_MM", label: "Board Outer Radius", unit: "mm", min: 5, max: 250, step: 0.5, slider: [10, 150] }),
+  return [
+    numberField({ name: "INNER_EDGE_RADIUS_MM", label: "Board Inner Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 120], none: true }),
+    numberField({ name: "OUTER_EDGE_RADIUS_MM", label: "Board Outer Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [10, 150], none: true }),
+    segmentedField({ name: "PCB_LAYERS", label: "Board Layers", options: [[2, "2 Layers"], [4, "4 Layers"]],
+      onPick: (n) => { if (n !== v.PCB_LAYERS) pickPreset(n === 2 ? "2-bottom" : "4-inner1"); } }),
+    numberField({ name: "AIR_GAP_MM", label: "Air Gap", unit: "mm", min: 0.1, max: 10, step: 0.1, slider: [0.2, 5] }),
+  ];
+}
+function basicRxFields() {
+  return [
     numberField({ name: "LOOPS", label: "Loops", min: 1, max: 16, step: 1, slider: [1, 16],
       note: noteFor("LOOPS"), ticks: ["1", "4", "8", "12", "16"] }),
     segmentedField({ name: "RX_SUBCOILS", label: "RX Sub-Coils", options: [[1, "1 (None)"], [2, "2"], [3, "3"]],
       note: noteFor("RX_SUBCOILS") }),
-    numberField({ name: "TX_TURNS", label: "TX Turns Per Layer", min: 1, max: 12, step: 1,
-      note: noteFor("TX_TURNS") }),
-    segmentedField({ name: "PCB_LAYERS", label: "Board Layers", options: [[2, "2 Layers"], [4, "4 Layers"]],
-      onPick: (n) => { if (n !== v.PCB_LAYERS) pickPreset(n === 2 ? "2-bottom" : "4-inner1"); } }),
-  );
-  // TX layout cards
-  const current = presetOf(v);
+    el("div", { class: "group-title with-note" }, "RX Band", el("span", { class: "field-note", "data-note": "RX_BAND" }, noteFor("RX_BAND"))),
+    numberField({ name: "INSIDE_RADIUS_MM", label: "RX Inside Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 150], none: true }),
+    numberField({ name: "OUTSIDE_RADIUS_MM", label: "RX Outside Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 150], none: true }),
+    numberField({ name: "RX_R_BASE_MM", label: "RX R Base", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 150], none: true }),
+    numberField({ name: "RX_A_MM", label: "RX Swing A", unit: "mm", min: 0.1, max: 125, step: 0.1, slider: [0.5, 40], none: true }),
+  ];
+}
+function basicTxFields() {
+  const v = state.values, current = presetOf(v);
   const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, "TX Layout"));
   attachHelp(head, "TX_LAYERS");
   head.append(el("span", { class: "field-note" }, current ? PRESETS.find((p) => p.id === current).note : "Custom (set in Advanced)"));
   const slider = el("div", { class: "slider" });
   for (const p of PRESETS.filter((p) => p.layers === v.PCB_LAYERS)) slider.append(presetCard(p, p.id === current));
-  box.append(el("div", { class: "field" }, head, slider));
-  box.append(numberField({ name: "AIR_GAP_MM", label: "Air Gap", unit: "mm", min: 0.1, max: 10, step: 0.1, slider: [0.2, 5] }));
-  $("basic-panel").scrollTop = scroll;
+  return [
+    numberField({ name: "TX_TURNS", label: "TX Turns Per Layer", min: 1, max: 12, step: 1, note: noteFor("TX_TURNS") }),
+    el("div", { class: "field" }, head, slider),
+  ];
+}
+function basicRotorFields() {
+  const mode = String(state.values.ROTOR_MODE || "").toLowerCase();
+  const modePicker = segmentedField({ name: "ROTOR_MODE", label: "Rotor Mode", value: mode,
+    options: [["according_to_stator", "Automatic"], ["custom", "Custom"]],
+    onPick: (m) => setValues({ ROTOR_MODE: m }, "basic-mode") });      // the fields below depend on the mode
+  if (mode === "custom") return [
+    modePicker,
+    numberField({ name: "ROTOR_CUSTOM_SECTORS", label: "Rotor Metal Sectors", min: 1, max: 64, step: 1 }),
+    numberField({ name: "ROTOR_CUSTOM_DUTY", label: "Rotor Metal Fraction", min: 0.05, max: 0.95, step: 0.01, slider: [0.05, 0.95] }),
+  ];
+  return [
+    modePicker,
+    numberField({ name: "ROTOR_AUTO_DUTY", label: "Rotor Metal Fraction", min: 0.05, max: 0.95, step: 0.01, slider: [0.05, 0.95] }),
+    boolField({ name: "ROTOR_AUTO_COVER_TX", label: "Copper Over The TX Turns" }),
+  ];
+}
+const BASIC_PAGES = { "Board_Parameters.py": basicBoardFields, "RX_Parameters.py": basicRxFields,
+  "TX_Parameters.py": basicTxFields, "Rotor_Parameters.py": basicRotorFields };
+
+function renderBasic() {
+  const panel = $("basic-panel"), tabs = $("basic-tabs"), box = $("basic-controls");
+  const scroll = panel.scrollTop, focused = document.activeElement && document.activeElement.dataset.focus;
+  tabs.innerHTML = "";
+  for (const [file, title] of Object.entries(TAB_TITLES)) {
+    tabs.append(el("button", { type: "button", class: file === state.basicTab ? "on" : "", "data-tip": `The main settings in the ${title} category`,
+      onclick: () => { state.basicTab = file; renderBasic(); } }, title));
+  }
+  box.innerHTML = "";
+  box.append(...BASIC_PAGES[state.basicTab]());
+  panel.scrollTop = scroll;
+  const again = focused && box.querySelector(`[data-focus="${focused}"]`);       // keep the keyboard on the switch just used
+  if (again) again.focus();
   updateAdvNote();
 }
 
@@ -506,7 +634,7 @@ function advancedWidget(p) {
     const autoWord = k === "num_or_none" ? "None" : "Auto";
     const cb = el("input", { type: "checkbox" }); cb.checked = isAuto;
     const fallback = typeof p.default === "number" ? p.default : (k === "steps" ? 200 : (o.lo ?? 1));
-    const lastNumber = isAuto ? (state.lastNumbers[name] ?? fallback) : v;
+    const lastNumber = isAuto ? (k === "num_or_none" ? numberFor(name, state.values) : (state.lastNumbers[name] ?? fallback)) : v;
     cb.addEventListener("change", () => {
       if (cb.checked) { state.lastNumbers[name] = typeof v === "number" ? v : lastNumber; set(k === "num_or_none" ? null : "auto"); }
       else set(lastNumber);

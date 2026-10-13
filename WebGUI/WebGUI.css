@@ -232,6 +232,9 @@ html.embedded .standalone-nav { display: none; }
 /* a field with help text shows the help cursor on its label */
 .field-head[data-help] .field-label { cursor: help; }
 .field-note { color: var(--text-3); font-size: 12px; margin-left: auto; text-align: right; }
+.none-switch { margin-left: auto; }                         /* the None switch of a Basic number field, at the right of its name */
+.group-title.with-note { display: flex; align-items: baseline; }
+.group-title .field-note { text-transform: none; letter-spacing: 0; font-weight: normal; }   /* a note beside a heading reads as normal text */
 .info-dot {
   width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--text-3); color: var(--text-3);
   font-size: 10.5px; line-height: 14px; text-align: center; cursor: help; flex: none; font-style: normal;
@@ -243,7 +246,9 @@ html.embedded .standalone-nav { display: none; }
 .stepper { display: inline-flex; align-items: stretch; border-radius: 8px; overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.12); background: #fff; box-shadow: var(--shadow-btn); flex: none; }
 .stepper button { width: 26px; border: 0; background: transparent; font-size: 16px; color: var(--text-2); cursor: pointer; transition: all var(--ease); }
-.stepper button:hover { background: var(--cream); color: var(--accent); }
+.stepper button:hover:not(:disabled) { background: var(--cream); color: var(--accent); }
+.stepper button:disabled { cursor: default; opacity: 0.45; }
+.stepper input:disabled { background: transparent; color: var(--text-3); }
 .stepper input { width: 64px; border: 0; border-left: 1px solid var(--divider); border-right: 1px solid var(--divider);
   text-align: center; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); padding: 4px 2px; outline: none; }
 .stepper input:focus { background: var(--cream); }
@@ -255,6 +260,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; box-sizing: 
 input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; box-sizing: border-box; background: var(--metal-knob);
   background-origin: border-box; border: 1.5px solid transparent; box-shadow: var(--metal-shadow); cursor: pointer; }
 input[type=range]:focus { outline: none; }
+input[type=range]:disabled { opacity: 0.4; }
+input[type=range]:disabled::-webkit-slider-thumb, input[type=range]:disabled::-moz-range-thumb { cursor: default; }
 input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: var(--metal-shadow), 0 0 0 2px var(--accent); }
 input[type=range]:focus-visible::-moz-range-thumb { box-shadow: var(--metal-shadow), 0 0 0 2px var(--accent); }
 .range-wrap { position: relative; flex: 1; display: flex; min-width: 60px; }
