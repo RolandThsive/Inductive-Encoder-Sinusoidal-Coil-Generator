@@ -270,13 +270,13 @@ class BoardView {
   }
 
   /* the origin, Onshape style: a black dot inside a thin black ring, with a small gap between them; a fixed size on
-     screen (hovering the Origin button makes it about twice as big) */
+     screen (hovering the Origin button makes it half again as big) */
   _drawOrigin(px) {
-    const ctx = this.ctx, [cx, cy] = this.center, k = (this.originBoost ? 1.9 : 1) * px;
+    const ctx = this.ctx, [cx, cy] = this.center, k = (this.originBoost ? 1.5 : 1) * px;
     ctx.fillStyle = "#000";
-    ctx.beginPath(); ctx.arc(cx, cy, 2.5 * k, 0, 2 * Math.PI); ctx.fill();
-    ctx.strokeStyle = "#000"; ctx.lineWidth = 1 * k;
-    ctx.beginPath(); ctx.arc(cx, cy, 5.5 * k, 0, 2 * Math.PI); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, 1.7 * k, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = "#000"; ctx.lineWidth = 0.9 * k;
+    ctx.beginPath(); ctx.arc(cx, cy, 3.9 * k, 0, 2 * Math.PI); ctx.stroke();
   }
 
   _drawMeasure(px) {
