@@ -85,9 +85,9 @@ TX_START_ANGLE_DEG = 0.0            # azimuth of the TX tail / via: a number of 
 #        of the finger and the turns of the other layer carry the current past it.
 # All TX turns are one net, so KiCad's DRC cannot see a via touching another turn: the
 # generator checks that itself and warns.
-TX_LAYERS  = 2
-TX_LAYER_A = 1
-TX_LAYER_B = 2
+TX_LAYERS  = 1
+TX_LAYER_A = 4
+TX_LAYER_B = 1
 TX_SERIES  = True
 
 # ---- SERIES block (TX_SERIES = True, and every TX on one layer) -----------------------------

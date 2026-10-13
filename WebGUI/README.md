@@ -7,8 +7,7 @@ the desktop output folder.
 The generator is not rewritten. The page loads Python (Pyodide) and numpy in the visitor's browser, fetches
 `Generator/` and `Parameters/` from this repository, and runs them unchanged. Nothing is sent to a server.
 For the same parameters the boards are byte-identical to `RunCoilGenerator.py` on a desktop.
-One starting value differs on the web: the RX net names are `SIN_Signal` and `COS_Signal` (`WEB_DEFAULTS` in
-`WebGenerator.py`); the parameter files keep `"2"` and `"1"`.
+The page starts from the defaults in the parameter files, so its first board is the desktop's default board.
 
 First release: generator only. No receiver IC, no optimizer, no analyser and no electrical estimate.
 

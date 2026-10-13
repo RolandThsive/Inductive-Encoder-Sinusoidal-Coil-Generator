@@ -35,7 +35,7 @@ PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
 # All vias are ordinary through-hole vias (no blind / buried vias needed).
 # Keep the layers that carry no coil free of copper pours under the coil area -
 # a plane there acts like an extra target and weakens the signal.
-PCB_LAYERS = 4
+PCB_LAYERS = 2
 
 # Via / copper-to-copper rules the generator must respect when it places vias.
 VIA_DIAMETER_MM   = 0.6
@@ -44,12 +44,12 @@ MIN_CLEARANCE_MM  = 0.2
 
 # ---- board outline (Edge.Cuts circles) --------------------------------------
 INNER_EDGE_INSET_MM   = 1.2         # inner hole radius = RX inside radius - this ...
-INNER_EDGE_RADIUS_MM  = 15          # ... or set a fixed radius here: the hole gets exactly this
+INNER_EDGE_RADIUS_MM  = 25          # ... or set a fixed radius here: the hole gets exactly this
                                     # radius and the RX band starts INNER_EDGE_INSET_MM outside it
                                     # (INSIDE_RADIUS_MM in RX_Parameters.py is then not used).
                                     # None = the formula above.
 OUTER_EDGE_OFFSET_MM  = 4.0         # outer edge = RX outside radius + this ...
-OUTER_EDGE_RADIUS_MM  = 27          # ... or set a fixed radius here: the board edge gets exactly this
+OUTER_EDGE_RADIUS_MM  = 50          # ... or set a fixed radius here: the board edge gets exactly this
                                     # radius and the RX band ends where the rule below would have put
                                     # this edge, so the TX turns, the TX tail and the bridging fingers
                                     # fit inside it with the usual margins

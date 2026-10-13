@@ -54,8 +54,9 @@ def _no_papers(text):
     return re.sub(r"[ \t]{2,}", " ", t)
 
 
-# Starting values that differ from the parameter files in the web version only (the generator is unchanged).
-WEB_DEFAULTS = {"RX_NET_PHASE_0_2": "SIN_Signal", "RX_NET_PHASE_1_3": "COS_Signal"}
+# Starting values that differ from the parameter files in the web version only (none now: the files themselves
+# carry the web's defaults, e.g. RX nets "SIN_Signal" / "COS_Signal").
+WEB_DEFAULTS = {}
 # Shown, but not editable: they only name files and place the board on the KiCad page.
 READ_ONLY = {"OUTPUT_DIR", "STATOR_FILE", "ROTOR_FILE", "CENTER_X_MM", "CENTER_Y_MM", "PAGE_SIZE_MM"}
 

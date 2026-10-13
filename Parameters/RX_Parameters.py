@@ -13,7 +13,7 @@ Units: millimetres, degrees.  Nothing in this file is computed - edit values onl
 #   - 1 loop gives true 0-360 deg absolute output; higher counts give
 #     proportionally finer angular resolution/accuracy per degree.
 #   (1 loop = 1 full sine period = 2 lobes: one positive and one negative.)
-LOOPS = 1
+LOOPS = 4
 
 # Radial band occupied by the RX copper (centre line of the traces).
 # INSIDE_RADIUS_MM is not used when INNER_EDGE_RADIUS_MM (Board_Parameters.py) is set: the
@@ -28,8 +28,8 @@ RX_TRACE_WIDTH_MM = 0.2
 
 # Net names. Phases 0 and 2 (sine, +/-) form one coil, phases 1 and 3
 # (cosine, +/-) form the other.
-RX_NET_PHASE_0_2 = "2"
-RX_NET_PHASE_1_3 = "1"
+RX_NET_PHASE_0_2 = "SIN_Signal"
+RX_NET_PHASE_1_3 = "COS_Signal"
 
 # Rotation of the whole RX pattern, as  (fraction of one loop) + (degrees).
 # -0.35 reproduces the original generator (and your 1-loop / 2-loop examples).
