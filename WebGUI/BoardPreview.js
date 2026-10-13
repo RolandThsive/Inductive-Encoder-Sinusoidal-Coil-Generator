@@ -269,20 +269,14 @@ class BoardView {
     }
   }
 
-  /* the origin, Onshape style: a small shaded blue point at the board centre, a fixed size on screen
-     (hovering the Origin button makes it bigger) */
+  /* the origin, Onshape style: a black dot inside a thin black ring, with a small gap between them; a fixed size on
+     screen (hovering the Origin button makes it about twice as big) */
   _drawOrigin(px) {
-    const ctx = this.ctx, [cx, cy] = this.center;
-    const r = (this.originBoost ? 7.5 : 4) * px;
-    ctx.save();
-    ctx.shadowColor = "rgba(0, 0, 0, 0.25)"; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1;
-    const g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, r * 0.1, cx, cy, r);
-    g.addColorStop(0, "#8fc4ff"); g.addColorStop(0.55, "#2f7fe0"); g.addColorStop(1, "#1b5bb0");
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.fill();
-    ctx.restore();
-    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.2 * px;
-    ctx.beginPath(); ctx.arc(cx, cy, r + 0.6 * px, 0, 2 * Math.PI); ctx.stroke();
+    const ctx = this.ctx, [cx, cy] = this.center, k = (this.originBoost ? 1.9 : 1) * px;
+    ctx.fillStyle = "#000";
+    ctx.beginPath(); ctx.arc(cx, cy, 2.5 * k, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = "#000"; ctx.lineWidth = 1 * k;
+    ctx.beginPath(); ctx.arc(cx, cy, 5.5 * k, 0, 2 * Math.PI); ctx.stroke();
   }
 
   _drawMeasure(px) {
