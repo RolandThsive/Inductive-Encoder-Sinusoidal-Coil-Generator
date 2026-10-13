@@ -312,7 +312,8 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .fs-btn:hover { background: rgba(0, 0, 0, 0.85); }
 .canvas-tools { position: absolute; top: 10px; left: 10px; z-index: 10; display: grid; grid-template-columns: auto auto; gap: 8px 6px;
   align-items: center; }
-.canvas-tools #btn-measure { grid-column: 1; justify-self: start; }
+#origin-slot, .canvas-tools #btn-measure { grid-column: 1; justify-self: start; }
+#origin-slot { display: flex; }
 .canvas-tools .on { border-color: var(--accent); color: var(--accent); background: var(--cream); }
 .readout { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums;
   background: rgba(255, 255, 255, 0.7); padding: 2px 8px; border-radius: 6px; pointer-events: none; }

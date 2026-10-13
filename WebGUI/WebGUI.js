@@ -702,7 +702,7 @@ function renderLayerToggles() {
     onmouseleave: () => view.setViaBoost(false) }, icon, "Vias");
   box.append(chip);
 }
-// Sin / Cos / TX Loops and Origin (top right of the preview): hover highlights, click hides
+// Sin / Cos / TX Loops (top right of the preview) and Origin (under Fullscreen): hover highlights, click hides
 const NET_BUTTONS = [
   { role: "sin", text: "Sin Loops", what: "the SIN coil (RX phases 0 / 2)", icon: "M1 7 C4 -1 6 -1 9 7 S14 15 17 7" },
   { role: "cos", text: "Cos Loops", what: "the COS coil (RX phases 1 / 3)", icon: "M1 3 C3 3 4 11 9 11 S15 3 17 3" },
@@ -722,11 +722,13 @@ function renderNetToggles() {
       onmouseenter: () => { if (!view.hiddenNets.has(n.role)) view.setHighlight(n.role); },
       onmouseleave: () => view.setHighlight(null) }, icon, n.text));
   }
-  // the board centre: hover colours the marker, click hides it
+  // the board centre (under Fullscreen): hover colours the marker, click hides it
+  const slot = $("origin-slot");
+  slot.innerHTML = "";
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   icon.setAttribute("viewBox", "0 0 18 14");
   icon.innerHTML = `<circle cx="9" cy="7" r="1.8" fill="currentColor" stroke="none"/><circle cx="9" cy="7" r="4.6" stroke-width="1.1"/>`;
-  box.append(el("button", { type: "button", class: "net-btn" + (view.showOrigin ? "" : " off"), role: "switch", "aria-checked": String(view.showOrigin),
+  slot.append(el("button", { type: "button", class: "net-btn" + (view.showOrigin ? "" : " off"), role: "switch", "aria-checked": String(view.showOrigin),
     "data-tip": view.showOrigin ? "The board centre (origin). Hover to highlight it, click to hide it" : "Show the board centre (origin)",
     onclick: () => { view.toggleOrigin(); view.setOriginBoost(false); renderNetToggles(); },
     onmouseenter: () => { if (view.showOrigin) view.setOriginBoost(true); },
