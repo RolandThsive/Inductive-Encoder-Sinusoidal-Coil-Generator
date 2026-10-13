@@ -584,6 +584,12 @@ function setMode(mode) {
   document.querySelectorAll("#mode-switch button").forEach((b) => b.classList.toggle("on", b.dataset.mode === mode));
   // the panel widens (Advanced) or narrows (Basic) while the old controls fade out and the new ones fade in
   const ctr = $("controls");
+  // the leaving controls keep their width while they fade out, so the panel resizing under them cannot squeeze
+  // (or stretch) them; the width is released when they are hidden
+  for (const id of ["basic-panel", "advanced-panel"]) {
+    const p = $(id), w = p.getBoundingClientRect().width;
+    if (!p.hidden && w) p.style.width = `${w}px`;
+  }
   ctr.classList.remove("enter");
   ctr.classList.add("leave");
   $("app").classList.toggle("advanced", mode === "advanced");
@@ -591,6 +597,7 @@ function setMode(mode) {
   modeTimer = setTimeout(() => {
     $("basic-panel").hidden = state.mode !== "basic";
     $("advanced-panel").hidden = state.mode !== "advanced";
+    $("basic-panel").style.width = $("advanced-panel").style.width = "";
     if (state.mode === "advanced") renderAdvanced(); else renderBasic();
     ctr.classList.remove("leave");
     void ctr.offsetWidth;                                  // restart the fade-in
