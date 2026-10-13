@@ -7,26 +7,31 @@ needed to make a board.  Run it when you want to know whether other settings wou
 It never changes your parameter files - it prints the lines to change.
 
     python OptimizeCoil.py                     search, starting from the current parameter files
-    python OptimizeCoil.py --loops 8           the same for another loop count
-    python OptimizeCoil.py --quick             faster: air-gap tolerance only (no eccentricity / tilt)
-    python OptimizeCoil.py --csv all.csv --plot all.png
-    python OptimizeCoil.py --help              every option
+
+There are no command-line options.  Everything it does is set in OptimizerParameters.py (Parameters folder):
+what is searched, the tolerances, the model, the number of worker processes and the RX base / amplitude finder.
 
 What it searches (everything else stays as in your parameter files)
     RX_PROFILE                  equal_area | cosine_r | field_compensated
     RX_SUBCOILS and the split   1 sub-coil, or 2 sub-coils split by 36 ... 60 electrical degrees
     ROTOR_AUTO_DUTY             rotor metal fraction 0.25 ... 0.50
     outer edge of the rotor     where the rotor copper ends on the outside.  With the eddy-current rotor
-                                model (the default, --rotor-model eddy) it is searched from 0.2 mm inside
+                                model (the default, ROTOR_MODEL = "eddy") it is searched from 0.2 mm inside
                                 the outer radius of the RX band, over the TX turns, out to the board
                                 outline (ROTOR_AUTO_EDGE_CLEARANCE_MM), in 0.5 mm steps, and reported as
                                 ROTOR_AUTO_COVER_TX = True with ROTOR_AUTO_TX_OVERHANG_MM (mm past the
                                 outer edge of the outermost TX turn; negative = it ends over the TX turns).
-                                With --rotor-model screen (the older, idealised model, which cannot judge
+                                With ROTOR_MODEL = "screen" (the older, idealised model, which cannot judge
                                 copper over the TX) it is ROTOR_AUTO_EXTENSION_OUTER_MM, -0.2 ... +0.5 mm
                                 past the RX band, inside the TX ring.
                                 It is searched together with the metal fraction, because the best value
-                                of one depends on the other.  (--keep-outer leaves it as it is.)
+                                of one depends on the other.  (SEARCH_ROTOR_OUTER_EDGE = False leaves it as it is.)
+    RX_R_BASE_MM / RX_A_MM      only when the RX band is not given (INSIDE_RADIUS_MM, OUTSIDE_RADIUS_MM, RX_R_BASE_MM and
+                                RX_A_MM all None), both board edges are set and RX_BASE_AND_AMPLITUDE_FINDER = True:
+                                everything above is optimized first, with the widest band the board and your TX
+                                coil leave.  Then, for the best BAND_BOARDS boards and for your current layout, the
+                                band is narrowed and moved (BAND_WIDTH_LIMIT_PERCENT, BAND_STEP_PERCENT) to find the
+                                best RX_R_BASE_MM and RX_A_MM, keeping your TX coil (it moves with the band).
     TX_START_ANGLE_DEG          switched to "auto" automatically when a layout needs it
     RX_TABS                     only with COMPARE_FINGERS = True in OptimizerParameters.py: every layout
                                 with fingers at every tip ("all"), one finger per coil ("single") and
@@ -49,7 +54,7 @@ How candidates are judged
   * A candidate whose signal is below MIN_SIGNAL x the signal of your current design is not
     allowed (less signal means more noise in a real sensor).
   * A candidate that the generator warns about (for example a via closer to copper than
-    MIN_CLEARANCE_MM) is shown but is not recommended unless you pass --allow-warnings.
+    MIN_CLEARANCE_MM) is shown but is not recommended unless ALLOW_WARNINGS = True.
   * Differences below about 20 % are ties: the model is a ranking tool, not a measurement.  Among
     ties the outer edge of the rotor with the most signal is taken (eddy model; the screen model takes
     the one closest to the outer radius of the RX band), and in the ranking the candidate with the smaller air gap / metal fraction part comes first.  The best
@@ -60,19 +65,16 @@ How candidates are judged
     your current design keeps is not recommended.
 
 Run time: the eddy-current model solves the currents in the rotor copper, so a search takes several
-minutes (about 40 s per layout for the first stage, about 30 s per finalist); --rotor-model screen is
+minutes (about 40 s per layout for the first stage, about 30 s per finalist); ROTOR_MODEL = "screen" is
 much faster but does not see what copper over the TX turns does.
 
-Settings: at the top of this file (search ranges, tolerances) and OptimizerParameters.py (what else to
-compare; a missing OptimizerParameters.py means COMPARE_FINGERS = False).
+Settings: OptimizerParameters.py (a missing file or a missing line means the value in DEFAULTS below).
 
-Needs Python 3 and numpy (matplotlib only for --plot).  Runs from any folder (project layout: README.txt in the project folder).
+Needs Python 3 and numpy.  Runs from any folder (project layout: README.txt in the project folder).
 """
 
-import argparse
 import concurrent.futures as cf
 from concurrent.futures.process import BrokenProcessPool
-import csv
 import math
 import multiprocessing as mp
 import os
@@ -99,10 +101,10 @@ import RotorGenerator as RG                               # noqa: E402
 from ParameterChecker import Colour                       # noqa: E402
 
 # =============================================================================
-# SETTINGS  (edit values; most can also be changed on the command line)
+# DEFAULTS  (used when OptimizerParameters.py or one of its lines is missing; the settings you change are there)
 # =============================================================================
 PROFILES            = ("equal_area", "cosine_r", "field_compensated")
-SUBCOIL_COUNTS      = (1, 2)                       # 3 is possible (--subcoils 1 2 3) but crowded
+SUBCOIL_COUNTS      = (1, 2)                       # 3 is possible but crowded
 SUBCOIL_SPLITS_DEG  = (36.0, 40.0, 45.0, 50.0, 55.0, 60.0)
 DUTY_RANGE          = (0.25, 0.50)                 # rotor metal fraction searched
 DUTY_STEP           = 0.005
@@ -119,6 +121,12 @@ FINALISTS           = 6                            # candidates re-checked with 
 DIRECTIONS          = AC.ECC_DIRECTIONS            # eccentricity directions tried (all tilt directions are always tried)
 JOBS                = 0                            # worker processes, 0 = automatic (at most 4)
 TIE_FRACTION        = 0.20                         # differences below this are ties
+# RX base and amplitude finder
+BAND_FINDER         = True
+BAND_LIMIT_PERCENT  = 70.0                         # narrowest band tried, % of the widest
+BAND_STEP_PERCENT   = 10.0                         # step of the search, %
+BAND_BOARDS         = 3                            # best boards (besides the current layout) that get the finder
+BAND_COARSE_MAX     = 40                           # at most this many bands in the first (coarse) round per board
 
 
 # =============================================================================
@@ -131,10 +139,26 @@ def _overlay(base_over, cand_over):
     return AC.Overlay(P0, **over) if over else P0
 
 
+def _is_num(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def _is_int(v):
+    return isinstance(v, int) and not isinstance(v, bool)
+
+
 def load_optimizer_parameters():
     """OptimizerParameters.py: (settings dict, None) or (None, error text).  A missing file or a missing line
-    means the old behaviour (COMPARE_FINGERS = False)."""
-    out = dict(COMPARE_FINGERS=False)
+    means the default (DEFAULTS above)."""
+    out = dict(COMPARE_FINGERS=False, PROFILES=PROFILES, SUBCOIL_COUNTS=SUBCOIL_COUNTS,
+               SUBCOIL_SPLITS_DEG=SUBCOIL_SPLITS_DEG, DUTY_RANGE=DUTY_RANGE, SEARCH_ROTOR_OUTER_EDGE=True,
+               OUTER_RANGE_MM=OUTER_RANGE_MM, GAP_TOLERANCE_MM=AC.GAP_TOLERANCE_MM,
+               DUTY_TOLERANCE=AC.ROTOR_DUTY_TOLERANCE, OUTER_TOLERANCE_MM=OUTER_TOLERANCE_MM,
+               ECCENTRICITY_MM=AC.ECCENTRICITY_MM, TILT_DEG=AC.TILT_DEG, ECC_DIRECTIONS=DIRECTIONS,
+               MIN_SIGNAL=MIN_SIGNAL, ALLOW_WARNINGS=False, FINALISTS=FINALISTS, ROTOR_MODEL=AC.ROTOR_MODEL,
+               TRUE_3D_GEOMETRY=AC.TRUE_3D_GEOMETRY, SCREEN_SHARP_EDGES=False, JOBS=JOBS,
+               RX_BASE_AND_AMPLITUDE_FINDER=BAND_FINDER, BAND_WIDTH_LIMIT_PERCENT=BAND_LIMIT_PERCENT,
+               BAND_STEP_PERCENT=BAND_STEP_PERCENT, BAND_BOARDS=BAND_BOARDS)
     try:
         import OptimizerParameters as OP
     except ModuleNotFoundError as e:
@@ -143,10 +167,53 @@ def load_optimizer_parameters():
         return None, f"OptimizerParameters.py cannot be loaded: {type(e).__name__}: {e}"
     except Exception as e:                                  # syntax error ...
         return None, f"OptimizerParameters.py cannot be loaded: {type(e).__name__}: {e}"
-    val = getattr(OP, "COMPARE_FINGERS", False)
-    if not isinstance(val, bool):
-        return None, f"COMPARE_FINGERS in OptimizerParameters.py must be True or False; it is {val!r}"
-    out["COMPARE_FINGERS"] = val
+    unknown = [n for n in dir(OP) if n.isupper() and n not in out]
+    if unknown:
+        return None, (f"OptimizerParameters.py: {', '.join(unknown)} is not an optimizer setting "
+                      f"(check the spelling; the settings are listed in that file)")
+    for name in out:
+        if hasattr(OP, name):
+            out[name] = getattr(OP, name)
+
+    def bad(name, what):
+        return None, f"{name} in OptimizerParameters.py must be {what}; it is {out[name]!r}"
+
+    for name in ("COMPARE_FINGERS", "SEARCH_ROTOR_OUTER_EDGE", "ALLOW_WARNINGS", "TRUE_3D_GEOMETRY",
+                 "SCREEN_SHARP_EDGES", "RX_BASE_AND_AMPLITUDE_FINDER"):
+        if not isinstance(out[name], bool):
+            return bad(name, "True or False")
+    seq = lambda v: isinstance(v, (tuple, list))
+    if not seq(out["PROFILES"]) or not out["PROFILES"] or any(p not in PROFILES for p in out["PROFILES"]):
+        return bad("PROFILES", 'a list of "equal_area", "cosine_r", "field_compensated"')
+    if not seq(out["SUBCOIL_COUNTS"]) or not out["SUBCOIL_COUNTS"] or any(
+            not _is_int(n) or n not in (1, 2, 3) for n in out["SUBCOIL_COUNTS"]):
+        return bad("SUBCOIL_COUNTS", "a list of 1, 2 and/or 3")
+    if not seq(out["SUBCOIL_SPLITS_DEG"]) or any(not _is_num(v) or v <= 0 for v in out["SUBCOIL_SPLITS_DEG"]) or (
+            not out["SUBCOIL_SPLITS_DEG"] and any(n > 1 for n in out["SUBCOIL_COUNTS"])):
+        return bad("SUBCOIL_SPLITS_DEG", "a list of numbers above 0 (electrical degrees)")
+    d = out["DUTY_RANGE"]
+    if not seq(d) or len(d) != 2 or not all(_is_num(v) for v in d) or not 0.0 < d[0] < d[1] < 1.0:
+        return bad("DUTY_RANGE", "two numbers 0 < lowest < highest < 1, for example (0.25, 0.5)")
+    o = out["OUTER_RANGE_MM"]
+    if not seq(o) or len(o) != 2 or not all(_is_num(v) for v in o) or o[0] > o[1]:
+        return bad("OUTER_RANGE_MM", "two numbers lowest <= highest, for example (-0.2, 0.5)")
+    for name in ("GAP_TOLERANCE_MM", "DUTY_TOLERANCE", "OUTER_TOLERANCE_MM", "ECCENTRICITY_MM", "TILT_DEG"):
+        if not _is_num(out[name]) or out[name] < 0:
+            return bad(name, "a number, 0 or more")
+    if not _is_num(out["MIN_SIGNAL"]) or not 0.0 < out["MIN_SIGNAL"] <= 1.5:
+        return bad("MIN_SIGNAL", "a fraction of the current signal above 0, at most 1.5, for example 0.8")
+    for name, lo in (("ECC_DIRECTIONS", 1), ("FINALISTS", 1), ("JOBS", 0), ("BAND_BOARDS", 1)):
+        if not _is_int(out[name]) or out[name] < lo:
+            return bad(name, f"a whole number, {lo} or more")
+    if not isinstance(out["ROTOR_MODEL"], str) or out["ROTOR_MODEL"].strip().lower() not in ("eddy", "screen"):
+        return bad("ROTOR_MODEL", '"eddy" or "screen"')
+    out["ROTOR_MODEL"] = out["ROTOR_MODEL"].strip().lower()
+    b = out["BAND_WIDTH_LIMIT_PERCENT"]
+    if not _is_num(b) or not 0.0 < b <= 100.0:
+        return bad("BAND_WIDTH_LIMIT_PERCENT", "a number above 0, at most 100")
+    b = out["BAND_STEP_PERCENT"]
+    if not _is_num(b) or not 1.0 <= b <= 100.0:
+        return bad("BAND_STEP_PERCENT", "a number from 1 to 100")
     return out, None
 
 
@@ -194,12 +261,104 @@ def _build(base_over, cand_over):
             raise second
 
 
+def band_from(ri, ro, w_pct, p_pct):
+    """(RX_R_BASE_MM, RX_A_MM) of the band that is w_pct % as wide as the widest band ri ... ro (mm), placed at
+    p_pct % of the free space (0 = at the inner end, 100 = at the outer end).  Rounded inwards to 0.001 mm, so the
+    band never leaves the widest band."""
+    width = ro - ri
+    if w_pct >= 100.0 - 1e-9:
+        start, end = ri, ro
+    else:
+        start = ri + (width - width * w_pct / 100.0) * p_pct / 100.0
+        end = start + width * w_pct / 100.0
+    start = math.ceil(round(start * 1000.0, 6)) / 1000.0
+    end = math.floor(round(end * 1000.0, 6)) / 1000.0
+    return round(0.5 * (start + end), 4), round(0.5 * (end - start), 4)
+
+
+def band_grid(limit, step):
+    """[(width %, position %), ...]: the widest band, and every narrower width (down to `limit`) at every position,
+    in steps of `step` percent."""
+    ws = sorted({round(100.0 - k * step, 4) for k in range(1, int((100.0 - limit) / step + 1e-9) + 1)}
+                | ({round(limit, 4)} if limit < 100.0 - 1e-9 else set()), reverse=True)
+    ps = sorted({round(i * step, 4) for i in range(int(100.0 / step + 1e-9) + 1)} | {100.0})
+    return [(100.0, 0.0)] + [(w, p) for w in ws for p in ps]
+
+
+def band_neighbours(best, h, limit):
+    """The 3 x 3 bands around `best` (width %, position %) at distance h percent."""
+    out = []
+    for dw in (-h, 0.0, h):
+        for dp in (-h, 0.0, h):
+            w = round(min(100.0, max(limit, best[0] + dw)), 4)
+            pos = 0.0 if w >= 100.0 - 1e-9 else round(min(100.0, max(0.0, best[1] + dp)), 4)
+            if (w, pos) not in out:
+                out.append((w, pos))
+    return out
+
+
+def search_bands(nboards, ri, ro, limit, step, make_task, run, score, log):
+    """Looks for the best band on each of `nboards` boards.  The first round tries a coarse grid of bands (at most
+    BAND_COARSE_MAX per board); each further round halves the step and tries the bands around the best one, down to
+    `step`.  make_task(board, w, p, rb, a) -> task (its key must be (board, w, p)); run(tasks) -> results;
+    score(result) -> number (smaller is better) or None (cannot be used); log(text).
+    Returns, per board, dict(done={(w, p): result}, best=(w, p) or None, tried=n)."""
+    state = [dict(done={}, best=None) for _ in range(nboards)]
+
+    def best_of(done):
+        sc = {k: score(r) for k, r in done.items()}
+        sc = {k: v for k, v in sc.items() if v is not None}
+        if not sc:
+            return None
+        lo = min(sc.values())
+        near = [k for k, v in sc.items() if v <= lo * (1.0 + TIE_FRACTION / 4.0) + 1e-12]
+        return max(near, key=lambda k: done[k].get("amp", 0.0))             # about equal: the most signal
+
+    def evaluate(points):
+        tasks = []
+        for bi, pts in enumerate(points):
+            for w, pos in pts:
+                if (w, pos) not in state[bi]["done"]:
+                    rb, a = band_from(ri, ro, w, pos)
+                    tasks.append(make_task(bi, w, pos, rb, a))
+        for r in run(tasks):
+            bi, w, pos = r["key"]
+            state[bi]["done"][(w, pos)] = r
+        for st in state:
+            st["best"] = best_of(st["done"])
+        return len(tasks)
+
+    s0 = step
+    while len(band_grid(limit, s0)) > BAND_COARSE_MAX and s0 < 100.0:
+        s0 = min(2.0 * s0, 100.0)
+    n = evaluate([band_grid(limit, s0)] * nboards)
+    log(f"step {s0:g} %: {n} bands", state)
+    h = s0
+    while h > step + 1e-9 and any(st["best"] is not None for st in state):
+        h = max(h / 2.0, step)
+        n = evaluate([band_neighbours(st["best"], h, limit) if st["best"] is not None else [] for st in state])
+        log(f"step {h:g} %: {n} bands", state)
+    for st in state:
+        st["tried"] = len(st["done"])
+    return state
+
+
+def _band_text(cand):
+    """'16.2-21.4' for a candidate with its own RX band (RX_R_BASE_MM / RX_A_MM), else ''."""
+    if cand.get("RX_R_BASE_MM") is None:
+        return ""
+    rb, a = float(cand["RX_R_BASE_MM"]), float(cand["RX_A_MM"])
+    return f"{rb - a:g}-{rb + a:g}"
+
+
 def _cand_text(cand, P=None):
     prof = cand.get("RX_PROFILE", getattr(P, "RX_PROFILE", "?") if P is not None else "?")
     n = cand.get("RX_SUBCOILS", getattr(P, "RX_SUBCOILS", 1) if P is not None else 1)
     split = cand.get("RX_SUBCOIL_SPLIT_ELEC_DEG",
                      getattr(P, "RX_SUBCOIL_SPLIT_ELEC_DEG", 45.0) if P is not None else 45.0)
     sub = "1" if int(n) == 1 else f"{int(n)} @ {float(split):g} deg"
+    if cand.get("RX_R_BASE_MM") is not None:
+        sub += f", band {_band_text(cand)}"
     return prof, sub
 
 
@@ -277,7 +436,7 @@ def _outer_limit(stator, P):
 
 def _outer_axis(outer, stator, P, tol):
     """The positions of the rotor's outer edge (mm past the RX band) that are tried for this layout, or None when
-    the outer edge is not searched (--keep-outer, ROTOR_MODE = "custom", or the TX ring leaves no room).
+    the outer edge is not searched (SEARCH_ROTOR_OUTER_EDGE = False, ROTOR_MODE = "custom", or the TX ring leaves no room).
     `e` also holds `k` extra positions at both ends: the neighbours that the tolerance needs for the
     first and the last position that may be chosen (`n` positions)."""
     if outer is None or str(P.ROTOR_MODE).lower() != "according_to_stator":
@@ -525,7 +684,7 @@ def stage2(task):
         # the same candidate if the rotor edges were perfectly sharp (no smoothing across the air gap):
         # pessimistic, shows how much the result depends on the smoothing assumption
         sharp_worst = None
-        if model.kind == "screen" and model.blur:
+        if model.kind == "screen" and model.blur and not task.get("lite"):
             m_sharp = AC.SensorModel(stator, rotor, P, blur=False, reach=task.get("grid_hi"), true3d=task.get("true3d"))
             g0 = float(P.AIR_GAP_MM)
             tol = task["gap_tol"]
@@ -533,7 +692,7 @@ def stage2(task):
             dt, d0 = task["duty_tol"], float(rotor.duty)
             duties = [d0] + ([d0 - dt, d0 + dt] if dt > 0 else [])
             sharp_worst = max(AC.evaluate(m_sharp, gap=g, duty=d).peak for g in gaps for d in duties)
-        res["elec"] = _elec_window(stator, rotor, P, model, rows)
+        res["elec"] = None if task.get("lite") else _elec_window(stator, rotor, P, model, rows)
         res.update(sharp_worst=sharp_worst, tx_auto=tx_auto, warnings=list(rep.warnings), duty=float(rotor.duty),
                    ext_out=float(rotor.r_out) - float(stator.ro), N=model.N, amp=rows[0].m["amp_s"], hd=list(rows[0].m["hd"]),
                    nominal=rows[0].peak, worst=max(a.peak for a in rows),
@@ -629,81 +788,45 @@ def short(text, n=120):
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Search the coil settings that matter most and rank them "
-                                             "(optional tool; changes no file).")
-    ap.add_argument("--set", nargs="+", metavar="NAME=VALUE", help="override parameters for the whole run")
-    ap.add_argument("--loops", type=int, help="shortcut for --set LOOPS=N")
-    ap.add_argument("--profiles", nargs="+", choices=PROFILES, default=list(PROFILES), help="profiles to try")
-    ap.add_argument("--subcoils", nargs="+", type=int, choices=(1, 2, 3), default=list(SUBCOIL_COUNTS),
-                    help="sub-coil counts to try")
-    ap.add_argument("--splits", nargs="+", type=float, default=list(SUBCOIL_SPLITS_DEG),
-                    help="sub-coil splits to try (electrical degrees)")
-    ap.add_argument("--duty-range", nargs=2, type=float, default=list(DUTY_RANGE), metavar=("LO", "HI"),
-                    help="rotor metal fraction searched")
-    ap.add_argument("--outer-range", nargs=2, type=float, default=list(OUTER_RANGE_MM), metavar=("LO", "HI"),
-                    help="--rotor-model screen only: where the rotor copper ends on the outside, mm past the outer radius of the RX band (the eddy model searches from the RX band over the TX turns to the board outline)")
-    ap.add_argument("--keep-outer", action="store_true",
-                    help="do not search the rotor's outer edge (keep it as in the parameter files)")
-    ap.add_argument("--outer-tol", type=float, default=OUTER_TOLERANCE_MM,
-                    help="tolerance of the rotor's outer edge (mm), 0 = skip")
-    ap.add_argument("--min-signal", type=float, default=MIN_SIGNAL,
-                    help="smallest allowed signal, as a fraction of the current design's")
-    ap.add_argument("--top", type=int, default=FINALISTS, help="finalists re-checked with ecc/tilt")
-    ap.add_argument("--gap-tol", type=float, default=AC.GAP_TOLERANCE_MM, help="air gap tolerance (mm)")
-    ap.add_argument("--duty-tol", type=float, default=AC.ROTOR_DUTY_TOLERANCE,
-                    help="rotor metal fraction tolerance")
-    ap.add_argument("--ecc", type=float, default=AC.ECCENTRICITY_MM, help="rotor eccentricity (mm)")
-    ap.add_argument("--tilt", type=float, default=AC.TILT_DEG, help="rotor tilt (deg)")
-    ap.add_argument("--directions", type=int, default=DIRECTIONS,
-                    help="eccentricity directions tried (over one loop pitch)")
-    ap.add_argument("--quick", action="store_true", help="air-gap tolerance only (no eccentricity / tilt)")
-    ap.add_argument("--allow-warnings", action="store_true",
-                    help="candidates with generator warnings may be recommended")
-    ap.add_argument("--rotor-model", choices=("eddy", "screen"), default=None,
-                    help=f"rotor model (default {AC.ROTOR_MODEL}, see AnalyzeCoil.py); the older 'screen' model is "
-                         f"faster but cannot judge copper edges or copper over the TX turns")
-    ap.add_argument("--no-blur", action="store_true", help="screen model only: sharp rotor edges (see AnalyzeCoil.py)")
-    ap.add_argument("--ideal-geometry", action="store_true",
-                    help="the older geometry: TX as rings, receiver copper half on each RX layer (see AnalyzeCoil.py)")
-    ap.add_argument("--jobs", type=int, default=JOBS, help="worker processes (0 = automatic)")
-    ap.add_argument("--csv", metavar="FILE.csv", help="write every candidate to a csv file")
-    ap.add_argument("--plot", metavar="FILE.png", help="write a plot of the search (needs matplotlib)")
-    ap.add_argument("--no-color", action="store_true")
-    args = ap.parse_args(argv)
-    Colour.setup(False if args.no_color else None)
-    lo, hi = args.duty_range
-    if not (0.0 < lo < hi < 1.0):
-        ap.error("--duty-range needs two numbers 0 < LO < HI < 1 (for example 0.25 0.5)")
-    if args.outer_range[0] > args.outer_range[1]:
-        ap.error("--outer-range needs two numbers LO <= HI (for example -0.2 0.5)")
-    if not 0.0 < args.min_signal <= 1.5:
-        ap.error("--min-signal is a fraction of the current signal, for example 0.8")
-    if args.top < 1 or args.directions < 1:
-        ap.error("--top and --directions must be at least 1")
-    if min(args.gap_tol, args.duty_tol, args.ecc, args.tilt, args.outer_tol) < 0 or any(s <= 0 for s in args.splits):
-        ap.error("tolerances must be >= 0 and the splits > 0")
-    if args.quick:
-        args.ecc = args.tilt = 0.0
-    jobs = args.jobs if args.jobs > 0 else max(1, min(4, os.cpu_count() or 1))
+    extra = list(sys.argv[1:] if argv is None else argv)
+    if extra:
+        print("OptimizeCoil.py has no command-line options: everything it does is set in OptimizerParameters.py "
+              "(Parameters folder). Edit that file and run  python OptimizeCoil.py  again.")
+        return 2
+    Colour.setup(None)
     t_start = time.time()
-
     if AC.load_parameters() is None:
         return 1
     opt, err = load_optimizer_parameters()
     if err:
         print(Colour.red("ERROR   " + err))
         return 1
+    args = types.SimpleNamespace(
+        profiles=list(opt["PROFILES"]), subcoils=sorted(set(opt["SUBCOIL_COUNTS"])), splits=list(opt["SUBCOIL_SPLITS_DEG"]),
+        duty_range=tuple(float(v) for v in opt["DUTY_RANGE"]), outer_range=tuple(float(v) for v in opt["OUTER_RANGE_MM"]),
+        keep_outer=not opt["SEARCH_ROTOR_OUTER_EDGE"], outer_tol=float(opt["OUTER_TOLERANCE_MM"]),
+        min_signal=float(opt["MIN_SIGNAL"]), top=int(opt["FINALISTS"]), gap_tol=float(opt["GAP_TOLERANCE_MM"]),
+        duty_tol=float(opt["DUTY_TOLERANCE"]), ecc=float(opt["ECCENTRICITY_MM"]), tilt=float(opt["TILT_DEG"]),
+        directions=int(opt["ECC_DIRECTIONS"]), allow_warnings=opt["ALLOW_WARNINGS"], rotor_model=opt["ROTOR_MODEL"],
+        no_blur=opt["SCREEN_SHARP_EDGES"], ideal_geometry=not opt["TRUE_3D_GEOMETRY"], jobs=int(opt["JOBS"]))
+    args.quick = args.ecc <= 0 and args.tilt <= 0             # (air gap and metal fraction tolerances only)
+    lo, hi = args.duty_range
+    jobs = args.jobs if args.jobs > 0 else max(1, min(4, os.cpu_count() or 1))
     compare_fingers = opt["COMPARE_FINGERS"]
-    base_over = AC.parse_overrides(args.set)
-    if args.loops is not None:
-        base_over["LOOPS"] = args.loops
+    base_over = {}
     blur = False if args.no_blur else None
     true3d = False if args.ideal_geometry else None                  # (None: AnalyzeCoil.TRUE_3D_GEOMETRY)
-    rotor_model = str(args.rotor_model or AC.ROTOR_MODEL).lower()
+    rotor_model = args.rotor_model
     eddy = rotor_model == "eddy"
+    # the RX base / amplitude finder works when the RX band is not given at all (it comes from the board edges)
+    import Parameters as _P0
+    band_given = any(getattr(_P0, n, None) is not None for n in
+                     ("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM"))
+    finder = bool(opt["RX_BASE_AND_AMPLITUDE_FINDER"]) and not band_given
+    T = 5 if finder else 4                                    # number of stages
 
     # ------------------------------------------------------------------ 1. the current design
-    print(Colour.bold("[1/4] The current design"))
+    print(Colour.bold(f"[1/{T}] The current design"))
     try:
         stator, rotor, rep, Pnow, _ = _build(base_over, {})
     except AC.DesignError as e:
@@ -766,18 +889,25 @@ def main(argv=None):
 
     # ------------------------------------------------------------------ 2. stage 1
     cands = candidate_list(args.profiles, args.subcoils, args.splits, duty_name, compare_fingers)
+    if finder:
+        print(f"  RX band: only the board edges are given, so the widest band they and your TX coil leave is used for "
+              f"the search (r = {float(stator.ri):g} ... {float(stator.ro):g} mm); the best RX_R_BASE_MM / RX_A_MM "
+              f"are looked for at the end (RX_BASE_AND_AMPLITUDE_FINDER)")
+    elif bool(opt["RX_BASE_AND_AMPLITUDE_FINDER"]):
+        print(Colour.dim("  (RX_BASE_AND_AMPLITUDE_FINDER is True, but the RX band is given in RX_Parameters.py: it is "
+                         "used as it is. Set INSIDE_RADIUS_MM, OUTSIDE_RADIUS_MM, RX_R_BASE_MM and RX_A_MM to None to "
+                         "let the finder choose it from the board edges)"))
     fing = (lambda c: f"{_fingers_text(c, Pnow):<8s}") if compare_fingers else (lambda c: "")
     lo, hi = args.duty_range
     ds_n = int(round((hi - lo) / (EDDY_DUTY_STEP if eddy else DUTY_STEP))) + 1
     out_txt = "" if outer is None else (" x rotor outer edge (RX band ... board outline)" if eddy else
                                         f" x rotor outer edge {outer[0]:+g} ... {outer[1]:+g} mm")
-    print(Colour.bold(f"[2/4] Screening {len(cands)} coil layouts x {ds_n} rotor metal fractions"
+    print(Colour.bold(f"[2/{T}] Screening {len(cands)} coil layouts x {ds_n} rotor metal fractions"
                       + (" (then refined)" if eddy else "") + f"{out_txt} "
                       f"(air gap {args.gap_tol:g} mm tolerance)"))
-    tasks1 = [dict(key=i, cand=c, base=base_over, blur=blur, true3d=true3d, rotor_model=rotor_model, gap_tol=args.gap_tol,
+    common1 = dict(base=base_over, blur=blur, true3d=true3d, rotor_model=rotor_model, gap_tol=args.gap_tol,
                    duty_range=(lo, hi), min_signal=args.min_signal, min_amp=args.min_signal * amp_base,
                    amp_base=amp_base, duty_tol=args.duty_tol, outer=outer, outer_tol=args.outer_tol)
-              for i, c in enumerate(cands)]
 
     def show1(r, k, n):
         prof, sub = _cand_text(r["cand"])
@@ -797,6 +927,11 @@ def main(argv=None):
             print(head + " -> " + Colour.dim(f"not possible: {short(r['reasons'][-1], 90)}   "
                                                  f"({r.get('seconds', 0.0):.1f} s)"))
 
+    key = 0
+    tasks1 = []
+    for c in cands:
+        tasks1.append(dict(common1, key=key, cand=c))
+        key += 1
     res1 = run_tasks(stage1, tasks1, jobs, show1)
     res1.sort(key=lambda r: r["key"])
     good = [r for r in res1 if r["status"] == "ok"]
@@ -827,13 +962,13 @@ def main(argv=None):
             if b is not None and b not in finalists:
                 finalists.append(b)
     window_txt = "air gap" + ("" if args.quick else ", eccentricity, tilt")
-    print(Colour.bold(f"[3/4] Full tolerance window ({window_txt}) for the current design and "
+    print(Colour.bold(f"[3/{T}] Full tolerance window ({window_txt}) for the current design and "
                       f"{len(finalists)} finalists"))
     common = dict(base=base_over, blur=blur, true3d=true3d, rotor_model=rotor_model, gap_tol=args.gap_tol, ecc=args.ecc,
                   tilt=args.tilt,
                   ndir=args.directions, duty_tol=args.duty_tol)
-    tasks2 = [dict(common, key="now", cand={})]
-    for r in finalists:
+    def window_cand(r):
+        """The complete candidate of a stage-1 result: layout, rotor metal fraction and outer edge, TX start."""
         c = dict(r["cand"])
         c[duty_name] = r["duty"]
         if r.get("searched") and eddy:
@@ -844,7 +979,11 @@ def main(argv=None):
             c["ROTOR_AUTO_EXTENSION_OUTER_MM"] = r["ext_out"]
         if r.get("tx_auto"):
             c["TX_START_ANGLE_DEG"] = "auto"
-        tasks2.append(dict(common, key=r["key"], cand=c, grid_hi=r["grid_hi"]))
+        return c
+
+    tasks2 = [dict(common, key="now", cand={})]
+    for r in finalists:
+        tasks2.append(dict(common, key=r["key"], cand=window_cand(r), grid_hi=r["grid_hi"]))
 
     def show2(r, k, n):
         who = "current design" if r["key"] == "now" else "{} sub-coils {}".format(*_cand_text(r["cand"]))
@@ -873,11 +1012,18 @@ def main(argv=None):
             print(Colour.yellow(f"  note: the quick and the full evaluation differ for one candidate "
                                 f"({max(rows_g):.4f} vs {r['f_design']:.4f})"))
         fin.append((r, s2))
-    fin.sort(key=lambda t: t[1]["worst"])
-    if fin:                                                   # ties (within TIE_FRACTION of the best): the one with the
-        cut = fin[0][1]["worst"] * (1.0 + TIE_FRACTION)       # smallest air gap / rotor fraction part comes first
-        tied = sorted([t for t in fin if t[1]["worst"] <= cut], key=lambda t: (t[1]["gd"], t[1]["worst"]))
-        fin = tied + [t for t in fin if t[1]["worst"] > cut]
+
+    def rank(lst):
+        """Best first; ties (within TIE_FRACTION of the best): the one with the smallest air gap / rotor fraction
+        part comes first."""
+        lst = sorted(lst, key=lambda t: t[1]["worst"])
+        if lst:
+            cut = lst[0][1]["worst"] * (1.0 + TIE_FRACTION)
+            tied = sorted([t for t in lst if t[1]["worst"] <= cut], key=lambda t: (t[1]["gd"], t[1]["worst"]))
+            lst = tied + [t for t in lst if t[1]["worst"] > cut]
+        return lst
+
+    fin = rank(fin)
     sharp_now = now.get("sharp_worst")
     now_codes = set((now.get("elec") or {}).get("codes", []))
 
@@ -896,14 +1042,126 @@ def main(argv=None):
             out.append("worse than now if the rotor edges are sharp")
         return out
 
-    # ------------------------------------------------------------------ 4. report
-    print(Colour.bold("[4/4] Results"))
+
+    # ------------------------------------------------------------------ 4. RX base and amplitude finder
+    if finder:
+        ri_w, ro_w = float(stator.ri), float(stator.ro)
+        limit, step = float(opt["BAND_WIDTH_LIMIT_PERCENT"]), float(opt["BAND_STEP_PERCENT"])
+        layout_now = dict(RX_PROFILE=str(Pnow.RX_PROFILE), RX_SUBCOILS=int(Pnow.RX_SUBCOILS))
+        if int(Pnow.RX_SUBCOILS) > 1:
+            layout_now["RX_SUBCOIL_SPLIT_ELEC_DEG"] = float(Pnow.RX_SUBCOIL_SPLIT_ELEC_DEG)
+        if compare_fingers:
+            layout_now["RX_TABS"] = _fingers_text({}, Pnow)
+        boards = [dict(name="current layout", layout=layout_now, cand=dict(layout_now), grid_hi=None)]
+        n_top = int(opt["BAND_BOARDS"])
+        picked = [(r, s2) for r, s2 in fin if not problems(r, s2)][:n_top]
+        for k, (r, s2) in enumerate(picked, 1):
+            boards.append(dict(name=f"board {k}", layout={x: v for x, v in r["cand"].items()
+                                                         if x in ("RX_PROFILE", "RX_SUBCOILS", "RX_SUBCOIL_SPLIT_ELEC_DEG", "RX_TABS")},
+                               cand=window_cand(r), grid_hi=r["grid_hi"]))
+        for b in boards:
+            pr, sb = _cand_text(b["layout"], Pnow)
+            b["text"] = f"{b['name']} ({pr}, sub-coils {sb.split(',')[0]})"
+        n_grid = len(band_grid(limit, step))
+        print(Colour.bold(f"[4/{T}] RX base and amplitude finder: the best RX_R_BASE_MM and RX_A_MM for "
+                          f"{len(boards)} boards (your current layout and the best {len(boards) - 1})"))
+        print(f"  the widest band is r = {ri_w:g} ... {ro_w:g} mm; bands from 100 % down to {limit:g} % of its width, "
+              f"step {step:g} % ({n_grid} bands in all per board; the search starts coarse and refines around the best)")
+        print(f"  each band is judged with the board's own rotor settings over the air gap and metal fraction "
+              f"tolerances; a band whose signal is below {args.min_signal:g} x the current design is not allowed; "
+              f"the TX coil moves with the band")
+        common_lite = dict(common, ecc=0.0, tilt=0.0, lite=True)
+
+        def make_task(bi, w, pos, rb, a):
+            c = dict(boards[bi]["cand"], INSIDE_RADIUS_MM=None, OUTSIDE_RADIUS_MM=None, RX_R_BASE_MM=rb, RX_A_MM=a)
+            t = dict(common_lite, key=(bi, w, pos), cand=c)
+            if boards[bi]["grid_hi"] is not None:
+                t["grid_hi"] = boards[bi]["grid_hi"]
+            return t
+
+        def run_lite(tasks):
+            if not tasks:
+                return []
+            marks = {max(1, len(tasks) * q // 4) for q in (1, 2, 3, 4)} if len(tasks) >= 40 else set()
+
+            def tick(r, k, n):
+                if k in marks:
+                    print(Colour.dim(f"    {k}/{n} bands checked"))
+            return run_tasks(stage2, tasks, jobs, tick)
+
+        def band_score(r):
+            if r["status"] != "ok" or r["amp"] < args.min_signal * amp_base:
+                return None
+            if not args.allow_warnings and set(r["warnings"]) - base_warn:
+                return None
+            return r["worst"]
+
+        def log(text, state):
+            line = "  " + text + ";  best so far: " + ",  ".join(
+                (f"{st['done'][st['best']]['worst']:.3f}" if st["best"] else "-") for st in state) + " deg el"
+            print(line)
+
+        found = search_bands(len(boards), ri_w, ro_w, limit, step, make_task, run_lite, band_score, log)
+        print()
+        print(Colour.dim(f"  {'board':<44s}{'widest band':>14s} {'error':>7s}   {'best band':>14s} {'error':>7s} {'signal':>7s}"
+                         f"   {'RX_R_BASE_MM':>12s} {'RX_A_MM':>8s}   bands tried"))
+        refit = []
+        for bi, (b, st) in enumerate(zip(boards, found)):
+            wide = st["done"].get((100.0, 0.0))
+            wtxt = f"{ri_w:g}-{ro_w:g}"
+            werr = f"{wide['worst']:.3f}" if wide and wide["status"] == "ok" else "-"
+            if st["best"] is None:
+                print(f"  {b['text']:<44s}{wtxt:>14s} {werr:>7s}   " + Colour.yellow("no band can be used") + f"   {st['tried']}")
+                continue
+            w, pos = st["best"]
+            rb, a = band_from(ri_w, ro_w, w, pos)
+            br = st["done"][st["best"]]
+            print(f"  {b['text']:<44s}{wtxt:>14s} {werr:>7s}   {f'{rb - a:g}-{rb + a:g}':>14s} {br['worst']:>7.3f} "
+                  f"{br['amp'] / amp_base:>6.2f}x   {rb:>12g} {a:>8g}   {st['tried']}")
+            b.update(rb=rb, a=a)
+            if st["best"] == (100.0, 0.0):                    # the widest band is the best: the board is already in the list
+                print(Colour.dim(f"  {'':<44s}-> the widest band is the best for this board"))
+            else:
+                refit.append(bi)
+        print(Colour.dim("  (errors: worst peak error over the air gap and metal fraction tolerances, electrical degrees, "
+                         "with the board's rotor settings; the rotor is refitted to a narrower best band next)"))
+        # the rotor metal fraction and outer edge are fitted again to the best band, then the full tolerance window
+        tasks_f = []
+        for bi in refit:
+            b = boards[bi]
+            c1 = dict(b["layout"], INSIDE_RADIUS_MM=None, OUTSIDE_RADIUS_MM=None, RX_R_BASE_MM=b["rb"], RX_A_MM=b["a"])
+            tasks_f.append(dict(common1, key=10000 + bi, cand=c1))
+        if tasks_f:
+            print(Colour.bold(f"  refitting the rotor to the {len(tasks_f)} best bands"))
+        fit_res = run_tasks(stage1, tasks_f, jobs, show1) if tasks_f else []
+        fit_ok = []
+        for r in sorted(fit_res, key=lambda r: r["key"]):
+            if r["status"] == "ok":
+                r["new_warn"] = [w for w in r["warnings"] if w not in base_warn]
+                r["board"] = boards[r["key"] - 10000]["name"]
+                fit_ok.append(r)
+        if fit_ok:
+            print(Colour.bold(f"  full tolerance window ({window_txt}) for {len(fit_ok)} boards with their best band"))
+        tasks_w = [dict(common, key=r["key"], cand=window_cand(r), grid_hi=r["grid_hi"]) for r in fit_ok]
+        res_w = {r["key"]: r for r in run_tasks(stage2, tasks_w, jobs, show2)} if tasks_w else {}
+        for r in fit_ok:
+            s2 = res_w.get(r["key"])
+            if s2 is not None and s2["status"] == "ok":
+                res2[r["key"]] = s2
+                fin.append((r, s2))
+        fin = rank(fin)
+        res1.extend(fit_ok)
+        print()
+
+    # ------------------------------------------------------------------ report
+    print(Colour.bold(f"[{T}/{T}] Results"))
     print()
     print(Colour.bold("RANKING  (worst peak angle error over the tolerance window after calibration; "
                       "electrical degrees, mechanical in brackets)"))
+    subw = max([12] + [len(_cand_text(r["cand"])[1]) for r, _ in fin])        # (the sub-coil column grows with a band text)
     show_sharp = sharp_now is not None                        # (no such column when the whole model is sharp)
     show_gd = args.ecc > 0 or args.tilt > 0                   # (otherwise it is the same as the worst case)
-    print(Colour.dim(f"  {'rank':>4s}  {'profile':<18s} {'sub-coils':<12s} " + (f"{'fingers':<8s}" if compare_fingers else "") + f"{'duty':>5s} {'outer':>6s}  {'worst case':>16s}  "
+    print(Colour.dim(f"  {'rank':>4s}  {'profile':<18s} {'sub-coils':<{subw}s} " + (f"{'fingers':<8s}" if compare_fingers else "") + f"{'duty':>5s} {'outer':>6s}  {'worst case':>16s}  "
                      + (f"{'no ecc/tilt':>11s}  " if show_gd else "")
                      + f"{'nominal':>8s}  {'signal':>6s}  {'RX mVpp':>9s}  " + (f"{'if sharp':>8s}  " if show_sharp else "")
                      + "notes"))
@@ -926,13 +1184,13 @@ def main(argv=None):
         sharp_txt = (f"{s2['sharp_worst']:>8.3f}  " if s2.get("sharp_worst") is not None else f"{'-':>8s}  ") \
             if show_sharp else ""
         gd_txt = f"{s2['gd']:>11.3f}  " if show_gd else ""
-        line = (f"  {k:>4d}  {prof:<18s} {sub:<12s} {fing(r['cand'])}{r['duty']:>5.3f} {s2['ext_out'] + shift:>+6.2f}  {fmt_pair(s2['worst'], N):>16s}  "
+        line = (f"  {k:>4d}  {prof:<18s} {sub:<{subw}s} {fing(r['cand'])}{r['duty']:>5.3f} {s2['ext_out'] + shift:>+6.2f}  {fmt_pair(s2['worst'], N):>16s}  "
                 f"{gd_txt}{s2['nominal']:>8.3f}  {s2['amp'] / now['amp']:>5.2f}x  "
                 f"{_rx_short((s2.get('elec') or {}).get('rx_nom')):>9s}  {sharp_txt}{', '.join(notes)}")
         print(Colour.green(line + ("   <- best" if is_rec else "")) if is_rec else line)
     sharp_now_txt = f"{sharp_now:>8.3f}  " if show_sharp else ""
     gd_now = f"{now['gd']:>11.3f}  " if show_gd else ""
-    print(Colour.yellow(f"  {'now':>4s}  {prof0:<18s} {sub0:<12s} {fing({})}{rotor.duty:>5.3f} {e_now + shift:>+6.2f}  {fmt_pair(now['worst'], N):>16s}  "
+    print(Colour.yellow(f"  {'now':>4s}  {prof0:<18s} {sub0:<{subw}s} {fing({})}{rotor.duty:>5.3f} {e_now + shift:>+6.2f}  {fmt_pair(now['worst'], N):>16s}  "
                         f"{gd_now}{now['nominal']:>8.3f}  {1.0:>5.2f}x  "
                         f"{_rx_short((now.get('elec') or {}).get('rx_nom')):>9s}  {sharp_now_txt}your current parameters"))
     if eddy:
@@ -1009,12 +1267,15 @@ def main(argv=None):
             print("    " + Colour.yellow(short(w, 150)))
         if r["new_warn"]:
             print("  (relax the clearance, use smaller vias or a wider RX band and run this again; "
-                  "or pass --allow-warnings)")
+                  "or set ALLOW_WARNINGS = True in OptimizerParameters.py)")
 
     # ---------------------------------------------------------------- what to change
     if rec is not None:
         r, s2 = rec
         changes = []                                          # (file, name, value text)
+        if r["cand"].get("RX_R_BASE_MM") is not None and getattr(Pnow, "RX_R_BASE_MM", None) is None:
+            changes.append(("RX_Parameters.py", "RX_R_BASE_MM", repr(round(float(r["cand"]["RX_R_BASE_MM"]), 4))))
+            changes.append(("RX_Parameters.py", "RX_A_MM", repr(round(float(r["cand"]["RX_A_MM"]), 4))))
         if r["cand"]["RX_PROFILE"] != Pnow.RX_PROFILE:
             changes.append(("RX_Parameters.py", "RX_PROFILE", f'"{r["cand"]["RX_PROFILE"]}"'))
         n_new = int(r["cand"]["RX_SUBCOILS"])
@@ -1056,28 +1317,25 @@ def main(argv=None):
         if r.get("searched") and "e_lo" in r and not eddy:
             if r["ext_out"] <= r["e_lo"] + 1e-9:
                 print(Colour.yellow(f"  the best outer edge ({r['ext_out']:+.2f} mm) is at the end of the range searched: "
-                                    f"try  --outer-range {r['e_lo'] - 0.3:g} {outer[1]:g}"))
+                                    f"try  OUTER_RANGE_MM = ({r['e_lo'] - 0.3:g}, {outer[1]:g})"))
             elif r["ext_out"] >= r["e_hi"] - 1e-9:
                 if r["e_clipped"]:
                     print(Colour.dim("  the outer edge is as far out as the TX ring allows (ROTOR_AUTO_TX_CLEARANCE_MM)"))
                 else:
                     print(Colour.yellow(f"  the best outer edge ({r['ext_out']:+.2f} mm) is at the end of the range searched: "
-                                        f"try  --outer-range {outer[0]:g} {r['e_hi'] + 0.3:g}"))
-        if r["new_warn"]:                                     # only possible with --allow-warnings
+                                        f"try  OUTER_RANGE_MM = ({outer[0]:g}, {r['e_hi'] + 0.3:g})"))
+        if r["new_warn"]:                                     # only possible with ALLOW_WARNINGS = True
             print()
             print(Colour.yellow(f"The generator gives {len(r['new_warn'])} warning(s) for this layout "
-                                f"(accepted because of --allow-warnings):"))
+                                f"(accepted because ALLOW_WARNINGS = True):"))
             for w in r["new_warn"][:5]:
                 print("    " + Colour.yellow(short(w, 150)))
-        if args.set or args.loops is not None:
-            print(Colour.dim("  (the values you gave with --set / --loops are used for this run only: "
-                             "they are not in your parameter files)"))
+        if finder and r["cand"].get("RX_R_BASE_MM") is None:
+            rb_w, a_w = band_from(ri_w, ro_w, 100.0, 0.0)
+            print(Colour.dim(f"  the widest RX band is the best one here (RX_R_BASE_MM {rb_w:g}, RX_A_MM {a_w:g}): leave "
+                             f"INSIDE_RADIUS_MM, OUTSIDE_RADIUS_MM, RX_R_BASE_MM and RX_A_MM at None"))
         cmd = ["python AnalyzeCoil.py"]
-        if args.loops is not None:
-            cmd.append(f"--loops {args.loops}")
         sets = [f"{n}={v.strip(chr(34))}" for _, n, v in changes]
-        if args.set:
-            sets = list(args.set) + sets
         if sets:
             cmd.append("--set " + " ".join(sets))
         for flag, value, default in (("--gap-tol", args.gap_tol, AC.GAP_TOLERANCE_MM),
@@ -1088,7 +1346,9 @@ def main(argv=None):
                 cmd.append(f"{flag} {value:g}")
         if args.no_blur and not eddy:
             cmd.append("--no-blur")
-        if args.rotor_model:
+        if args.ideal_geometry:
+            cmd.append("--ideal-geometry")
+        if args.rotor_model != AC.ROTOR_MODEL:
             cmd.append(f"--rotor-model {args.rotor_model}")
         print()
         print("Check it first:   " + " ".join(cmd))
@@ -1117,12 +1377,6 @@ def main(argv=None):
                      "rotor) they leave a small error that repeats once per turn, which is in the worst case."))
     print(Colour.dim(f"Total time {time.time() - t_start:.0f} s."))
 
-    # ---------------------------------------------------------------- csv / plot
-    if args.csv:
-        write_csv(args.csv, res1, res2, N, now, Pnow if compare_fingers else None)
-        print(f"  csv written: {args.csv}")
-    if args.plot:
-        make_plot(args.plot, res1, res2, N, now, rotor, amp_base, rec[0] if rec else None, duty_name)
     return 0
 
 
@@ -1211,104 +1465,6 @@ def print_electrical(now, rec):
             print("  " + Colour.yellow("WARNING " + msg))
         else:
             print("  " + Colour.dim("info    ") + msg)
-
-
-def write_csv(path, res1, res2, N, now, P_fingers=None):
-    """P_fingers: the parameters, when fingers were compared (adds an 'rx_tabs' column at the end)."""
-    with open(path, "w", newline="") as fh:
-        w = csv.writer(fh)
-        w.writerow(["profile", "subcoils", "split_deg", "status", "duty", "outer_mm", "gap_window_peak_deg_el",
-                    "signal_vs_current", "tx_start_auto", "warnings", "full_window_worst_deg_el",
-                    "full_window_nominal_deg_el", "reason",
-                    "rx_mvpp_low", "rx_mvpp_high", "tank_c_across_coil_pf", "tx_l_rotor_uh",
-                    "window_rx_mvpp_low", "window_rx_mvpp_high", "window_osc_mhz_low", "window_osc_mhz_high",
-                    "ic_warnings"] + (["rx_tabs"] if P_fingers is not None else []))
-        tabs = (lambda c: [_finger_mode(c, P_fingers)]) if P_fingers is not None else (lambda c: [])
-
-        def elec_cols(e1, e2):
-            """Electrical columns: screening (e1, nominal air gap) and full window (e2)."""
-            e1, e2 = e1 or {}, e2 or {}
-            rx = e1.get("rx") or e2.get("rx_nom")
-            src = e1 if "C" in e1 else e2
-            return [f"{rx[0] * 1e3:.1f}" if rx else "", f"{rx[1] * 1e3:.1f}" if rx else "",
-                    f"{src['C'] * 1e12:.1f}" if "C" in src else "", f"{src['L'] * 1e6:.4f}" if "L" in src else
-                    (f"{src['L_nom'] * 1e6:.4f}" if "L_nom" in src else ""),
-                    f"{e2['rx_lo'] * 1e3:.1f}" if e2.get("rx_lo") is not None else "",
-                    f"{e2['rx_hi'] * 1e3:.1f}" if e2.get("rx_hi") is not None else "",
-                    f"{e2['f_lo'] / 1e6:.4f}" if "f_lo" in e2 else "", f"{e2['f_hi'] / 1e6:.4f}" if "f_hi" in e2 else "",
-                    " | ".join(e2.get("codes", e1.get("codes", [])))]
-
-        for r in res1:
-            c = r["cand"]
-            s2 = res2.get(r["key"])
-            ok2 = s2 is not None and s2["status"] == "ok"
-            w.writerow([c["RX_PROFILE"], c["RX_SUBCOILS"], c.get("RX_SUBCOIL_SPLIT_ELEC_DEG", ""), r["status"],
-                        f"{r.get('duty', ''):.3f}" if "duty" in r else "",
-                        f"{r['ext_out']:.3f}" if "duty" in r else "",
-                        f"{r['f_design']:.4f}" if "f_design" in r else "",
-                        f"{r['amp_ratio']:.3f}" if "amp_ratio" in r else "",
-                        r.get("tx_auto", ""), " | ".join(r.get("new_warn", [])),
-                        f"{s2['worst']:.4f}" if ok2 else "",
-                        f"{s2['nominal']:.4f}" if ok2 else "",
-                        " | ".join(r.get("reasons", []))]
-                       + elec_cols(r.get("elec") if r["status"] == "ok" else None, s2.get("elec") if ok2 else None)
-                       + tabs(c))
-        w.writerow([])
-        w.writerow(["current design", "", "", "ok", "", f"{now['ext_out']:.3f}", "", "1.000", "", "", f"{now['worst']:.4f}",
-                    f"{now['nominal']:.4f}", ""] + elec_cols(None, now.get("elec")) + tabs({}))
-
-
-def make_plot(path, res1, res2, N, now, rotor, amp_base, rec, duty_name):
-    try:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
-    except Exception:
-        print(Colour.yellow("  matplotlib is not installed: no plot written (pip install matplotlib)"))
-        return
-    colours = {"equal_area": "tab:blue", "cosine_r": "tab:green", "field_compensated": "tab:red"}
-    fig, ax = plt.subplots(1, 2, figsize=(13, 5.2))
-    seen = set()
-    for r in res1:
-        if r["status"] != "ok" or "curve" not in r:
-            continue
-        ds, f, amp = r["curve"]
-        prof, sub = _cand_text(r["cand"])
-        label = None if prof in seen else prof
-        seen.add(prof)
-        ls = ("-" if r["cand"]["RX_SUBCOILS"] == 1 else "--") if r["cand"].get("RX_TABS", "all") != "none" else \
-            (":" if r["cand"]["RX_SUBCOILS"] == 1 else "-.")
-        ax[0].plot(ds, f, ls, color=colours.get(prof, "gray"), alpha=0.55, lw=1.2, label=label)
-        ax[0].plot([r["duty"]], [r["f_design"]], "o", color=colours.get(prof, "gray"), ms=4)
-    ax[0].axhline(now["gd"], color="k", ls=":", lw=1)
-    ax[0].text(ax[0].get_xlim()[0], now["gd"], "  current design (same window)", va="bottom", fontsize=8)
-    ax[0].axvline(float(rotor.duty), color="gray", ls=":", lw=0.8)
-    ax[0].set_yscale("log")
-    ax[0].set_xlabel("rotor metal fraction")
-    ax[0].set_ylabel("worst peak error over the air-gap window (deg el)")
-    ax[0].set_title("every layout, at its chosen outer edge: error vs rotor metal fraction (dots = chosen)\n"
-                    "solid = 1 sub-coil, dashed = 2 sub-coils (dotted / dash-dot: the same without fingers)", fontsize=9)
-    ax[0].legend(fontsize=8)
-    ax[0].grid(alpha=0.3, which="both")
-    items = [(r, res2[r["key"]]) for r in res1 if r["key"] in res2 and res2[r["key"]]["status"] == "ok"]
-    items.sort(key=lambda t: t[1]["worst"])
-    names = ["{}\n{} d={:.3f} e={:+.2f}".format(*_cand_text(r["cand"]), r["duty"], r["ext_out"])
-             + (f" fingers {r['cand']['RX_TABS']}" if "RX_TABS" in r["cand"] else "") for r, _ in items][:8]
-    vals = [s["worst"] for _, s in items][:8]
-    ax[1].barh(range(len(vals)), vals, color="tab:gray", label="worst case, with the rotor off-centre and tilted")
-    if any(s["gd"] < 0.99 * s["worst"] for _, s in items):
-        ax[1].barh(range(len(vals)), [s["gd"] for _, s in items][:8], height=0.35, color="tab:blue",
-                   label="air gap and rotor fraction tolerances only")
-        ax[1].legend(fontsize=7, loc="lower right")
-    ax[1].set_yticks(range(len(vals)))
-    ax[1].set_yticklabels(names, fontsize=7)
-    ax[1].invert_yaxis()
-    ax[1].axvline(now["worst"], color="k", ls=":")
-    ax[1].set_xlabel("worst case over the full tolerance window (deg el)")
-    ax[1].set_title("finalists (dotted line = current design)", fontsize=9)
-    fig.tight_layout()
-    fig.savefig(path, dpi=110)
-    print(f"  plot written: {path}")
 
 
 if __name__ == "__main__":

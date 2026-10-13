@@ -27,6 +27,7 @@ import os
 import sys
 import types
 
+import BandLayout
 import TXLayout
 
 LAYER_NAME = {1: "F.Cu", 2: "In1.Cu", 3: "In2.Cu", 4: "B.Cu"}
@@ -134,8 +135,6 @@ _ser = lambda P: not _tx_old(P) and (_get(P, "TX_SERIES") is True or _get(P, "TX
 _par = lambda P: not _tx_old(P) and _get(P, "TX_SERIES") is False and _tx2(P)
 _auto = lambda P: str(_get(P, "ROTOR_MODE", "")).lower() == "according_to_stator"
 _custom = lambda P: str(_get(P, "ROTOR_MODE", "")).lower() == "custom"
-_inner_free = lambda P: _get(P, "INNER_EDGE_RADIUS_MM") is None      # INSIDE_RADIUS_MM is used only then
-_outer_free = lambda P: _get(P, "OUTER_EDGE_RADIUS_MM") is None      # OUTSIDE_RADIUS_MM is used only then
 _cover = lambda P: _get(P, "ROTOR_AUTO_COVER_TX", True) is True        # auto rotor over the TX turns (default)
 
 # ---- Board_Parameters.py
@@ -165,8 +164,10 @@ _add(_B, "TX_AMPLITUDE_VPP", "num_or_none", optional=True, default=None, lo=0, l
 
 # ---- RX_Parameters.py
 _add(_RX, "LOOPS", "int", lo=1, hi=16)
-_add(_RX, "INSIDE_RADIUS_MM", "num", active=_inner_free, lo=0, lo_ex=True)
-_add(_RX, "OUTSIDE_RADIUS_MM", "num", active=_outer_free, lo=0, lo_ex=True)
+_add(_RX, "INSIDE_RADIUS_MM", "num_or_none", lo=0, lo_ex=True)
+_add(_RX, "OUTSIDE_RADIUS_MM", "num_or_none", lo=0, lo_ex=True)
+_add(_RX, "RX_R_BASE_MM", "num_or_none", optional=True, default=None, lo=0, lo_ex=True)
+_add(_RX, "RX_A_MM", "num_or_none", optional=True, default=None, lo=0, lo_ex=True)
 _add(_RX, "RX_TRACE_WIDTH_MM", "num", lo=0, lo_ex=True)
 _add(_RX, "RX_NET_PHASE_0_2", "net")
 _add(_RX, "RX_NET_PHASE_1_3", "net")
@@ -475,6 +476,10 @@ def _tx_layout(P, v, rep):
         return None
 
 
+class _Skip(Exception):
+    """a value BandLayout needs is missing or invalid (its own error is already reported)"""
+
+
 def _outer_edge_room(v, lay=None):
     """StatorGenerator.outer_edge_room on checked values: how far inside a fixed OUTER_EDGE_RADIUS_MM the RX band
     ends.  None when a value it needs is missing or invalid (its own error is reported)."""
@@ -574,62 +579,57 @@ def check_parameters(P):
     has = lambda *names: all(n in v and v[n] is not None for n in names)
     lay = _tx_layout(P, v, rep)                     # TX layers and the finger layer (TXLayout.py)
 
-    # a fixed INNER_EDGE_RADIUS_MM takes priority: it is the hole, and the RX band starts INNER_EDGE_INSET_MM
-    # outside it, so INSIDE_RADIUS_MM is not used (every rule below then sees the derived value)
-    inner_derived = False
-    if has("INNER_EDGE_RADIUS_MM", "INNER_EDGE_INSET_MM"):
-        inner_derived = True
-        v["INSIDE_RADIUS_MM"] = v["INNER_EDGE_RADIUS_MM"] + v["INNER_EDGE_INSET_MM"]
-        raw_in = getattr(P, "INSIDE_RADIUS_MM", None)
-        raw_txt = f"{raw_in:g}" if _is_num(raw_in) else repr(raw_in)
-        rep.info(f"INNER_EDGE_RADIUS_MM = {v['INNER_EDGE_RADIUS_MM']:g} sets the centre hole: the RX band starts "
-                 f"INNER_EDGE_INSET_MM = {v['INNER_EDGE_INSET_MM']:g} outside it, at r = "
-                 f"{v['INSIDE_RADIUS_MM']:g} mm. INSIDE_RADIUS_MM ({raw_txt}) is not used")
-
-    # a fixed OUTER_EDGE_RADIUS_MM takes priority in the same way: the RX band ends where the automatic edge rule
-    # would have put that edge (StatorGenerator.outer_edge_room), so OUTSIDE_RADIUS_MM is not used
-    outer_derived = False
-    if v.get("OUTER_EDGE_RADIUS_MM") is not None:
-        v.pop("OUTSIDE_RADIUS_MM", None)
-        room = _outer_edge_room(v, lay)
-        if room is not None:
-            outer_derived = True
-            v["OUTSIDE_RADIUS_MM"] = round(v["OUTER_EDGE_RADIUS_MM"] - room, 9)
-            raw_out = getattr(P, "OUTSIDE_RADIUS_MM", None)
-            raw_txt = f"{raw_out:g}" if _is_num(raw_out) else repr(raw_out)
-            rep.info(f"OUTER_EDGE_RADIUS_MM = {v['OUTER_EDGE_RADIUS_MM']:g} sets the outer board edge: the RX band "
-                     f"ends {room:g} mm inside it (room for the TX turns, the TX tail and the margins), at r = "
-                     f"{v['OUTSIDE_RADIUS_MM']:g} mm. OUTSIDE_RADIUS_MM ({raw_txt}) is not used")
+    # the RX band and the board edges (BandLayout.py): the band from INSIDE_RADIUS_MM / OUTSIDE_RADIUS_MM, from
+    # RX_R_BASE_MM / RX_A_MM, or (both pairs None) from the board edges; an edge that is set is used as given
+    inner_derived = outer_derived = False
+    band = None
+    band_names = BandLayout.RADII + BandLayout.CENTRE + BandLayout.EDGES + ("INNER_EDGE_INSET_MM",)
+    band_ok = all(n in v for n in band_names) and v.get("INNER_EDGE_INSET_MM") is not None
+    if band_ok:
+        def _room():
+            r = _outer_edge_room(v, lay)
+            if r is None:
+                raise _Skip()
+            return r
+        try:
+            band = BandLayout.resolve(lambda n: v.get(n), _room)
+        except _Skip:
+            band = None
+        except ValueError as e:
+            rep.error(str(e))
+            band = None
+        for n in BandLayout.RADII:
+            v.pop(n, None)                              # every rule below sees the band actually used
+        if band is not None:
+            v["INSIDE_RADIUS_MM"], v["OUTSIDE_RADIUS_MM"] = band["ri"], band["ro"]
+            inner_derived, outer_derived = band["inner_from"] == "edge", band["outer_from"] == "edge"
+            if band["mode"] == "centre":
+                rep.info(f"RX_R_BASE_MM = {v['RX_R_BASE_MM']:g}, RX_A_MM = {v['RX_A_MM']:g}: the RX band runs from "
+                         f"r = {band['ri']:g} to {band['ro']:g} mm")
+            if inner_derived:
+                rep.info(f"INNER_EDGE_RADIUS_MM = {v['INNER_EDGE_RADIUS_MM']:g} sets the centre hole: the RX band starts "
+                         f"INNER_EDGE_INSET_MM = {v['INNER_EDGE_INSET_MM']:g} outside it, at r = {band['ri']:g} mm")
+            if outer_derived:
+                rep.info(f"OUTER_EDGE_RADIUS_MM = {v['OUTER_EDGE_RADIUS_MM']:g} sets the outer board edge: the RX band "
+                         f"ends {v['OUTER_EDGE_RADIUS_MM'] - band['ro']:g} mm inside it (room for the TX turns, the TX "
+                         f"tail and the margins), at r = {band['ro']:g} mm")
+            both = [n for n, how in (("INNER_EDGE_RADIUS_MM", band["inner_from"]),
+                                     ("OUTER_EDGE_RADIUS_MM", band["outer_from"])) if how == "both"]
+            if both:
+                rep.info(f"the RX band and {' and '.join(both)} are all set: each is used as given (the board is "
+                         f"not fitted to the band)")
 
     # ------------------------------------------------------------ RX geometry
     if has("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM"):
         ri, ro = v["INSIDE_RADIUS_MM"], v["OUTSIDE_RADIUS_MM"]
-        if ri >= ro and outer_derived:
-            rep.error(f"the RX band would end at r = {ro:g} mm (OUTER_EDGE_RADIUS_MM {v['OUTER_EDGE_RADIUS_MM']:g} "
-                      f"- {v['OUTER_EDGE_RADIUS_MM'] - ro:g} mm for the TX turns, the TX tail and the margins), "
-                      f"which is not larger than the RX inside radius ({ri:g}).\nRaise OUTER_EDGE_RADIUS_MM, or "
-                      f"lower the inside radius, TX_TURNS, TX_PITCH_MM, TX_TAIL_EXTRA_MM or OUTER_EDGE_OFFSET_MM.")
-        elif ri >= ro:
-            if inner_derived:
-                rep.error(f"the RX band would start at r = {ri:g} mm (INNER_EDGE_RADIUS_MM "
-                          f"{v['INNER_EDGE_RADIUS_MM']:g} + INNER_EDGE_INSET_MM {v['INNER_EDGE_INSET_MM']:g}), "
-                          f"which is not smaller than OUTSIDE_RADIUS_MM ({ro:g}).\nLower INNER_EDGE_RADIUS_MM or "
-                          f"INNER_EDGE_INSET_MM, or raise OUTSIDE_RADIUS_MM.")
-            else:
-                rep.error(f"INSIDE_RADIUS_MM ({ri:g}) must be smaller than OUTSIDE_RADIUS_MM ({ro:g})")
-        else:
-            if not inner_derived and has("INNER_EDGE_INSET_MM") and ri - v["INNER_EDGE_INSET_MM"] <= 0:
-                rep.error(f"INNER_EDGE_INSET_MM ({v['INNER_EDGE_INSET_MM']:g}) is not smaller than "
-                          f"INSIDE_RADIUS_MM ({ri:g}): the centre hole would have a zero or negative "
-                          f"radius.\nLower INNER_EDGE_INSET_MM (Board_Parameters.py) or raise "
-                          f"INSIDE_RADIUS_MM.")
+        if ri < ro:
             if has("VIA_DIAMETER_MM", "MIN_CLEARANCE_MM", "RX_TRACE_WIDTH_MM"):
-                band = ro - ri
-                if band < v["VIA_DIAMETER_MM"]:
-                    rep.error(f"the RX band ({band:g} mm) is narrower than one via "
+                width = ro - ri
+                if width < v["VIA_DIAMETER_MM"]:
+                    rep.error(f"the RX band ({width:g} mm) is narrower than one via "
                               f"({v['VIA_DIAMETER_MM']:g} mm): the outer and inner tip vias would overlap")
-                elif band < v["VIA_DIAMETER_MM"] + v["MIN_CLEARANCE_MM"] + v["RX_TRACE_WIDTH_MM"]:
-                    rep.warn(f"the RX band ({band:g} mm) is very narrow for {v['VIA_DIAMETER_MM']:g} mm vias: "
+                elif width < v["VIA_DIAMETER_MM"] + v["MIN_CLEARANCE_MM"] + v["RX_TRACE_WIDTH_MM"]:
+                    rep.warn(f"the RX band ({width:g} mm) is very narrow for {v['VIA_DIAMETER_MM']:g} mm vias: "
                              f"outer and inner tip vias of the same curve will be crowded")
     if has("LOOPS", "INSIDE_RADIUS_MM", "RX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM") and v["LOOPS"] >= 1:
         # the curves of a coil run side by side near the band centre: spacing there is about

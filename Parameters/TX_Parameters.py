@@ -12,7 +12,7 @@ TX_OFFSET_MM       = 1.1            # first turn radius = RX outside radius + th
 TX_PITCH_MM        = 0.6            # radial pitch between turns
 TX_TRACE_WIDTH_MM  = 0.2
 TX_STEPS           = 300            # polyline points per TX turn
-TX_TAIL_EXTRA_MM   = 0.0            # radial tail that carries the TX terminal
+TX_TAIL_EXTRA_MM   = 2.0            # radial tail that carries the TX terminal
 # Shape of the turns:
 #   "stepped" : concentric circles joined by a short radial step (your examples)
 #   "spiral"  : one smooth Archimedean spiral, the gap between turns equals the pitch
@@ -30,7 +30,7 @@ TX_TURN_SHAPE      = "stepped"
 #              defaults) that is less than MIN_CLEARANCE_MM, and each step then starts a little before the one
 #              inside it to keep the clearance.  The generator prints the gap it got.
 #   Not used by a "spiral" TX (it has no steps).
-TX_STEPPED_ANGLE_DEG = 20
+TX_STEPPED_ANGLE_DEG = 45
 # TX_INSIDE_VIA_DISTANCE_MM = where the via at the TX terminal sits (the via that joins the inner tail
 #   to the first turn, or the two spirals of a series TX).  0 = on the trace ends, as originally - only
 #   one pitch from the next turn, which with a 0.8 mm via and a 0.6 mm pitch is closer than

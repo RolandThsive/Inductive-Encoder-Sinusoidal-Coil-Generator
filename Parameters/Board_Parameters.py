@@ -38,22 +38,24 @@ PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
 PCB_LAYERS = 2
 
 # Via / copper-to-copper rules the generator must respect when it places vias.
-VIA_DIAMETER_MM   = 0.6
-VIA_DRILL_MM      = 0.3
+VIA_DIAMETER_MM   = 0.8
+VIA_DRILL_MM      = 0.4
 MIN_CLEARANCE_MM  = 0.2
 
 # ---- board outline (Edge.Cuts circles) --------------------------------------
-INNER_EDGE_INSET_MM   = 1.2         # inner hole radius = RX inside radius - this ...
-INNER_EDGE_RADIUS_MM  = 25          # ... or set a fixed radius here: the hole gets exactly this
-                                    # radius and the RX band starts INNER_EDGE_INSET_MM outside it
-                                    # (INSIDE_RADIUS_MM in RX_Parameters.py is then not used).
+INNER_EDGE_INSET_MM   = 1.2         # centre hole radius = RX band start - this ...
+INNER_EDGE_RADIUS_MM  = 15.0        # ... or set a fixed radius here: the hole gets exactly this radius.
+                                    # RX band given (RX_Parameters.py): both are used as given - the hole
+                                    #   must be at least INNER_EDGE_INSET_MM inside the band.
+                                    # RX band None: the band starts INNER_EDGE_INSET_MM outside the hole.
                                     # None = the formula above.
-OUTER_EDGE_OFFSET_MM  = 4.0         # outer edge = RX outside radius + this ...
-OUTER_EDGE_RADIUS_MM  = 50          # ... or set a fixed radius here: the board edge gets exactly this
-                                    # radius and the RX band ends where the rule below would have put
-                                    # this edge, so the TX turns, the TX tail and the bridging fingers
-                                    # fit inside it with the usual margins
-                                    # (OUTSIDE_RADIUS_MM in RX_Parameters.py is then not used).
+OUTER_EDGE_OFFSET_MM  = 4.0         # outer edge = RX band end + this ...
+OUTER_EDGE_RADIUS_MM  = 27.0        # ... or set a fixed radius here: the board edge gets exactly this radius.
+                                    # RX band given (RX_Parameters.py): both are used as given - the edge
+                                    #   must leave at least the room the rule below needs.
+                                    # RX band None: the band ends where the rule below would have put this
+                                    #   edge, so the TX turns, the TX tail and the bridging fingers fit
+                                    #   inside it with the usual margins.
                                     # None = the largest of the formula above,
                                     # (TX tail end + OUTER_EDGE_TAIL_MARGIN_MM) and
                                     # (bridging finger tip + half an RX trace + OUTER_EDGE_TAIL_MARGIN_MM)
