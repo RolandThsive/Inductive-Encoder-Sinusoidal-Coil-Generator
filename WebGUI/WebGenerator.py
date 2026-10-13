@@ -59,6 +59,24 @@ def _no_papers(text):
     return re.sub(r"[ \t]{2,}", " ", t)
 
 
+def _no_removed_features(text):
+    """The web page has no electrical estimate, optimizer or analyser, so the help texts and notes that point to
+    them (they come from the generator's own files, which stay unchanged) lose those sentences, like _no_papers."""
+    t = re.sub(r"The electrical estimate sizes the tank capacitors for it; the rotor summary", "The rotor summary", text)
+    t = re.sub(r"OptimizeCoil\.py\s+finds\s+the\s+best\s+value\s+for\s+your\s+coil\s+with\s+the\s+eddy-current\s+model;\s+check",
+               "Check", t)
+    t = re.sub(r"\s*\(AnalyzeCoil\.py\)", "", t)
+    t = re.sub(r",\s+so\s+OptimizeCoil\.py\s+searches\s+the\s+outer\s+edge\s+together\s+with\s+the\s+metal\s+fraction", "", t)
+    t = re.sub(r'\s*In the analyser "single".*?"all" and "none"\.', "", t, flags=re.S)
+    t = re.sub(r"Parameters, Generator, Analyser_And_Optimizer", "Parameters and Generator", t)
+    t = re.sub(r"\s*\(see the electrical estimate\)", "", t)
+    return t
+
+
+def _web_text(text):
+    return _no_removed_features(_no_papers(text))
+
+
 # Starting values that differ from the parameter files in the web version only (none now: the files themselves
 # carry the web's defaults, e.g. RX nets "SIN_Signal" / "COS_Signal").  WebGUI.js has a matching empty hook,
 # START_DESIGN, which also feeds the Reset button and the changed-dot logic.
@@ -258,7 +276,7 @@ def describe():
                                                                   "optional", "default")}
         default = getattr(P, name, o.get("default"))
         default = WEB_DEFAULTS.get(name, default)
-        help_text = _no_papers(helps.get(name) or FALLBACK_HELP.get(name, ""))
+        help_text = _web_text(helps.get(name) or FALLBACK_HELP.get(name, ""))
         out.append({"file": file,
                     "name": name,
                     "kind": kind,
@@ -298,7 +316,7 @@ def generate(values_json, strict=False):
 
     def take(stage, rep):
         for level, msg in rep.items:
-            items.append({"stage": stage, "level": level, "msg": _no_papers(msg)})
+            items.append({"stage": stage, "level": level, "msg": _web_text(msg)})
 
     def fail(why):
         result["failed"] = why
