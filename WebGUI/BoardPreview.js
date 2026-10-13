@@ -73,6 +73,7 @@ class BoardView {
     this.netRole = {};               // net name -> "sin" | "cos" | "tx" (from the parameters of the run)
     this.hiddenNets = new Set();     // roles switched off with the Sin / Cos / TX Loops buttons
     this.highlight = null;           // the role under the mouse: drawn thicker, the rest faded
+    this.showOrigin = true;          // the board centre marker (Origin button); originBoost = hovered, drawn bigger
     this.rotorAngle = 0;
     this.view = { scale: 4, ox: 0, oy: 0 };
     this.fitted = false;
@@ -92,6 +93,8 @@ class BoardView {
   setNetRoles(roles) { this.netRole = roles; this.draw(); }
   toggleNet(role) { this.hiddenNets.has(role) ? this.hiddenNets.delete(role) : this.hiddenNets.add(role); this.draw(); }
   setHighlight(role) { if (this.highlight !== role) { this.highlight = role; this.draw(); } }
+  toggleOrigin() { this.showOrigin = !this.showOrigin; this.draw(); }
+  setOriginBoost(on) { if (this.originBoost !== on) { this.originBoost = on; this.draw(); } }
   setViaBoost(on) { if (this.viaBoost !== on) { this.viaBoost = on; this.draw(); } }
   toggleLayer(layer) { this.hidden.has(layer) ? this.hidden.delete(layer) : this.hidden.add(layer); this.draw(); }
   setRotorAngle(deg) { this.rotorAngle = deg; this.draw(); }
@@ -178,6 +181,7 @@ class BoardView {
     if (this.mode === "stator" || this.mode === "overlay") this._drawBoard(this.stator, px, 0);
     if (this.mode === "rotor") this._drawBoard(this.rotor, px, 0, true);
     if (this.mode === "overlay") this._drawRotorOverlay(px);
+    if (this.showOrigin) this._drawOrigin(px);
     this._drawMeasure(px);
   }
 
@@ -263,6 +267,19 @@ class BoardView {
       ctx.fillStyle = cssVar("--rotor");
       ctx.beginPath(); this._polyPath(p.pts, this.rotorAngle); ctx.fill();   // filled only, like the file
     }
+  }
+
+  /* the origin: a cross and ring at the board centre, a fixed size on screen (bigger and in the accent colour on hover) */
+  _drawOrigin(px) {
+    const ctx = this.ctx, [cx, cy] = this.center, big = this.originBoost;
+    const s = (big ? 16 : 8) * px, r = s * 0.55;
+    const path = () => {
+      ctx.beginPath();
+      ctx.moveTo(cx - s, cy); ctx.lineTo(cx + s, cy); ctx.moveTo(cx, cy - s); ctx.lineTo(cx, cy + s);
+      ctx.moveTo(cx + r, cy); ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    };
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)"; ctx.lineWidth = (big ? 5 : 3.5) * px; path(); ctx.stroke();
+    ctx.strokeStyle = big ? cssVar("--accent") : cssVar("--edge"); ctx.lineWidth = (big ? 2.2 : 1.4) * px; path(); ctx.stroke();
   }
 
   _drawMeasure(px) {
