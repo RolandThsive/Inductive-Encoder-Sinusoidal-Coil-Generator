@@ -432,6 +432,9 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 #btn-download, .download-row .glass-btn { color: #000; border: 2px solid var(--accent); font-weight: 600; }
 .download-row .glass-btn { padding: 4px 10px; }
 #btn-download:hover:not(:disabled), .download-row .glass-btn:hover:not(:disabled) { color: var(--accent); background: var(--cream); }
+/* Download Zip takes the blog's yellow, like Reset */
+#btn-download { border-color: var(--warning-edge); }
+#btn-download:hover:not(:disabled) { color: #7a5f00; background: rgba(248, 236, 198, 0.75); }
 
 /* the narrowest laptops: the title and the top buttons tighten further */
 @media (max-width: 1140px) {
