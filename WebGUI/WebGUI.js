@@ -725,7 +725,7 @@ function renderNetToggles() {
   // the board centre: hover makes the marker bigger, click hides it
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   icon.setAttribute("viewBox", "0 0 18 14");
-  icon.innerHTML = `<path d="M3 7 H15 M9 1 V13"/><circle cx="9" cy="7" r="3.2"/>`;
+  icon.innerHTML = `<circle cx="9" cy="7" r="3.6" fill="#2f7fe0" stroke="#fff" stroke-width="1"/>`;
   box.append(el("button", { type: "button", class: "net-btn" + (view.showOrigin ? "" : " off"), role: "switch", "aria-checked": String(view.showOrigin),
     "data-tip": view.showOrigin ? "The board centre (origin). Hover to enlarge it, click to hide it" : "Show the board centre (origin)",
     onclick: () => { view.toggleOrigin(); view.setOriginBoost(false); renderNetToggles(); },

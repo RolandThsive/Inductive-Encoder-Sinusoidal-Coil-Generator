@@ -269,17 +269,20 @@ class BoardView {
     }
   }
 
-  /* the origin: a cross and ring at the board centre, a fixed size on screen (bigger and in the accent colour on hover) */
+  /* the origin, Onshape style: a small shaded blue point at the board centre, a fixed size on screen
+     (hovering the Origin button makes it bigger) */
   _drawOrigin(px) {
-    const ctx = this.ctx, [cx, cy] = this.center, big = this.originBoost;
-    const s = (big ? 16 : 8) * px, r = s * 0.55;
-    const path = () => {
-      ctx.beginPath();
-      ctx.moveTo(cx - s, cy); ctx.lineTo(cx + s, cy); ctx.moveTo(cx, cy - s); ctx.lineTo(cx, cy + s);
-      ctx.moveTo(cx + r, cy); ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-    };
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)"; ctx.lineWidth = (big ? 5 : 3.5) * px; path(); ctx.stroke();
-    ctx.strokeStyle = big ? cssVar("--accent") : cssVar("--edge"); ctx.lineWidth = (big ? 2.2 : 1.4) * px; path(); ctx.stroke();
+    const ctx = this.ctx, [cx, cy] = this.center;
+    const r = (this.originBoost ? 7.5 : 4) * px;
+    ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.25)"; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1;
+    const g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, r * 0.1, cx, cy, r);
+    g.addColorStop(0, "#8fc4ff"); g.addColorStop(0.55, "#2f7fe0"); g.addColorStop(1, "#1b5bb0");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.2 * px;
+    ctx.beginPath(); ctx.arc(cx, cy, r + 0.6 * px, 0, 2 * Math.PI); ctx.stroke();
   }
 
   _drawMeasure(px) {
