@@ -1,4 +1,4 @@
-/* BoardPreview.js - draws the generated KiCad boards (and the instant sketch) on a canvas.
+/* BoardPreview.js - draws the generated KiCad boards on a canvas.
 
    parseBoard(text) reads the few things the generator writes: segments, vias, Edge.Cuts circles and
    filled polygons (rotor copper).  BoardView draws them with one colour per copper layer, with zoom,
@@ -61,8 +61,8 @@ class BoardView {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.readout = readout;
-    this.mode = "sketch";            // sketch | stator | rotor | overlay
-    this.stator = null; this.rotor = null; this.sketch = null;
+    this.mode = "overlay";           // stator | rotor | overlay
+    this.stator = null; this.rotor = null;
     this.center = [100, 100];
     this.hidden = new Set();
     this.rotorAngle = 0;
@@ -80,7 +80,6 @@ class BoardView {
     if (center) this.center = center;
     this.draw();
   }
-  setSketch(sketch) { this.sketch = sketch; if (this.mode === "sketch") this.draw(); }
   setMode(mode) { this.mode = mode; this.draw(); }
   setViaBoost(on) { if (this.viaBoost !== on) { this.viaBoost = on; this.draw(); } }
   toggleLayer(layer) { this.hidden.has(layer) ? this.hidden.delete(layer) : this.hidden.add(layer); this.draw(); }
@@ -90,8 +89,7 @@ class BoardView {
   extent() {
     let r = 0;
     const take = (b) => b && b.circles.forEach((c) => (r = Math.max(r, c.r + Math.hypot(c.cx - this.center[0], c.cy - this.center[1]))));
-    if (this.mode === "sketch") r = this.sketch ? this.sketch.outer : 50;
-    else { take(this.stator); take(this.rotor); }
+    take(this.stator); take(this.rotor);
     return r || 50;
   }
   fit() {
@@ -166,12 +164,9 @@ class BoardView {
     ctx.setTransform(scale, 0, 0, scale, ox, oy);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
     const px = 1 / scale;                                   // one screen pixel in mm
-    if (this.mode === "sketch") this._drawSketch(px);
-    else {
-      if (this.mode === "stator" || this.mode === "overlay") this._drawBoard(this.stator, px, 0);
-      if (this.mode === "rotor") this._drawBoard(this.rotor, px, 0, true);
-      if (this.mode === "overlay") this._drawRotorOverlay(px);
-    }
+    if (this.mode === "stator" || this.mode === "overlay") this._drawBoard(this.stator, px, 0);
+    if (this.mode === "rotor") this._drawBoard(this.rotor, px, 0, true);
+    if (this.mode === "overlay") this._drawRotorOverlay(px);
     this._drawMeasure(px);
   }
 
@@ -243,45 +238,6 @@ class BoardView {
       ctx.fillStyle = cssVar("--rotor");
       ctx.beginPath(); this._polyPath(p.pts, this.rotorAngle); ctx.fill();   // filled only, like the file
     }
-  }
-
-  _drawSketch(px) {
-    const s = this.sketch; if (!s) return;
-    const ctx = this.ctx, [cx, cy] = this.center;
-    // rotor sectors
-    ctx.fillStyle = cssVar("--rotor");
-    const n = s.loops, duty = 0.5;
-    for (let k = 0; k < n; k++) {
-      const a0 = (k / n) * 2 * Math.PI, a1 = a0 + duty * 2 * Math.PI / n;
-      ctx.beginPath(); ctx.arc(cx, cy, s.rotorOuter, -a0, -a1, true); ctx.arc(cx, cy, s.rotorInner, -a1, -a0, false); ctx.closePath(); ctx.fill();
-    }
-    // TX turns
-    ctx.strokeStyle = this._layerColour(s.txLayer); ctx.lineWidth = Math.max(0.2, px);
-    for (let t = 0; t < s.txTurns; t++) { ctx.beginPath(); ctx.arc(cx, cy, s.txFirst + t * s.txPitch, 0, 2 * Math.PI); ctx.stroke(); }
-    // SIN and COS boundaries (equal-area law), each sub-coil shifted by the split
-    const curves = [];
-    for (let sub = 0; sub < s.subcoils; sub++) {
-      const shift = (sub - (s.subcoils - 1) / 2) * s.splitDeg * Math.PI / 180;
-      curves.push({ phase: shift, layer: "F.Cu" }, { phase: shift + Math.PI, layer: "F.Cu" },
-                  { phase: shift + Math.PI / 2, layer: "B.Cu" }, { phase: shift + 1.5 * Math.PI, layer: "B.Cu" });
-    }
-    const r2m = (s.ri * s.ri + s.ro * s.ro) / 2, r2a = (s.ro * s.ro - s.ri * s.ri) / 2;
-    ctx.lineWidth = Math.max(0.2, px);
-    for (const c of curves) {
-      if (this.hidden.has(c.layer)) continue;
-      ctx.strokeStyle = this._layerColour(c.layer);
-      ctx.beginPath();
-      for (let k = 0; k <= 720; k++) {
-        const th = (k / 720) * 2 * Math.PI;
-        const r = Math.sqrt(r2m + r2a * Math.sin(s.loops * th + c.phase));
-        const x = cx + r * Math.cos(th), y = cy - r * Math.sin(th);
-        k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-      }
-      ctx.stroke();
-    }
-    // board edges
-    ctx.strokeStyle = cssVar("--edge"); ctx.lineWidth = 1.5 * px;
-    for (const r of [s.inner, s.outer]) { ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2 * Math.PI); ctx.stroke(); }
   }
 
   _drawMeasure(px) {

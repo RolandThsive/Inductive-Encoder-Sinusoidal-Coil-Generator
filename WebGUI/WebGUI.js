@@ -205,7 +205,6 @@ function setValues(changes, from) {
 let inactiveTimer;
 function refreshAfterChange(from) {
   updateStale();
-  drawSketch();
   if (from !== "basic") renderBasic();
   if (from !== "advanced" && state.mode === "advanced") renderAdvanced();
   else if (state.mode === "advanced") markAdvanced();
@@ -601,28 +600,6 @@ function setMode(mode) {
   setTimeout(() => view.resize(), 560);
 }
 
-/* ---- sketch -------------------------------------------------------------------------------------- */
-function drawSketch() {
-  const v = state.values;
-  const inner = v.INNER_EDGE_RADIUS_MM ?? (v.INSIDE_RADIUS_MM - v.INNER_EDGE_INSET_MM);
-  const ri = v.INNER_EDGE_RADIUS_MM != null ? inner + v.INNER_EDGE_INSET_MM : v.INSIDE_RADIUS_MM;
-  const goAround = v.TX_LAYERS === 2 && (v.RX_TABS || "").toLowerCase() !== "none" ? 2 : 0;
-  const room = Math.max(v.OUTER_EDGE_OFFSET_MM, v.TX_OFFSET_MM + (v.TX_TURNS - 1) * v.TX_PITCH_MM + v.TX_TRACE_WIDTH_MM / 2 + v.OUTER_EDGE_TAIL_MARGIN_MM + goAround);
-  const outer = v.OUTER_EDGE_RADIUS_MM ?? (v.OUTSIDE_RADIUS_MM + v.OUTER_EDGE_OFFSET_MM);
-  const ro = v.OUTER_EDGE_RADIUS_MM != null ? outer - room : v.OUTSIDE_RADIUS_MM;
-  const ok = [inner, outer, ri, ro].every(Number.isFinite) && ro > ri && inner > 0;
-  view.setSketch(ok ? {
-    inner, outer, ri, ro, loops: v.LOOPS, subcoils: v.RX_SUBCOILS, splitDeg: (v.RX_SUBCOIL_SPLIT_ELEC_DEG || 45) / v.LOOPS,
-    txTurns: v.TX_TURNS, txFirst: ro + v.TX_OFFSET_MM, txPitch: v.TX_PITCH_MM, txLayer: LAYER_NUM_CU[v.TX_LAYER_A] || "B.Cu",
-    rotorInner: Math.max(inner + 0.5, ri - v.AIR_GAP_MM), rotorOuter: ro + v.TX_OFFSET_MM + (v.TX_TURNS - 1) * v.TX_PITCH_MM + 0.6,
-  } : null);
-  if (view.mode === "sketch") {
-    $("preview-caption").textContent = ok
-      ? `Sketch: Loops: ${v.LOOPS}, Range: ${fmt(360 / v.LOOPS)}°, Board: ${fmt(inner)} to ${fmt(outer)} mm (press Generate for the real copper)`
-      : "Sketch: these radii leave no room for the coils";
-  }
-}
-
 /* ---- generate ---------------------------------------------------------------------------------- */
 async function generate() {
   if (!state.ready || state.busy) return;
@@ -636,8 +613,7 @@ async function generate() {
     renderChecks();
     if (r.ok) {
       view.setBoards(r.files.stator, r.files.rotor, r.center);
-      if (view.mode === "sketch") pickView("stator");
-      else { view.fit(); }
+      view.fit();
       $("btn-summary").disabled = false;
     }
     renderResults();
@@ -696,7 +672,6 @@ function pickView(mode) {
 }
 function updateCaption() {
   const r = state.result, v = state.values, mode = view.mode;
-  if (mode === "sketch") { drawSketch(); return; }
   if (!r || !r.ok) {
     $("preview-caption").textContent = r ? "Not generated: see the checks below" : "Press Generate to make the boards";
     return;
@@ -774,7 +749,7 @@ async function importFiles(files) {
 async function main() {
   if (window.COILGEN_PHONE) return;                       // computers only: nothing loads on a phone
   state.lastNumbers = {};
-  view = new BoardView($("board-canvas"), $("readout"));
+  view = new BoardView($("board-canvas"), $("readout"));     // opens on Overlay
   renderLayerToggles();
 
   // wiring
@@ -845,7 +820,6 @@ async function main() {
   $("btn-generate").disabled = false;
   $("btn-generate").textContent = "Generate";
   renderBasic();
-  drawSketch();
   renderResults();
   try { state.inactive = new Set(await ask("inactive", { values: state.values })); } catch (e) { /* ignore */ }
   await generate();

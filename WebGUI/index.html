@@ -82,10 +82,9 @@
     <section id="preview" class="panel">
       <div class="preview-head">
         <div class="segmented" id="view-tabs">
-          <button data-view="sketch" class="on" data-tip="A quick drawing that follows the controls at once (an estimate, not the real copper)">Sketch</button>
           <button data-view="stator" data-tip="The generated Stator.kicad_pcb: RX and TX copper, vias and board edge">Stator</button>
           <button data-view="rotor" data-tip="The generated Rotor.kicad_pcb: the copper target">Rotor</button>
-          <button data-view="overlay" data-tip="The rotor drawn over the stator; turn it with the Rotor Angle slider">Overlay</button>
+          <button data-view="overlay" class="on" data-tip="The rotor drawn over the stator; turn it with the Rotor Angle slider">Overlay</button>
         </div>
         <div class="layer-toggles" id="layer-toggles"></div>
       </div>
@@ -97,13 +96,13 @@
           <button class="glass-btn small" id="btn-measure" data-tip="Click two points on the board to get the distance between them">Measure</button>
         </div>
         <div class="readout" id="readout" data-tip="Radius and angle under the cursor, from the board centre"></div>
-        <div class="rotor-angle" id="rotor-angle-box" hidden data-tip="Turn the rotor over the stator to see how the target sweeps the coils">
+        <div class="rotor-angle" id="rotor-angle-box" data-tip="Turn the rotor over the stator to see how the target sweeps the coils">
           <span>Rotor Angle</span>
           <input type="range" id="rotor-angle" min="0" max="360" step="0.5" value="0">
           <output id="rotor-angle-out">0°</output>
         </div>
       </div>
-      <p class="caption" id="preview-caption">Sketch</p>
+      <p class="caption" id="preview-caption">Loading…</p>
     </section>
 
     <!-- Checks and download -->
