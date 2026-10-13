@@ -14,9 +14,12 @@ Every function returns JSON text, so the JavaScript side never sees Python objec
 
 Folder layout in the browser's in-memory file system (ROOT):
     ROOT/Generator/*.py               fetched from the repository
+    ROOT/WebGUI/WebGenerator.py       this file
     ROOT/Parameters_Default/*.py      the four parameter files as published (never changed)
     ROOT/Parameters/*.py              the same files with the visitor's values (rewritten on every run)
     ROOT/Output/Coil_.../             the run's folder (emptied before every run)
+    ROOT/out.zip                      the run's zip (generate)
+    ROOT/parameters.zip               the Export zip (export_zip)
 """
 
 import ast
@@ -46,6 +49,8 @@ _PAPER = re.compile(r"(?:,\s*)?(?:as in\s+|the layout of\s+)?Hoxha\s+et\s+al\.?,
 
 
 def _no_papers(text):
+    # The last line also tidies spacing: taking a reference out can leave double spaces, and column alignment
+    # means nothing in the help popover.
     t = re.sub(r"the 2-layer layout of\s+Hoxha\s+et\s+al\.?\s+2022\s*\(Fig\.\s*2\)", "the 2-layer go-around layout", text)
     t = _PAPER.sub("", t)
     t = re.sub(r"\s*\(as in the paper(?:'s layout)?\)", "", t)
@@ -55,15 +60,16 @@ def _no_papers(text):
 
 
 # Starting values that differ from the parameter files in the web version only (none now: the files themselves
-# carry the web's defaults, e.g. RX nets "SIN_Signal" / "COS_Signal").
+# carry the web's defaults, e.g. RX nets "SIN_Signal" / "COS_Signal").  WebGUI.js has a matching empty hook,
+# START_DESIGN, which also feeds the Reset button and the changed-dot logic.
 WEB_DEFAULTS = {}
 # Shown, but not editable: they only name files and place the board on the KiCad page.
 READ_ONLY = {"OUTPUT_DIR", "STATOR_FILE", "ROTOR_FILE", "CENTER_X_MM", "CENTER_Y_MM", "PAGE_SIZE_MM"}
 
 
 def _paths():
-    # The parameter files are rewritten many times a second apart, often with the same size (LOOPS = 1 -> 4):
-    # a cached .pyc would then look valid and the old values would be used.  Never cache them.
+    # The parameter files can be rewritten less than a second apart with the same size (LOOPS = 1 -> 4), so a
+    # cached .pyc keyed on time and size could look valid and the old values would be used.  Never cache them.
     sys.dont_write_bytecode = True
     shutil.rmtree(os.path.join(ROOT, "Parameters", "__pycache__"), ignore_errors=True)
     for sub in ("Generator", "Parameters"):
@@ -82,9 +88,7 @@ def _forget_modules():
 
 
 def _jsonable(x):
-    if isinstance(x, tuple):
-        return [_jsonable(i) for i in x]
-    if isinstance(x, list):
+    if isinstance(x, (tuple, list)):
         return [_jsonable(i) for i in x]
     if isinstance(x, float) and x != x:
         return None
@@ -100,6 +104,7 @@ def _assignments(source):
     for node in ast.parse(source).body:
         if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
             v = node.value
+            # these are UTF-8 byte offsets; the parameter files are ASCII, so they equal str indices
             out[node.targets[0].id] = (v.lineno, v.col_offset, v.end_lineno, v.end_col_offset)
     return out
 
@@ -123,7 +128,7 @@ def _help_texts(source):
     lines = source.split("\n")
     out, prev_end = {}, {}
     spots = _assignments(source)
-    for name, (ln, _c, end_ln, _ec) in sorted(spots.items(), key=lambda kv: kv[1]):
+    for name, (ln, _col, end_ln, end_col) in sorted(spots.items(), key=lambda kv: kv[1]):
         i = ln - 1                                        # 0-based line of the assignment
         above = []
         j = i - 1
@@ -133,10 +138,11 @@ def _help_texts(source):
             j -= 1
         trailing = []
         first = lines[end_ln - 1]
-        if "#" in first[_ec:]:
-            trailing.append(first[first.index("#", _ec) + 1:].strip())
+        if "#" in first[end_col:]:
+            trailing.append(first[first.index("#", end_col) + 1:].strip())
             k = end_ln
-            col = first.index("#", _ec)
+            col = first.index("#", end_col)
+            # a continuation comment may start up to 2 columns left of the trailing '#'
             while k < len(lines) and lines[k].strip().startswith("#") and len(lines[k]) - len(lines[k].lstrip()) >= col - 2:
                 trailing.append(lines[k].strip().lstrip("#").strip())
                 k += 1
@@ -159,7 +165,6 @@ def _help_texts(source):
 def _groups(source):
     """{NAME: heading}: the section heading of the parameter file each parameter sits under
     ("# ===" + "# TITLE", or a "# ---- title ----" sub-heading)."""
-    import re
     lines = source.split("\n")
     spots = _assignments(source)
     by_line = {ln: name for name, (ln, _c, _e, _ec) in spots.items()}
@@ -181,9 +186,10 @@ def _groups(source):
 
 
 def _py_literal(value, kind):
+    # (no editable parameter is a pair today: PAGE_SIZE_MM is read-only; kept in case it becomes editable)
     if kind == "pair" and isinstance(value, list):
         value = tuple(value)
-    if isinstance(value, float) and value.is_integer() and kind in ("int",):
+    if isinstance(value, float) and value.is_integer() and kind == "int":
         value = int(value)
     return repr(value)
 
@@ -205,7 +211,6 @@ def _write_parameter_files(values):
             if name not in values or name in READ_ONLY or name in HIDDEN:
                 continue
             new = _py_literal(values[name], kinds.get(name))
-            old = "\n".join(lines[ln - 1:end_ln])
             old_expr = (lines[ln - 1][col:end_col] if ln == end_ln else
                         "\n".join([lines[ln - 1][col:]] + lines[ln:end_ln - 1] + [lines[end_ln - 1][:end_col]]))
             try:
@@ -218,7 +223,6 @@ def _write_parameter_files(values):
             pad = " " * max(0, len(old_expr) - len(new)) if ln == end_ln and "#" in tail else ""
             lines[ln - 1:end_ln] = [head + new + pad + tail]
             changed.append(name)
-            del old
         with open(os.path.join(ROOT, "Parameters", fname), "w", encoding="utf-8", newline="\n") as fh:
             fh.write("\n".join(lines))
     return changed
@@ -252,10 +256,16 @@ def describe():
             continue
         opts = {k: _jsonable(v) for k, v in o.items() if k in ("lo", "hi", "lo_ex", "hi_ex", "values", "ci",
                                                                   "optional", "default")}
-        default = getattr(P, name) if hasattr(P, name) else o.get("default")
+        default = getattr(P, name, o.get("default"))
         default = WEB_DEFAULTS.get(name, default)
-        out.append({"file": file, "name": name, "kind": kind, "options": opts,
-                    "default": _jsonable(default), "help": _no_papers(helps.get(name) or FALLBACK_HELP.get(name, "")), "group": groups.get(name, "General"),
+        help_text = _no_papers(helps.get(name) or FALLBACK_HELP.get(name, ""))
+        out.append({"file": file,
+                    "name": name,
+                    "kind": kind,
+                    "options": opts,
+                    "default": _jsonable(default),
+                    "help": help_text,
+                    "group": groups.get(name, "General"),
                     "readOnly": name in READ_ONLY})
     return json.dumps({"parameters": out, "files": list(PARAMETER_FILES)})
 
@@ -351,11 +361,11 @@ def generate(values_json, strict=False):
     if rot_rep.errors:
         return fail(f"{len(rot_rep.errors)} rotor error(s)")
 
-    # 5. strict
+    # 4. strict (the desktop's electrical estimate is not made on the web)
     if strict and warn_texts:
         return fail(f"Strict: {len(warn_texts)} warning(s) count as errors")
 
-    # 6. write
+    # 5. write
     folder = ODM.create_output_folder(stator, P)
     written = [stator.write(os.path.join(folder, P.STATOR_FILE)), rotor.write(os.path.join(folder, P.ROTOR_FILE))]
     note = ["ELECTRICAL ESTIMATE",
@@ -374,6 +384,7 @@ def generate(values_json, strict=False):
         for f in sorted(os.listdir(folder)):
             z.write(os.path.join(folder, f), arcname=f"{name}/{f}")
         for fname in PARAMETER_FILES:                      # the parameter files of this run, for the desktop
+            # inside the run's own folder, so the zip is a self-contained record of the run
             z.write(os.path.join(ROOT, "Parameters", fname), arcname=f"{name}/Parameter_Files/{fname}")
     files = {}
     for key, fname in (("stator", P.STATOR_FILE), ("rotor", P.ROTOR_FILE), ("record", ODM.RECORD_FILE)):
@@ -406,6 +417,7 @@ def export_zip(values_json):
     zpath = os.path.join(ROOT, "parameters.zip")
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
         for fname, text in files.items():
+            # folder named Parameters/, so it unpacks over the repository's own Parameters/ folder
             z.writestr(f"Parameters/{fname}", text)
     return json.dumps({"zip": zpath})
 

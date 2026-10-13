@@ -1,12 +1,18 @@
 /* WebGUI.js - the page: Basic and Advanced controls, the preview, the checks and the downloads.
 
    The generator itself runs in PyodideWorker.js.  Every value lives in one object (state.values) that both
-   modes edit; the parameter list, defaults, help texts and the "is this used now" rules all come from the
-   generator's own files (ParameterChecker.SPEC and the parameter files), so this page never drifts from them. */
+   modes edit.  Advanced, the help texts, the defaults and the "is this used now" rules come from the generator's
+   own files (ParameterChecker.SPEC and the parameter files).  Basic is a hand-picked subset with its own limits and
+   layouts (PRESETS, BASIC_NAMES, renderBasic); keep those in step with the parameter files by hand.
+
+   BoardPreview.js is loaded before this file and provides the globals LAYER_INFO and BoardView.
+
+   Sections: settings, names and tables, state, worker, small helpers, tooltips, value changes, Basic mode,
+   Advanced mode, mode switch, generate and results, preview controls, dialogs, share / import / export, start. */
 
 "use strict";
 
-/* ---- where things come from ------------------------------------------------------------------- */
+/* ---- settings ------------------------------------------------------------------------------------ */
 const QUERY = new URLSearchParams(location.search);
 const CONFIG = {
   pyodideBase: QUERY.get("pyodide") || "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/",
@@ -20,9 +26,11 @@ const CONFIG = {
    would replace those defaults on the web only; keep it empty unless that is wanted. */
 const START_DESIGN = {};
 
+/* ---- names and tables ---------------------------------------------------------------------------- */
 const LAYER_NUM_NAME = { 1: "Top", 2: "Inner-1", 3: "Inner-2", 4: "Bottom" };
 const LAYER_NUM_CU = { 1: "F.Cu", 2: "In1.Cu", 3: "In2.Cu", 4: "B.Cu" };
 const CU_NAME = { "F.Cu": "Top", "In1.Cu": "Inner-1", "In2.Cu": "Inner-2", "B.Cu": "Bottom" };
+const BOARD_FILE = { stator: "Stator", rotor: "Rotor" };       // the part's name in its .kicad_pcb file name
 
 /* TX layouts offered in Basic (from the examples in TX_Parameters.py) */
 const PRESETS = [
@@ -59,12 +67,15 @@ const GROUP_TITLES = {
 // The Output block (folder, file names, board centre, page size; read only on the web) is kept but not shown for
 // now. Set to true to show it again; see FutureConsiderations.md.
 const SHOW_OUTPUT_GROUP = false;
+// The rotor blocks that belong to one Rotor Mode fold away when the other mode is chosen (the arrow opens them again).
+const ROTOR_MODE_GROUPS = { "Automatic Rotor": "according_to_stator", "Automatic Rotor: Edges": "according_to_stator", "Custom Rotor": "custom" };
 const TAB_TITLES = { "Board_Parameters.py": "Board", "RX_Parameters.py": "RX", "TX_Parameters.py": "TX", "Rotor_Parameters.py": "Rotor" };
 const FILE_GROUP_GENERAL = { "TX_Parameters.py": "TX Turns", "Rotor_Parameters.py": "Rotor Mode" };
 
-/* human labels for Advanced fields: the parameter name in capitalised words */
-// names the word rule below would make unclear
+/* ---- labels for Advanced fields ---------------------------------------------------------------- */
+// names the word rule in labelOf would make unclear
 const LABELS = { RX_NET_PHASE_0_2: "RX Net SIN (Phases 0 / 2)", RX_NET_PHASE_1_3: "RX Net COS (Phases 1 / 3)" };
+// the parameter name in capitalised words, with its unit split off
 function labelOf(name) {
   if (LABELS[name]) return { text: LABELS[name], unit: "" };
   const special = { MM: "(mm)", DEG: "(deg)", HZ: "(Hz)", UM: "(µm)" };
@@ -79,8 +90,13 @@ function labelOf(name) {
 const state = {
   spec: [], byName: {}, values: {}, start: {}, inactive: new Set(),
   mode: "basic", advTab: "Board_Parameters.py", ready: false, busy: false,
-  result: null, stale: false, preset: null, showInfo: false,
+  result: null, stale: false, showInfo: false,
+  folded: new Set(),            // Advanced group blocks that are folded away
+  lastNumbers: {},              // the last number of each Auto / None parameter, for when the switch is turned off again
+  rotorModeSeen: undefined,     // the Rotor Mode the Advanced page last drew (undefined before the first draw)
+  hostPage: undefined,          // the address the blog page sent us, used by Share
 };
+let view;                       // the BoardView, made in main()
 const $ = (id) => document.getElementById(id);
 
 /* ---- worker ---------------------------------------------------------------------------------------- */
@@ -100,7 +116,8 @@ function startWorker() {
     if (m.type === "progress") { setProgressText(m.text); return; }
     const p = pending.get(m.id); if (!p) return;
     pending.delete(m.id);
-    m.ok ? p.resolve(m.result) : p.reject(new Error(m.error));
+    if (m.ok) p.resolve(m.result);
+    else p.reject(new Error(m.error));
   };
   worker.onerror = (e) => fatal("The Python worker stopped: " + (e.message || e));
 }
@@ -119,21 +136,28 @@ function el(tag, attrs = {}, ...kids) {
 }
 function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 function fmt(x) { return typeof x === "number" ? String(Math.round(x * 1000) / 1000) : String(x); }
+let toastTimer;
 function toast(text) {
   const t = $("toast"); t.textContent = text; t.hidden = false;
-  clearTimeout(toast.timer); toast.timer = setTimeout(() => (t.hidden = true), 2600);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 2600);
 }
 function setProgressText(text) {
   if (!state.ready) $("btn-generate").textContent = text.replace("…", "") + "…";
   $("checks-list").innerHTML = "";
   $("checks-list").append(el("p", { class: "hint" }, text));
 }
-function busy(on) { state.busy = on; $("progress").classList.toggle("busy", on); }
+// one row of the checks list
+function checkRow(level, stage, msg) {
+  return el("div", { class: "check " + level }, el("span", { class: "lvl" }, level.toUpperCase()), el("span", { class: "stage" }, stage), el("span", { class: "msg" }, msg));
+}
+// a small square in a layer's colour
+function swatch(cu) { return el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }); }
+function setBusy(on) { state.busy = on; $("progress").classList.toggle("busy", on); }
 function fatal(text) {
-  busy(false);
+  setBusy(false);
   $("btn-generate").textContent = "Python Did Not Start";
   $("checks-list").innerHTML = "";
-  $("checks-list").append(el("div", { class: "check error" }, el("span", { class: "lvl" }, "ERROR"), el("span", { class: "stage" }, "Start"), el("span", { class: "msg" }, text)));
+  $("checks-list").append(checkRow("error", "Start", text));
 }
 function download(bytes, name, type = "application/zip") {
   const url = URL.createObjectURL(new Blob([bytes], { type }));
@@ -142,11 +166,9 @@ function download(bytes, name, type = "application/zip") {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-/* help pop-up */
-function attachHelp(node, name, extra) {
-  // hovering the label or its (i) shows the parameter's help, from the comments in the parameter files
+// Hovering the label or its (i) shows the parameter's help, from the comments in the parameter files.
+function attachHelp(node, name) {
   node.dataset.help = name;
-  if (extra) node.dataset.helpExtra = extra;
   node.append(el("i", { class: "info-dot", "aria-label": "Help" }, "i"));
   return node;
 }
@@ -167,7 +189,6 @@ function showTip(node) {
   if (node.dataset.help) {
     const name = node.dataset.help, p = state.byName[name];
     pop.append(el("span", { class: "mono-name" }, name));
-    if (node.dataset.helpExtra) pop.append(node.dataset.helpExtra + "\n\n");
     pop.append((p && p.help) || "No notes in the parameter file.");
     if (name in state.start) pop.append(el("span", { class: "tip-foot" }, `Starting Value: ${showValue(state.start[name])}`));
   } else {
@@ -189,7 +210,6 @@ document.addEventListener("mouseover", (e) => {
 });
 document.addEventListener("mousedown", hideTip);
 document.addEventListener("scroll", hideTip, true);
-function tip(node, text) { node.dataset.tip = text; return node; }
 
 /* ---- value changes ----------------------------------------------------------------------------- */
 function setValues(changes, from) {
@@ -205,8 +225,7 @@ let inactiveTimer;
 function refreshAfterChange(from) {
   updateStale();
   if (from !== "basic") renderBasic();
-  if (from !== "advanced" && state.mode === "advanced") renderAdvanced();
-  else if (state.mode === "advanced") markAdvanced();
+  if (state.mode === "advanced") renderAdvanced();      // a field edited in Advanced redraws Advanced too (widgets show the new value)
   updateAdvNote();
   clearTimeout(inactiveTimer);
   inactiveTimer = setTimeout(async () => {
@@ -223,10 +242,10 @@ function updateStale() {
   badge.hidden = !((state.stale && r) || failed);
   placeBadge();
   for (const part of ["stator", "rotor"]) {
-    const b = $(`btn-dl-${part}`), name = part === "stator" ? "stator" : "rotor";
-    b.disabled = !(state.result && state.result.ok && state.result.files[part]) || state.stale;
+    const b = $(`btn-dl-${part}`);
+    b.disabled = !(r && r.ok && r.files[part]) || state.stale;
     b.dataset.tip = state.stale ? "The settings changed: press Generate first"
-      : `Download only the ${name} board of this run (${state.result && state.result.name ? state.result.name + "_" : ""}${part === "stator" ? "Stator" : "Rotor"}.kicad_pcb), ready to open in KiCad`;
+      : `Download only the ${part} board of this run (${r && r.name ? r.name + "_" : ""}${BOARD_FILE[part]}.kicad_pcb), ready to open in KiCad`;
   }
   const dl = $("btn-download");
   dl.disabled = !(state.result && state.result.ok) || state.stale;
@@ -276,7 +295,7 @@ function numberField({ name, label, unit, min, max, step, slider, ticks, note })
     if (!Number.isFinite(x)) { input.value = fmt(state.values[name]); return; }
     x = clamp(Math.round(x / step) * step);
     x = Math.round(x * 1000) / 1000;
-    if (src !== "input") input.value = fmt(x);
+    input.value = fmt(x);
     if (range && src !== "range") range.value = x;
     basicChange(name, x);
   };
@@ -293,9 +312,10 @@ function numberField({ name, label, unit, min, max, step, slider, ticks, note })
   attachHelp(head, name);
   if (note !== undefined) head.append(el("span", { class: "field-note", "data-note": name }, note));
   // tick labels sit under the track itself, each at its value (the thumb is 20 px, so the track runs 10 px in)
-  const track = range && ticks ? el("div", { class: "range-wrap" }, range, el("div", { class: "ticks" }, ticks.map((t) =>
+  const withTicks = !!(range && ticks);
+  const track = withTicks ? el("div", { class: "range-wrap" }, range, el("div", { class: "ticks" }, ticks.map((t) =>
     el("span", { style: `left: calc(10px + (100% - 20px) * ${(parseFloat(t) - slider[0]) / (slider[1] - slider[0])})` }, t)))) : range;
-  return el("div", { class: "field" + (track !== range ? " has-ticks" : "") }, head, el("div", { class: "num-row" }, stepper, track));
+  return el("div", { class: "field" + (withTicks ? " has-ticks" : "") }, head, el("div", { class: "num-row" }, stepper, track));
 }
 
 function segmentedField({ name, label, options, note, onPick }) {
@@ -337,7 +357,6 @@ function presetCard(p, selected) {
 
 function pickPreset(id) {
   const p = PRESETS.find((x) => x.id === id);
-  state.preset = id;
   setValues(Object.assign({}, p.set), "basic-preset");
 }
 
@@ -470,7 +489,7 @@ function advancedWidget(p) {
     return el("label", { class: "switch-row" }, el("span", { class: "switch" }, cb, el("span", { class: "knob" })), v ? "On" : "Off");
   }
   if (k === "choice" || k === "ic") {
-    let values = o.values || [];
+    const values = o.values || [];
     const current = typeof v === "string" && o.ci ? v.toLowerCase() : v;
     if (values.length <= 3 && values.every((x) => choiceText(name, x).length <= 12)) {
       const seg = el("div", { class: "segmented" });
@@ -501,7 +520,9 @@ function advancedWidget(p) {
     for (const cu of ["F.Cu", "B.Cu"]) {
       const cb = el("input", { type: "checkbox" }); cb.checked = (v || []).includes(cu);
       cb.addEventListener("change", () => {
-        const now = new Set(v || []); cb.checked ? now.add(cu) : now.delete(cu);
+        const now = new Set(v || []);
+        if (cb.checked) now.add(cu);
+        else now.delete(cu);
         set(["F.Cu", "B.Cu"].filter((x) => now.has(x)));
       });
       box.append(el("label", { class: "switch-row" }, el("span", { class: "switch" }, cb, el("span", { class: "knob" })), CU_NAME[cu]));
@@ -540,7 +561,7 @@ function renderAdvanced() {
       if (ROTOR_MODE_GROUPS[g]) {
         box.append(el("button", { type: "button", class: "group-title foldable" + (state.folded.has(g) ? " collapsed" : ""), "data-group": g,
           "data-tip": `Show or hide the ${g.startsWith("Custom") ? "custom" : "automatic"} rotor settings (used when Rotor Mode is ${ROTOR_MODE_GROUPS[g]})`,
-          onclick: () => { state.folded.has(g) ? state.folded.delete(g) : state.folded.add(g); applyFolds(); } },   // this block only
+          onclick: () => { if (state.folded.has(g)) state.folded.delete(g); else state.folded.add(g); applyFolds(); } },   // this block only
           el("span", { class: "chevron" }), g));
       } else box.append(el("div", { class: "group-title" }, g));
       box.append(shell);
@@ -558,12 +579,14 @@ function renderAdvanced() {
   markAdvanced();
   if (modeChanged) requestAnimationFrame(() => { foldRotorBlocks(mode); applyFolds(); });
 }
-/* The rotor blocks that belong to one Rotor Mode fold away when the other mode is chosen (the arrow opens them again). */
-const ROTOR_MODE_GROUPS = { "Automatic Rotor": "according_to_stator", "Automatic Rotor: Edges": "according_to_stator", "Custom Rotor": "custom" };
-state.folded = new Set();
+// Opens the blocks of the chosen Rotor Mode and folds the others.
 function foldRotorBlocks(mode) {
-  for (const [g, m] of Object.entries(ROTOR_MODE_GROUPS)) m === mode ? state.folded.delete(g) : state.folded.add(g);
+  for (const [g, m] of Object.entries(ROTOR_MODE_GROUPS)) {
+    if (m === mode) state.folded.delete(g);
+    else state.folded.add(g);
+  }
 }
+// Shows each group block as folded or open, as state.folded says.
 function applyFolds() {
   document.querySelectorAll("#advanced-controls [data-group]").forEach((n) => n.classList.toggle("collapsed", state.folded.has(n.dataset.group)));
 }
@@ -574,7 +597,6 @@ function markAdvanced() {
     f.classList.toggle("changed", !same(state.values[n], state.start[n]));
   });
 }
-// a field edited in Advanced redraws Advanced (widgets show the new value)
 
 /* ---- mode switch -------------------------------------------------------------------------------- */
 let modeTimer = null;
@@ -604,10 +626,10 @@ function setMode(mode) {
   setTimeout(() => view.resize(), 560);
 }
 
-/* ---- generate ---------------------------------------------------------------------------------- */
+/* ---- generate and results ----------------------------------------------------------------------- */
 async function generate() {
   if (!state.ready || state.busy) return;
-  busy(true);
+  setBusy(true);
   const btn = $("btn-generate");
   btn.disabled = true; btn.textContent = "Generating…";
   try {
@@ -628,7 +650,7 @@ async function generate() {
     state.result = { ok: false, items: [{ stage: "Python", level: "error", msg: String(e.message || e) }], failed: "the generator stopped" };
     renderChecks();
   } finally {
-    busy(false);
+    setBusy(false);
     btn.disabled = false; btn.textContent = "Generate";
     updateStale();
   }
@@ -649,8 +671,7 @@ function renderChecks() {
   const order = { error: 0, warning: 1, info: 2 };
   const shown = items.filter((i) => state.showInfo || i.level !== "info").sort((a, b) => order[a.level] - order[b.level]);
   for (const i of shown) {
-    list.append(el("div", { class: "check " + i.level },
-      el("span", { class: "lvl" }, i.level.toUpperCase()), el("span", { class: "stage" }, i.stage), el("span", { class: "msg" }, i.msg)));
+    list.append(checkRow(i.level, i.stage, i.msg));
   }
   if (!shown.length) list.append(el("p", { class: "hint" }, r.ok ? "Nothing to report. Turn on Info to see the generator's notes." : ""));
 }
@@ -667,8 +688,7 @@ function renderResults() {
   box.innerHTML = parts.join("<br>");
 }
 
-/* ---- preview tabs, layers ---------------------------------------------------------------------- */
-let view;
+/* ---- preview controls: view tabs, layer, net and origin buttons --------------------------------- */
 function pickView(mode) {
   view.setMode(mode);
   document.querySelectorAll("#view-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === mode));
@@ -685,7 +705,7 @@ function renderLayerToggles() {
     if (present && !present.has(cu)) {                       // no copper on this layer: locked, no hover, no click
       box.append(el("span", { class: "layer-chip locked", role: "switch", "aria-disabled": "true",
         "data-tip": `This board has no copper on the ${CU_NAME[cu]} layer (${cu})` },
-        el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }), CU_NAME[cu]));
+        swatch(cu), CU_NAME[cu]));
       continue;
     }
     const chip = el("span", { class: "layer-chip" + (view.hidden.has(cu) ? " off" : ""), role: "switch",
@@ -694,7 +714,7 @@ function renderLayerToggles() {
       onclick: () => { view.toggleLayer(cu); view.setLayerHighlight(null); renderLayerToggles(); },
       onmouseenter: () => { if (!view.hidden.has(cu)) view.setLayerHighlight(cu); },
       onmouseleave: () => view.setLayerHighlight(null) },
-      el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }), CU_NAME[cu]);
+      swatch(cu), CU_NAME[cu]);
     box.append(chip);
   }
   // vias: hide / show like a layer; hovering makes tiny vias big enough to see (preview only)
@@ -707,7 +727,7 @@ function renderLayerToggles() {
     onmouseleave: () => view.setViaBoost(false) }, icon, "Vias");
   box.append(chip);
 }
-// Sin / Cos / TX Loops (top right of the preview) and Origin (under Fullscreen): hover highlights, click hides
+// Sin / Cos / TX Loops (top right of the preview) and Origin (beside Fit): hover highlights, click hides
 const NET_BUTTONS = [
   { role: "sin", text: "Sin Loops", what: "the SIN coil (RX phases 0 / 2)", icon: "M1 7 C4 -1 6 -1 9 7 S14 15 17 7" },
   { role: "cos", text: "Cos Loops", what: "the COS coil (RX phases 1 / 3)", icon: "M1 3 C3 3 4 11 9 11 S15 3 17 3" },
@@ -741,7 +761,8 @@ function renderNetToggles() {
     onmouseleave: () => view.setOriginBoost(false) }, icon));
 }
 
-/* "Are you sure?" with Sure / No; Esc or a click on No answers no */
+/* ---- dialogs ------------------------------------------------------------------------------------ */
+// "Are you sure?" with Sure / No; Esc or a click on No answers no
 function confirmBox(text) {
   const d = $("confirm-dialog");
   $("confirm-text").textContent = text;
@@ -782,7 +803,7 @@ async function exportFiles() {
   } catch (e) { toast("Export failed: " + e.message); }
 }
 async function importFiles(files) {
-  let found = {};
+  const found = {};
   for (const f of files) {
     const text = await f.text();
     Object.assign(found, await ask("readValues", { text }));
@@ -798,7 +819,6 @@ async function importFiles(files) {
 /* ---- start -------------------------------------------------------------------------------------- */
 async function main() {
   if (window.COILGEN_PHONE) return;                       // computers only: nothing loads on a phone
-  state.lastNumbers = {};
   view = new BoardView($("board-canvas"), $("readout"));     // opens on Overlay
   renderLayerToggles();
   renderNetToggles();
@@ -812,8 +832,7 @@ async function main() {
     $(`btn-dl-${part}`).addEventListener("click", () => {
       const r = state.result;
       if (!r || !r.ok || state.stale || !r.files[part]) return;
-      const file = part === "stator" ? "Stator" : "Rotor";
-      download(r.files[part], `${r.name}_${file}.kicad_pcb`, "application/octet-stream");
+      download(r.files[part], `${r.name}_${BOARD_FILE[part]}.kicad_pcb`, "application/octet-stream");
     });
   }
   $("btn-fit").addEventListener("click", () => view.fit());
@@ -826,7 +845,8 @@ async function main() {
   });
   $("btn-fullscreen").addEventListener("click", () => {
     const w = $("canvas-wrap");
-    document.fullscreenElement ? document.exitFullscreen() : (w.requestFullscreen || w.webkitRequestFullscreen).call(w);
+    if (document.fullscreenElement) document.exitFullscreen();
+    else (w.requestFullscreen || w.webkitRequestFullscreen).call(w);
   });
   document.addEventListener("fullscreenchange", () => {
     const on = !!document.fullscreenElement, b = $("btn-fullscreen");      // corner brackets out, or in to leave
@@ -856,22 +876,27 @@ async function main() {
     setValues(Object.assign({}, state.start), "reset"); renderBasic(); toast("Back to the starting design");
   });
   $("strict").addEventListener("change", () => { if (state.result) { state.stale = true; updateStale(); } });
-  $("nav-back").addEventListener("click", (e) => { e.preventDefault(); history.length > 1 ? history.back() : (location.href = CONFIG.blogHome); });
+  $("nav-back").addEventListener("click", (e) => { e.preventDefault(); if (history.length > 1) history.back(); else location.href = CONFIG.blogHome; });
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") generate();
     // Measure: S keeps the finished line and starts a new one, Z removes the last line (not while typing in a field)
     const t = e.target, typing = t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName)
       || (t.tagName === "INPUT" && !/^(range|checkbox|radio|button)$/.test(t.type));
-    if ((e.key === "s" || e.key === "S") && view.measure && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      if (view.mLocked.length >= BoardView.MAX_LOCKED) return toast(`${BoardView.MAX_LOCKED} lines kept: that is the limit`);
+    const measureKey = view.measure && !typing && !e.ctrlKey && !e.metaKey && !e.altKey;
+    const key = e.key.toLowerCase();
+    if (measureKey && key === "s") {
+      if (view.mLocked.length >= BoardView.MAX_LOCKED) {
+        toast(`${BoardView.MAX_LOCKED} lines kept: that is the limit`);
+        return;
+      }
       view.lockMeasure();                                  // quiet: a message only at the limit
     }
-    if ((e.key === "z" || e.key === "Z") && view.measure && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) view.undoMeasure();
+    if (measureKey && key === "z") view.undoMeasure();
   });
 
   // Python
   startWorker();
-  busy(true);
+  setBusy(true);
   let init;
   try {
     init = await ask("init", { pyodideBase: CONFIG.pyodideBase, codeBase: CONFIG.codeBase });
@@ -887,7 +912,7 @@ async function main() {
   const shared = decodeDesign(location.hash);
   if (shared) Object.assign(state.values, shared);
   state.ready = true;
-  busy(false);
+  setBusy(false);
   $("btn-generate").disabled = false;
   $("btn-generate").textContent = "Generate";
   renderBasic();

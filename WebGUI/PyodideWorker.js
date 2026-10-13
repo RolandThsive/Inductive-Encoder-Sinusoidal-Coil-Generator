@@ -1,7 +1,13 @@
 /* PyodideWorker.js - runs the Python generator in a background thread, so the page never freezes.
 
    The page sends {id, cmd, args}; the worker answers {id, ok, result} or {id, ok: false, error},
-   and sends {type: "progress", text} while it loads.
+   and sends {type: "progress", text} while it loads.  The commands:
+     init      {pyodideBase, codeBase}  ->  {description, seconds}
+     inactive  {values}                 ->  [names of the parameters the generator ignores]
+     generate  {values, strict}         ->  {ok, items, name, files, summaries, rx, edges, center, seconds, zipBytes}
+                                            (on a failed run: ok false, items and failed; no zipBytes)
+     exportZip {values}                 ->  {zipBytes}
+     readValues {text}                  ->  {name: value}
 
    On start ("init") it loads Pyodide and numpy, then fetches the generator's own .py files from the
    repository (codeBase: the repository root as served by GitHub Pages) into its in-memory file system. */
@@ -53,6 +59,12 @@ WG.ROOT = "${ROOT}"
   return { description, seconds: (performance.now() - t0) / 1000 };
 }
 
+// Reads a file of the in-memory file system as a copy of exactly its bytes, so it can be transferred to the page.
+function readFileBuffer(path) {
+  const bytes = pyodide.FS.readFile(path);
+  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+}
+
 function call(fn, ...args) {
   const f = pyodide.globals.get("WG")[fn];
   const out = f(...args);
@@ -70,15 +82,12 @@ onmessage = async (ev) => {
       result = call("generate", JSON.stringify(args.values), !!args.strict);
       result.seconds = (performance.now() - t0) / 1000;
       if (result.ok) {
-        const bytes = pyodide.FS.readFile(result.zip);
-        result.zipBytes = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+        result.zipBytes = readFileBuffer(result.zip);
       }
     } else if (cmd === "exportZip") {
       const r = call("export_zip", JSON.stringify(args.values));
-      const bytes = pyodide.FS.readFile(r.zip);
-      result = { zipBytes: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
-    } else if (cmd === "exportFiles") result = call("parameter_files", JSON.stringify(args.values));
-    else if (cmd === "readValues") result = call("read_values", args.text);
+      result = { zipBytes: readFileBuffer(r.zip) };
+    } else if (cmd === "readValues") result = call("read_values", args.text);
     else throw new Error("unknown command " + cmd);
     const transfer = result && result.zipBytes ? [result.zipBytes] : [];
     postMessage({ id, ok: true, result }, transfer);

@@ -1,10 +1,16 @@
-/* WebGUI.css - the look of Roland's blog (ro-h-bots.blogspot.com), with Apple-style controls.
-   Colours, fonts, radii, blur and timing are copied from the custom CSS of the blog's posts and pages
-   (Animations dropdown, thumbnail slider, KiCanvas frame, Songs hover card). */
+/* WebGUI.css - the stylesheet of index.html (the Coil Generator's Web GUI).
+   The look is Roland's blog (ro-h-bots.blogspot.com), with Apple-style controls. Colours, fonts, radii, blur and timing
+   are copied from the custom CSS of the blog's posts and pages (Animations dropdown, thumbnail slider, KiCanvas frame,
+   Songs hover card).
 
+   Order of the file: tokens, base, computers only, page frame, buttons, segmented control, switch, controls panel,
+   preview, checks, pop-ups, responsive rules. The responsive rules (media and container queries) come
+   last on purpose: they override the rules above them. */
+
+/* ---- tokens ------------------------------------------------------------ */
 :root {
   --accent: #a93e33;                       /* model-viewer progress bar, slide borders, dropdown hover */
-  --cream: rgba(248, 236, 198, 0.4);       /* dropdown hover background (#f8ecc6) */
+  --cream: rgba(248, 236, 198, 0.4);       /* dropdown hover background (#f8ecc6); --warning-bg and the Reset hover use the same cream at 0.6 and 0.75 */
   --text: #333;
   --text-2: #555555;
   --text-3: #888;
@@ -21,7 +27,8 @@
   --ease: 0.3s ease;
   --ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  /* copper layers (approved by Roland) */
+  /* copper layers (approved by Roland). The layer colours, --rotor, --via, --via-rim and --edge are also read by
+     BoardPreview.js and WebGUI.js through cssVar(), so keep the names */
   --top: #D03B2F;
   --in1: #2E9E4F;
   --in2: #B8930A;
@@ -43,13 +50,14 @@
                 var(--metal-rim) border-box;               /* use with a transparent border: the rim shows through it */
   --metal-shadow: 0 1px 1px rgba(0, 0, 0, 0.25), 0 2px 5px rgba(0, 0, 0, 0.22);
   --silver-on: linear-gradient(#E3E3E3, #C4C4C4);
-  --error: #a93e33;                        /* the blog's red accent */
+  --error: var(--accent);                  /* the blog's red accent */
   --error-bg: rgba(169, 62, 51, 0.07);
   --warning: #8f7208;                      /* the blog's dark yellow (Inner-2 #B8930A), deepened for text */
   --warning-edge: #B8930A;
   --warning-bg: rgba(248, 236, 198, 0.6);  /* the blog's cream hover */
 }
 
+/* ---- base -------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
 body {
@@ -67,6 +75,7 @@ h1, h2 { margin: 0; font-weight: normal; }
 .caption { font-family: "Shadows Into Light", var(--ui-font); font-size: 18px; text-align: center; margin: 4px 0 0; color: var(--text); }
 .hint { color: var(--text-2); font-size: 12.5px; line-height: 1.45; }
 a { color: var(--accent); }
+[hidden] { display: none !important; }
 
 /* ---- computers only ---------------------------------------------------- */
 .phone-only { display: none; }
@@ -78,7 +87,9 @@ html.phone .desktop-only { display: none !important; }
 /* ---- page frame -------------------------------------------------------- */
 #app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; padding: 0 16px 6px; gap: 10px; }
 #topbar { position: relative; display: flex; align-items: center; gap: 18px; padding: 12px 0 0; min-height: 56px; }
-html.embedded #topbar { padding-right: 112px; }                /* room for the blog's Home / Back buttons */
+/* room for the blog's Home / Back buttons: BloggerPage.html's #coilgen-nav is 16 px from the right edge and holds two
+   38 px buttons with an 8 px gap (100 px), plus 12 px of space */
+html.embedded #topbar { padding-right: 112px; }
 #topbar h1 { font-size: 26px; white-space: nowrap; transition: opacity var(--ease);
   position: relative; top: -0.08em; }   /* Permanent Marker draws its letters low in the line box: lift them to the switch's centre (2 px at 26 px) */
 #topbar h1.yield { opacity: 0; }
@@ -90,8 +101,8 @@ html.embedded .standalone-nav { display: none; }
 
 #workspace {
   display: grid; min-height: 0; gap: 12px;
-  grid-template-columns: 340px minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 230px;
+  grid-template-columns: 340px minmax(0, 1fr);             /* controls column: 340 px in Basic, 470 px in Advanced (below) */
+  grid-template-rows: minmax(0, 1fr) 230px;                /* the preview takes the rest above a 230 px checks panel */
   grid-template-areas: "controls preview" "controls checks";
   transition: grid-template-columns 0.5s cubic-bezier(0.32, 0.72, 0, 1);   /* Apple-style ease-out */
 }
@@ -144,8 +155,6 @@ html.embedded .standalone-nav { display: none; }
 .round-btn:hover { background: var(--cream); }
 .round-btn:hover svg { stroke: var(--accent); }
 
-[hidden] { display: none !important; }
-
 /* ---- segmented control ---------------------------------------------------- */
 .segmented {
   display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--radius);
@@ -166,6 +175,7 @@ html.embedded .standalone-nav { display: none; }
 /* ---- classic silver switch ---------------------------------------------- */
 .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex: none; }
 .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 2; }
+/* .knob is the whole 42 x 24 track; the round knob is its ::after */
 .switch .knob {
   position: absolute; inset: 0; border-radius: 12px;
   background: var(--glass); border: 1px solid rgba(0, 0, 0, 0.12);
@@ -175,24 +185,21 @@ html.embedded .standalone-nav { display: none; }
 }
 .switch .knob::after {
   content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
-  box-sizing: border-box;                    /* "* { box-sizing }" does not reach ::after: without this the knob is 20 px */
   background: var(--metal-knob); background-origin: border-box; border: 1.5px solid transparent; box-shadow: var(--metal-shadow);
   transition: transform var(--ease);
 }
 .switch input:checked + .knob { background: var(--silver-on); background-origin: border-box; box-shadow: none; }
 .switch input:checked + .knob::after { transform: translateX(18px); }
-.switch input:disabled + .knob { opacity: 0.5; }
 .switch-row { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13.5px; }
 .switch-row.small { font-size: 12.5px; }
 
 /* ---- controls panel --------------------------------------------------------- */
 #controls { display: flex; flex-direction: column; padding: 14px 14px 10px; overflow: hidden; }
-#basic-panel, #advanced-panel { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
-/* the scrollbar: a brushed aluminium bar with a soft shadow and three engraved grip lines, in an empty recessed slot
-   (no hover change).  The panel
-   reaches 9 px into the right padding and keeps that as its own padding, so the bar sits out near the panel's edge
-   with a 13 px gap before the cards, and the cards keep their width. */
-#basic-panel, #advanced-panel { margin-right: -9px; padding-right: 13px; }
+#basic-panel, #advanced-panel { flex: 1; overflow-y: auto; min-height: 0; margin-right: -9px; padding-right: 13px; }
+/* The panel reaches 9 px into the right padding and keeps that as its own padding, so the scrollbar sits out near the
+   panel's edge with a 13 px gap before the cards, and the cards keep their width.
+   The scrollbar: a brushed aluminium bar with a soft shadow and three engraved grip lines, in an empty recessed slot
+   (no hover change). */
 #basic-panel::-webkit-scrollbar, #advanced-panel::-webkit-scrollbar { width: 12px; }
 #basic-panel::-webkit-scrollbar-track, #advanced-panel::-webkit-scrollbar-track {
   border-radius: 6px; background: rgba(0, 0, 0, 0.06); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06), inset 1px 0 2px rgba(0, 0, 0, 0.12); }
@@ -222,6 +229,8 @@ html.embedded .standalone-nav { display: none; }
 .field-head { display: flex; align-items: baseline; gap: 6px; margin-bottom: 6px; }
 .field-label { font-weight: 600; font-size: 13.5px; }
 .field-label .unit { font-weight: normal; color: var(--text-3); }
+/* a field with help text shows the help cursor on its label */
+.field-head[data-help] .field-label { cursor: help; }
 .field-note { color: var(--text-3); font-size: 12px; margin-left: auto; text-align: right; }
 .info-dot {
   width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--text-3); color: var(--text-3);
@@ -261,14 +270,13 @@ input[type=range]:focus-visible::-moz-range-thumb { box-shadow: var(--metal-shad
 .auto-row .stepper input { width: 70px; }
 
 /* Roland's dropdown */
-.dropdown { position: relative; font-family: var(--ui-font); }
+.dropdown { position: relative; }
 .dropdown-btn {
   display: flex; align-items: center; justify-content: space-between; width: 100%; min-width: 0;
   font: inherit; font-size: 14px; color: var(--text); text-align: left;
-  background: var(--glass); border: 1px solid var(--glass-edge); border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.55); border: 1px solid var(--glass-edge); border-radius: var(--radius);
   padding: 6px 14px; cursor: pointer; box-shadow: var(--shadow-btn);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all var(--ease);
-  background-color: rgba(255, 255, 255, 0.55);
 }
 .dropdown-btn:hover { background: var(--cream); color: var(--accent); font-weight: 600; }
 .dropdown-btn .arrow { font-size: 18px; line-height: 1; transition: transform var(--ease); margin-left: 8px; }
@@ -284,7 +292,7 @@ input[type=range]:focus-visible::-moz-range-thumb { box-shadow: var(--metal-shad
 .dropdown-content a:hover, .dropdown-content a.on { background: var(--cream); color: var(--accent); }
 .dropdown-content a.on { font-weight: 600; }
 
-/* TX layout cards (Roland's thumbnail slider) */
+/* TX layout cards (Roland's thumbnail slider; .slider is the card grid, not the range slider) */
 .slider { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 2px 2px 6px; }
 .slide {
   min-width: 0; border: 2px solid var(--accent); border-radius: var(--radius);
@@ -292,18 +300,17 @@ input[type=range]:focus-visible::-moz-range-thumb { box-shadow: var(--metal-shad
 }
 .slide:hover { background: var(--cream); }
 .slide.selected { border-color: var(--selected); box-shadow: var(--shadow-btn); }
-.slide.disabled { opacity: 0.35; pointer-events: none; }
 .slide svg { width: 100%; height: 54px; display: block; }
 .slide .slide-name { font-size: 11.5px; line-height: 1.25; margin-top: 4px; color: var(--text); }
 
 /* Advanced groups (Settings-style cards) */
-.group-card { background: rgba(255, 255, 255, 0.7); border-radius: var(--radius); padding: 2px 12px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06); }
-.group-title { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-3); font-weight: 600; margin: 14px 4px -4px; }
 /* the rotor-mode blocks fold up (grid rows 1fr -> 0fr animates to the content's real height) */
-.group-card { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.35s cubic-bezier(0.32, 0.72, 0, 1), padding 0.35s, opacity 0.35s; }
+.group-card { background: rgba(255, 255, 255, 0.7); border-radius: var(--radius); padding: 2px 12px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.35s cubic-bezier(0.32, 0.72, 0, 1), padding 0.35s, opacity 0.35s; }
 .group-inner { min-height: 0; }
 .group-card.collapsed { grid-template-rows: 0fr; padding-top: 0; padding-bottom: 0; opacity: 0.6; }
 .group-card.collapsed .group-inner { overflow: hidden; visibility: hidden; transition: visibility 0s 0.35s; }
+.group-title { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-3); font-weight: 600; margin: 14px 4px -4px; }
 button.group-title { display: flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
 button.group-title:hover { color: var(--accent); }
 .chevron { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor;
@@ -333,7 +340,14 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 #progress { height: 3px; margin-top: 8px; border-radius: 2px; overflow: hidden; background: transparent; }
 #progress .bar { height: 100%; width: 0; background: var(--accent); transition: width 0.4s ease; }
 #progress.busy .bar { width: 35%; animation: slide 1.1s ease-in-out infinite; }
+/* the keyframes are named slide, but this is the progress bar, not the layout cards above */
 @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+
+/* Basic <-> Advanced: the controls fade and slide out, the panel resizes, the new controls fade in */
+#controls.leave #basic-panel, #controls.leave #advanced-panel {
+  opacity: 0; transform: translateX(-10px) scale(0.985); transition: opacity 0.17s ease-in, transform 0.17s ease-in; }
+#controls.enter #basic-panel, #controls.enter #advanced-panel { animation: controls-in 0.38s cubic-bezier(0.32, 0.72, 0, 1); }
+@keyframes controls-in { from { opacity: 0; transform: translateX(14px) scale(0.985); } to { opacity: 1; transform: none; } }
 
 /* ---- preview ------------------------------------------------------------------- */
 #preview { display: flex; flex-direction: column; padding: 10px 12px 6px; }
@@ -350,6 +364,9 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .layer-chip.locked::after { content: ""; position: absolute; inset: 3px 9px; pointer-events: none;            /* kept inside the round ends */
   background: linear-gradient(to top right, transparent calc(50% - 0.7px), rgba(0, 0, 0, 0.45) calc(50% - 0.7px) calc(50% + 0.7px),
               transparent calc(50% + 0.7px)); }
+/* the Vias chip: a gold pad with a hole */
+.via-icon { width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle, #f4f1ea 0 2px, var(--via-rim) 2px 2.6px, var(--via) 2.6px); background-origin: border-box; border: 1px solid var(--via-rim); }
 /* Sin / Cos / TX Loops, top right of the preview (under the layer chips) */
 .net-toggles { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: stretch; gap: 6px; z-index: 2; }
 .net-btn { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 12.5px; color: var(--text); cursor: pointer;
@@ -365,13 +382,14 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .canvas-wrap canvas.dragging { cursor: grabbing; }
 .canvas-wrap canvas.measuring { cursor: crosshair; }
 .canvas-wrap:fullscreen { background: #fff; border-radius: 0; }
-.fs-btn { padding: 6px 12px; border: 0; border-radius: 6px;
+/* the Fullscreen button: icon only, so its size and padding come from .canvas-tools .icon-btn below */
+.fs-btn { border: 0; border-radius: 6px;
   cursor: pointer; background: rgba(0, 0, 0, 0.65); color: #fff; font-size: 14px; line-height: 1.2; font-family: Arial, Helvetica, sans-serif; }
+.fs-btn:hover { background: rgba(0, 0, 0, 0.85); }
 /* Fullscreen and Fit as icons (Fit: arrows in to a box) */
 .canvas-tools .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 32px; padding: 0; }
 .canvas-tools .icon-btn svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8;
   stroke-linecap: round; stroke-linejoin: round; }
-.fs-btn:hover { background: rgba(0, 0, 0, 0.85); }
 .canvas-tools { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; flex-direction: column;
   align-items: flex-start; gap: 8px; }
 .tool-pair { display: flex; gap: 6px; }
@@ -402,15 +420,38 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
   background: rgba(255, 255, 255, 0.8); padding: 4px 10px; border-radius: 10px; box-shadow: var(--shadow-btn); width: 300px; }
 .rotor-angle output { width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
 
+
 /* ---- checks ------------------------------------------------------------------- */
-#checks { display: flex; flex-direction: column; padding: 10px 14px; }
-.checks-head { display: flex; align-items: center; gap: 12px; }
+/* container-type lets the narrow-panel rule in the responsive section ask how wide this panel is */
+#checks { display: flex; flex-direction: column; padding: 10px 14px; container-type: inline-size; }
+.checks-head { display: flex; align-items: flex-start; gap: 12px; }
 .checks-head .primary-btn { padding: 6px 18px; }
+/* the title, the counts, Info and Summary stay on the top line, level with Download Zip;
+   the two board buttons hang below it */
+.checks-head > .pacifico, .checks-head > .counts, .checks-head > .switch-row, .checks-head > #btn-summary {
+  align-self: flex-start; min-height: 34px; align-items: center; flex: none; }
+.checks-head > .pacifico, .checks-head > .switch-row, .checks-head > #btn-summary { display: flex; }
 .counts { font-size: 13px; color: var(--text-2); margin-right: auto; }
 .counts .e { color: var(--error); font-weight: 600; }
 .counts .w { color: var(--warning); font-weight: 600; }
 .counts .ok { color: #2E7D32; font-weight: 600; }
-.checks-list { flex: 1; overflow-y: auto; margin-top: 6px; font-family: var(--mono); font-size: 11.5px; line-height: 1.5; color: var(--text-2); }
+/* narrow checks panel (portrait monitors, small laptops): the counts line shortens instead of wrapping,
+   and the download buttons keep their size */
+.checks-head > .counts { display: block; line-height: 34px; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.download-box { position: relative; width: 264px; flex: none; }
+.download-box .primary-btn { min-height: 34px; width: 100%; }
+/* the board buttons hang below Download Zip without pushing the list down: the list starts right under the header
+   and stays left of the download buttons, so its text never runs past Summary's right edge (264 px box + 12 px gap) */
+.download-row { position: absolute; top: calc(100% + 6px); left: 0; right: 0; display: flex; gap: 6px; }
+/* the three download buttons: black text, the blog's accent all around.  #btn-download is a .primary-btn, which already
+   gives it the weight and the hover; the border is repeated because an id beats .primary-btn:active, which keeps
+   the accent border while it is pressed */
+#btn-download { color: #000; border: 2px solid var(--accent); }
+.download-row .glass-btn { flex: 1; white-space: nowrap; padding: 4px 10px; color: #000; border: 2px solid var(--accent); font-weight: 600; }
+#btn-download:hover:not(:disabled), .download-row .glass-btn:hover:not(:disabled) { color: var(--accent); background: var(--cream); }
+/* the list's right margin is the download box plus the gap (264 + 12 px); the mouse wheel scrolls it, so no scrollbar */
+.checks-list { flex: 1; overflow-y: auto; margin-top: 6px; margin-right: 276px; overflow-wrap: anywhere; scrollbar-width: none;
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.5; color: var(--text-2); }
 .check { display: grid; grid-template-columns: 74px 70px 1fr; gap: 8px; padding: 3px 0; border-bottom: 1px dashed var(--divider); }
 .check .lvl { font-weight: 700; }
 .check.error, .check.warning, .check.info { border-bottom: 0; border-radius: 6px; padding: 5px 8px 5px 6px; margin: 3px 0; border-left: 3px solid; }
@@ -423,13 +464,13 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .check.info { color: var(--text-2); background: rgba(0, 0, 0, 0.035); border-left-color: #b5b5b5; }
 .check.info .lvl { color: var(--text-3); }
 .checks-list .hint { font-family: var(--ui-font); }
-.checks-list { scrollbar-width: none; }                       /* no scrollbar: the mouse wheel scrolls it */
 .checks-list::-webkit-scrollbar { display: none; }
 
 /* ---- pop-ups ------------------------------------------------------------------ */
 .popover { position: fixed; z-index: 100; max-width: 380px; background: #ffffff; border: 1px solid #ddd; border-radius: 8px;
   box-shadow: var(--shadow-card); padding: 10px 12px; font-size: 12.5px; line-height: 1.45; color: var(--text); white-space: pre-wrap; pointer-events: none; }
 .popover .mono-name { display: block; margin-bottom: 4px; }
+.popover .tip-foot { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid #eee; color: var(--text-2); }
 dialog { border: 1px solid #ddd; border-radius: var(--radius); box-shadow: var(--shadow-card); max-width: min(900px, 90vw); max-height: 80vh; padding: 16px; }
 dialog.confirm { padding: 22px 26px 18px; text-align: center; min-width: 260px; }
 dialog.confirm p { margin: 0 0 16px; font-size: 16px; font-weight: 600; color: var(--text); }
@@ -445,16 +486,7 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 .toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 200; background: rgba(0, 0, 0, 0.78); color: #fff;
   padding: 8px 16px; border-radius: 10px; font-size: 13.5px; }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; animation: none !important; }
-}
-
-/* Basic <-> Advanced: the controls fade and slide out, the panel resizes, the new controls fade in */
-#controls.leave #basic-panel, #controls.leave #advanced-panel {
-  opacity: 0; transform: translateX(-10px) scale(0.985); transition: opacity 0.17s ease-in, transform 0.17s ease-in; }
-#controls.enter #basic-panel, #controls.enter #advanced-panel { animation: controls-in 0.38s cubic-bezier(0.32, 0.72, 0, 1); }
-@keyframes controls-in { from { opacity: 0; transform: translateX(14px) scale(0.985); } to { opacity: 1; transform: none; } }
-
+/* ---- responsive rules ---------------------------------------------------- */
 /* narrow laptops: the long title shrinks so the top bar stays one line */
 @media (max-width: 1240px) {
   #topbar h1 { font-size: 19px; }
@@ -462,50 +494,6 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
   .top-actions { gap: 5px; }
   .top-actions .glass-btn { white-space: nowrap; padding-left: 10px; padding-right: 10px; }
 }
-
-/* tooltips */
-.popover .tip-foot { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px solid #eee; color: var(--text-2); }
-.field-head[data-help] .field-label { cursor: help; }
-
-/* downloads: the zip, and each board on its own */
-/* the title, the counts, Info and Summary stay on the top line, level with Download Zip;
-   the two board buttons hang below it */
-.checks-head { align-items: flex-start; }
-.checks-head > .pacifico, .checks-head > .counts, .checks-head > .switch-row, .checks-head > #btn-summary {
-  align-self: flex-start; min-height: 34px; display: flex; align-items: center; }
-.checks-head > .counts { display: block; line-height: 34px; }
-.download-box { position: relative; width: 264px; }
-.download-box .primary-btn { min-height: 34px; width: 100%; }
-/* the board buttons hang below Download Zip without pushing the list down: the list starts right under the header
-   and stays left of the download buttons, so its text never runs past Summary's right edge (264 px box + 12 px gap) */
-.download-row { position: absolute; top: calc(100% + 6px); left: 0; right: 0; display: flex; gap: 6px; }
-.download-row .glass-btn { flex: 1; white-space: nowrap; }
-.checks-list { margin-right: 276px; overflow-wrap: anywhere; }
-
-/* narrow checks panel (portrait monitors, small laptops): the counts line shortens instead of wrapping,
-   and the download buttons keep their size */
-.checks-head > .pacifico, .checks-head > .switch-row, .checks-head > #btn-summary { flex: none; }
-.checks-head > .counts { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.download-box { flex: none; }
-
-/* portrait monitors: the preview is tall anyway, so the checks get more room */
-@media (orientation: portrait) and (min-width: 1024px) {
-  #workspace { grid-template-rows: minmax(0, 1fr) 380px; }
-}
-
-/* a narrow checks panel (Advanced on a portrait monitor): the counts move to a second line, beside the
-   board buttons */
-#checks { container-type: inline-size; }
-@container (max-width: 760px) {
-  .checks-head { flex-wrap: wrap; row-gap: 6px; }
-  .checks-head > .counts { order: 10; flex: 0 0 calc(100% - 280px); display: block; white-space: normal; line-height: 1.45; min-height: 0; padding-top: 6px; }
-  .checks-head > .pacifico { margin-right: auto; }
-}
-
-/* the three download buttons: black text, the blog's accent all around */
-#btn-download, .download-row .glass-btn { color: #000; border: 2px solid var(--accent); font-weight: 600; }
-.download-row .glass-btn { padding: 4px 10px; }
-#btn-download:hover:not(:disabled), .download-row .glass-btn:hover:not(:disabled) { color: var(--accent); background: var(--cream); }
 
 /* the narrowest laptops: the title and the top buttons tighten further */
 @media (max-width: 1140px) {
@@ -520,6 +508,20 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
   .top-actions .glass-btn { padding-left: 7px; padding-right: 7px; }
 }
 
-/* the Vias chip: a gold pad with a hole */
-.via-icon { width: 12px; height: 12px; border-radius: 50%; box-sizing: border-box;
-  background: radial-gradient(circle, #f4f1ea 0 2px, var(--via-rim) 2px 2.6px, var(--via) 2.6px); background-origin: border-box; border: 1px solid var(--via-rim); }
+/* portrait monitors: the preview is tall anyway, so the checks get more room */
+@media (orientation: portrait) and (min-width: 1024px) {
+  #workspace { grid-template-rows: minmax(0, 1fr) 380px; }
+}
+
+/* a narrow checks panel (Advanced on a portrait monitor): the counts move to a second line, beside the
+   board buttons.  280 px is a little more than the 276 px the list reserves for the download box and the gap */
+@container (max-width: 760px) {
+  .checks-head { flex-wrap: wrap; row-gap: 6px; }
+  .checks-head > .counts { order: 10; flex: 0 0 calc(100% - 280px); display: block; white-space: normal; line-height: 1.45; min-height: 0; padding-top: 6px; }
+  .checks-head > .pacifico { margin-right: auto; }
+}
+
+/* people who ask for less motion get none: this wins over every transition and animation above */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

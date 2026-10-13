@@ -1,9 +1,13 @@
 /* BoardPreview.js - draws the generated KiCad boards on a canvas.
 
-   parseBoard(text) reads the few things the generator writes: nets, segments, vias, Edge.Cuts circles and
-   filled polygons (rotor copper).  BoardView draws them with one colour per copper layer, with zoom,
-   pan, an X / Y readout from the origin, a two-click measure tool and a rotor angle for the overlay. */
+   parseBoard(text) reads the few things the generator writes: nets, segments, vias, gr_circle (the Edge.Cuts
+   circles are drawn) and filled polygons (rotor copper).  BoardView draws them with one colour per copper layer,
+   with zoom, pan, an X / Y readout from the origin and a rotor angle for the overlay.  The canvas is sized by
+   devicePixelRatio so it stays sharp on HiDPI screens.  Hovering a loop set or a layer chip highlights it (the rest
+   is faded); layers, loop sets and vias can be hidden; the vias can be boosted and the origin marker coloured.
+   The two-click measure tool keeps its finished lines with S (at most 256) and removes them with Z. */
 
+const FADED = 0.18;                                                    // alpha of everything not highlighted
 const LAYER_ORDER = ["B.Cu", "In2.Cu", "In1.Cu", "F.Cu"];              // drawn bottom first
 const LAYER_INFO = {
   "F.Cu": { name: "Top", css: "--top" },
@@ -17,7 +21,7 @@ function cssVar(name) {
 }
 
 function parseBoard(text) {
-  const board = { segments: {}, vias: [], circles: [], polys: [], bounds: null };
+  const board = { segments: {}, vias: [], circles: [], polys: [] };
   const num = "(-?[\\d.]+)";
   // net names: (net 3 "SIN_Signal"); segments and vias carry the number, (net 3)
   const nets = {};
@@ -37,8 +41,7 @@ function parseBoard(text) {
   while ((m = circRe.exec(text))) {
     const cx = +m[1], cy = +m[2], rest = m[5];
     const layer = (/\(layer "([^"]+)"\)/.exec(rest) || [])[1];
-    const width = +((/\(width (-?[\d.]+)\)/.exec(rest) || [])[1] || 0.05);
-    if (layer) board.circles.push({ cx, cy, r: Math.hypot(+m[3] - cx, +m[4] - cy), layer, width });
+    if (layer) board.circles.push({ cx, cy, r: Math.hypot(+m[3] - cx, +m[4] - cy), layer });
   }
   // filled polygons: (gr_poly (pts (xy ..) ...) ... (layer "F.Cu") ...)
   let i = 0;
@@ -78,9 +81,11 @@ class BoardView {
     this.showOrigin = true;          // the board centre marker (Origin button); originBoost = hovered, drawn in the accent colour
     this.rotorAngle = 0;
     this.view = { scale: 4, ox: 0, oy: 0 };
-    this.fitted = false;
     this.measure = false; this.mA = null; this.mB = null;
     this.mLocked = [];               // measured lines kept with the S key: [[A, B], ...], at most MAX_LOCKED
+    this.hasBoard = false;           // true once setBoards has run (WebGUI.js tests it to tell a failed run from no run)
+    this.originBoost = false;        // the Origin button is hovered
+    this.viaBoost = false;           // the Vias chip is hovered
     this._wire();
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
   }
@@ -96,7 +101,8 @@ class BoardView {
   setNetRoles(roles) { this.netRole = roles; this.draw(); }
   toggleNet(role) { this.hiddenNets.has(role) ? this.hiddenNets.delete(role) : this.hiddenNets.add(role); this.draw(); }
   setHighlight(role) { if (this.highlight !== role) { this.highlight = role; this.draw(); } }
-  /* the copper layers with traces or fills in the board(s) the view shows (the layer chips of the others are locked);
+  /* the layers with traces or fills in the board(s) the view shows (the layer chips of the others are locked; the
+     rotor's mask openings are polygons too, so mask layers can appear, but the chips only ask about copper);
      null before the first board.  Overlay: the stator's, since the rotor drawn over it does not follow the chips. */
   layersPresent() {
     const b = this.mode === "rotor" ? this.rotor : this.stator;
@@ -125,12 +131,11 @@ class BoardView {
     this.view.scale = Math.min(W, H) / (2 * r);
     this.view.ox = W / 2 - this.center[0] * this.view.scale;
     this.view.oy = H / 2 - this.center[1] * this.view.scale;
-    this.fitted = true;
     this.draw();
   }
   resize() {
     const dpr = window.devicePixelRatio || 1, el = this.canvas;
-    const w = Math.max(10, el.clientWidth * dpr), h = Math.max(10, el.clientHeight * dpr);
+    const w = Math.max(10, Math.floor(el.clientWidth * dpr)), h = Math.max(10, Math.floor(el.clientHeight * dpr));   // whole pixels, as the canvas stores them
     if (el.width !== w || el.height !== h) { el.width = w; el.height = h; }
     this.fit();
   }
@@ -191,10 +196,11 @@ class BoardView {
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.setTransform(scale, 0, 0, scale, ox, oy);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
-    const px = 1 / scale;                                   // one screen pixel in mm
-    if (this.mode === "stator" || this.mode === "overlay") this._drawBoard(this.stator, px, 0);
-    if (this.mode === "rotor") this._drawBoard(this.rotor, px, 0, true);
-    if (this.mode === "overlay") this._drawRotorOverlay(px);
+    // one canvas (device) pixel in mm; these marks are not multiplied by devicePixelRatio, unlike the measure label
+    const px = 1 / scale;
+    if (this.mode === "stator" || this.mode === "overlay") this._drawBoard(this.stator, px);
+    if (this.mode === "rotor") this._drawBoard(this.rotor, px, true);
+    if (this.mode === "overlay") this._drawRotorOverlay();
     if (this.showOrigin) this._drawOrigin(px);
     this._drawMeasure(px);
   }
@@ -204,7 +210,7 @@ class BoardView {
     return info ? cssVar(info.css) : "#999";
   }
 
-  _drawBoard(b, px, angle, rotorAlone) {
+  _drawBoard(b, px, rotorAlone) {
     if (!b) return;
     const ctx = this.ctx;
     const hlCu = this.highlightLayer && !this.hidden.has(this.highlightLayer) ? this.highlightLayer : null;
@@ -212,9 +218,9 @@ class BoardView {
     for (const p of b.polys) {
       if (!LAYER_INFO[p.layer]) continue;
       if (this.hidden.has(p.layer)) continue;
-      ctx.globalAlpha = hlCu && p.layer !== hlCu ? 0.18 : 1;
+      ctx.globalAlpha = hlCu && p.layer !== hlCu ? FADED : 1;
       ctx.fillStyle = rotorAlone ? "rgba(184, 115, 51, 0.75)" : cssVar("--rotor");
-      ctx.beginPath(); this._polyPath(p.pts, angle); ctx.fill();
+      ctx.beginPath(); this._polyPath(p.pts, 0); ctx.fill();
     }
     ctx.globalAlpha = 1;
     // traces: true width from the file (no minimum).  A loop set or a layer under the mouse (highlight,
@@ -227,7 +233,7 @@ class BoardView {
     const lit = (g) => hlRole ? role(g.net) === hlRole : g.layer === hlCu;
     const segs = Object.values(b.segments);
     for (const pass of hl ? ["rest", "hl"] : ["all"]) {
-      ctx.globalAlpha = pass === "rest" ? 0.18 : 1;
+      ctx.globalAlpha = pass === "rest" ? FADED : 1;
       for (const layer of LAYER_ORDER) {
         if (this.hidden.has(layer)) continue;
         ctx.strokeStyle = this._layerColour(layer);
@@ -246,18 +252,18 @@ class BoardView {
     // vias: bright gold at their true size (pad = size, hole = drill); the darker rim is drawn inside the pad.
     // "Vias" in the layer chips hides them; hovering that chip (viaBoost) shows small ones at least 6 px across.
     const viaFill = cssVar("--via"), viaRim = cssVar("--via-rim");
-    for (let v of this.hidden.has("Vias") ? [] : b.vias) {
+    for (const v of this.hidden.has("Vias") ? [] : b.vias) {
       if (off(v.net)) continue;
-      ctx.globalAlpha = hlRole ? (role(v.net) === hlRole ? 1 : 0.18) : hlCu ? 0.18 : 1;
+      ctx.globalAlpha = hlRole ? (role(v.net) === hlRole ? 1 : FADED) : hlCu ? FADED : 1;
       const k = this.viaBoost ? Math.max(1, 3 * px / (v.d / 2)) : 1;          // scale up only if smaller than 6 px
-      v = { ...v, d: v.d * k, drill: v.drill * k };
-      const r = v.d / 2, rim = (v.d - v.drill) / 2 * 0.3;
+      const d = v.d * k, drill = v.drill * k;
+      const r = d / 2, rim = (d - drill) / 2 * 0.3;
       ctx.fillStyle = viaFill;
       ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, 2 * Math.PI); ctx.fill();
       ctx.strokeStyle = viaRim; ctx.lineWidth = rim;
       ctx.beginPath(); ctx.arc(v.x, v.y, r - rim / 2, 0, 2 * Math.PI); ctx.stroke();
       ctx.fillStyle = "#f4f1ea";
-      ctx.beginPath(); ctx.arc(v.x, v.y, v.drill / 2, 0, 2 * Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(v.x, v.y, drill / 2, 0, 2 * Math.PI); ctx.fill();
     }
     ctx.globalAlpha = 1;
     ctx.strokeStyle = cssVar("--edge");
@@ -270,6 +276,7 @@ class BoardView {
 
   _polyPath(pts, angleDeg) {
     const ctx = this.ctx, [cx, cy] = this.center;
+    // KiCad y points down: -angle turns the rotor counter-clockwise on screen (like the Y-up readout)
     const a = -angleDeg * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
     for (let k = 0; k < pts.length; k += 2) {
       const dx = pts[k] - cx, dy = pts[k + 1] - cy;
@@ -279,7 +286,7 @@ class BoardView {
     ctx.closePath();
   }
 
-  _drawRotorOverlay(px) {
+  _drawRotorOverlay() {
     const b = this.rotor; if (!b) return;
     const ctx = this.ctx;
     for (const p of b.polys) {

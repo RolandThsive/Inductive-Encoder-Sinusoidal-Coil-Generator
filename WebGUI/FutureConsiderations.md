@@ -23,6 +23,8 @@ The code is still in place:
 - `WebGUI.js`: `SHOW_OUTPUT_GROUP = false` hides the block. Set it to `true` to show it again.
 - `WebGenerator.py`: `READ_ONLY` keeps these six read only: imports ignore them and exported files keep their starting values.
 - `WebGUI.js`: `GROUP_TITLES["Output"]` is the block's title.
+- `WebGUI.js`: the `readOnly` branch of `advancedWidget` (a greyed text box) and the `readOnly` checks in `renderAdvanced` and
+  `updateAdvNote` are used only by this block.
 
 To make them editable later: remove the names from `READ_ONLY`, give the centre and page size steppers, and
 decide how a custom `STATOR_FILE` / `ROTOR_FILE` should name the files inside the zip and the Download Stator /
