@@ -104,7 +104,7 @@ This is the law the Renesas IPS2200 reference design follows. The radius itself 
 as a sine:
 
 $$
-\Large r(\theta) \=\ r_{base} \\pm\ A\,\sin(n\,\theta)
+\Large r(\theta) = r_{base} \pm A\,\sin(n\,\theta)
 $$
 
 | Symbol | Meaning |
@@ -129,7 +129,7 @@ Here the **square** of the radius swings as a sine, so that for a uniform field 
 up by a single curve follows an exact sine of the rotor position:
 
 $$
-\Large r^{2}(\theta) \=\ r_{base}^{2} \\pm\ A\,\sin(n\,\theta)
+\Large r^{2}(\theta) = r_{base}^{2} \pm A\,\sin(n\,\theta)
 $$
 
 | Symbol | Meaning |
