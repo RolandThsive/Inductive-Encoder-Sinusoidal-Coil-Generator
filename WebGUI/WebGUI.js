@@ -538,11 +538,7 @@ function renderAdvanced() {
       if (ROTOR_MODE_GROUPS[g]) {
         box.append(el("button", { type: "button", class: "group-title foldable" + (state.folded.has(g) ? " collapsed" : ""), "data-group": g,
           "data-tip": `Show or hide the ${g.startsWith("Custom") ? "custom" : "automatic"} rotor settings (used when Rotor Mode is ${ROTOR_MODE_GROUPS[g]})`,
-          onclick: () => {           // the arrow folds the whole mode (the automatic rotor has two blocks)
-            const open = state.folded.has(g);
-            for (const [h, m] of Object.entries(ROTOR_MODE_GROUPS)) if (m === ROTOR_MODE_GROUPS[g]) open ? state.folded.delete(h) : state.folded.add(h);
-            applyFolds();
-          } },
+          onclick: () => { state.folded.has(g) ? state.folded.delete(g) : state.folded.add(g); applyFolds(); } },   // this block only
           el("span", { class: "chevron" }), g));
       } else box.append(el("div", { class: "group-title" }, g));
       box.append(shell);
