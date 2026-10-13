@@ -308,6 +308,12 @@ class BoardView {
     this.draw();
     return this.mLocked.length;
   }
+  /* Z key: remove the line being drawn (finished or only started); with none, remove the last kept line */
+  undoMeasure() {
+    if (!this.measure) return;
+    if (this.mA) this.mA = this.mB = null; else this.mLocked.pop();
+    this.draw();
+  }
   clearMeasure() { this.mA = this.mB = null; this.mLocked = []; }
 
   _drawMeasure(px) {
