@@ -643,7 +643,6 @@ async function generate() {
       view.setNetRoles({ [sent.RX_NET_PHASE_0_2]: "sin", [sent.RX_NET_PHASE_1_3]: "cos", [sent.TX_NET]: "tx" });
       renderLayerToggles();                                  // lock the chips of layers this board has no copper on
       view.fit();
-      $("btn-summary").disabled = false;
     }
     renderResults();
   } catch (e) {
@@ -652,6 +651,7 @@ async function generate() {
   } finally {
     setBusy(false);
     btn.disabled = false; btn.textContent = "Generate";
+    $("btn-summary").disabled = !(state.result && state.result.ok);    // only a run that worked has a summary to show
     updateStale();
   }
 }
