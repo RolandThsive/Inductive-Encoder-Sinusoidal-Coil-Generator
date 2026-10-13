@@ -735,6 +735,15 @@ function renderNetToggles() {
     onmouseleave: () => view.setOriginBoost(false) }, icon, "Origin"));
 }
 
+/* "Are you sure?" with Sure / No; Esc or a click on No answers no */
+function confirmBox(text) {
+  const d = $("confirm-dialog");
+  $("confirm-text").textContent = text;
+  d.returnValue = "";
+  d.showModal();
+  return new Promise((resolve) => d.addEventListener("close", () => resolve(d.returnValue === "yes"), { once: true }));
+}
+
 /* ---- share, import, export ------------------------------------------------------------------- */
 function encodeDesign() {
   const diff = {};
@@ -827,7 +836,10 @@ async function main() {
   $("btn-export").addEventListener("click", exportFiles);
   $("btn-import").addEventListener("click", () => $("import-file").click());
   $("import-file").addEventListener("change", (e) => { importFiles([...e.target.files]); e.target.value = ""; });
-  $("btn-reset").addEventListener("click", () => { setValues(Object.assign({}, state.start), "reset"); renderBasic(); toast("Back to the starting design"); });
+  $("btn-reset").addEventListener("click", async () => {
+    if (!(await confirmBox("Are you sure?"))) return;
+    setValues(Object.assign({}, state.start), "reset"); renderBasic(); toast("Back to the starting design");
+  });
   $("strict").addEventListener("change", () => { if (state.result) { state.stale = true; updateStale(); } });
   $("nav-back").addEventListener("click", (e) => { e.preventDefault(); history.length > 1 ? history.back() : (location.href = CONFIG.blogHome); });
   document.addEventListener("keydown", (e) => {

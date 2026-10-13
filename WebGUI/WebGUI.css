@@ -276,15 +276,15 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 /* results under the controls */
 .results { font-size: 12.5px; color: var(--text-2); border-top: 1px dashed var(--divider); padding: 8px 2px 4px; margin-top: 6px; line-height: 1.6; }
 .results b { color: var(--text); font-weight: 600; }
-/* Reset above Generate, Strict beside Generate */
+/* Strict and Reset on one row, Generate full width under them (Reset and Generate the same height) */
 .generate-row { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px 10px; padding-top: 6px; }
-.generate-row .reset-btn { grid-column: 2; }
-.generate-row .switch-row { grid-column: 1; }
-.generate-row .primary-btn { grid-column: 2; }
+.generate-row .switch-row { grid-column: 1; grid-row: 1; }
+.generate-row .reset-btn { grid-column: 2; grid-row: 1; width: 100%; }
+.generate-row .primary-btn { grid-column: 1 / 3; grid-row: 2; }
 .reset-btn {                                     /* the blog's yellow: --warning-edge border, cream fill */
-  font: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+  font: inherit; font-size: 15px; font-weight: 600; color: var(--text);
   background: var(--glass); border: 2px solid var(--warning-edge); border-radius: var(--radius);
-  padding: 6px 20px; cursor: pointer; box-shadow: var(--shadow-btn); transition: all var(--ease);
+  padding: 8px 20px; cursor: pointer; box-shadow: var(--shadow-btn); transition: all var(--ease);
 }
 .reset-btn:hover { background: rgba(248, 236, 198, 0.75); color: #7a5f00; }
 #progress { height: 3px; margin-top: 8px; border-radius: 2px; overflow: hidden; background: transparent; }
@@ -361,6 +361,11 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
   box-shadow: var(--shadow-card); padding: 10px 12px; font-size: 12.5px; line-height: 1.45; color: var(--text); white-space: pre-wrap; pointer-events: none; }
 .popover .mono-name { display: block; margin-bottom: 4px; }
 dialog { border: 1px solid #ddd; border-radius: var(--radius); box-shadow: var(--shadow-card); max-width: min(900px, 90vw); max-height: 80vh; padding: 16px; }
+dialog.confirm { padding: 22px 26px 18px; text-align: center; min-width: 260px; }
+dialog.confirm p { margin: 0 0 16px; font-size: 16px; font-weight: 600; color: var(--text); }
+.confirm-buttons { display: flex; gap: 10px; justify-content: center; }
+.confirm-buttons button { min-width: 90px; }
+dialog::backdrop { background: rgba(0, 0, 0, 0.18); }
 dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; margin: 0 0 12px; max-height: 65vh; overflow: auto; }
 .toast { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 200; background: rgba(0, 0, 0, 0.78); color: #fff;
   padding: 8px 16px; border-radius: 10px; font-size: 13.5px; }
