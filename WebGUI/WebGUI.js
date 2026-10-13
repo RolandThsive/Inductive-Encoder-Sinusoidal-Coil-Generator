@@ -820,6 +820,7 @@ async function main() {
   $("btn-measure").addEventListener("click", (e) => {
     view.measure = !view.measure; view.clearMeasure();     // switching Measure off or on clears every line
     e.currentTarget.classList.toggle("on", view.measure);
+    $("measure-help").hidden = !view.measure;              // the S / Z keys, while measuring
     $("board-canvas").classList.toggle("measuring", view.measure);
     view.draw();
   });
