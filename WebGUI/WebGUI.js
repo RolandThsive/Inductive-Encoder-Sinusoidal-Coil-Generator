@@ -837,7 +837,7 @@ async function main() {
   $("btn-import").addEventListener("click", () => $("import-file").click());
   $("import-file").addEventListener("change", (e) => { importFiles([...e.target.files]); e.target.value = ""; });
   $("btn-reset").addEventListener("click", async () => {
-    if (!(await confirmBox("Are you sure?"))) return;
+    if (!(await confirmBox("Are you sure to reset the board?"))) return;
     setValues(Object.assign({}, state.start), "reset"); renderBasic(); toast("Back to the starting design");
   });
   $("strict").addEventListener("change", () => { if (state.result) { state.stale = true; updateStale(); } });
