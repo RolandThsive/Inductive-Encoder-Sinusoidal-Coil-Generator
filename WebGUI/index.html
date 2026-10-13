@@ -90,12 +90,12 @@
       </div>
       <div class="canvas-wrap" id="canvas-wrap">
         <canvas id="board-canvas"></canvas>
-        <div class="canvas-tools">                <!-- Fullscreen and Fit side by side; Origin, then Measure, under them -->
+        <div class="canvas-tools">                <!-- Fullscreen, Fit and Origin side by side; Measure under them -->
           <span class="tool-pair">
             <button class="fs-btn icon-btn" id="btn-fullscreen" aria-label="Fullscreen" data-tip="Show the preview full screen (Esc to leave)"><svg viewBox="0 0 24 24"><path d="M3 8V3h5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></svg></button>
             <button class="glass-btn small icon-btn" id="btn-fit" aria-label="Fit" data-tip="Fit the board to viewport"><svg viewBox="0 0 24 24"><path d="M8 8h8v8H8zM3 3l4 4M7 4v3H4M21 3l-4 4M17 4v3h3M3 21l4-4M4 17h3v3M21 21l-4-4M20 17h-3v3"/></svg></button>
+            <span id="origin-slot"></span>
           </span>
-          <span id="origin-slot"></span>
           <button class="glass-btn small" id="btn-measure" data-tip="Click two points on the board to get the distance between them">Measure</button>
         </div>
         <div class="net-toggles" id="net-toggles"></div>

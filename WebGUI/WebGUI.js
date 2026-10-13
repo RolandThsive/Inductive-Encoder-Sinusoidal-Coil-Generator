@@ -722,17 +722,18 @@ function renderNetToggles() {
       onmouseenter: () => { if (!view.hiddenNets.has(n.role)) view.setHighlight(n.role); },
       onmouseleave: () => view.setHighlight(null) }, icon, n.text));
   }
-  // the board centre (under Fullscreen): hover colours the marker, click hides it
+  // the board centre (an icon beside Fit): hover colours the marker, click hides it
   const slot = $("origin-slot");
   slot.innerHTML = "";
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  icon.setAttribute("viewBox", "0 0 18 14");
-  icon.innerHTML = `<circle cx="9" cy="7" r="1.8" fill="currentColor" stroke="none"/><circle cx="9" cy="7" r="4.6" stroke-width="1.1"/>`;
-  slot.append(el("button", { type: "button", class: "net-btn" + (view.showOrigin ? "" : " off"), role: "switch", "aria-checked": String(view.showOrigin),
+  icon.setAttribute("viewBox", "0 0 24 24");
+  icon.innerHTML = `<circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="6.5"/>`;
+  slot.append(el("button", { type: "button", class: "glass-btn small icon-btn" + (view.showOrigin ? "" : " off"), role: "switch",
+    "aria-checked": String(view.showOrigin), "aria-label": "Origin",
     "data-tip": view.showOrigin ? "The board centre (origin). Hover to highlight it, click to hide it" : "Show the board centre (origin)",
     onclick: () => { view.toggleOrigin(); view.setOriginBoost(false); renderNetToggles(); },
     onmouseenter: () => { if (view.showOrigin) view.setOriginBoost(true); },
-    onmouseleave: () => view.setOriginBoost(false) }, icon, "Origin"));
+    onmouseleave: () => view.setOriginBoost(false) }, icon));
 }
 
 /* "Are you sure?" with Sure / No; Esc or a click on No answers no */
