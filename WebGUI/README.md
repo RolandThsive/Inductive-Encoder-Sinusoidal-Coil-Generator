@@ -22,6 +22,7 @@ First release: generator only. No receiver IC, no optimizer, no analyser and no 
 | `BoardPreview.js` | Draws the sketch and the real boards (layer colours, zoom, pan, measure, rotor overlay) |
 | `PyodideWorker.js` | Loads Python in a background thread and fetches the generator files |
 | `WebGenerator.py` | The Python side: writes the parameter files, runs the checks and the generator, builds the zip |
+| `FutureConsiderations.md` | Features kept for later (the hidden Output block) |
 | `BloggerPage.html` | The snippet for the Blogger page (hides the blog, full window, Back and Home buttons) |
 
 The parameter list, defaults, help texts and "not used now" rules come from the parameter files and

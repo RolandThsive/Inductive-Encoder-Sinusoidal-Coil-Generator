@@ -57,6 +57,9 @@ const GROUP_TITLES = {
   "Custom": "Custom Rotor",
   "Both modes": "Both Rotor Modes",
 };
+// The Output block (folder, file names, board centre, page size; read only on the web) is kept but not shown for
+// now. Set to true to show it again; see FutureConsiderations.md.
+const SHOW_OUTPUT_GROUP = false;
 const TAB_TITLES = { "Board_Parameters.py": "Board", "RX_Parameters.py": "RX", "TX_Parameters.py": "TX", "Rotor_Parameters.py": "Rotor" };
 const FILE_GROUP_GENERAL = { "TX_Parameters.py": "TX Turns", "Rotor_Parameters.py": "Rotor Mode" };
 
@@ -529,7 +532,7 @@ function renderAdvanced() {
   if (state.rotorModeSeen === undefined) foldRotorBlocks(mode);
   state.rotorModeSeen = mode;
   let group = null, card = null;
-  for (const p of state.spec.filter((x) => x.file === state.advTab)) {
+  for (const p of state.spec.filter((x) => x.file === state.advTab && (SHOW_OUTPUT_GROUP || x.group !== "Output"))) {
     let g = GROUP_TITLES[p.group] || p.group;
     if (g === "General") g = FILE_GROUP_GENERAL[p.file] || "General";
     if (g !== group) {
