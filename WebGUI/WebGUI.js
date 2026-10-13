@@ -680,13 +680,12 @@ function pickView(mode) {
   updateCaption();
 }
 function updateCaption() {
-  const r = state.result, v = state.values, mode = view.mode;
+  const r = state.result;
   if (!r || !r.ok) {
     $("preview-caption").textContent = r ? "Not generated: see the checks below" : "Press Generate to make the boards";
     return;
   }
-  const what = { stator: "Stator", rotor: "Rotor", overlay: "Stator With Rotor" }[mode];
-  $("preview-caption").textContent = `${what}: ${r.name}`;
+  $("preview-caption").textContent = `Zip Folder Name: ${r.name}`;     // the same in every view
 }
 function renderLayerToggles() {
   const box = $("layer-toggles");
