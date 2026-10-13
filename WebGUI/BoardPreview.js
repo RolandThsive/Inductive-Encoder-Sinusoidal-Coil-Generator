@@ -73,7 +73,7 @@ class BoardView {
     this.netRole = {};               // net name -> "sin" | "cos" | "tx" (from the parameters of the run)
     this.hiddenNets = new Set();     // roles switched off with the Sin / Cos / TX Loops buttons
     this.highlight = null;           // the role under the mouse: drawn thicker, the rest faded
-    this.showOrigin = true;          // the board centre marker (Origin button); originBoost = hovered, drawn bigger
+    this.showOrigin = true;          // the board centre marker (Origin button); originBoost = hovered, drawn in the accent colour
     this.rotorAngle = 0;
     this.view = { scale: 4, ox: 0, oy: 0 };
     this.fitted = false;
@@ -270,13 +270,13 @@ class BoardView {
   }
 
   /* the origin, Onshape style: a black dot inside a thin black ring, with a small gap between them.  Drawn in mm like
-     the copper, so it zooms with the board (hovering the Origin button makes it half again as big). */
+     the copper, so it zooms with the board; hovering the Origin button colours it (no size change). */
   _drawOrigin() {
-    const ctx = this.ctx, [cx, cy] = this.center, k = this.originBoost ? 1.5 : 1;
-    ctx.fillStyle = "#000";
-    ctx.beginPath(); ctx.arc(cx, cy, 0.35 * k, 0, 2 * Math.PI); ctx.fill();          // dot: 0.7 mm across
-    ctx.strokeStyle = "#000"; ctx.lineWidth = 0.12 * k;
-    ctx.beginPath(); ctx.arc(cx, cy, 0.8 * k, 0, 2 * Math.PI); ctx.stroke();         // ring: 1.6 mm across
+    const ctx = this.ctx, [cx, cy] = this.center;
+    ctx.fillStyle = ctx.strokeStyle = this.originBoost ? cssVar("--accent") : "#000";
+    ctx.beginPath(); ctx.arc(cx, cy, 0.35, 0, 2 * Math.PI); ctx.fill();              // dot: 0.7 mm across
+    ctx.lineWidth = 0.12;
+    ctx.beginPath(); ctx.arc(cx, cy, 0.8, 0, 2 * Math.PI); ctx.stroke();             // ring: 1.6 mm across
   }
 
   _drawMeasure(px) {

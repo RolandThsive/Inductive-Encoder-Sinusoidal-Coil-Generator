@@ -722,12 +722,12 @@ function renderNetToggles() {
       onmouseenter: () => { if (!view.hiddenNets.has(n.role)) view.setHighlight(n.role); },
       onmouseleave: () => view.setHighlight(null) }, icon, n.text));
   }
-  // the board centre: hover makes the marker bigger, click hides it
+  // the board centre: hover colours the marker, click hides it
   const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   icon.setAttribute("viewBox", "0 0 18 14");
   icon.innerHTML = `<circle cx="9" cy="7" r="1.8" fill="currentColor" stroke="none"/><circle cx="9" cy="7" r="4.6" stroke-width="1.1"/>`;
   box.append(el("button", { type: "button", class: "net-btn" + (view.showOrigin ? "" : " off"), role: "switch", "aria-checked": String(view.showOrigin),
-    "data-tip": view.showOrigin ? "The board centre (origin). Hover to enlarge it, click to hide it" : "Show the board centre (origin)",
+    "data-tip": view.showOrigin ? "The board centre (origin). Hover to highlight it, click to hide it" : "Show the board centre (origin)",
     onclick: () => { view.toggleOrigin(); view.setOriginBoost(false); renderNetToggles(); },
     onmouseenter: () => { if (view.showOrigin) view.setOriginBoost(true); },
     onmouseleave: () => view.setOriginBoost(false) }, icon, "Origin"));
