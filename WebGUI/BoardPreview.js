@@ -2,7 +2,7 @@
 
    parseBoard(text) reads the few things the generator writes: nets, segments, vias, Edge.Cuts circles and
    filled polygons (rotor copper).  BoardView draws them with one colour per copper layer, with zoom,
-   pan, a radius / angle readout, a two-click measure tool and a rotor angle for the overlay. */
+   pan, an X / Y readout from the origin, a two-click measure tool and a rotor angle for the overlay. */
 
 const LAYER_ORDER = ["B.Cu", "In2.Cu", "In1.Cu", "F.Cu"];              // drawn bottom first
 const LAYER_INFO = {
@@ -159,10 +159,10 @@ class BoardView {
     window.addEventListener("mouseup", () => { drag = null; c.classList.remove("dragging"); });
     c.addEventListener("mousemove", (e) => {
       const [x, y] = this.toBoard(e.offsetX, e.offsetY);
-      const dx = x - this.center[0], dy = this.center[1] - y;          // KiCad y points down
-      const r = Math.hypot(dx, dy);
-      let a = Math.atan2(dy, dx) * 180 / Math.PI; if (a < 0) a += 360;
-      let text = `Radius: ${r.toFixed(2)} mm, Angle: ${a.toFixed(1)}°`;
+      // X right and Y up, from the origin (the board centre); KiCad's y points down
+      const dx = x - this.center[0], dy = this.center[1] - y;
+      const f = (v) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2);       // no "-0.00"
+      let text = `X: ${f(dx)} mm, Y: ${f(dy)} mm`;
       if (this.measure && this.mA && !this.mB) text += `, Distance: ${Math.hypot(x - this.mA[0], y - this.mA[1]).toFixed(3)} mm`;
       this.readout.textContent = text;
     });
