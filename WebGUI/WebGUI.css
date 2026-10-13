@@ -328,6 +328,13 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
   align-items: flex-start; gap: 8px; }
 .tool-pair { display: flex; gap: 6px; }
 #origin-slot { display: flex; }
+/* Measure: a ruler as wide as the icon row above it (a dimension line, 0 1 2 3, and a measured span in red) */
+.canvas-tools #btn-measure { width: 0; min-width: 100%;   /* as wide as the icon row above, never wider */ height: 32px; padding: 0 6px; display: flex; align-items: center; justify-content: center; }
+.canvas-tools #btn-measure svg.ruler { width: 100%; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.3;
+  stroke-linecap: round; stroke-linejoin: round; }
+#btn-measure .nums { font: 6px Arial, Helvetica, sans-serif; fill: currentColor; stroke: none; text-anchor: middle; }
+#btn-measure .span { stroke: var(--accent); stroke-width: 1.6; }
+#btn-measure .dot { fill: var(--accent); stroke: none; }
 .canvas-tools .icon-btn.off { opacity: 0.45; }
 .canvas-tools .icon-btn:hover { color: var(--accent); }
 .canvas-tools .on { border-color: var(--accent); color: var(--accent); background: var(--cream); }
