@@ -38,6 +38,8 @@ GENERATOR_MODULES = ("ParameterChecker", "StatorGenerator", "RotorGenerator", "T
 # and the settings of earlier versions (read only from old parameter files).
 HIDDEN = {"RECEIVER_IC", "COPPER_THICKNESS_UM", "TX_AMPLITUDE_VPP",
           "TX_PLACEMENT", "TX_SECOND_LAYER", "TX_BREAK_STYLE"}
+# Starting values that differ from the parameter files in the web version only (the generator is unchanged).
+WEB_DEFAULTS = {"RX_NET_PHASE_0_2": "SIN_Signal", "RX_NET_PHASE_1_3": "COS_Signal"}
 # Shown, but not editable: they only name files and place the board on the KiCad page.
 READ_ONLY = {"OUTPUT_DIR", "STATOR_FILE", "ROTOR_FILE", "CENTER_X_MM", "CENTER_Y_MM", "PAGE_SIZE_MM"}
 
@@ -234,6 +236,7 @@ def describe():
         opts = {k: _jsonable(v) for k, v in o.items() if k in ("lo", "hi", "lo_ex", "hi_ex", "values", "ci",
                                                                   "optional", "default")}
         default = getattr(P, name) if hasattr(P, name) else o.get("default")
+        default = WEB_DEFAULTS.get(name, default)
         out.append({"file": file, "name": name, "kind": kind, "options": opts,
                     "default": _jsonable(default), "help": helps.get(name) or FALLBACK_HELP.get(name, ""), "group": groups.get(name, "General"),
                     "readOnly": name in READ_ONLY})
