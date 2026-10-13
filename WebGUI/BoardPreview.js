@@ -1,6 +1,6 @@
 /* BoardPreview.js - draws the generated KiCad boards on a canvas.
 
-   parseBoard(text) reads the few things the generator writes: segments, vias, Edge.Cuts circles and
+   parseBoard(text) reads the few things the generator writes: nets, segments, vias, Edge.Cuts circles and
    filled polygons (rotor copper).  BoardView draws them with one colour per copper layer, with zoom,
    pan, a radius / angle readout, a two-click measure tool and a rotor angle for the overlay. */
 
@@ -19,15 +19,20 @@ function cssVar(name) {
 function parseBoard(text) {
   const board = { segments: {}, vias: [], circles: [], polys: [], bounds: null };
   const num = "(-?[\\d.]+)";
-  const segRe = new RegExp(`\\(segment \\(start ${num} ${num}\\) \\(end ${num} ${num}\\) \\(width ${num}\\) \\(layer "([^"]+)"\\)`, "g");
+  // net names: (net 3 "SIN_Signal"); segments and vias carry the number, (net 3)
+  const nets = {};
   let m;
+  const netRe = /^\s*\(net (\d+) "([^"]*)"\)/gm;
+  while ((m = netRe.exec(text))) nets[m[1]] = m[2];
+  const segRe = new RegExp(`\\(segment \\(start ${num} ${num}\\) \\(end ${num} ${num}\\) \\(width ${num}\\) \\(layer "([^"]+)"\\)(?: \\(net (\\d+)\\))?`, "g");
   while ((m = segRe.exec(text))) {
-    const [_, x1, y1, x2, y2, w, layer] = m;
-    const key = layer + "|" + w;
-    (board.segments[key] = board.segments[key] || { layer, width: +w, pts: [] }).pts.push(+x1, +y1, +x2, +y2);
+    const [_, x1, y1, x2, y2, w, layer, n] = m;
+    const net = nets[n] ?? "";
+    const key = layer + "|" + w + "|" + net;
+    (board.segments[key] = board.segments[key] || { layer, width: +w, net, pts: [] }).pts.push(+x1, +y1, +x2, +y2);
   }
-  const viaRe = new RegExp(`\\(via \\(at ${num} ${num}\\) \\(size ${num}\\) \\(drill ${num}\\)`, "g");
-  while ((m = viaRe.exec(text))) board.vias.push({ x: +m[1], y: +m[2], d: +m[3], drill: +m[4] });
+  const viaRe = new RegExp(`\\(via \\(at ${num} ${num}\\) \\(size ${num}\\) \\(drill ${num}\\)[^\\n]*?(?:\\(net (\\d+)\\))?\\)\\s*$`, "gm");
+  while ((m = viaRe.exec(text))) board.vias.push({ x: +m[1], y: +m[2], d: +m[3], drill: +m[4], net: nets[m[5]] ?? "" });
   const circRe = new RegExp(`\\(gr_circle \\(center ${num} ${num}\\) \\(end ${num} ${num}\\)([^\\n]*)`, "g");
   while ((m = circRe.exec(text))) {
     const cx = +m[1], cy = +m[2], rest = m[5];
@@ -65,6 +70,9 @@ class BoardView {
     this.stator = null; this.rotor = null;
     this.center = [100, 100];
     this.hidden = new Set();
+    this.netRole = {};               // net name -> "sin" | "cos" | "tx" (from the parameters of the run)
+    this.hiddenNets = new Set();     // roles switched off with the Sin / Cos / TX Loops buttons
+    this.highlight = null;           // the role under the mouse: drawn thicker, the rest faded
     this.rotorAngle = 0;
     this.view = { scale: 4, ox: 0, oy: 0 };
     this.fitted = false;
@@ -81,6 +89,9 @@ class BoardView {
     this.draw();
   }
   setMode(mode) { this.mode = mode; this.draw(); }
+  setNetRoles(roles) { this.netRole = roles; this.draw(); }
+  toggleNet(role) { this.hiddenNets.has(role) ? this.hiddenNets.delete(role) : this.hiddenNets.add(role); this.draw(); }
+  setHighlight(role) { if (this.highlight !== role) { this.highlight = role; this.draw(); } }
   setViaBoost(on) { if (this.viaBoost !== on) { this.viaBoost = on; this.draw(); } }
   toggleLayer(layer) { this.hidden.has(layer) ? this.hidden.delete(layer) : this.hidden.add(layer); this.draw(); }
   setRotorAngle(deg) { this.rotorAngle = deg; this.draw(); }
@@ -185,22 +196,35 @@ class BoardView {
       ctx.fillStyle = rotorAlone ? "rgba(184, 115, 51, 0.75)" : cssVar("--rotor");
       ctx.beginPath(); this._polyPath(p.pts, angle); ctx.fill();
     }
-    for (const layer of LAYER_ORDER) {
-      if (this.hidden.has(layer)) continue;
-      ctx.strokeStyle = this._layerColour(layer);
-      for (const g of Object.values(b.segments)) {
-        if (g.layer !== layer) continue;
-        ctx.lineWidth = g.width;                         // true width from the file (no minimum)
-        ctx.beginPath();
-        const q = g.pts;
-        for (let k = 0; k < q.length; k += 4) { ctx.moveTo(q[k], q[k + 1]); ctx.lineTo(q[k + 2], q[k + 3]); }
-        ctx.stroke();
+    // traces: true width from the file (no minimum).  A loop set under the mouse (highlight) is drawn last,
+    // thicker, over the others faded; a set switched off (hiddenNets) is not drawn, nor are its vias.
+    const role = (net) => this.netRole[net];
+    const off = (net) => this.hiddenNets.has(role(net));
+    const hl = this.highlight && !this.hiddenNets.has(this.highlight) ? this.highlight : null;
+    const segs = Object.values(b.segments);
+    for (const pass of hl ? ["rest", "hl"] : ["all"]) {
+      ctx.globalAlpha = pass === "rest" ? 0.18 : 1;
+      for (const layer of LAYER_ORDER) {
+        if (this.hidden.has(layer)) continue;
+        ctx.strokeStyle = this._layerColour(layer);
+        for (const g of segs) {
+          if (g.layer !== layer || off(g.net)) continue;
+          if (pass !== "all" && (role(g.net) === hl) !== (pass === "hl")) continue;
+          ctx.lineWidth = pass === "hl" ? Math.max(2.5 * g.width, g.width + 2.5 * px) : g.width;
+          ctx.beginPath();
+          const q = g.pts;
+          for (let k = 0; k < q.length; k += 4) { ctx.moveTo(q[k], q[k + 1]); ctx.lineTo(q[k + 2], q[k + 3]); }
+          ctx.stroke();
+        }
       }
     }
+    ctx.globalAlpha = 1;
     // vias: bright gold at their true size (pad = size, hole = drill); the darker rim is drawn inside the pad.
     // "Vias" in the layer chips hides them; hovering that chip (viaBoost) shows small ones at least 6 px across.
     const viaFill = cssVar("--via"), viaRim = cssVar("--via-rim");
     for (let v of this.hidden.has("Vias") ? [] : b.vias) {
+      if (off(v.net)) continue;
+      ctx.globalAlpha = hl && role(v.net) !== hl ? 0.18 : 1;
       const k = this.viaBoost ? Math.max(1, 3 * px / (v.d / 2)) : 1;          // scale up only if smaller than 6 px
       v = { ...v, d: v.d * k, drill: v.drill * k };
       const r = v.d / 2, rim = (v.d - v.drill) / 2 * 0.3;
@@ -211,6 +235,7 @@ class BoardView {
       ctx.fillStyle = "#f4f1ea";
       ctx.beginPath(); ctx.arc(v.x, v.y, v.drill / 2, 0, 2 * Math.PI); ctx.fill();
     }
+    ctx.globalAlpha = 1;
     ctx.strokeStyle = cssVar("--edge");
     for (const c of b.circles) {
       if (c.layer !== "Edge.Cuts") continue;

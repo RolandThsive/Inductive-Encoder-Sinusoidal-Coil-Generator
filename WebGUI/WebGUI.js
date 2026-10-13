@@ -607,12 +607,14 @@ async function generate() {
   const btn = $("btn-generate");
   btn.disabled = true; btn.textContent = "Generating…";
   try {
-    const r = await ask("generate", { values: state.values, strict: $("strict").checked });
+    const sent = state.values;
+    const r = await ask("generate", { values: sent, strict: $("strict").checked });
     state.result = r;
     state.stale = false;
     renderChecks();
     if (r.ok) {
       view.setBoards(r.files.stator, r.files.rotor, r.center);
+      view.setNetRoles({ [sent.RX_NET_PHASE_0_2]: "sin", [sent.RX_NET_PHASE_1_3]: "cos", [sent.TX_NET]: "tx" });
       view.fit();
       $("btn-summary").disabled = false;
     }
@@ -667,6 +669,7 @@ function pickView(mode) {
   view.setMode(mode);
   document.querySelectorAll("#view-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === mode));
   $("rotor-angle-box").hidden = mode !== "overlay";
+  $("net-toggles").hidden = mode === "rotor";            // the rotor has no coils
   view.fit();
   updateCaption();
 }
@@ -698,6 +701,27 @@ function renderLayerToggles() {
     onmouseenter: () => { if (!view.hidden.has("Vias")) view.setViaBoost(true); },
     onmouseleave: () => view.setViaBoost(false) }, icon, "Vias");
   box.append(chip);
+}
+// Sin / Cos / TX Loops (bottom left of the preview): hover draws that coil thicker over the rest, click hides it
+const NET_BUTTONS = [
+  { role: "sin", text: "Sin Loops", what: "the SIN coil (RX phases 0 / 2)", icon: "M1 7 C4 -1 6 -1 9 7 S14 15 17 7" },
+  { role: "cos", text: "Cos Loops", what: "the COS coil (RX phases 1 / 3)", icon: "M1 3 C3 3 4 11 9 11 S15 3 17 3" },
+  { role: "tx", text: "TX Loops", what: "the TX coil (the outer ring)", icon: "M9 1.5 A5.5 5.5 0 1 1 8.99 1.5 M9 4 A3 3 0 1 1 8.99 4" },
+];
+function renderNetToggles() {
+  const box = $("net-toggles");
+  box.innerHTML = "";
+  for (const n of NET_BUTTONS) {
+    const off = view.hiddenNets.has(n.role);
+    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    icon.setAttribute("viewBox", "0 0 18 14");
+    icon.innerHTML = `<path d="${n.icon}"/>`;
+    box.append(el("button", { type: "button", class: "net-btn" + (off ? " off" : ""), role: "switch", "aria-checked": String(!off),
+      "data-tip": off ? `Show ${n.what}` : `Hover to highlight ${n.what}, click to hide it (the preview only)`,
+      onclick: () => { view.toggleNet(n.role); view.setHighlight(null); renderNetToggles(); },
+      onmouseenter: () => { if (!view.hiddenNets.has(n.role)) view.setHighlight(n.role); },
+      onmouseleave: () => view.setHighlight(null) }, icon, n.text));
+  }
 }
 
 /* ---- share, import, export ------------------------------------------------------------------- */
@@ -751,6 +775,7 @@ async function main() {
   state.lastNumbers = {};
   view = new BoardView($("board-canvas"), $("readout"));     // opens on Overlay
   renderLayerToggles();
+  renderNetToggles();
 
   // wiring
   document.querySelectorAll("#mode-switch button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
