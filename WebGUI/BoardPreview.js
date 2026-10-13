@@ -28,10 +28,12 @@ function parseBoard(text) {
   }
   const viaRe = new RegExp(`\\(via \\(at ${num} ${num}\\) \\(size ${num}\\) \\(drill ${num}\\)`, "g");
   while ((m = viaRe.exec(text))) board.vias.push({ x: +m[1], y: +m[2], d: +m[3], drill: +m[4] });
-  const circRe = new RegExp(`\\(gr_circle \\(center ${num} ${num}\\) \\(end ${num} ${num}\\)[^\\n]*?\\(layer "([^"]+)"\\)`, "g");
+  const circRe = new RegExp(`\\(gr_circle \\(center ${num} ${num}\\) \\(end ${num} ${num}\\)([^\\n]*)`, "g");
   while ((m = circRe.exec(text))) {
-    const cx = +m[1], cy = +m[2];
-    board.circles.push({ cx, cy, r: Math.hypot(+m[3] - cx, +m[4] - cy), layer: m[5] });
+    const cx = +m[1], cy = +m[2], rest = m[5];
+    const layer = (/\(layer "([^"]+)"\)/.exec(rest) || [])[1];
+    const width = +((/\(width (-?[\d.]+)\)/.exec(rest) || [])[1] || 0.05);
+    if (layer) board.circles.push({ cx, cy, r: Math.hypot(+m[3] - cx, +m[4] - cy), layer, width });
   }
   // filled polygons: (gr_poly (pts (xy ..) ...) ... (layer "F.Cu") ...)
   let i = 0;
@@ -192,25 +194,28 @@ class BoardView {
       ctx.strokeStyle = this._layerColour(layer);
       for (const g of Object.values(b.segments)) {
         if (g.layer !== layer) continue;
-        ctx.lineWidth = Math.max(g.width, px);
+        ctx.lineWidth = g.width;                         // true width from the file (no minimum)
         ctx.beginPath();
         const q = g.pts;
         for (let k = 0; k < q.length; k += 4) { ctx.moveTo(q[k], q[k + 1]); ctx.lineTo(q[k + 2], q[k + 3]); }
         ctx.stroke();
       }
     }
-    // vias: bright gold with a darker rim, never smaller than a few pixels, so they stand out when zoomed out
+    // vias: bright gold at their true size (pad = size, hole = drill); the darker rim is drawn inside the pad
     const viaFill = cssVar("--via"), viaRim = cssVar("--via-rim");
     for (const v of b.vias) {
-      const r = Math.max(v.d / 2, 3 * px);
-      ctx.fillStyle = viaFill; ctx.strokeStyle = viaRim; ctx.lineWidth = Math.max(0.6 * px, r * 0.18);
-      ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+      const r = v.d / 2, rim = (v.d - v.drill) / 2 * 0.3;
+      ctx.fillStyle = viaFill;
+      ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, 2 * Math.PI); ctx.fill();
+      ctx.strokeStyle = viaRim; ctx.lineWidth = rim;
+      ctx.beginPath(); ctx.arc(v.x, v.y, r - rim / 2, 0, 2 * Math.PI); ctx.stroke();
       ctx.fillStyle = "#f4f1ea";
-      ctx.beginPath(); ctx.arc(v.x, v.y, r * (v.drill / v.d), 0, 2 * Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(v.x, v.y, v.drill / 2, 0, 2 * Math.PI); ctx.fill();
     }
-    ctx.strokeStyle = cssVar("--edge"); ctx.lineWidth = 1.5 * px;
+    ctx.strokeStyle = cssVar("--edge");
     for (const c of b.circles) {
       if (c.layer !== "Edge.Cuts") continue;
+      ctx.lineWidth = c.width;                           // EDGE_LINE_WIDTH_MM, as in the file
       ctx.beginPath(); ctx.arc(c.cx, c.cy, c.r, 0, 2 * Math.PI); ctx.stroke();
     }
   }
@@ -232,8 +237,7 @@ class BoardView {
     for (const p of b.polys) {
       if (!LAYER_INFO[p.layer]) continue;
       ctx.fillStyle = cssVar("--rotor");
-      ctx.strokeStyle = "rgba(184, 115, 51, 0.9)"; ctx.lineWidth = px;
-      ctx.beginPath(); this._polyPath(p.pts, this.rotorAngle); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); this._polyPath(p.pts, this.rotorAngle); ctx.fill();   // filled only, like the file
     }
   }
 
