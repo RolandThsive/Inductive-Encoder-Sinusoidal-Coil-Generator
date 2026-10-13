@@ -292,8 +292,8 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .layer-chip .sw { width: 12px; height: 12px; border-radius: 3px; }
 .layer-chip.off { opacity: 0.4; }
 .layer-chip:hover { background: var(--cream); }
-/* Sin / Cos / TX Loops, bottom left of the preview */
-.net-toggles { position: absolute; left: 12px; bottom: 10px; display: flex; flex-direction: column; align-items: stretch; gap: 6px; z-index: 2; }
+/* Sin / Cos / TX Loops, top right of the preview (under the layer chips) */
+.net-toggles { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; align-items: stretch; gap: 6px; z-index: 2; }
 .net-btn { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 12.5px; color: var(--text); cursor: pointer;
   padding: 5px 11px; border-radius: 14px; border: 1px solid rgba(0, 0, 0, 0.08); background: rgba(255, 255, 255, 0.85);
   box-shadow: var(--shadow-btn); transition: all var(--ease); }
@@ -310,9 +310,9 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .fs-btn { position: absolute; top: 10px; left: 10px; z-index: 10; padding: 6px 12px; border: 0; border-radius: 6px;
   cursor: pointer; background: rgba(0, 0, 0, 0.65); color: #fff; font-size: 14px; line-height: 1.2; font-family: Arial, Helvetica, sans-serif; }
 .fs-btn:hover { background: rgba(0, 0, 0, 0.85); }
-.canvas-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
+.canvas-tools { position: absolute; top: 48px; left: 10px; display: flex; gap: 6px; }   /* under Fullscreen */
 .canvas-tools .on { border-color: var(--accent); color: var(--accent); background: var(--cream); }
-.readout { position: absolute; left: 12px; bottom: 112px; font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums;
+.readout { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums;
   background: rgba(255, 255, 255, 0.7); padding: 2px 8px; border-radius: 6px; pointer-events: none; }
 .readout:empty { display: none; }
 .stale-badge { position: absolute; top: calc(50% + 6px); left: 50%; transform: translate(-50%, -50%); white-space: nowrap; z-index: 3;

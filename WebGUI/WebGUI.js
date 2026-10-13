@@ -702,7 +702,7 @@ function renderLayerToggles() {
     onmouseleave: () => view.setViaBoost(false) }, icon, "Vias");
   box.append(chip);
 }
-// Sin / Cos / TX Loops (bottom left of the preview): hover draws that coil thicker over the rest, click hides it
+// Sin / Cos / TX Loops (top right of the preview): hover draws that coil thicker over the rest, click hides it
 const NET_BUTTONS = [
   { role: "sin", text: "Sin Loops", what: "the SIN coil (RX phases 0 / 2)", icon: "M1 7 C4 -1 6 -1 9 7 S14 15 17 7" },
   { role: "cos", text: "Cos Loops", what: "the COS coil (RX phases 1 / 3)", icon: "M1 3 C3 3 4 11 9 11 S15 3 17 3" },
