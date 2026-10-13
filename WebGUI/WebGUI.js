@@ -863,8 +863,7 @@ async function main() {
       || (t.tagName === "INPUT" && !/^(range|checkbox|radio|button)$/.test(t.type));
     if ((e.key === "l" || e.key === "L") && view.measure && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
       if (view.mLocked.length >= BoardView.MAX_LOCKED) return toast(`${BoardView.MAX_LOCKED} lines kept: that is the limit`);
-      const n = view.lockMeasure();
-      if (n) toast(`Line ${n} kept: click two points for the next one`);
+      view.lockMeasure();                                  // quiet: a message only at the limit
     }
   });
 
