@@ -181,7 +181,7 @@ class BoardView {
     if (this.mode === "stator" || this.mode === "overlay") this._drawBoard(this.stator, px, 0);
     if (this.mode === "rotor") this._drawBoard(this.rotor, px, 0, true);
     if (this.mode === "overlay") this._drawRotorOverlay(px);
-    if (this.showOrigin) this._drawOrigin();
+    if (this.showOrigin) this._drawOrigin(px);
     this._drawMeasure(px);
   }
 
@@ -269,14 +269,14 @@ class BoardView {
     }
   }
 
-  /* the origin, Onshape style: a black dot inside a thin black ring, with a small gap between them.  Drawn in mm like
-     the copper, so it zooms with the board; hovering the Origin button colours it (no size change). */
-  _drawOrigin() {
+  /* the origin, Onshape style: a black dot inside a thin black ring, with a small gap between them.  Like the board
+     edge it keeps one size on screen at any zoom; hovering the Origin button colours it (no size change). */
+  _drawOrigin(px) {
     const ctx = this.ctx, [cx, cy] = this.center;
     ctx.fillStyle = ctx.strokeStyle = this.originBoost ? cssVar("--accent") : "#000";
-    ctx.beginPath(); ctx.arc(cx, cy, 0.35, 0, 2 * Math.PI); ctx.fill();              // dot: 0.7 mm across
-    ctx.lineWidth = 0.12;
-    ctx.beginPath(); ctx.arc(cx, cy, 0.8, 0, 2 * Math.PI); ctx.stroke();             // ring: 1.6 mm across
+    ctx.beginPath(); ctx.arc(cx, cy, 1.7 * px, 0, 2 * Math.PI); ctx.fill();         // dot: 3.4 px across
+    ctx.lineWidth = 0.9 * px;
+    ctx.beginPath(); ctx.arc(cx, cy, 3.9 * px, 0, 2 * Math.PI); ctx.stroke();        // ring: about 9 px across
   }
 
   _drawMeasure(px) {
