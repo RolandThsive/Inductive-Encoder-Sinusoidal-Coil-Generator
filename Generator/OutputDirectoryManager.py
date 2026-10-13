@@ -124,8 +124,8 @@ def _parameter_dir(P):
 
 def _values_by_file(P, stator=None):
     """[(file, [(name, value text), ...]), ...]: every parameter the program knows, in the order of the
-    checker's table, with the value that was used ('not set' when an optional line is missing).  A radius that
-    the board edge overrides (INNER_EDGE_RADIUS_MM / OUTER_EDGE_RADIUS_MM) is marked 'not used'."""
+    checker's table, with the value that was used ('not set' when an optional line is missing).  An RX radius that
+    is None shows where the band came from instead (RX_R_BASE_MM / RX_A_MM or the board edges)."""
     try:
         import ParameterChecker as PC
         spec = [(file, name) for file, name, _kind, _opt, _active in PC.SPEC]
@@ -135,10 +135,11 @@ def _values_by_file(P, stator=None):
     for file, name in spec:
         known.add(name)
         val = repr(getattr(P, name)) if hasattr(P, name) else "(not set: the default is used)"
-        if stator is not None and name == "INSIDE_RADIUS_MM" and getattr(P, "INNER_EDGE_RADIUS_MM", None) is not None:
-            val += f"   (not used: INNER_EDGE_RADIUS_MM sets it, the RX band starts at r = {stator.ri:g})"
-        if stator is not None and name == "OUTSIDE_RADIUS_MM" and getattr(P, "OUTER_EDGE_RADIUS_MM", None) is not None:
-            val += f"   (not used: OUTER_EDGE_RADIUS_MM sets it, the RX band ends at r = {stator.ro:g})"
+        band = getattr(stator, "band", None) if stator is not None else None
+        if band is not None and name in ("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM") and getattr(P, name, None) is None:
+            src = {"centre": "RX_R_BASE_MM / RX_A_MM", "board": "the board edges"}.get(band["mode"], "-")
+            r = band["ri"] if name == "INSIDE_RADIUS_MM" else band["ro"]
+            val += f"   (the RX band {'starts' if name == 'INSIDE_RADIUS_MM' else 'ends'} at r = {r:g}, from {src})"
         out.setdefault(file, []).append((name, val))
     extra = [(n, repr(getattr(P, n))) for n in sorted(dir(P)) if n.isupper() and not n.startswith("_")
              and n not in known]

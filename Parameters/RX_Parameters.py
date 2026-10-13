@@ -15,14 +15,24 @@ Units: millimetres, degrees.  Nothing in this file is computed - edit values onl
 #   (1 loop = 1 full sine period = 2 lobes: one positive and one negative.)
 LOOPS = 1
 
-# Radial band occupied by the RX copper (centre line of the traces).
-# INSIDE_RADIUS_MM is not used when INNER_EDGE_RADIUS_MM (Board_Parameters.py) is set: the
-# band then starts INNER_EDGE_INSET_MM outside the centre hole.
-# OUTSIDE_RADIUS_MM is not used when OUTER_EDGE_RADIUS_MM (Board_Parameters.py) is set: the
-# band then ends far enough inside the board edge for the TX turns, the TX tail and the
-# bridging fingers (the checker prints the radius it gets).
-INSIDE_RADIUS_MM  = 38.0
-OUTSIDE_RADIUS_MM = 51.0
+# Radial band occupied by the RX copper (centre line of the traces): the RX coils swing between
+# its inside and outside radius.  Give it in ONE of two ways (the other pair = None):
+#
+#   INSIDE_RADIUS_MM / OUTSIDE_RADIUS_MM : the two radii of the band
+#   RX_R_BASE_MM / RX_A_MM               : its centre (r_base) and how far the coils swing in and out
+#                                          from it (A): band = RX_R_BASE_MM - RX_A_MM ... RX_R_BASE_MM + RX_A_MM
+#                                          e.g. 44.5 / 6.5 = a 38 ... 51 mm band.  Signal grows about
+#                                          with r_base x A (the band area); a wider band spreads over a less
+#                                          uniform TX field (see RX_PROFILE)
+#
+# Each pair goes together (both numbers or both None).  Both pairs None: the band is fitted to the
+# board edges (INNER_EDGE_RADIUS_MM and OUTER_EDGE_RADIUS_MM, Board_Parameters.py, must then be set).
+# With the band given, a board edge that is None is calculated from it; a board edge that is set is
+# used as given (it must leave the usual margins - the checker says how much is needed).
+INSIDE_RADIUS_MM  = 16.2
+OUTSIDE_RADIUS_MM = 21.4
+RX_R_BASE_MM      = None
+RX_A_MM           = None
 
 RX_TRACE_WIDTH_MM = 0.2
 
@@ -133,7 +143,7 @@ RX_VIA_ELECTRICAL_DEG = 90.0
 # tuned for each, the three are within about 20 %.  A 3-D check with the real TX tail,
 # via and layer depths gave a constant offset below about 0.2 % of the signal for
 # "single" - the same order as for "all" and "none".
-RX_TABS           = "Single"
+RX_TABS           = "all"
 # RX_TAB_LAYER = layer of the fingers: "auto" = the RX layer nearest the top that carries
 # no TX turn (the original rule) - or, when both RX layers carry TX turns (e.g. a series TX on
 # [1, 4]), the RX layer nearest the top - or 1 (Top), 2 (Inner 1), 3 (Inner 2), 4 (Bottom).

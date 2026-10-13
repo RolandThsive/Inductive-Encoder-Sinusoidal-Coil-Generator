@@ -77,6 +77,7 @@ if os.path.dirname(os.path.abspath(__file__)) not in sys.path:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import Parameters as P_DEFAULT
+import BandLayout
 import TXLayout
 
 RISING, FALLING = 0, 1          # edge classes (radius grows / shrinks with angle)
@@ -344,22 +345,21 @@ def outer_edge_room(P):
     return TXLayout.outer_edge_room(P)
 
 
+def rx_band(P):
+    """The RX band and the board edges from the parameters (BandLayout.resolve): dict(ri, ro, hole, outer_edge,
+    mode, inner_from, outer_from).  Raises ValueError for settings that do not fit together."""
+    def room():
+        try:
+            return outer_edge_room(P)
+        except (TypeError, ValueError, AttributeError) as e:
+            raise ValueError(f"the room for the TX turns and the TX tail outside the RX band cannot be worked out "
+                             f"(a TX / RX tab / margin setting is not a number: {e})")
+    return BandLayout.resolve(lambda n: getattr(P, n, None), room)
+
+
 def outside_radius(P):
-    """RX outside radius used for the board.  Normally OUTSIDE_RADIUS_MM.  A fixed OUTER_EDGE_RADIUS_MM takes
-    priority: the RX band then ends where the automatic edge rule would have put that edge, i.e.
-    OUTER_EDGE_RADIUS_MM - outer_edge_room(P), so the TX turns, the TX tail and the bridging fingers fit inside
-    it with the usual margins (OUTSIDE_RADIUS_MM is then not used)."""
-    fixed = getattr(P, "OUTER_EDGE_RADIUS_MM", None)
-    if fixed is None:
-        return float(P.OUTSIDE_RADIUS_MM)
-    if isinstance(fixed, bool) or not isinstance(fixed, (int, float)) or not math.isfinite(fixed) or fixed <= 0:
-        raise ValueError(f"OUTER_EDGE_RADIUS_MM must be a number greater than 0, or None; it is {fixed!r}")
-    try:
-        room = outer_edge_room(P)
-    except (TypeError, ValueError, AttributeError) as e:
-        raise ValueError(f"OUTER_EDGE_RADIUS_MM is set, but the RX outside radius cannot be worked out from it "
-                         f"(a TX / RX tab / margin setting is not a number: {e})")
-    return round(float(fixed) - room, 9)
+    """RX outside radius used for the board (rx_band)."""
+    return rx_band(P)["ro"]
 
 
 # =============================================================================
@@ -372,8 +372,8 @@ class StatorDesign:
         self._resolve_layers()
         self.N = int(P.LOOPS)
         self.cx, self.cy = float(P.CENTER_X_MM), float(P.CENTER_Y_MM)
-        self.ri, self.inner_edge_radius = self._inner_radii()
-        self.ro = outside_radius(P)
+        self.band = rx_band(P)
+        self.ri, self.ro, self.inner_edge_radius = self.band["ri"], self.band["ro"], self.band["hole"]
         self.L = 2.0 * math.pi / self.N                       # one loop (rad)
         self.zero = self.L * P.RX_ZERO_OFFSET_LOOP_FRACTION + math.radians(P.RX_ZERO_OFFSET_DEG)
 
@@ -421,8 +421,8 @@ class StatorDesign:
         self._collect_items()
 
         edge_formula = self.ro + P.OUTER_EDGE_OFFSET_MM
-        if P.OUTER_EDGE_RADIUS_MM is not None:
-            self.outer_edge_radius = float(P.OUTER_EDGE_RADIUS_MM)
+        if self.band["outer_edge"] is not None:
+            self.outer_edge_radius = float(self.band["outer_edge"])
         else:
             self.outer_edge_radius = max(edge_formula,
                                          self.tx_tail_end_radius + P.OUTER_EDGE_TAIL_MARGIN_MM)
@@ -432,49 +432,13 @@ class StatorDesign:
                                              + P.OUTER_EDGE_TAIL_MARGIN_MM)
 
     # ------------------------------------------------------------------ checks
-    def _inner_radii(self):
-        """(RX inside radius, centre-hole radius).  Normally the RX band starts at INSIDE_RADIUS_MM and the hole
-        is INNER_EDGE_INSET_MM inside it.  A fixed INNER_EDGE_RADIUS_MM takes priority: the hole gets exactly that
-        radius and the RX band starts INNER_EDGE_INSET_MM outside it (INSIDE_RADIUS_MM is then not used)."""
-        P = self.P
-        fixed = getattr(P, "INNER_EDGE_RADIUS_MM", None)
-        if fixed is None:
-            ri = float(P.INSIDE_RADIUS_MM)
-            return ri, ri - P.INNER_EDGE_INSET_MM
-        if isinstance(fixed, bool) or not isinstance(fixed, (int, float)) or not math.isfinite(fixed) or fixed <= 0:
-            raise ValueError(f"INNER_EDGE_RADIUS_MM must be a number greater than 0, or None; it is {fixed!r}")
-        return float(fixed) + P.INNER_EDGE_INSET_MM, float(fixed)
-
     def _validate(self):
         P = self.P
         # (a whole number written as 8.0 is accepted, as ParameterChecker does)
         if (isinstance(P.LOOPS, bool) or not isinstance(P.LOOPS, (int, float)) or not math.isfinite(P.LOOPS)
                 or not float(P.LOOPS).is_integer() or not 1 <= P.LOOPS <= 16):
             raise ValueError("LOOPS must be a whole number from 1 to 16")
-        ri, hole = self._inner_radii()
-        ro = outside_radius(P)
-        outer_fixed = getattr(P, "OUTER_EDGE_RADIUS_MM", None) is not None
-        if outer_fixed and ro <= ri:
-            raise ValueError(f"the RX band would end at r = {ro:g} mm (OUTER_EDGE_RADIUS_MM {P.OUTER_EDGE_RADIUS_MM:g} "
-                             f"- {outer_edge_room(P):g} mm for the TX turns, the TX tail and the margins), which is "
-                             f"not larger than the RX inside radius ({ri:g}). Raise OUTER_EDGE_RADIUS_MM, or lower "
-                             f"the inside radius, TX_TURNS, TX_PITCH_MM, TX_TAIL_EXTRA_MM or OUTER_EDGE_OFFSET_MM.")
-        out_txt = (f"the RX outside radius ({ro:g}, from OUTER_EDGE_RADIUS_MM)" if outer_fixed
-                   else f"OUTSIDE_RADIUS_MM ({ro:g})")
-        if getattr(P, "INNER_EDGE_RADIUS_MM", None) is not None:
-            if not (0 < ri < ro):
-                raise ValueError(f"the RX band would start at r = {ri:g} mm (INNER_EDGE_RADIUS_MM "
-                                 f"{P.INNER_EDGE_RADIUS_MM:g} + INNER_EDGE_INSET_MM {P.INNER_EDGE_INSET_MM:g}), "
-                                 f"which is not smaller than {out_txt}. Lower "
-                                 f"INNER_EDGE_RADIUS_MM or INNER_EDGE_INSET_MM, or raise the outside radius.")
-        else:
-            if not (0 < P.INSIDE_RADIUS_MM < ro):
-                raise ValueError(f"need 0 < INSIDE_RADIUS_MM < {out_txt}")
-            if hole <= 0:
-                raise ValueError(f"INNER_EDGE_INSET_MM ({P.INNER_EDGE_INSET_MM:g}) is not smaller than "
-                                 f"INSIDE_RADIUS_MM ({P.INSIDE_RADIUS_MM:g}): the centre hole would have a "
-                                 f"zero or negative radius. Lower INNER_EDGE_INSET_MM (Board_Parameters.py) "
-                                 f"or raise INSIDE_RADIUS_MM.")
+        rx_band(P)                                      # the RX band and the board edges fit together
         if P.RX_PROFILE not in ("equal_area", "cosine_r", "field_compensated"):
             raise ValueError('RX_PROFILE must be "equal_area", "cosine_r" or "field_compensated"')
         if isinstance(P.RX_SUBCOILS, bool) or P.RX_SUBCOILS not in (1, 2, 3):
@@ -1916,12 +1880,21 @@ class StatorDesign:
                else ""),
             f"  board edge: bore r = {self.inner_edge_radius:g} mm, outer r = {self.outer_edge_radius:g} mm",
         ]
-        if getattr(P, "INNER_EDGE_RADIUS_MM", None) is not None or getattr(P, "OUTER_EDGE_RADIUS_MM", None) is not None:
-            set_by = [f"the RX inside radius by INNER_EDGE_RADIUS_MM (+ INNER_EDGE_INSET_MM {P.INNER_EDGE_INSET_MM:g})"
-                      if getattr(P, "INNER_EDGE_RADIUS_MM", None) is not None else None,
-                      f"the RX outside radius by OUTER_EDGE_RADIUS_MM (- {outer_edge_room(P):g} mm for the TX turns, "
-                      f"tail and margins)" if getattr(P, "OUTER_EDGE_RADIUS_MM", None) is not None else None]
-            lines.append("  set from the board edge: " + "; ".join(x for x in set_by if x))
+        b = self.band
+        if b["mode"] != "radii" or b["inner_from"] != "band" or b["outer_from"] != "band":
+            parts = []
+            if b["mode"] == "centre":
+                parts.append(f"RX band = RX_R_BASE_MM {(b['ri'] + b['ro']) / 2:g} +- RX_A_MM {(b['ro'] - b['ri']) / 2:g}")
+            if b["inner_from"] == "edge":
+                parts.append(f"the RX inside radius by INNER_EDGE_RADIUS_MM (+ INNER_EDGE_INSET_MM {P.INNER_EDGE_INSET_MM:g})")
+            if b["outer_from"] == "edge":
+                parts.append(f"the RX outside radius by OUTER_EDGE_RADIUS_MM (- {outer_edge_room(P):g} mm for the TX turns, "
+                             f"tail and margins)")
+            given = [n for n, how in (("bore", b["inner_from"]), ("outer edge", b["outer_from"])) if how == "both"]
+            if given:
+                parts.append(f"board {' and '.join(given)} as given (RX band and board edge both set)")
+            lines.append("  set from the board edge: " + "; ".join(parts) if b["mode"] == "board" or
+                         "edge" in (b["inner_from"], b["outer_from"]) else "  " + "; ".join(parts))
         if self.min_via_clearance is not None:
             lines.append(f"  smallest via-to-copper clearance {self.min_via_clearance:.3f} mm")
         return "\n".join(lines)
