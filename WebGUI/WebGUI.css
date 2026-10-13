@@ -189,10 +189,9 @@ html.embedded .standalone-nav { display: none; }
 #controls { display: flex; flex-direction: column; padding: 14px 14px 10px; overflow: hidden; }
 #basic-panel, #advanced-panel { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
 /* the scrollbar: a brushed aluminium bar with a soft shadow and three engraved grip lines, in an empty recessed slot
-   (no hover change).  The panel
-   reaches 9 px into the right padding and keeps that as its own padding, so the bar sits out near the panel's edge
-   with a 13 px gap before the cards, and the cards keep their width. */
-#basic-panel, #advanced-panel { margin-right: -9px; padding-right: 13px; }
+   (no hover change).  The panel reaches 12 px into the right padding and keeps that as its own padding, so the bar
+   sits out near the panel's edge with a 16 px gap before the cards, and the cards keep their width. */
+#basic-panel, #advanced-panel { margin-right: -12px; padding-right: 16px; }
 #basic-panel::-webkit-scrollbar, #advanced-panel::-webkit-scrollbar { width: 12px; }
 #basic-panel::-webkit-scrollbar-track, #advanced-panel::-webkit-scrollbar-track {
   border-radius: 6px; background: rgba(0, 0, 0, 0.06); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06), inset 1px 0 2px rgba(0, 0, 0, 0.12); }
