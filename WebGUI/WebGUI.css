@@ -69,7 +69,8 @@ html.phone .desktop-only { display: none !important; }
 #app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; padding: 0 16px 6px; gap: 10px; }
 #topbar { position: relative; display: flex; align-items: center; gap: 18px; padding: 12px 0 0; min-height: 56px; }
 html.embedded #topbar { padding-right: 112px; }                /* room for the blog's Home / Back buttons */
-#topbar h1 { font-size: 26px; white-space: nowrap; transition: opacity var(--ease); }
+#topbar h1 { font-size: 26px; white-space: nowrap; transition: opacity var(--ease);
+  position: relative; top: -0.08em; }   /* Permanent Marker draws its letters low in the line box: lift them to the switch's centre (2 px at 26 px) */
 #topbar h1.yield { opacity: 0; }
 .top-actions { display: flex; gap: 8px; margin-left: auto; }
 .standalone-nav { display: flex; gap: 8px; }
