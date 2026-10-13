@@ -94,6 +94,16 @@ class BoardView {
   setNetRoles(roles) { this.netRole = roles; this.draw(); }
   toggleNet(role) { this.hiddenNets.has(role) ? this.hiddenNets.delete(role) : this.hiddenNets.add(role); this.draw(); }
   setHighlight(role) { if (this.highlight !== role) { this.highlight = role; this.draw(); } }
+  /* the copper layers with traces or fills in the board(s) the view shows (the layer chips of the others are locked);
+     null before the first board.  Overlay: the stator's, since the rotor drawn over it does not follow the chips. */
+  layersPresent() {
+    const b = this.mode === "rotor" ? this.rotor : this.stator;
+    if (!b) return null;
+    const s = new Set();
+    for (const g of Object.values(b.segments)) s.add(g.layer);
+    for (const p of b.polys) s.add(p.layer);
+    return s;
+  }
   setLayerHighlight(cu) { if (this.highlightLayer !== cu) { this.highlightLayer = cu; this.draw(); } }
   toggleOrigin() { this.showOrigin = !this.showOrigin; this.draw(); }
   setOriginBoost(on) { if (this.originBoost !== on) { this.originBoost = on; this.draw(); } }

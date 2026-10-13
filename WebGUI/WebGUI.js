@@ -614,6 +614,7 @@ async function generate() {
     if (r.ok) {
       view.setBoards(r.files.stator, r.files.rotor, r.center);
       view.setNetRoles({ [sent.RX_NET_PHASE_0_2]: "sin", [sent.RX_NET_PHASE_1_3]: "cos", [sent.TX_NET]: "tx" });
+      renderLayerToggles();                                  // lock the chips of layers this board has no copper on
       view.fit();
       $("btn-summary").disabled = false;
     }
@@ -669,6 +670,7 @@ function pickView(mode) {
   document.querySelectorAll("#view-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === mode));
   $("rotor-angle-box").hidden = mode !== "overlay";
   renderNetToggles();
+  renderLayerToggles();
   view.fit();
   updateCaption();
 }
@@ -684,7 +686,14 @@ function updateCaption() {
 function renderLayerToggles() {
   const box = $("layer-toggles");
   box.innerHTML = "";
+  const present = view.layersPresent();                     // null before the first board: every chip works
   for (const cu of ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]) {
+    if (present && !present.has(cu)) {                       // no copper on this layer: locked, no hover, no click
+      box.append(el("span", { class: "layer-chip locked", role: "switch", "aria-disabled": "true",
+        "data-tip": `This board has no copper on the ${CU_NAME[cu]} layer (${cu})` },
+        el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }), CU_NAME[cu]));
+      continue;
+    }
     const chip = el("span", { class: "layer-chip" + (view.hidden.has(cu) ? " off" : ""), role: "switch",
       "data-tip": view.hidden.has(cu) ? `Show the ${CU_NAME[cu]} copper (${cu})`
         : `Hover to highlight the ${CU_NAME[cu]} copper (${cu}), click to hide it (the preview only)`,
