@@ -16,7 +16,7 @@ let pyodide = null;
 const ROOT = "/coilgen";
 const FILES = {
   "Generator": ["ParameterChecker.py", "StatorGenerator.py", "RotorGenerator.py", "TXLayout.py",
-                "OutputDirectoryManager.py"],
+                "BandLayout.py", "OutputDirectoryManager.py"],
   "Parameters_Default": ["Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py",
                          "Rotor_Parameters.py", "Parameters.py"],
   "WebGUI": ["WebGenerator.py"],

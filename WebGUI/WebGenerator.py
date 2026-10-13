@@ -35,7 +35,7 @@ import zipfile
 
 ROOT = "/coilgen"
 PARAMETER_FILES = ("Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py")
-GENERATOR_MODULES = ("ParameterChecker", "StatorGenerator", "RotorGenerator", "TXLayout",
+GENERATOR_MODULES = ("ParameterChecker", "StatorGenerator", "RotorGenerator", "TXLayout", "BandLayout",
                      "OutputDirectoryManager", "Parameters") + tuple(f[:-3] for f in PARAMETER_FILES)
 
 # Not shown in the web GUI (decided for the first release): settings that only feed the electrical estimate,
