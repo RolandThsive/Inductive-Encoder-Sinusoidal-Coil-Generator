@@ -523,15 +523,30 @@ function renderAdvanced() {
   const box = $("advanced-controls");
   const scroll = $("advanced-panel").scrollTop;
   box.innerHTML = "";
+  // a new rotor mode opens its own blocks and folds the other mode's, after the page is drawn (so it animates)
+  const mode = String(state.values.ROTOR_MODE || "").toLowerCase(), modeChanged = mode !== state.rotorModeSeen;
+  if (state.rotorModeSeen === undefined) foldRotorBlocks(mode);
+  state.rotorModeSeen = mode;
   let group = null, card = null;
   for (const p of state.spec.filter((x) => x.file === state.advTab)) {
     let g = GROUP_TITLES[p.group] || p.group;
     if (g === "General") g = FILE_GROUP_GENERAL[p.file] || "General";
     if (g !== group) {
       group = g;
-      box.append(el("div", { class: "group-title" }, g));
-      card = el("div", { class: "group-card" });
-      box.append(card);
+      const inner = el("div", { class: "group-inner" });
+      const shell = el("div", { class: "group-card" + (state.folded.has(g) ? " collapsed" : ""), "data-group": g }, inner);
+      if (ROTOR_MODE_GROUPS[g]) {
+        box.append(el("button", { type: "button", class: "group-title foldable" + (state.folded.has(g) ? " collapsed" : ""), "data-group": g,
+          "data-tip": `Show or hide the ${g.startsWith("Custom") ? "custom" : "automatic"} rotor settings (used when Rotor Mode is ${ROTOR_MODE_GROUPS[g]})`,
+          onclick: () => {           // the arrow folds the whole mode (the automatic rotor has two blocks)
+            const open = state.folded.has(g);
+            for (const [h, m] of Object.entries(ROTOR_MODE_GROUPS)) if (m === ROTOR_MODE_GROUPS[g]) open ? state.folded.delete(h) : state.folded.add(h);
+            applyFolds();
+          } },
+          el("span", { class: "chevron" }), g));
+      } else box.append(el("div", { class: "group-title" }, g));
+      box.append(shell);
+      card = inner;
     }
     const lab = labelOf(p.name);
     const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, lab.text, lab.unit ? el("span", { class: "unit" }, " " + lab.unit) : null));
@@ -543,6 +558,16 @@ function renderAdvanced() {
   }
   $("advanced-panel").scrollTop = scroll;
   markAdvanced();
+  if (modeChanged) requestAnimationFrame(() => { foldRotorBlocks(mode); applyFolds(); });
+}
+/* The rotor blocks that belong to one Rotor Mode fold away when the other mode is chosen (the arrow opens them again). */
+const ROTOR_MODE_GROUPS = { "Automatic Rotor": "according_to_stator", "Automatic Rotor: Edges": "according_to_stator", "Custom Rotor": "custom" };
+state.folded = new Set();
+function foldRotorBlocks(mode) {
+  for (const [g, m] of Object.entries(ROTOR_MODE_GROUPS)) m === mode ? state.folded.delete(g) : state.folded.add(g);
+}
+function applyFolds() {
+  document.querySelectorAll("#advanced-controls [data-group]").forEach((n) => n.classList.toggle("collapsed", state.folded.has(n.dataset.group)));
 }
 function markAdvanced() {
   document.querySelectorAll("#advanced-controls .field").forEach((f) => {

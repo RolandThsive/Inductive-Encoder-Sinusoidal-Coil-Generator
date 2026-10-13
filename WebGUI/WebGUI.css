@@ -256,6 +256,16 @@ input[type=range]:focus::-webkit-slider-thumb { border-color: var(--accent); }
 /* Advanced groups (Settings-style cards) */
 .group-card { background: rgba(255, 255, 255, 0.7); border-radius: var(--radius); padding: 2px 12px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06); }
 .group-title { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-3); font-weight: 600; margin: 14px 4px -4px; }
+/* the rotor-mode blocks fold up (grid rows 1fr -> 0fr animates to the content's real height) */
+.group-card { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.35s cubic-bezier(0.32, 0.72, 0, 1), padding 0.35s, opacity 0.35s; }
+.group-inner { min-height: 0; }
+.group-card.collapsed { grid-template-rows: 0fr; padding-top: 0; padding-bottom: 0; opacity: 0.6; }
+.group-card.collapsed .group-inner { overflow: hidden; visibility: hidden; transition: visibility 0s 0.35s; }
+button.group-title { display: flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+button.group-title:hover { color: var(--accent); }
+.chevron { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor;
+  transition: transform 0.25s ease; }
+button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .field.inactive { opacity: 0.45; }
 .field.inactive .field-note::after { content: " (not used now)"; }
 .field.changed .field-label::before { content: "●"; color: var(--accent); font-size: 9px; margin-right: 5px; vertical-align: 2px; }
