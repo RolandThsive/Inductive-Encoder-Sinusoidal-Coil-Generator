@@ -175,8 +175,10 @@ _add(_RX, "RX_ZERO_OFFSET_LOOP_FRACTION", "num")
 _add(_RX, "RX_ZERO_OFFSET_DEG", "num")
 _add(_RX, "RX_PROFILE", "choice", values=("equal_area", "cosine_r", "field_compensated"))
 _add(_RX, "STEPS_PER_LOOP", "steps")
-_add(_RX, "RX_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)
-_add(_RX, "CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)     # the older name of the line above
+_add(_RX, "RX_CHORD_TOLERANCE_MM", "num", active=lambda P: hasattr(P, "RX_CHORD_TOLERANCE_MM") or not hasattr(P, "CHORD_TOLERANCE_MM"),
+     optional=True, default=0.001, lo=0.001)
+_add(_RX, "CHORD_TOLERANCE_MM", "num", active=lambda P: hasattr(P, "CHORD_TOLERANCE_MM"),
+     optional=True, default=0.001, lo=0.001)     # the older name of the line above
 _add(_RX, "RX_SUBCOILS", "choice", values=(1, 2, 3))
 _add(_RX, "RX_SUBCOIL_SPLIT_ELEC_DEG", "num", active=_sub, lo=0, lo_ex=True)
 _add(_RX, "RX_LAYER_A", "choice", active=_pcb4, values=(1, 2, 3, 4))
