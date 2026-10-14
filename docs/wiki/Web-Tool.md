@@ -9,6 +9,18 @@ give the same boards.
 
 > The Web Tool lives on the `WebUI` branch until it is merged; this page follows its [readme](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WEBUIReadme.md).
 
+## Screenshots
+
+The tool adapts to both landscape and portrait monitors. Both pictures show the default design, already generated.
+
+![Web Tool 1: Landscape](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/webui_landscape.png)
+
+*Web Tool 1. The Web Tool on a landscape monitor.*
+
+![Web Tool 2: Portrait](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/webui_portrait.png)
+
+*Web Tool 2. The Web Tool on a portrait monitor.*
+
 ## Features
 
 - **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter. Both use the same
