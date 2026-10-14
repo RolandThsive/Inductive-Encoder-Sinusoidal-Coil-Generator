@@ -27,6 +27,7 @@ estimates how it will perform.
 
 - [Working Principle](Working-Principle.md)
 - [RX Profiles](RX-Profiles.md)
+- [Parameters Selection](Parameters-Selection.md)
 - [Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md)
 
 ## Design Guide
