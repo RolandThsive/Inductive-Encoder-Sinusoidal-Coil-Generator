@@ -94,6 +94,23 @@ The two wirings and the two styles combine like this:
 
 `TX_PARALLEL_BREAK_STYLE` applies only to a parallel TX; a series TX always goes around the fingers.
 
+### Recommended Combination
+
+The best combination is a **4-layer board** with the RX fingers (if you choose to have them) on
+**Inner 1** and a **series TX with stepped turns on Top and Inner 2**:
+
+| Setting | Value |
+|---|---|
+| `PCB_LAYERS` | `4` |
+| `RX_TAB_LAYER` | `2` (Inner 1) |
+| `TX_LAYERS` | `2` |
+| `TX_LAYER_A`, `TX_LAYER_B` | `1` (Top) and `3` (Inner 2) |
+| `TX_SERIES` | `True` |
+| `TX_TURN_SHAPE` | `"stepped"` |
+
+The fingers then sit on a layer that carries no TX turns, so no turn has to go around them. The
+generator builds this setup without errors.
+
 ![Parameters 4: TX Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_4_tx_styles.png)
 
 *Parameters 4. Series staggered, parallel staggered and parallel stitched on the same 1-loop stator (TX
