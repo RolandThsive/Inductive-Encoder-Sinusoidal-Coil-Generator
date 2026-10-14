@@ -149,9 +149,31 @@ outwards and 7.0 mm inwards.
 *RX Profile 2. The `equal_area` profile for n = 4 loops on the same band as Profile 1. The dotted
 grey line in the right panel is the middle of the band, 44.5 mm, for comparison.*
 
-A third profile, `field_compensated`, starts from `equal_area` and bends the curves so that the
-signal stays an exact sine in the non-uniform field of the TX ring. It uses the air gap, the board
-thickness and the TX settings.
+#### Profile `field_compensated`
+
+The first two profiles assume that the TX field is the same everywhere in the RX band. In a real
+board it is not: the field of the TX ring changes with the radius and with the height above the
+board. The `field_compensated` profile starts from `equal_area` and bends the curves so that the
+signal stays an exact sine in that non-uniform field. It uses `AIR_GAP_MM`, `PCB_THICKNESS_MM` and
+the TX settings, so it changes when any of them changes.
+
+#### Comparing The Three Profiles
+
+![RX Profile 3: The three profiles](docs/images/rx_profile_3_comparison.png)
+
+*RX Profile 3. The same 4-loop board built with each profile, and the radius of one curve pair
+over one electrical period (90°). `equal_area` and `cosine_r` lie almost on top of each other;
+`field_compensated` departs from them by up to about 1.5 mm in radius at some angles.*
+
+| Profile | Rule | Compensates for | Use it when |
+|---|---|---|---|
+| `equal_area` (default) | r² swings equally around r_base² | A uniform field | You want the default, well-behaved choice |
+| `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the Renesas reference design, which follows this law |
+| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | You know the air gap and board stack and want the model to correct for the field |
+
+All three are selected with `RX_PROFILE` in `RX_Parameters.py`. As with the rest of the analysis,
+the differences shown here come from the generator and its models. They have not yet been checked
+on hardware.
 
 
 ---
