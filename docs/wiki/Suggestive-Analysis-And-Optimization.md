@@ -14,7 +14,7 @@ The analyser and optimizer are optional. They never change a board or a paramete
   parameter lines to change.
 
 **Example.** The optimizer was run on a 1-loop stator (bore radius 18 mm, outer radius 32 mm) with
-`OptimizeCoil.py --quick`. It suggested two sub-coils split by 50° and rotor copper that ends just
+`OptimizeCoil.py` with `ECCENTRICITY_MM` and `TILT_DEG` set to 0 (air gap and metal fraction tolerances only, a much faster run). It suggested two sub-coils split by 50° and rotor copper that ends just
 over the outermost TX turn:
 
 | Design | Worst-Case Angle Error (Air Gap 1 ± 0.2 mm) | Relative Signal | RX Voltage (IPS2550, 6–11 Vpp TX) |

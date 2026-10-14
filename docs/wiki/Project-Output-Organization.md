@@ -45,7 +45,7 @@ python Generator/RunCoilGenerator.py              # Check, then write Stator + R
 python Generator/RunCoilGenerator.py --check      # Check only, write nothing
 python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
 python Analyser_And_Optimizer/AnalyzeCoil.py      # Analyse the current parameters
-python Analyser_And_Optimizer/OptimizeCoil.py --quick
+python Analyser_And_Optimizer/OptimizeCoil.py     # Search better settings (set in OptimizerParameters.py)
 ```
 
 Every program runs from any folder; it finds the other folders itself.
