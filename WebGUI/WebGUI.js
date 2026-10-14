@@ -6,7 +6,7 @@
    layouts (PRESETS, BASIC_NAMES, renderBasic); keep those in step with the parameter files by hand.
 
    BoardPreview.js is loaded before this file and provides the globals LAYER_INFO and BoardView; Tooltips.js provides
-   TOOLTIPS, the help text of each parameter; Sketch.js provides sketchBoards, the instant drawing of the Sketch view.
+   TOOLTIPS, the help text of each parameter.
 
    Sections: settings, names and tables, state, worker, small helpers, tooltips, value changes, Basic mode,
    Advanced mode, mode switch, generate and results, preview controls, dialogs, share / import / export, start. */
@@ -305,7 +305,6 @@ function setValues(changes, from) {
 let inactiveTimer;
 function refreshAfterChange(from) {
   updateStale();
-  updateSketch();
   if (from !== "basic") renderBasic();
   if (state.mode === "advanced") renderAdvanced();      // a field edited in Advanced redraws Advanced too (widgets show the new value)
   updateAdvNote();
@@ -859,22 +858,10 @@ function renderResults() {
 }
 
 /* ---- preview controls: view tabs, layer, net and origin buttons --------------------------------- */
-/* the Sketch view: redrawn from the settings on every change (Sketch.js), no Generate needed */
-function updateSketch() {
-  if (!view || !state.ready) return;
-  const s = sketchBoards(state.values), note = $("sketch-note");
-  view.setSketch(s.error ? null : s);
-  note.classList.toggle("error", !!s.error);
-  note.textContent = s.error ? `No sketch: ${s.error}`
-    : `Sketch From The Settings · RX Band: ${fmt(s.band[0])} to ${fmt(s.band[1])} mm · Board: ${fmt(s.edges[0])} to ${fmt(s.edges[1])} mm · Generate makes the real boards`;
-  note.hidden = view.mode !== "sketch";
-  if (view.mode === "sketch") renderLayerToggles();
-}
 function pickView(mode) {
   view.setMode(mode);
   document.querySelectorAll("#view-tabs button").forEach((b) => b.classList.toggle("on", b.dataset.view === mode));
-  $("rotor-angle-box").hidden = mode !== "overlay" && mode !== "sketch";
-  $("sketch-note").hidden = mode !== "sketch";
+  $("rotor-angle-box").hidden = mode !== "overlay";
   renderNetToggles();
   renderLayerToggles();
   view.fit();
@@ -1099,7 +1086,6 @@ async function main() {
   $("btn-generate").textContent = "Generate";
   renderBasic();
   renderResults();
-  updateSketch();
   try { state.inactive = new Set(await ask("inactive", { values: state.values })); } catch (e) { /* ignore */ }
   await generate();
 }

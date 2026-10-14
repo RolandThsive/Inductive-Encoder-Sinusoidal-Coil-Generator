@@ -1,4 +1,4 @@
-/* BoardPreview.js - draws the generated KiCad boards (and the instant sketch of Sketch.js) on a canvas.
+/* BoardPreview.js - draws the generated KiCad boards on a canvas.
 
    parseBoard(text) reads the few things the generator writes: nets, segments, vias, gr_circle (the Edge.Cuts
    circles are drawn) and filled polygons (rotor copper).  BoardView draws them with one colour per copper layer,
@@ -7,8 +7,7 @@
    is faded); layers, loop sets and vias can be hidden; the vias can be boosted and the origin marker coloured.
    The two-click measure tool keeps its finished lines with S (at most 256) and removes them with Z. */
 
-const FADED = 0.18;
-const SKETCH_ROLE = { "sketch:sin": "sin", "sketch:cos": "cos", "sketch:tx": "tx" };   // the nets of Sketch.js                                                    // alpha of everything not highlighted
+const FADED = 0.18;                                                    // alpha of everything not highlighted
 const LAYER_ORDER = ["B.Cu", "In2.Cu", "In1.Cu", "F.Cu"];              // drawn bottom first
 const LAYER_INFO = {
   "F.Cu": { name: "Top", css: "--top" },
@@ -71,9 +70,8 @@ class BoardView {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.readout = readout;
-    this.mode = "overlay";           // sketch | stator | rotor | overlay
+    this.mode = "overlay";           // stator | rotor | overlay
     this.stator = null; this.rotor = null;
-    this.sketch = null;              // { stator, rotor } from Sketch.js: follows the controls at once
     this.center = [100, 100];
     this.hidden = new Set();
     this.netRole = {};               // net name -> "sin" | "cos" | "tx" (from the parameters of the run)
@@ -100,9 +98,6 @@ class BoardView {
     this.draw();
   }
   setMode(mode) { this.mode = mode; this.draw(); }
-  setSketch(sketch) { this.sketch = sketch; if (this.mode === "sketch") this.draw(); }
-  /* the stator and rotor the view draws: the sketch's in the Sketch view, else the generated ones */
-  _boards() { return this.mode === "sketch" ? (this.sketch || {}) : { stator: this.stator, rotor: this.rotor }; }
   setNetRoles(roles) { this.netRole = roles; this.draw(); }
   toggleNet(role) { this.hiddenNets.has(role) ? this.hiddenNets.delete(role) : this.hiddenNets.add(role); this.draw(); }
   setHighlight(role) { if (this.highlight !== role) { this.highlight = role; this.draw(); } }
@@ -110,7 +105,7 @@ class BoardView {
      rotor's mask openings are polygons too, so mask layers can appear, but the chips only ask about copper);
      null before the first board.  Overlay: the stator's, since the rotor drawn over it does not follow the chips. */
   layersPresent() {
-    const b = this.mode === "rotor" ? this.rotor : this._boards().stator;
+    const b = this.mode === "rotor" ? this.rotor : this.stator;
     if (!b) return null;
     const s = new Set();
     for (const g of Object.values(b.segments)) s.add(g.layer);
@@ -128,8 +123,7 @@ class BoardView {
   extent() {
     let r = 0;
     const take = (b) => b && b.circles.forEach((c) => (r = Math.max(r, c.r + Math.hypot(c.cx - this.center[0], c.cy - this.center[1]))));
-    const { stator, rotor } = this._boards();
-    take(stator); take(rotor);
+    take(this.stator); take(this.rotor);
     return r || 50;
   }
   fit() {
@@ -206,8 +200,7 @@ class BoardView {
     const px = 1 / scale;
     if (this.mode === "stator" || this.mode === "overlay") this._drawBoard(this.stator, px);
     if (this.mode === "rotor") this._drawBoard(this.rotor, px, true);
-    if (this.mode === "overlay") this._drawRotorOverlay(this.rotor);
-    if (this.mode === "sketch" && this.sketch) { this._drawBoard(this.sketch.stator, px); this._drawRotorOverlay(this.sketch.rotor); }
+    if (this.mode === "overlay") this._drawRotorOverlay();
     if (this.showOrigin) this._drawOrigin(px);
     this._drawMeasure(px);
   }
@@ -233,7 +226,7 @@ class BoardView {
     // traces: true width from the file (no minimum).  A loop set or a layer under the mouse (highlight,
     // highlightLayer) is drawn last, thicker, over the others faded; a set switched off (hiddenNets) is not
     // drawn, nor are its vias.
-    const role = (net) => this.netRole[net] ?? SKETCH_ROLE[net];
+    const role = (net) => this.netRole[net];
     const off = (net) => this.hiddenNets.has(role(net));
     const hlRole = this.highlight && !this.hiddenNets.has(this.highlight) ? this.highlight : null;
     const hl = hlRole || hlCu;
@@ -293,8 +286,8 @@ class BoardView {
     ctx.closePath();
   }
 
-  _drawRotorOverlay(b) {
-    if (!b) return;
+  _drawRotorOverlay() {
+    const b = this.rotor; if (!b) return;
     const ctx = this.ctx;
     for (const p of b.polys) {
       if (!LAYER_INFO[p.layer]) continue;
