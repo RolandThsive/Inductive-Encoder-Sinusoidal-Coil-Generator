@@ -5,6 +5,7 @@ Required Notice: Commercial use requires written permission from the author. Con
 The source code is licensed under the PolyForm Noncommercial License 1.0.0, reproduced below.
 The pictures in docs/images and the documentation are licensed under Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International (https://creativecommons.org/licenses/by-nc-sa/4.0/).
+The Web UI (the WebGUI folder and its design) is not covered by this license; it is under the PolyForm Strict License 1.0.0 in WebGUI/LICENSE.md.
 
 ---
 
