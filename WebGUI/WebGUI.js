@@ -23,9 +23,9 @@ const CONFIG = {
 
 /* ---- the starting design ---------------------------------------------------------------------------
    The page starts from the defaults in the parameter files (2 layers, board 15 to 27 mm, 4 loops, TX on the Bottom
-   layer), so its first board is the board RunCoilGenerator.py makes from the files as they are.  Values set here
-   would replace those defaults on the web only; keep it empty unless that is wanted. */
-const START_DESIGN = {};
+   layer).  Values set here replace those defaults on the web only: the RX band starts at None, so it is fitted to
+   the board edges (with the default board this is the same band, 16.2 to 21.4 mm). */
+const START_DESIGN = { INSIDE_RADIUS_MM: null, OUTSIDE_RADIUS_MM: null };
 
 /* ---- names and tables ---------------------------------------------------------------------------- */
 const LAYER_NUM_NAME = { 1: "Top", 2: "Inner-1", 3: "Inner-2", 4: "Bottom" };
