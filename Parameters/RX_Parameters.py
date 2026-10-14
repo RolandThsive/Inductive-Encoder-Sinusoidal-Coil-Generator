@@ -29,8 +29,8 @@ LOOPS = 4
 # board edges (INNER_EDGE_RADIUS_MM and OUTER_EDGE_RADIUS_MM, Board_Parameters.py, must then be set).
 # With the band given, a board edge that is None is calculated from it; a board edge that is set is
 # used as given (it must leave the usual margins - the checker says how much is needed).
-INSIDE_RADIUS_MM  = 16.2
-OUTSIDE_RADIUS_MM = 21.4
+INSIDE_RADIUS_MM  = None
+OUTSIDE_RADIUS_MM = None
 RX_R_BASE_MM      = None
 RX_A_MM           = None
 
