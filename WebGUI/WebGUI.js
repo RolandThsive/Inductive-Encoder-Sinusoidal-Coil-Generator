@@ -335,28 +335,30 @@ const ZIP_TIP = "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb
   "TX Wiring: Single (one TX layer), Series or Parallel (two TX layers)\n" +
   "TX Shape: Stepped or Spiral";
 
-/* The notice sits in the header, centred between Basic / Advanced and the buttons. 
-   (it wraps to two lines when needed; only in a very narrow window does the title step aside). */
+/* The notice sits in the Checks header, centred between the run name (the counts) and the Info switch.  It is one
+   line if it fits, else two short lines; when the panel is narrow and the counts wrap to a second line it is
+   centred between the Checks title and the Info switch instead. */
 function placeBadge() {
-  const badge = $("stale-badge"), bar = $("topbar"), h1 = bar.querySelector("h1");
-  badge.classList.remove("in-title", "two-line"); badge.style.left = ""; h1.classList.remove("yield");
+  const badge = $("stale-badge"), panel = $("checks"), head = panel.querySelector(".checks-head");
+  badge.classList.remove("two-line"); badge.style.left = "";
   if (badge.hidden) return;
   const full = state.stale ? "Settings changed: press Generate to update the board" : "Not generated: this is the last board that worked";
   const mid = state.stale ? "Settings changed: press Generate" : "Not generated: last good board shown";
-  const ms = $("mode-switch").getBoundingClientRect(), ta = bar.querySelector(".top-actions").getBoundingClientRect();
-  const x0 = bar.getBoundingClientRect().left, room = ta.left - ms.right - 16;
-  // The notice sits in the gap between Basic / Advanced and the buttons: one line if it fits, else two short lines
+  const pr = panel.getBoundingClientRect(), hr = head.getBoundingClientRect();
+  const title = head.querySelector("h2").getBoundingClientRect(), counts = $("counts"), cr = counts.getBoundingClientRect();
+  const info = head.querySelector(".switch-row").getBoundingClientRect();
+  let left = title.right;
+  if (Math.abs(cr.top - title.top) < 20 && counts.textContent.trim()) {      // counts on the heading's line: start after their text
+    const range = document.createRange(); range.selectNodeContents(counts);
+    left = Math.min(range.getBoundingClientRect().right, cr.right);
+  }
+  const room = info.left - left - 16;
   for (const [text, two] of [[full, false], [mid, false], [mid, true]]) {
     badge.textContent = text; badge.classList.toggle("two-line", two);
-    if (badge.getBoundingClientRect().width <= room) { badge.style.left = `${(ms.right + ta.left) / 2 - x0}px`; return; }
+    if (badge.getBoundingClientRect().width <= room) break;
   }
-  // no room even for that (a very narrow window): the title steps aside and the notice takes its place
-  badge.classList.remove("two-line"); badge.textContent = full;
-  const t = h1.getBoundingClientRect();
-  h1.classList.add("yield"); badge.classList.add("in-title");
-  const right = Math.min(t.right, ms.left - 12);
-  badge.style.left = `${(t.left + right) / 2 - x0}px`;
-  if (badge.getBoundingClientRect().width > right - t.left) badge.textContent = mid;
+  badge.style.left = `${(left + info.left) / 2 - pr.left}px`;
+  badge.style.top = `${title.top + title.height / 2 - pr.top}px`;
 }
 window.addEventListener("resize", placeBadge);
 
