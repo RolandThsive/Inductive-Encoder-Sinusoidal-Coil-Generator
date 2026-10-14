@@ -111,6 +111,10 @@ The best combination is a **4-layer board** with the RX fingers (if you choose t
 The fingers then sit on a layer that carries no TX turns, so no turn has to go around them. The
 generator builds this setup without errors.
 
+![Parameters 6: Recommended Combination](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_6_recommended.png)
+
+*Parameters 6. The recommended combination, generated with exactly the settings in the table above (3 turns per TX layer, RX band 17 to 22 mm, 1 loop). The TX turns on Inner 2 run directly below the Top turns at the same radii, so they are hidden by them in this view. The fingers are on Inner 1.*
+
 ![Parameters 4: TX Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_4_tx_styles.png)
 
 *Parameters 4. Series staggered, parallel staggered and parallel stitched on the same 1-loop stator (TX
