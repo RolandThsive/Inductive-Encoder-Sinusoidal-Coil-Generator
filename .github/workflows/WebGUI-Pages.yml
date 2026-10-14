@@ -28,10 +28,10 @@ jobs:
       - name: Check the generator is in the repository
         run: |
           for f in Generator/ParameterChecker.py Generator/StatorGenerator.py Generator/RotorGenerator.py \
-                   Generator/TXLayout.py Generator/OutputDirectoryManager.py \
+                   Generator/TXLayout.py Generator/BandLayout.py Generator/OutputDirectoryManager.py \
                    Parameters/Board_Parameters.py Parameters/RX_Parameters.py Parameters/TX_Parameters.py \
                    Parameters/Rotor_Parameters.py Parameters/Parameters.py WebGUI/WebGenerator.py WebGUI/index.html; do
-            test -f "$f" || { echo "::error::$f is missing (push the V10 generator first)"; exit 1; }
+            test -f "$f" || { echo "::error::$f is missing (push the generator first)"; exit 1; }
           done
 
       - name: Collect the site

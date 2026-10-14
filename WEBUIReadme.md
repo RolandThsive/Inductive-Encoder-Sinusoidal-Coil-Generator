@@ -68,7 +68,7 @@ The parameter list, defaults, help texts and "not used now" rules come from the 
 
 ## Going Live
 
-1. Push the V10 generator to `main` (`Generator/` and `Parameters/` at the repository root).
+1. Merge WebUI into `main` (PR #3), so `main` has `WebGUI/`, the workflow and the generator (`Generator/` and `Parameters/` at the repository root).
 2. On GitHub: Settings > Pages > Source: **GitHub Actions**.
 3. Actions > **Web GUI On GitHub Pages** > Run workflow. It also runs on every published release.
    The tool is then at `https://rolandthsive.github.io/Inductive-Encoder-Sinusoidal-Coil-Generator/WebGUI/`.
