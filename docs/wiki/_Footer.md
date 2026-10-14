@@ -1,0 +1,1 @@
+Code: [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) · Docs and images: [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) · [Repository](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator)
