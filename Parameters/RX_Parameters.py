@@ -29,8 +29,8 @@ LOOPS = 1
 # board edges (INNER_EDGE_RADIUS_MM and OUTER_EDGE_RADIUS_MM, Board_Parameters.py, must then be set).
 # With the band given, a board edge that is None is calculated from it; a board edge that is set is
 # used as given (it must leave the usual margins - the checker says how much is needed).
-INSIDE_RADIUS_MM  = 16.2
-OUTSIDE_RADIUS_MM = 21.4
+INSIDE_RADIUS_MM  = None
+OUTSIDE_RADIUS_MM = None
 RX_R_BASE_MM      = None
 RX_A_MM           = None
 
@@ -64,10 +64,15 @@ RX_ZERO_OFFSET_DEG           = 0.0
 RX_PROFILE = "equal_area"
 
 # Polyline resolution of one electrical period.
-#   "auto"  -> smallest multiple of 8 whose chord error is <= CHORD_TOLERANCE_MM
+#   "auto"  -> smallest multiple of 8 whose chord error is <= RX_CHORD_TOLERANCE_MM
 #   integer -> fixed value (a multiple of 8 from 48 to 4096). 200 matches the old script.
-STEPS_PER_LOOP     = "auto"
-CHORD_TOLERANCE_MM = 0.005
+# RX_CHORD_TOLERANCE_MM = how far a straight chord may lie from the true curve: 0.001 mm = 1 micron, which is
+#   also the smallest value allowed (finer only adds points, not accuracy: the generator stops at 1024 chords
+#   per loop and warns if that is not enough).  The old default was 0.005.  (The TX coil and the rotor have
+#   their own: TX_CHORD_TOLERANCE_MM in TX_Parameters.py, ROTOR_CHORD_TOLERANCE_MM in Rotor_Parameters.py.)
+#   An older parameter file that still has CHORD_TOLERANCE_MM keeps working: it is read when this line is missing.
+STEPS_PER_LOOP         = "auto"
+RX_CHORD_TOLERANCE_MM  = 0.001
 
 
 # =============================================================================
