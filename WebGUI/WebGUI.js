@@ -208,20 +208,25 @@ function showValue(v) {
 }
 let tipTimer = null, tipFor = null;
 function hideTip() { clearTimeout(tipTimer); tipFor = null; $("popover").hidden = true; }
+// a tooltip's text: \n starts a new line, **text** is bold
+function richText(pop, text) {
+  text.split("\n").forEach((line, n) => {
+    if (n) pop.append(el("br"));
+    line.split("**").forEach((part, i) => part && pop.append(i % 2 ? el("b", {}, part) : part));
+  });
+}
 function showTip(node) {
   const pop = $("popover");
   pop.innerHTML = "";
   if (node.dataset.help) {
     const name = node.dataset.help, p = state.byName[name];
     pop.append(el("span", { class: "mono-name" }, name));
-    const text = TOOLTIPS[name] || (p && p.help) || "No notes in the parameter file.";
-    text.split("\n").forEach((line, n) => {                       // \n = a new line, **formula** = bold
-      if (n) pop.append(el("br"));
-      line.split("**").forEach((part, i) => part && pop.append(i % 2 ? el("b", {}, part) : part));
-    });
+    richText(pop, TOOLTIPS[name] || (p && p.help) || "No notes in the parameter file.");
     if (name in state.start) pop.append(el("span", { class: "tip-foot" }, `Starting Value: ${showValue(state.start[name])}`));
   } else {
-    pop.append(node.dataset.tip);
+    richText(pop, node.dataset.tip);
+    if (node.id === "btn-download" && state.result && state.result.ok)
+      pop.append(el("span", { class: "tip-foot" }, `This run: ${state.result.name}.zip`));
   }
   pop.hidden = false;
   const r = node.getBoundingClientRect();
@@ -326,8 +331,15 @@ function updateStale() {
   const dl = $("btn-download");
   dl.disabled = !(state.result && state.result.ok) || state.stale;
   dl.dataset.tip = state.stale ? "The settings changed: press Generate first"
-    : "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt and the four parameter files";
+    : ZIP_TIP;
 }
+// the zip's name follows OutputDirectoryManager.folder_name (the desktop's output folder)
+const ZIP_TIP = "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt and the four parameter files.\n" +
+  "Name: **Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<TX Wiring>_<TX Shape>**\n" +
+  "Inner / Outer Radius: the stator board's centre hole and outer edge (mm)\n" +
+  "Loops, Sub-Coils: the RX settings; TX Turns: turns per TX layer\n" +
+  "TX Wiring: Single (one TX layer), Series or Parallel (two TX layers)\n" +
+  "TX Shape: Stepped or Spiral";
 
 /* The notice sits in the header, centred between Basic / Advanced and the buttons.  When that gap is too narrow
    (below about 1900 px) the title steps aside while the notice shows, and the notice is centred in the title's place. */
