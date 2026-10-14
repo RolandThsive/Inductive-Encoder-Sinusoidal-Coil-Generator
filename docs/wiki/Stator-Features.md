@@ -106,6 +106,8 @@ Where an RX finger runs on a layer that also carries TX turns, the TX must make 
 | **Go-Around** (`staggered`) | Each turn stops before the finger in a staircase, runs out to a via, and a nested bracket on the other layer carries it around the finger (after Hoxha et al., *Sensors*, 2022). Used by every series TX. |
 | **Stitched** (parallel only) | The turns on the finger's layer stop at a via on each side of the finger, and the other layer carries the current past it. |
 
+A series TX always uses the go-around. For a parallel TX, `TX_PARALLEL_BREAK_STYLE` now defaults to `staggered` (go-around); set it to `stitched` for the stitched windows.
+
 ![Stator 8: TX Break Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_8_tx_break_styles.png)
 
 *Stator 8. Close-up of one finger: series go-around, parallel stitched and parallel go-around.*
