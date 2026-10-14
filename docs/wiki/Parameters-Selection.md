@@ -85,8 +85,14 @@ make way for it:
 - **Stitched.** The turns on the finger's layer stop at a via on each side of the finger and the turns of
   the other layer carry the current past it. There is no copper outside the TX ring. **Parallel TX only.**
 
-A series TX always uses the staggered style, so there is no stitched series picture:
-`TX_PARALLEL_BREAK_STYLE` (`"staggered"` or `"stitched"`) applies only to a parallel TX.
+The two wirings and the two styles combine like this:
+
+| | Staggered (go-around) | Stitched |
+|---|---|---|
+| **Series** (`TX_SERIES = True`) | ✅ The only style a series TX can use. Two spirals joined by a via, 2 × `TX_TURNS` turns, both terminals leave at `TX_START_ANGLE_DEG` | ❌ Not available |
+| **Parallel** (`TX_SERIES = False`) | ✅ `TX_PARALLEL_BREAK_STYLE = "staggered"` (the default). The same turns on both layers; the finger's layer goes around the finger, brackets on the other layer. Both layers stay complete; the board grows by about 2 mm | ✅ `TX_PARALLEL_BREAK_STYLE = "stitched"`. The same turns on both layers; the finger's layer stops at a via on each side of the finger and the other layer carries the current past it. No copper outside the TX ring |
+
+`TX_PARALLEL_BREAK_STYLE` applies only to a parallel TX; a series TX always goes around the fingers.
 
 ![Parameters 4: TX Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_4_tx_styles.png)
 
