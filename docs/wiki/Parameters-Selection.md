@@ -8,18 +8,36 @@ the generator with only the named setting changed. Each parameter is described i
 
 ## Defining The RX Band
 
-The RX band is the ring of radii in which the RX curves weave. You can define it from the board
-edges, from a pair of band numbers, or both. The rules:
+The RX band is the ring of radii in which the RX curves weave. Three things can set it:
 
-- The **board edges** are `INNER_EDGE_RADIUS_MM` (bore) and `OUTER_EDGE_RADIUS_MM` (outline).
-- The band can also be given by **one pair**: `INSIDE_RADIUS_MM` and `OUTSIDE_RADIUS_MM`, **or**
-  `RX_R_BASE_MM` and `RX_A_MM` (the band is `r_base ± A`). The two pairs are alternatives: set one pair
-  and leave the other at `None`. A pair is always set together.
-- With **no pair** (all four `None`) the band is fitted between the board edges, leaving room for the
-  TX, the tail and the fingers.
-- An edge set to `None` is **computed from the band**: the bore sits `INNER_EDGE_INSET_MM` inside the
-  band and the outline a little beyond the TX, tail and fingers.
-- A fixed edge that leaves too little room for the band is an error and the checker tells you the
+| | Parameters | Meaning |
+|---|---|---|
+| **Board edges** | `INNER_EDGE_RADIUS_MM` (bore), `OUTER_EDGE_RADIUS_MM` (outline) | The two circles that bound the board |
+| **Radii pair** | `INSIDE_RADIUS_MM`, `OUTSIDE_RADIUS_MM` | The band's inner and outer radius |
+| **R base and A pair** | `RX_R_BASE_MM`, `RX_A_MM` | The band's centre line and half width: the band is `r_base ± A` |
+
+Each row and column below is one of them. A cell shows whether the two can be used together (the
+diagonal is each one on its own):
+
+| | Board edges | Radii pair | R base and A pair |
+|---|---|---|---|
+| **Board edges** | ✅ Alone: the band is fitted between the edges | ✅ Edges set the board, the pair sets the band | ✅ Edges set the board, the pair sets the band |
+| **Radii pair** | ✅ Edges set the board, the pair sets the band | ✅ Alone: the edges are computed from the band | ❌ Not allowed: the band would be given twice |
+| **R base and A pair** | ✅ Edges set the board, the pair sets the band | ❌ Not allowed: the band would be given twice | ✅ Alone: the edges are computed from the band |
+
+The five allowed setups are pictured below: 1 = edges only, 2 = edges + radii pair, 3 = edges +
+R base and A, 4 = radii pair only, 5 = R base and A only.
+
+Rules behind the table:
+
+- **A pair is always set together** (both radii, or both of R base and A). Set only one of the two
+  pairs; leave the other pair at `None`.
+- **Edges only** (every pair `None`): the band is fitted between the edges, leaving room for the TX, the
+  tail and the fingers. Both edges must then be set.
+- **With a pair**, each edge may be set or left `None`. An edge set to `None` is computed from the band:
+  the bore sits `INNER_EDGE_INSET_MM` inside the band and the outline a little beyond the TX, tail and
+  fingers.
+- A fixed edge that leaves too little room for the band is an error, and the checker tells you the
   radius it needs.
 
 ![Parameters 1: Defining The RX Band](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_1_rx_band.png)
