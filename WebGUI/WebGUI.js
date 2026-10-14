@@ -612,7 +612,7 @@ function dropdown(name, options, value, onPick) {
 }
 document.addEventListener("click", () => document.querySelectorAll(".dropdown.open").forEach((d) => d.classList.remove("open")));
 
-function advStepper(value, onCommit, { step = 0.1, integer = false, disabled = false } = {}) {
+function advStepper(value, onCommit, { step = 0.1, integer = false, disabled = false, min = null } = {}) {
   const input = el("input", { type: "text", inputmode: "decimal", value: value == null ? "" : fmt(value), disabled });
   const len = (value == null ? "" : fmt(value)).length;
   if (len > 5) input.style.width = `${len + 2}ch`;                      // 3500000 Hz fits
@@ -623,20 +623,24 @@ function advStepper(value, onCommit, { step = 0.1, integer = false, disabled = f
   };
   input.addEventListener("change", () => commit(parseFloat(input.value)));
   return el("span", { class: "stepper" },
-    el("button", { type: "button", disabled, onclick: () => commit((value ?? 0) - step) }, "−"), input,
+    el("button", { type: "button", disabled, onclick: () => commit(min == null ? (value ?? 0) - step : Math.max(min, (value ?? 0) - step)) }, "−"), input,
     el("button", { type: "button", disabled, onclick: () => commit((value ?? 0) + step) }, "+"));
 }
 
 function stepOf(p) {
   const d = p.default;
   if (p.kind === "int") return 1;
-  if (p.kind === "steps") return 8;
+  if (p.kind === "steps" || p.kind === "auto_or_int") return 8;
+  if (/CHORD_TOLERANCE_MM$/.test(p.name)) return 0.001;
   if (/HZ$/.test(p.name)) return 100000;
   if (/DEG$/.test(p.name)) return 1;
   if (typeof d === "number" && Math.abs(d) >= 100) return 1;
   if (typeof d === "number" && String(d).includes(".") && String(d).split(".")[1].length >= 2) return 0.05;
   return 0.1;
 }
+
+// the number a step setting shows when its Auto switch is turned off (the values before the chord tolerances)
+const STEPS_WHEN_NOT_AUTO = { TX_STEPS: 300, ROTOR_ARC_STEPS_PER_SECTOR: 48 };
 
 function advancedWidget(p) {
   const name = p.name, v = state.values[name], ro = p.readOnly;
@@ -659,14 +663,15 @@ function advancedWidget(p) {
     return dropdown(name, values, current, set);
   }
   if (k === "num" || k === "int" || k === "mask_expansion") {
-    return advStepper(v, set, { step: stepOf(p), integer: k === "int" });
+    // the chord tolerances stop at their lowest value (0.001 mm) when stepped down; a typed lower value gets the checker's error
+    return advStepper(v, set, { step: stepOf(p), integer: k === "int", min: /CHORD_TOLERANCE_MM$/.test(name) ? o.lo : null });
   }
-  if (k === "num_or_none" || k === "auto_or_num" || k === "steps") {
+  if (k === "num_or_none" || k === "auto_or_num" || k === "steps" || k === "auto_or_int") {
     const isAuto = k === "num_or_none" ? v === null : (typeof v === "string" && v.toLowerCase() === "auto");
     const autoWord = k === "num_or_none" ? "None" : "Auto";
     const lock = k === "num_or_none" ? bandLock(name) : null;
     const cb = el("input", { type: "checkbox", disabled: !!lock }); cb.checked = isAuto;
-    const fallback = typeof p.default === "number" ? p.default : (k === "steps" ? 200 : (o.lo ?? 1));
+    const fallback = typeof p.default === "number" ? p.default : (k === "steps" ? 200 : (STEPS_WHEN_NOT_AUTO[name] ?? o.lo ?? 1));
     const lastNumber = isAuto ? (k === "num_or_none" ? numberFor(name, state.values) : (state.lastNumbers[name] ?? fallback)) : v;
     cb.addEventListener("change", () => {
       if (cb.checked) { state.lastNumbers[name] = typeof v === "number" ? v : lastNumber; set(k === "num_or_none" ? null : "auto"); }
@@ -675,7 +680,7 @@ function advancedWidget(p) {
     return el("div", { class: "auto-row" },
       el("label", { class: "switch-row" + (lock ? " locked" : ""), "data-tip": lock || null },
         el("span", { class: "switch" }, cb, el("span", { class: "knob" })), lock ? `${autoWord} · Locked` : autoWord),
-      advStepper(isAuto ? null : v, set, { step: stepOf(p), integer: k === "steps", disabled: isAuto }));
+      advStepper(isAuto ? null : v, set, { step: stepOf(p), integer: k === "steps" || k === "auto_or_int", disabled: isAuto }));
   }
   if (k === "rotor_layers") {
     const box = el("div", { class: "auto-row" });
