@@ -62,8 +62,8 @@
     if (cameFromBlog && history.length > 1) { e.preventDefault(); history.back(); }
   });
 
-  // Phones and tablets (no mouse or trackpad) get the message only, the same test the tool uses.  A narrow computer
-  // window still gets the tool, which asks for a wider window itself.
+  // Phones and tablets (no mouse or trackpad) get the message only, the same test the tool uses.  A computer always
+  // gets the tool, whatever its window size.
   var touchOnly = window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches;
   if (touchOnly) { shell.className = "phone"; return; }
 

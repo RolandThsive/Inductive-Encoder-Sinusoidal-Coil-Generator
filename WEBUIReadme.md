@@ -30,8 +30,7 @@ give the same boards.
 4. Check the result in the preview and the **Checks** panel.
 5. Press **Download Zip** to get your boards.
 
-The tool needs a computer with a mouse or trackpad and a browser window at least 1024 px wide. Phones and tablets
-see a short message instead; a narrower computer window shows a notice until you widen it or zoom out.
+The tool needs a computer with a mouse or trackpad. Phones and tablets see a short message instead.
 
 ## Setting Up A Design
 

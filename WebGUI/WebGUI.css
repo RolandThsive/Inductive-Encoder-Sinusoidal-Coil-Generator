@@ -83,13 +83,6 @@ html.phone .phone-only { display: block; }
 html.phone .desktop-only { display: none !important; }
 #phone-message { max-width: 520px; margin: 18vh auto 0; padding: 24px; text-align: center; font-size: 17px; }
 #phone-message h1 { font-size: 30px; margin-bottom: 18px; }
-/* a computer window narrower than 1024 px: the notice covers the tool until the window is widened */
-.narrow-only { display: none; }
-html.narrow .narrow-only { display: flex; }
-#narrow-message { position: fixed; inset: 0; z-index: 300; align-items: center; justify-content: center; padding: 24px;
-  background: rgba(250, 246, 238, 0.86); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-#narrow-message > div { max-width: 480px; text-align: center; font-size: 17px; color: var(--text); }
-#narrow-message h1 { font-size: 30px; margin-bottom: 18px; }
 
 /* ---- page frame -------------------------------------------------------- */
 #app { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; padding: 0 16px 6px; gap: 10px; }
