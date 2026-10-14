@@ -1,0 +1,52 @@
+# Keeps the GitHub Wiki tab identical to docs/wiki/: every change to those files on main is copied to the wiki.
+# docs/wiki/ is the source of truth. Edits made by hand in the Wiki tab are overwritten at the next sync.
+# One-time setup: Settings > Features > Wikis, and save a first page in the Wiki tab so the wiki repository exists.
+name: Sync Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/wiki/**"
+      - ".github/workflows/WikiSync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Check out the wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+
+      - name: Copy docs/wiki into the wiki
+        run: |
+          test -f docs/wiki/Home.md || { echo "::error::docs/wiki/Home.md is missing"; exit 1; }
+          rsync -a --delete --exclude='.git' docs/wiki/ wiki/
+          # The wiki links pages by name: [Text](Page-Name), not [Text](Page-Name.md)
+          find wiki -name '*.md' -exec sed -i -E 's/\]\(([A-Za-z0-9_-]+)\.md(#[^)]*)?\)/](\1\2)/g' {} +
+
+      - name: Commit and push the wiki
+        working-directory: wiki
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "The wiki is already up to date."
+          else
+            git commit -m "Sync wiki from docs/wiki (${GITHUB_SHA::7})"
+            git push
+          fi
