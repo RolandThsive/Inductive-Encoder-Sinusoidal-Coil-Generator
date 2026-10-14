@@ -22,6 +22,9 @@ over the outermost TX turn:
 | Start: 1 sub-coil, `equal_area` profile | 0.66° electrical | 1.00 | 106–194 mVpp |
 | Suggested: 2 sub-coils at 50°, copper overhang −0.25 mm | 0.18° electrical | 1.79 | 189–346 mVpp |
 
+> [!NOTE]
+> The numbers in this example were made with the earlier, coarser chord defaults. The predicted angle error depends on the chord count (for example 0.777° at 160 chords per loop against 0.456° at 1024 in one test), so older optimizer rankings are superseded. Re-run the optimizer with the current defaults before trusting old numbers.
+
 ![Analysis 1: Optimizer Comparison](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/analysis_1_optimizer.png)
 
 *Analysis 1. The starting design, the optimizer's suggestion, and their angle error over one turn at
