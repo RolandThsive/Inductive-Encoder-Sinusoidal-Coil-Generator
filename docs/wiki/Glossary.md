@@ -21,6 +21,9 @@
 | **Break style** | How TX turns make way for a finger: *staggered* (go-around) or *stitched* (windows). |
 | **Go-around (staggered)** | Each TX turn stops before the finger and a bracket on another layer carries the current around it. |
 | **Stitched windows** | Parallel TX only: the turns stop at vias on each side of the finger and the other layer carries the current past it. |
+| **Chord** | One straight segment of the polyline that approximates a curve. Every RX curve, TX turn and rotor arc is a polyline of chords. |
+| **Chord tolerance** | The largest gap, in mm, allowed between the true curve and its chord. RX, TX and rotor each have their own setting (`RX_`, `TX_`, `ROTOR_CHORD_TOLERANCE_MM`, default and minimum 0.001 mm). |
+| **Auto steps** | The "auto" setting of `STEPS_PER_LOOP`, `TX_STEPS` and `ROTOR_ARC_STEPS_PER_SECTOR`: the generator picks the number of chords or points from the chord tolerance. A whole number is used exactly. |
 | **Stepped / spiral** | TX turn shapes: concentric circles joined by short steps, or one smooth Archimedean spiral. |
 | **Step angle** | The angle of the radial steps of a stepped TX turn, measured from the turn. |
 | **Terminal via** | The via at the TX terminal that joins the inner tail to the first turn (or the two spirals of a series TX). |

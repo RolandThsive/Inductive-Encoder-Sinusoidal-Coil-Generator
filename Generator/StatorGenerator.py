@@ -365,6 +365,15 @@ def outside_radius(P):
 # =============================================================================
 #  stator design
 # =============================================================================
+def chord_tolerance(P, which):
+    """RX_ / TX_ / ROTOR_CHORD_TOLERANCE_MM (mm); the RX one falls back to the older name CHORD_TOLERANCE_MM;
+    0.001 (1 micron) when the line is missing."""
+    v = getattr(P, f"{which}_CHORD_TOLERANCE_MM", None)
+    if v is None and which == "RX":
+        v = getattr(P, "CHORD_TOLERANCE_MM", None)
+    return 0.001 if v is None else float(v)
+
+
 class StatorDesign:
     def __init__(self, P=P_DEFAULT):
         self.P = P
@@ -387,6 +396,7 @@ class StatorDesign:
         # outermost COMPLETE TX turn; the point at tx_first_radius + TURNS*pitch is only the
         # start of the TX tail (one azimuth, kept clear of the fingers by TX_START_ANGLE_DEG)
         self.tx_outer_radius = self.tx_first_radius + (P.TX_TURNS - 1) * P.TX_PITCH_MM
+        self.tx_steps = self._pick_tx_steps()
         self.tab_end_radius = None
         if self._tabs_on():
             self.tab_end_radius = max(
@@ -530,6 +540,17 @@ class StatorDesign:
         g = np.concatenate([[0.0], np.cumsum(0.5 * (bz[1:] * grid[1:] + bz[:-1] * grid[:-1]) * np.diff(grid))])
         self.radius = lambda s: np.interp(g[-1] * (1.0 + np.asarray(s, dtype=float)) / 2.0, g, grid)
 
+    def _pick_tx_steps(self):
+        """Points per TX turn: TX_STEPS, or (auto) the fewest, a multiple of 8, whose chords of the outermost turn lie
+        within TX_CHORD_TOLERANCE_MM of the circle."""
+        P = self.P
+        s = getattr(P, "TX_STEPS", "auto")
+        if not (isinstance(s, str) and s.lower() == "auto"):
+            return int(s)
+        r, tol = float(self.tx_outer_radius), chord_tolerance(P, "TX")
+        n = int(math.ceil(math.pi / math.acos(max(-1.0, 1.0 - tol / r))))
+        return max(48, -(-n // 8) * 8)
+
     def _pick_steps(self):
         P = self.P
         if P.STEPS_PER_LOOP != "auto":
@@ -541,11 +562,18 @@ class StatorDesign:
             phi = self.L * t / S
             return np.stack([r * np.cos(phi), r * np.sin(phi)], axis=-1)
 
+        err = None
+        tol = chord_tolerance(P, "RX")
         for S in range(48, 1025, 8):
             i = np.arange(S, dtype=float)
             p0, p1, pm = point(i, S), point(i + 1, S), point(i + 0.5, S)
-            if np.max(np.hypot(*(pm - 0.5 * (p0 + p1)).T)) <= P.CHORD_TOLERANCE_MM:
+            err = float(np.max(np.hypot(*(pm - 0.5 * (p0 + p1)).T)))
+            if err <= tol:
                 return S
+        # the limit of 1024 chords per loop was reached without meeting the tolerance
+        print(f"WARNING: RX_CHORD_TOLERANCE_MM = {tol:g} mm needs more than 1024 chords per loop; "
+              f"STEPS_PER_LOOP = auto stops at 1024 ({err:.4f} mm chord error). Raise RX_CHORD_TOLERANCE_MM, or set "
+              f"STEPS_PER_LOOP to a fixed value (a multiple of 8, up to 4096)", file=sys.stderr)
         return 1024
 
     # ------------------------------------------------------------ sub-coils
@@ -899,7 +927,7 @@ class StatorDesign:
         """Smooth (Archimedean) outward spiral from (r0, angle 0) to the tail start (r0 + turns*pitch, angle 0):
         the gap between neighbouring turns is the pitch everywhere (no radial steps)."""
         P = self.P
-        steps, turns = int(P.TX_STEPS), int(P.TX_TURNS)
+        steps, turns = self.tx_steps, int(P.TX_TURNS)
         n = turns * steps
         return [pt(sense * 2.0 * math.pi * i / steps, self.tx_first_radius + P.TX_PITCH_MM * i / steps)
                 for i in range(n + 1)]
@@ -926,7 +954,7 @@ class StatorDesign:
         gap = p * math.cos(th) - tw                                  # copper gap between neighbouring steps
         T = int(P.TX_TURNS)
         # (the turns are polylines: a chord lies up to `sag` inside its circle, plus a hair)
-        sag = (self.tx_first_radius + T * p) * (1.0 - math.cos(math.pi / float(P.TX_STEPS)))
+        sag = (self.tx_first_radius + T * p) * (1.0 - math.cos(math.pi / float(self.tx_steps)))
         need = clr + 0.02 + sag
         stagger = max(0.0, (need - gap) / math.sin(th))
         # the first step (turn 0 -> 1) must clear the terminal via: a pad of VIA_DIAMETER_MM at the terminal azimuth,
@@ -957,7 +985,7 @@ class StatorDesign:
         plan = self._step_plan()
         if plan is not None:
             return plan["theta"]
-        step_mm = 2.0 * math.pi * self.tx_first_radius / float(P.TX_STEPS)
+        step_mm = 2.0 * math.pi * self.tx_first_radius / float(self.tx_steps)
         return math.atan2(2.0 / 3.0 * float(P.TX_PITCH_MM), 0.45 * step_mm)
 
     def _place_terminal_via(self, own_mm=2.0):
@@ -1119,7 +1147,7 @@ class StatorDesign:
             return
         P = self.P
         cx, cy = self.cx, self.cy
-        steps, turns = int(P.TX_STEPS), int(P.TX_TURNS)
+        steps, turns = self.tx_steps, int(P.TX_TURNS)
         r0, pitch = self.tx_first_radius, P.TX_PITCH_MM
 
         rot = math.radians(self._tx_start())
@@ -1163,7 +1191,7 @@ class StatorDesign:
         enough to keep MIN_CLEARANCE_MM from its pad: all TX turns are one net, so KiCad's DRC would not notice a
         via touching the next turn.  Also gives the angular extent of the TX terminal (`tail`)."""
         P = self.P
-        T, steps = int(P.TX_TURNS), int(P.TX_STEPS)
+        T, steps = int(P.TX_TURNS), self.tx_steps
         pitch, tw, rw = float(P.TX_PITCH_MM), float(P.TX_TRACE_WIDTH_MM), float(P.RX_TRACE_WIDTH_MM)
         vr, clr = float(P.VIA_DIAMETER_MM) / 2.0, float(P.MIN_CLEARANCE_MM)
         need = vr + tw / 2.0 + clr                             # via centre to the centre line of another turn
@@ -1658,7 +1686,7 @@ class StatorDesign:
         for a, b in zip(pts[:-1], pts[1:]):
             self.tx_segments.append((a, b, "B.Cu"))
         self.tx_segments.append((pts[-1], tail_end, "B.Cu"))                # terminal tail on Bottom
-        self.tx_vias.append(pt(0.15 / P.TX_STEPS * 2.0 * math.pi, r0 + P.TX_PITCH_MM * 0.15 / P.TX_STEPS))
+        self.tx_vias.append(pt(0.15 / self.tx_steps * 2.0 * math.pi, r0 + P.TX_PITCH_MM * 0.15 / self.tx_steps))
 
     def _build_tx_two_layers(self):
         """TX on two layers: a spiral that runs INWARDS (counter-clockwise) on layer P from the terminal,
@@ -1666,7 +1694,7 @@ class StatorDesign:
         layer Q back to the terminal.  Both terminals leave radially outwards at TX_START_ANGLE_DEG."""
         P = self.P
         cx, cy = self.cx, self.cy
-        steps, turns = int(P.TX_STEPS), int(P.TX_TURNS)
+        steps, turns = self.tx_steps, int(P.TX_TURNS)
         r0, pitch = self.tx_first_radius, P.TX_PITCH_MM
         rot = math.radians(self._tx_start())
 
@@ -1860,7 +1888,8 @@ class StatorDesign:
             f"Stator: {self.N} loop(s) -> {self.N} electrical period(s) per turn, "
             f"unique range {360.0 / self.N:g} deg",
             f"  RX band r = {self.ri:g} ... {self.ro:g} mm, profile = {P.RX_PROFILE}, "
-            f"{self.S} segments per period",
+            f"{self.S} segments per period (RX chord tolerance {chord_tolerance(P, 'RX'):g} mm); "
+            f"TX {self.tx_steps} points per turn",
             f"  PCB layers {P.PCB_LAYERS}: RX rising edges on {self.rising_layer}, falling edges on {self.falling_layer}",
             (f"  RX sub-coils per coil: {self.n_sub}, split {self.split_deg:g} electrical deg "
              f"(requested {P.RX_SUBCOIL_SPLIT_ELEC_DEG:g}), {len(self.junction)} junctions"

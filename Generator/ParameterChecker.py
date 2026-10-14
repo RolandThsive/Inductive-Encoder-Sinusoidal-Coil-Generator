@@ -175,7 +175,8 @@ _add(_RX, "RX_ZERO_OFFSET_LOOP_FRACTION", "num")
 _add(_RX, "RX_ZERO_OFFSET_DEG", "num")
 _add(_RX, "RX_PROFILE", "choice", values=("equal_area", "cosine_r", "field_compensated"))
 _add(_RX, "STEPS_PER_LOOP", "steps")
-_add(_RX, "CHORD_TOLERANCE_MM", "num", lo=0, lo_ex=True)
+_add(_RX, "RX_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)
+_add(_RX, "CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)     # the older name of the line above
 _add(_RX, "RX_SUBCOILS", "choice", values=(1, 2, 3))
 _add(_RX, "RX_SUBCOIL_SPLIT_ELEC_DEG", "num", active=_sub, lo=0, lo_ex=True)
 _add(_RX, "RX_LAYER_A", "choice", active=_pcb4, values=(1, 2, 3, 4))
@@ -193,7 +194,8 @@ _add(_TX, "TX_TURNS", "int", lo=1, hi=50)
 _add(_TX, "TX_OFFSET_MM", "num", lo=0, lo_ex=True)
 _add(_TX, "TX_PITCH_MM", "num", lo=0, lo_ex=True)
 _add(_TX, "TX_TRACE_WIDTH_MM", "num", lo=0, lo_ex=True)
-_add(_TX, "TX_STEPS", "int", lo=12, hi=20000)
+_add(_TX, "TX_STEPS", "auto_or_int", optional=True, default="auto", lo=12, hi=20000)
+_add(_TX, "TX_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)
 _add(_TX, "TX_TAIL_EXTRA_MM", "num", lo=0)
 _add(_TX, "TX_TURN_SHAPE", "choice", values=("stepped", "spiral"), ci=True)
 _add(_TX, "TX_START_ANGLE_DEG", "auto_or_num")
@@ -242,7 +244,8 @@ _add(_RO, "ROTOR_CUSTOM_OUTER_RADIUS_MM", "num", active=_custom, lo=0, lo_ex=Tru
 _add(_RO, "ROTOR_CUSTOM_COPPER_LAYERS", "rotor_layers", active=_custom)
 _add(_RO, "ROTOR_CUSTOM_OUTLINE_RADIUS_MM", "num_or_none", active=_custom, lo=0, lo_ex=True)
 _add(_RO, "ROTOR_CUSTOM_BORE_RADIUS_MM", "num_or_none", active=_custom, lo=0, lo_ex=True)
-_add(_RO, "ROTOR_ARC_STEPS_PER_SECTOR", "int", lo=8, hi=5000)
+_add(_RO, "ROTOR_ARC_STEPS_PER_SECTOR", "auto_or_int", optional=True, default="auto", lo=8, hi=5000)
+_add(_RO, "ROTOR_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)
 # default: what RotorGenerator.py uses (DEFAULT_SOLDER_MASK_EXPANSION_MM) when the line is missing
 _add(_RO, "ROTOR_SOLDER_MASK_EXPANSION_MM", "mask_expansion", optional=True, default=0.05, hi=5.0)
 
@@ -337,6 +340,14 @@ def _check_value(name, val, kind, o):
         if isinstance(val, int) and not isinstance(val, bool) and val % 8 == 0 and 48 <= val <= 4096:
             return val, None
         return None, f'{name} = {val!r}: must be "auto" or a multiple of 8 from 48 to 4096'
+    if kind == "auto_or_int":
+        if isinstance(val, str) and val.lower() == "auto":
+            return "auto", None
+        if isinstance(val, int) and not isinstance(val, bool):
+            if not _in_range(val, o):
+                return None, f'{name} = {val}: must be "auto" or a whole number {rng}'
+            return int(val), None
+        return None, f'{name} = {val!r}: must be "auto" or a whole number' + (f" ({rng})" if rng else "")
     if kind == "auto_or_num":
         if isinstance(val, str) and val.lower() == "auto":
             return "auto", None
@@ -767,7 +778,7 @@ def check_parameters(P):
         elif dv < 0:
             rep.warn(f"TX_INSIDE_VIA_DISTANCE_MM = {dv:g} moves the TX terminal via outwards, onto the next TX turns; "
                      f"use 0 or a positive value")
-    if has("TX_STEPS", "OUTSIDE_RADIUS_MM", "TX_OFFSET_MM"):
+    if has("TX_STEPS", "OUTSIDE_RADIUS_MM", "TX_OFFSET_MM") and v["TX_STEPS"] != "auto":
         r = v["OUTSIDE_RADIUS_MM"] + v["TX_OFFSET_MM"]
         sag = r * (1 - math.cos(math.pi / v["TX_STEPS"]))
         if sag > 0.01:
@@ -899,7 +910,7 @@ def check_parameters(P):
         rep.error(f"ROTOR_SOLDER_MASK_EXPANSION_MM ({e_mask:g}) must be smaller than the inner copper radius "
                   f"(ROTOR_CUSTOM_INNER_RADIUS_MM = {v['ROTOR_CUSTOM_INNER_RADIUS_MM']:g}): the mask opening "
                   f"would reach the rotor centre")
-    if has("ROTOR_ARC_STEPS_PER_SECTOR", "OUTSIDE_RADIUS_MM"):
+    if has("ROTOR_ARC_STEPS_PER_SECTOR", "OUTSIDE_RADIUS_MM") and v["ROTOR_ARC_STEPS_PER_SECTOR"] != "auto":
         n = (v.get("ROTOR_CUSTOM_SECTORS") if mode == "custom" else v.get("LOOPS")) or 1
         d = (duty or 0.5) * 2 * math.pi / n / v["ROTOR_ARC_STEPS_PER_SECTOR"]
         sag = (v.get("ROTOR_CUSTOM_OUTER_RADIUS_MM") if mode == "custom" and v.get("ROTOR_CUSTOM_OUTER_RADIUS_MM")

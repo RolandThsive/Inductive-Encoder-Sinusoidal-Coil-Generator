@@ -11,8 +11,14 @@ TX_TURNS           = 3              # complete turns PER TX LAYER
 TX_OFFSET_MM       = 1.1            # first turn radius = RX outside radius + this
 TX_PITCH_MM        = 0.6            # radial pitch between turns
 TX_TRACE_WIDTH_MM  = 0.2
-TX_STEPS           = 300            # polyline points per TX turn
-TX_TAIL_EXTRA_MM   = 2.0            # radial tail that carries the TX terminal
+# Points per TX turn (every turn is a polyline):
+#   TX_STEPS = "auto" : as many as TX_CHORD_TOLERANCE_MM needs on the outermost turn (a multiple of 8, at least 48)
+#   TX_STEPS = number : that many (12 ... 20000); the old default was 300.
+# TX_CHORD_TOLERANCE_MM = how far a straight chord of a TX turn may lie from the true circle: 0.001 mm = 1 micron,
+#   also the smallest value allowed.
+TX_STEPS           = "auto"
+TX_CHORD_TOLERANCE_MM = 0.001
+TX_TAIL_EXTRA_MM   = 1.0            # radial tail that carries the TX terminal
 # Shape of the turns:
 #   "stepped" : concentric circles joined by a short radial step (your examples)
 #   "spiral"  : one smooth Archimedean spiral, the gap between turns equals the pitch
@@ -105,4 +111,4 @@ TX_SERIES_UNDERPASS_LAYER = "auto"
 #                 other layer carries the current past it (no copper outside the TX ring).
 #   "staggered" : the turns on the finger's layer go around the finger (go-around), with the
 #                 brackets on the other TX layer outside its turns; both layers stay complete.
-TX_PARALLEL_BREAK_STYLE = "stitched"
+TX_PARALLEL_BREAK_STYLE = "staggered"

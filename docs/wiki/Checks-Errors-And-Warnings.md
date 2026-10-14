@@ -41,10 +41,11 @@ DRC cannot see a TX turn touching another TX turn.
 | Sub-coils | A split so large that curves overlap, or that puts two curves on top of each other (errors); crowded tip vias with 3 sub-coils, or 2 sub-coils with 13 to 16 loops at the default radii (warnings). |
 | Fingers | Finger legs closer than the clearance (error); `RX_TAB_WIDTH_MM` below about 0.6 mm (warning); a finger length that does not clear the outermost TX turn (info). |
 | TX turns | Turns closer than the clearance (error) or practically equal to it (warning); the first TX turn too close to the RX copper on the same layer (error); the terminal via too near the RX band or the next turns (warnings). |
-| Resolution | `STEPS_PER_LOOP` or `TX_STEPS` giving a chord error above the tolerance (warning). |
+| Resolution | A fixed `STEPS_PER_LOOP`, `TX_STEPS` or `ROTOR_ARC_STEPS_PER_SECTOR` giving a chord error above its chord tolerance (warning). With "auto" the count is chosen from the tolerance instead; for the RX coils a warning appears if more than 1024 chords per loop would be needed (the count then stops at 1024). |
 | Board edge | `OUTER_EDGE_RADIUS_MM` cutting through the outermost TX turn, the fingers or the TX tail (errors); inner-tip vias running over the centre hole; a via touching copper of another net (error). |
 | Rotor | Rotor metal fraction giving a weak fundamental (warning) or removing a harmonic (info); rotor copper with no width; custom rotor sector count different from `LOOPS`; custom radii out of order, copper too near the bore or the outline; solder-mask opening reaching the bore or outline; `ROTOR_ARC_STEPS_PER_SECTOR` giving a coarse arc. |
 | Files | Stator and rotor file names equal (error); names not ending in `.kicad_pcb`; `OUTPUT_DIR` not a writable folder. |
+| Chord tolerances | Each of `RX_CHORD_TOLERANCE_MM`, `TX_CHORD_TOLERANCE_MM` and `ROTOR_CHORD_TOLERANCE_MM` must be at least 0.001 mm (error below that). |
 | Page | The board comes close to the top or left of the KiCad page (the page grows right and down automatically). |
 
 Each message names the setting, its value and the limit it broke. The Web Tool adds the "what to change" advice; see

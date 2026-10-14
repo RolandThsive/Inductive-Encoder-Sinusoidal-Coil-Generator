@@ -263,10 +263,22 @@ class RotorDesign:
                                      f"lower the metal fraction")
 
     # ---------------------------------------------------------------- geometry
+    def arc_steps(self):
+        """Points on every arc of a sector: ROTOR_ARC_STEPS_PER_SECTOR, or (auto) the fewest (at least 8) whose
+        polygon stays within ROTOR_CHORD_TOLERANCE_MM of the circle (the vertices sit outside it)."""
+        s = getattr(self.P, "ROTOR_ARC_STEPS_PER_SECTOR", "auto")
+        if not (isinstance(s, str) and s.lower() == "auto"):
+            return max(4, int(s))
+        tol = getattr(self.P, "ROTOR_CHORD_TOLERANCE_MM", None)
+        tol = 0.001 if tol is None else float(tol)
+        delta = self.duty * 2.0 * math.pi / self.sectors
+        half_max = math.acos(self.r_out / (self.r_out + tol))
+        return max(8, int(math.ceil(delta / (2.0 * half_max))))
+
     def sector_polygon(self, k):
         """Closed polygon (list of (x, y)) of sector k."""
-        n = max(4, int(self.P.ROTOR_ARC_STEPS_PER_SECTOR))
         period = 2.0 * math.pi / self.sectors
+        n = self.arc_steps()
         a0 = self.start_angle + k * period
         a1 = a0 + self.duty * period
         # vertices sit on a slightly larger circle (r / cos(half step)) so that the
@@ -345,7 +357,8 @@ class RotorDesign:
     def summary(self):
         lines = [f"Rotor ({self.mode}): {self.sectors} sector(s), metal fraction {self.duty:g} "
                  f"({self.duty * 360.0 / self.sectors:.2f} deg mechanical each)",
-                 f"  copper r = {self.r_in:.2f} ... {self.r_out:.2f} mm on {', '.join(self.layers)}"]
+                 f"  copper r = {self.r_in:.2f} ... {self.r_out:.2f} mm on {', '.join(self.layers)}, "
+                 f"{self.arc_steps()} points per arc"]
         if self.stator is not None:
             lines.append(f"  RX band r = {self.stator.ri:g} ... {self.stator.ro:g} mm: the copper reaches "
                          f"{self._reach_text(self.ext_in)} at the inner edge and "
