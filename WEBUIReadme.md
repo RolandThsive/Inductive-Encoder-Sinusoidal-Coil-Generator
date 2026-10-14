@@ -13,8 +13,8 @@ give the same boards.
   four tabs: Board, RX, TX and Rotor, and a change in one mode shows in the other.
 - **Live board preview** of the stator, the rotor, or both together, with each copper layer in its own colour
   (Top red, Bottom blue, Inner-1 green, Inner-2 dark yellow).
-- **Design checks** before every board is made: errors and warnings, each with a plain explanation of what to
-  change.
+- **Design checks** before every board is made: errors and warnings that say what is wrong, why it matters and
+  which settings to change.
 - **KiCad downloads:** the stator and rotor `.kicad_pcb` files, or one zip with both boards and all the settings.
 - **Help on every setting:** hover the **i** next to a name for a short explanation, with formulas where they help.
 - **Save and share:** export your settings, import them later (also from the desktop version), or copy a link
@@ -77,6 +77,28 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
 - **Summary** shows the generator's full report on the stator and the rotor.
 - **Download Zip** gives both boards, `Parameters.txt` and the four parameter files. **Download Stator** and
   **Download Rotor** give one `.kicad_pcb` each.
+
+## Errors And Warnings
+
+The checks do more than say that something is wrong: each message tells you what to change to fix it.
+
+- **What is wrong, with the numbers.** A message names the setting, its value and the limit it broke, for
+  example that OUTER_EDGE_RADIUS_MM is too small, and the radius the board needs instead.
+- **Why it matters.** It says what would go wrong on the board, such as vias overlapping, traces too close
+  together, or no room left for the TX turns.
+- **What to change.** It lists the settings that fix it and which way to move them, for example "raise
+  OUTER_EDGE_RADIUS_MM, move the RX band in, or lower OUTER_EDGE_OFFSET_MM". The names are the parameter names
+  shown in Advanced, so each one is easy to find.
+- **Where it came from.** Each line is marked Error, Warning or Info, with the step that found it: the
+  settings check, the stator or the rotor.
+
+**Errors** stop the run. No board is made, the preview keeps the last board marked out of date, and the downloads
+stay off until a run works. **Warnings** still make the boards but point at something to look at, often a
+manufacturing limit such as a very fine trace or a small via ring. Turn on **Strict** to treat every warning as an
+error.
+
+Some mistakes are blocked before they can happen: the RX band pairs lock each other, settings the design does not
+use are greyed out, and a pair that must change together always does.
 
 ## The Preview
 
