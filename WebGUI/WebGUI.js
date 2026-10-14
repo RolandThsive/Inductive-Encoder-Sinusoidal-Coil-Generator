@@ -335,24 +335,28 @@ const ZIP_TIP = "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb
   "TX Wiring: Single (one TX layer), Series or Parallel (two TX layers)\n" +
   "TX Shape: Stepped or Spiral";
 
-/* The notice sits in the header, centred between Basic / Advanced and the buttons.  When that gap is too narrow
-   (below about 1900 px) the title steps aside while the notice shows, and the notice is centred in the title's place. */
+/* The notice sits in the header, centred between Basic / Advanced and the buttons. 
+   (it wraps to two lines when needed; only in a very narrow window does the title step aside). */
 function placeBadge() {
   const badge = $("stale-badge"), bar = $("topbar"), h1 = bar.querySelector("h1");
-  badge.classList.remove("in-title"); badge.style.left = ""; h1.classList.remove("yield");
+  badge.classList.remove("in-title", "two-line"); badge.style.left = ""; h1.classList.remove("yield");
   if (badge.hidden) return;
-  badge.textContent = state.stale ? "Settings changed: press Generate to update the board"
-    : "Not generated: this is the last board that worked";
-  const b = badge.getBoundingClientRect(), ms = $("mode-switch").getBoundingClientRect();
-  const ta = bar.querySelector(".top-actions").getBoundingClientRect();
-  const x0 = bar.getBoundingClientRect().left;
-  if (b.width <= ta.left - ms.right - 24) { badge.style.left = `${(ms.right + ta.left) / 2 - x0}px`; return; }
+  const full = state.stale ? "Settings changed: press Generate to update the board" : "Not generated: this is the last board that worked";
+  const mid = state.stale ? "Settings changed: press Generate" : "Not generated: last good board shown";
+  const ms = $("mode-switch").getBoundingClientRect(), ta = bar.querySelector(".top-actions").getBoundingClientRect();
+  const x0 = bar.getBoundingClientRect().left, room = ta.left - ms.right - 16;
+  // The notice sits in the gap between Basic / Advanced and the buttons: one line if it fits, else two short lines
+  for (const [text, two] of [[full, false], [mid, false], [mid, true]]) {
+    badge.textContent = text; badge.classList.toggle("two-line", two);
+    if (badge.getBoundingClientRect().width <= room) { badge.style.left = `${(ms.right + ta.left) / 2 - x0}px`; return; }
+  }
+  // no room even for that (a very narrow window): the title steps aside and the notice takes its place
+  badge.classList.remove("two-line"); badge.textContent = full;
   const t = h1.getBoundingClientRect();
   h1.classList.add("yield"); badge.classList.add("in-title");
   const right = Math.min(t.right, ms.left - 12);
   badge.style.left = `${(t.left + right) / 2 - x0}px`;
-  if (badge.getBoundingClientRect().width > right - t.left)
-    badge.textContent = state.stale ? "Settings changed: press Generate" : "Not generated: last good board shown";
+  if (badge.getBoundingClientRect().width > right - t.left) badge.textContent = mid;
 }
 window.addEventListener("resize", placeBadge);
 

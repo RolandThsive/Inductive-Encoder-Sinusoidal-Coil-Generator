@@ -94,6 +94,7 @@ html.embedded #topbar { padding-right: 112px; }
   position: relative; top: -0.08em; }   /* Permanent Marker draws its letters low in the line box: lift them to the switch's centre (2 px at 26 px) */
 #topbar h1.yield { opacity: 0; }
 .top-actions { display: flex; gap: 8px; margin-left: auto; }
+.top-actions .glass-btn { white-space: nowrap; }
 .standalone-nav { display: flex; gap: 8px; }
 html.embedded .standalone-nav { display: none; }
 #foot { font-size: 11.5px; color: var(--text-3); text-align: center; }
@@ -423,6 +424,7 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .stale-badge { position: absolute; top: calc(50% + 6px); left: 50%; transform: translate(-50%, -50%); white-space: nowrap; z-index: 3;
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--accent); color: var(--accent); font-size: 12.5px; padding: 4px 12px; border-radius: 14px; box-shadow: var(--shadow-btn); }
+.stale-badge.two-line { white-space: normal; width: max-content; max-width: 150px; text-align: center; line-height: 1.25; padding: 4px 10px; }
 .rotor-angle { position: absolute; right: 12px; bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 12.5px;
   background: rgba(255, 255, 255, 0.8); padding: 4px 10px; border-radius: 10px; box-shadow: var(--shadow-btn); width: 300px; }
 .rotor-angle output { width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
