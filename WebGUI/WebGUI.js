@@ -5,7 +5,8 @@
    own files (ParameterChecker.SPEC and the parameter files).  Basic is a hand-picked subset with its own limits and
    layouts (PRESETS, BASIC_NAMES, renderBasic); keep those in step with the parameter files by hand.
 
-   BoardPreview.js is loaded before this file and provides the globals LAYER_INFO and BoardView.
+   BoardPreview.js is loaded before this file and provides the globals LAYER_INFO and BoardView; Tooltips.js provides
+   TOOLTIPS, the help text of each parameter.
 
    Sections: settings, names and tables, state, worker, small helpers, tooltips, value changes, Basic mode,
    Advanced mode, mode switch, generate and results, preview controls, dialogs, share / import / export, start. */
@@ -213,7 +214,11 @@ function showTip(node) {
   if (node.dataset.help) {
     const name = node.dataset.help, p = state.byName[name];
     pop.append(el("span", { class: "mono-name" }, name));
-    pop.append((p && p.help) || "No notes in the parameter file.");
+    const text = TOOLTIPS[name] || (p && p.help) || "No notes in the parameter file.";
+    text.split("\n").forEach((line, n) => {                       // \n = a new line, **formula** = bold
+      if (n) pop.append(el("br"));
+      line.split("**").forEach((part, i) => part && pop.append(i % 2 ? el("b", {}, part) : part));
+    });
     if (name in state.start) pop.append(el("span", { class: "tip-foot" }, `Starting Value: ${showValue(state.start[name])}`));
   } else {
     pop.append(node.dataset.tip);

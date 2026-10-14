@@ -19,6 +19,7 @@ First release: generator only. No receiver IC, no optimizer, no analyser and no 
 | `WebGUI.css` | The blog's look: colours, fonts, glass panels, Apple-style controls, silver switches with metal knobs, metal scrollbar |
 | `WebGUI.js` | Controls (Basic / Advanced), preview buttons and keys, generate, downloads, Summary, share links, import / export, checks list |
 | `BoardPreview.js` | Draws the generated boards (layer colours, zoom, pan, layer / loop highlight, via enlarge, origin marker, measure (S / Z), rotor overlay) |
+| `Tooltips.js` | The help text of every parameter (the "i" next to its name); edit the texts here; `**text**` is shown in bold (the formulas) |
 | `PyodideWorker.js` | Loads Python in a background thread and fetches the generator files |
 | `WebGenerator.py` | The Python side: writes the parameter files, runs the checks and the generator, builds the zip |
 | `FutureConsiderations.md` | Features kept for later (the hidden Output block) |
