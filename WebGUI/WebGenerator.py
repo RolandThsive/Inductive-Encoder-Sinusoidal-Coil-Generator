@@ -41,7 +41,7 @@ GENERATOR_MODULES = ("ParameterChecker", "StatorGenerator", "RotorGenerator", "T
 # Not shown in the web GUI (decided for the first release): settings that only feed the electrical estimate,
 # and the settings of earlier versions (read only from old parameter files).
 HIDDEN = {"RECEIVER_IC", "COPPER_THICKNESS_UM", "TX_AMPLITUDE_VPP",
-          "TX_PLACEMENT", "TX_SECOND_LAYER", "TX_BREAK_STYLE"}
+          "TX_PLACEMENT", "TX_SECOND_LAYER", "TX_BREAK_STYLE", "CHORD_TOLERANCE_MM"}
 # The web page names no research papers: references to them in the help texts and the checker's notes (they come
 # from the generator's own files, which stay unchanged) are taken out before the page shows them.
 _PAPER = re.compile(r"(?:,\s*)?(?:as in\s+|the layout of\s+)?Hoxha\s+et\s+al\.?,?(?:\s+Sensors)?\s+2022(?:,\s*22,\s*4683)?"
@@ -452,12 +452,17 @@ def read_values(text):
             continue
         name, _, rest = s.partition("=")
         name = name.strip()
+        legacy = name == "CHORD_TOLERANCE_MM"              # the older name of RX_CHORD_TOLERANCE_MM
+        if legacy:
+            name = "RX_CHORD_TOLERANCE_MM"
         if name not in known or name in HIDDEN or name in READ_ONLY:
             continue
         expr = rest.split("   (not used")[0].strip()
         for cut in range(len(expr), 0, -1):                # longest prefix that is a Python literal
             try:
-                found[name] = _jsonable(ast.literal_eval(expr[:cut].strip()))
+                value = _jsonable(ast.literal_eval(expr[:cut].strip()))
+                if not (legacy and name in found):         # the new name wins when a file has both
+                    found[name] = value
                 break
             except Exception:
                 continue

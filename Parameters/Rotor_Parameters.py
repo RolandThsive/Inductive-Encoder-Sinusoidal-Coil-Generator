@@ -64,7 +64,14 @@ ROTOR_CUSTOM_OUTLINE_RADIUS_MM  = 55.0   # outer board edge (None = no outline)
 ROTOR_CUSTOM_BORE_RADIUS_MM     = 36.8   # centre hole (None = no hole)
 
 # ---- both modes -------------------------------------------------------------
-ROTOR_ARC_STEPS_PER_SECTOR = 48     # polygon points on every circular arc
+# Points on every circular arc of a rotor sector:
+#   ROTOR_ARC_STEPS_PER_SECTOR = "auto" : as many as ROTOR_CHORD_TOLERANCE_MM needs (at least 8)
+#   ROTOR_ARC_STEPS_PER_SECTOR = number : that many (8 ... 5000); the old default was 48.
+# ROTOR_CHORD_TOLERANCE_MM = how far the polygon may lie outside the true circle: 0.001 mm = 1 micron, also the
+#   smallest value allowed.  (The polygon vertices sit slightly outside the nominal radius so the copper is never
+#   smaller than requested; this is the largest overshoot.)
+ROTOR_ARC_STEPS_PER_SECTOR = "auto"
+ROTOR_CHORD_TOLERANCE_MM   = 0.001
 
 # Solder mask expansion ("SolderMaskExpansion") over the rotor copper; the same for every copper
 # layer of the rotor, in both modes:

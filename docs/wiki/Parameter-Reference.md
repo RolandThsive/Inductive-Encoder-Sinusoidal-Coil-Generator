@@ -60,14 +60,14 @@ optimizer.
 | Name | Default | Range | Meaning |
 |---|---|---|---|
 | `LOOPS` | 1 | 1 to 16 | Electrical periods per mechanical turn, and the number of rotor sectors. Unique range = 360° / `LOOPS`. |
-| `INSIDE_RADIUS_MM`, `OUTSIDE_RADIUS_MM` | 16.2, 21.4 | > 0 or None | The inner and outer radius of the RX band (centre line of the traces). |
+| `INSIDE_RADIUS_MM`, `OUTSIDE_RADIUS_MM` | None, None | > 0 or None | The inner and outer radius of the RX band (centre line of the traces). With all four band values None (the default), the band is fitted to the board edges: it starts `INNER_EDGE_INSET_MM` outside the centre hole and ends where the TX turns, the TX tail and the margins leave room (15 and 27 mm board edges give a 16.2 to 22.4 mm band). |
 | `RX_R_BASE_MM`, `RX_A_MM` | None, None | > 0 or None | The band by its centre (`r_base`) and swing (`A`): band = `r_base − A` to `r_base + A`. Signal grows about with `r_base × A`. |
 | `RX_TRACE_WIDTH_MM` | 0.2 | > 0 | RX trace width. |
 | `RX_NET_PHASE_0_2`, `RX_NET_PHASE_1_3` | `"2"`, `"1"` | text, different | Net names of the SIN pair (phases 0 and 2) and the COS pair (phases 1 and 3). |
 | `RX_ZERO_OFFSET_LOOP_FRACTION` | −0.35 | number | Rotation of the whole RX pattern, as a fraction of one loop. −0.35 reproduces the original generator. |
 | `RX_ZERO_OFFSET_DEG` | 0.0 | number | Extra rotation of the RX pattern in degrees. |
 
-The band is given in **one** of two ways (the other pair None), or from the board edges when all four are None. The
+The band is given in **one** of two ways (the other pair None), or from the board edges when all four are None, which is the default. The
 two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switches.
 
 ### Shape
@@ -75,8 +75,8 @@ two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switc
 | Name | Default | Range | Meaning |
 |---|---|---|---|
 | `RX_PROFILE` | `"equal_area"` | `equal_area`, `cosine_r`, `field_compensated` | The shape of the RX curves. See [RX Profiles](RX-Profiles.md). `field_compensated` uses `AIR_GAP_MM`, `PCB_THICKNESS_MM` and the TX settings. |
-| `STEPS_PER_LOOP` | `"auto"` | "auto" or an integer, a multiple of 8, 48 to 4096 | Polyline points per electrical period. "auto" = the smallest multiple of 8 whose chord error is within `CHORD_TOLERANCE_MM`. |
-| `CHORD_TOLERANCE_MM` | 0.005 | > 0 | Allowed chord error for "auto". |
+| `STEPS_PER_LOOP` | `"auto"` | "auto" or an integer, a multiple of 8, 48 to 4096 | Chords (polyline segments) per electrical period. "auto" = the smallest multiple of 8 whose midpoint chord error is within `RX_CHORD_TOLERANCE_MM`, at most 1024 (a warning appears if that is not enough). Sub-coils may raise the count. A whole number is used exactly, and the tolerance then only drives the chord-error warning. |
+| `RX_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | How far a straight chord may lie from the true RX curve, in mm (0.001 = 1 micron, also the smallest value allowed; finer adds points, not accuracy). The old default was 0.005. The older name `CHORD_TOLERANCE_MM` is still read when this line is missing. |
 
 ### Sub-coils
 
@@ -115,8 +115,9 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 | `TX_OFFSET_MM` | 1.1 | > 0 | First turn radius = RX outside radius plus this. |
 | `TX_PITCH_MM` | 0.6 | > 0 | Radial pitch between turns. |
 | `TX_TRACE_WIDTH_MM` | 0.2 | > 0 | TX trace width. |
-| `TX_STEPS` | 300 | 12 to 20000 | Polyline points per TX turn. |
-| `TX_TAIL_EXTRA_MM` | 2.0 | ≥ 0 | Radial tail that carries the TX terminal. |
+| `TX_STEPS` | `"auto"` | "auto" or a whole number, 12 to 20000 | Polyline points per TX turn. "auto" = as many as `TX_CHORD_TOLERANCE_MM` needs on the outermost full turn (the worst case), rounded up to a multiple of 8, at least 48. A whole number is used exactly; the old default was 300. |
+| `TX_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | How far a straight chord of a TX turn may lie from the true circle, in mm (1 micron, also the smallest value allowed). |
+| `TX_TAIL_EXTRA_MM` | 1.0 | ≥ 0 | Radial tail that carries the TX terminal. |
 | `TX_TURN_SHAPE` | `"stepped"` | `stepped`, `spiral` | Concentric circles joined by short steps, or one smooth Archimedean spiral (use it when the pitch is tight). |
 | `TX_STEPPED_ANGLE_DEG` | 45 | "auto" or 5 to 90 (*only if* stepped) | Angle of the steps, measured from the turn: 90 = radial, smaller = a longer slope. "auto" = the original two-piece step (about 40°). Neighbouring steps have a gap of pitch × cos(angle) − width; above about 45° with the defaults that is below `MIN_CLEARANCE_MM`, and the steps are staggered automatically. |
 | `TX_INSIDE_VIA_DISTANCE_MM` | 0.3 | −3 to 3 | Moves the TX terminal via towards the centre (negative = outwards). 0 = on the trace ends, which is closer to the next turn than the clearance allows with the default via and pitch. Keep below `TX_OFFSET_MM` − via radius − half an RX trace − clearance (0.4 mm with the defaults). |
@@ -131,7 +132,7 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 | `TX_LAYER_B` | 1 | 1 to 4, different (*only if* 2 layers) | The second TX layer (or the spiral that runs back out). |
 | `TX_SERIES` | True | True or False | Two layers wired in series (two spirals joined by a via at the inner end, same sense, fields add) or in parallel (the same turns on both layers, stitched through vias; about 6 % more signal and twice the Q in the model). Put `TX_LAYER_A` on Top for parallel. |
 | `TX_SERIES_UNDERPASS_LAYER` | `"auto"` | auto, 1 to 4 (*only if* series) | Layer of the inner tail and go-around brackets. |
-| `TX_PARALLEL_BREAK_STYLE` | `"stitched"` | `stitched`, `staggered` (*only if* parallel) | How the turns make way for a finger. `stitched`: the turns stop at vias on each side of the finger and the other layer carries the current past it. `staggered`: go-around, with brackets on the other layer. |
+| `TX_PARALLEL_BREAK_STYLE` | `"staggered"` | `stitched`, `staggered` (*only if* parallel) | How the turns make way for a finger. `stitched`: the turns stop at vias on each side of the finger and the other layer carries the current past it. `staggered`: go-around, with brackets on the other layer. |
 
 Examples: TX on Bottom with the tail on Top is the original layout (the default). TX on Top gives about 15 % (0.8 mm
 board) to 30 % (1.6 mm board) more receiver signal per TX volt in the model. Series on layers 1 and 4 is the 2-layer
@@ -178,7 +179,8 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
-| `ROTOR_ARC_STEPS_PER_SECTOR` | 48 | 8 to 5000 | Polygon points on every circular arc. |
+| `ROTOR_ARC_STEPS_PER_SECTOR` | `"auto"` | "auto" or a whole number, 8 to 5000 | Polygon points on every circular arc of a sector. "auto" = as many as `ROTOR_CHORD_TOLERANCE_MM` needs (at least 8). A whole number is used exactly; the old default was 48. |
+| `ROTOR_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | The largest overshoot of the polygon beyond the true circle, in mm (1 micron, also the smallest value allowed). The vertices sit slightly outside the nominal radius, so the copper is never smaller than requested. |
 | `ROTOR_SOLDER_MASK_EXPANSION_MM` | 0.05 | up to 5 | Mask opening over the rotor copper: above 0 = opening that much wider than the copper; 0 = exactly the copper outline; −1 = no opening (mask stays over the copper). No other negative value is accepted. |
 
 ## Optimizer (`OptimizerParameters.py`)

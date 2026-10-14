@@ -118,6 +118,7 @@ The preview tools only change what you see, never the boards.
 ## Saving, Sharing And Starting Over
 
 - **Export Parameters** downloads the four parameter files, ready for the desktop version.
+- **Help / Tutorial** opens the [Parameters Selection](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Parameters-Selection) guide on the project wiki in a new tab.
 - **Import Parameters** loads a `Parameters.txt` from any run (web or desktop) or your own parameter files.
 - **Share Link** copies a link that opens the tool with your design. Only your changes are in the link, and
   nothing is uploaded.
