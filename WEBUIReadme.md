@@ -47,7 +47,7 @@ Every Basic setting is also in Advanced, under the same name.
 
 Every parameter of the generator, grouped as in the parameter files. Each one shows its parameter name, and the
 **↺** button puts it back to its starting value. Settings the current design does not use are greyed out and
-marked "not used now". A changed setting is highlighted.
+marked "not used now". A changed setting gets a dot before its name.
 
 ### The RX Band And The None Switches
 
