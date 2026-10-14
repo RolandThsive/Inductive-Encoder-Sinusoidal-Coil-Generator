@@ -11,7 +11,7 @@ The page starts from the defaults in the parameter files, so its first board is 
 
 First release: generator only. No receiver IC, no optimizer, no analyser and no electrical estimate.
 
-## Files
+## Files (all in `WebGUI/`)
 
 | File | What It Does |
 | --- | --- |
@@ -88,5 +88,5 @@ Phones and small tablets (narrower than 1024 px, or touch only) get a short mess
 ## License
 
 The Web UI and every aspect of it are under the PolyForm Strict License 1.0.0, separate from the generator's
-license: see [LICENSE.md](LICENSE.md). It may be used for noncommercial purposes only, and may not be changed or
-redistributed. The core generator it runs stays under the repository's own [LICENSE.md](../LICENSE.md).
+license: see [WebGUI/LICENSE.md](WebGUI/LICENSE.md). It may be used for noncommercial purposes only, and may not be changed or
+redistributed. The core generator it runs stays under the repository's own [LICENSE.md](LICENSE.md).
