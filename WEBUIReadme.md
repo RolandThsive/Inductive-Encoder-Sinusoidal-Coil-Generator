@@ -5,6 +5,8 @@ and download them as KiCad files. No installation and no account: everything run
 nothing is sent to a server. The web tool runs the same generator as the desktop version, so the same settings
 give the same boards.
 
+**[Open The Web Tool](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)**
+
 ## Features
 
 - **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter. Both use the same
@@ -22,7 +24,7 @@ give the same boards.
 
 ## Getting Started
 
-1. Open the tool. The first visit downloads the browser's Python engine (about 20 MB); later visits are quick.
+1. Open the tool at [ro-h-bots.blogspot.com](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html). The first visit downloads the browser's Python engine (about 20 MB); later visits are quick.
 2. The page starts with the default design, already generated.
 3. Change settings in **Basic**, then press **Generate** (or Ctrl+Enter / Cmd+Enter).
 4. Check the result in the preview and the **Checks** panel.
