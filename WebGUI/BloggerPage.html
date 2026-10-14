@@ -62,10 +62,10 @@
     if (cameFromBlog && history.length > 1) { e.preventDefault(); history.back(); }
   });
 
-  // Phones and small tablets get the message only (the same test the tool uses).
-  var narrow = window.matchMedia("(max-width: 1023px)").matches;
+  // Phones and tablets (no mouse or trackpad) get the message only, the same test the tool uses.  A narrow computer
+  // window still gets the tool, which asks for a wider window itself.
   var touchOnly = window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches;
-  if (narrow || touchOnly) { shell.className = "phone"; return; }
+  if (touchOnly) { shell.className = "phone"; return; }
 
   // The tool: the page's address (for Share Link) and a shared design (#d=...) are passed on to it.
   var appOrigin = new URL(APP_URL, location.href).origin;

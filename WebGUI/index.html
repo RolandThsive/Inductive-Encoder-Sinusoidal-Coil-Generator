@@ -6,12 +6,17 @@
 <title>Inductive Encoder Sinusoidal Coil Generator</title>
 <meta name="description" content="Configure, preview and download KiCad stator and rotor boards for rotary inductive encoders.">
 <script>
-  // Computers only: decide before anything heavy loads, so phones never download Python.
+  // Computers only: decide before anything heavy loads, so phones never download Python.  A phone or tablet is a
+  // device with no mouse or trackpad; the window width does not decide it, since a computer window can be narrow too.
   (function () {
-    var narrow = window.matchMedia("(max-width: 1023px)").matches;
     var touchOnly = window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches;
-    window.COILGEN_PHONE = narrow || touchOnly;
+    window.COILGEN_PHONE = touchOnly;
     if (window.COILGEN_PHONE) document.documentElement.className += " phone";
+    // a computer window narrower than 1024 px: a notice over the tool until the window is widened (the tool loads anyway)
+    var narrow = window.matchMedia("(max-width: 1023px)");
+    var mark = function () { document.documentElement.classList.toggle("narrow", narrow.matches && !touchOnly); };
+    mark();
+    narrow.addEventListener("change", mark);
     if (window.self !== window.top) document.documentElement.className += " embedded";
   })();
 </script>
@@ -29,6 +34,15 @@
   <p>The coil generator needs a computer. Open this page on a laptop or desktop.</p>
   <p class="caption">It runs the full Python generator inside your browser, which needs a big screen and a mouse.</p>
   <p><a class="glass-btn" href="https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator" target="_top">See The Project On GitHub</a></p>
+</section>
+
+<!-- Computers with a window too narrow for the tool: a notice over it, gone as soon as the window is wide enough -->
+<section id="narrow-message" class="narrow-only" aria-live="polite">
+  <div>
+    <h1 class="marker">Make The Window Wider</h1>
+    <p>The coil generator needs a browser window at least 1024 pixels wide.</p>
+    <p>Maximise the window, or zoom the page out (Ctrl and &minus;, or Cmd and &minus; on a Mac). This notice disappears by itself.</p>
+  </div>
 </section>
 
 <div id="app" class="desktop-only">
