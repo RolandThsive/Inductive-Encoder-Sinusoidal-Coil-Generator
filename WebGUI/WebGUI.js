@@ -21,12 +21,6 @@ const CONFIG = {
   blogHome: "https://ro-h-bots.blogspot.com/",
 };
 
-/* ---- the starting design ---------------------------------------------------------------------------
-   The page starts from the defaults in the parameter files (2 layers, board 15 to 27 mm, 4 loops, TX on the Bottom
-   layer).  Values set here replace those defaults on the web only: the RX band starts at None, so it is fitted to
-   the board edges (with the default board this is the same band, 16.2 to 21.4 mm). */
-const START_DESIGN = { INSIDE_RADIUS_MM: null, OUTSIDE_RADIUS_MM: null };
-
 /* ---- names and tables ---------------------------------------------------------------------------- */
 const LAYER_NUM_NAME = { 1: "Top", 2: "Inner-1", 3: "Inner-2", 4: "Bottom" };
 const LAYER_NUM_CU = { 1: "F.Cu", 2: "In1.Cu", 3: "In2.Cu", 4: "B.Cu" };
@@ -1076,7 +1070,6 @@ async function main() {
   state.spec = init.description.parameters;
   for (const p of state.spec) state.byName[p.name] = p;
   for (const p of state.spec) state.start[p.name] = p.default;
-  Object.assign(state.start, START_DESIGN);
   state.values = JSON.parse(JSON.stringify(state.start));
   const shared = decodeDesign(location.hash);
   if (shared) Object.assign(state.values, shared);
