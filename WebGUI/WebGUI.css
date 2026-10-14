@@ -532,3 +532,6 @@ dialog pre { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; m
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+/* a band pair locked while the other pair sets the RX band */
+.switch-row.locked { opacity: 0.45; cursor: not-allowed; }
+.switch-row.locked input { cursor: not-allowed; }

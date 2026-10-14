@@ -237,6 +237,16 @@ document.addEventListener("scroll", hideTip, true);
 
 /* ---- value changes ----------------------------------------------------------------------------- */
 function pairOf(name) { return BAND_RADII.includes(name) ? BAND_RADII : BAND_CENTRE.includes(name) ? BAND_CENTRE : null; }
+/* A band pair that is None is locked while the other pair has numbers: the band is given one way at a time, so the
+   other pair has to be set to None before this one can be switched on.  Both None = both unlocked.  A pair with
+   numbers is never locked. */
+function bandLock(name) {
+  const pair = pairOf(name);
+  if (!pair || pair.some((n) => state.values[n] !== null)) return null;
+  const other = pair === BAND_RADII ? BAND_CENTRE : BAND_RADII;
+  if (other.every((n) => state.values[n] === null)) return null;
+  return `Locked: the RX band is set by ${other === BAND_RADII ? "RX Inside Radius and RX Outside Radius" : "RX R Base and RX Swing A"}. Set those to None first to use this pair`;
+}
 
 /* The number a None parameter goes back to when its switch is turned off.  A band member follows the other pair, so
    switching between "radii" and "centre and swing" keeps the same band; otherwise the last number it had, then its
@@ -349,7 +359,8 @@ function presetOf(v) {
 
 /* the small "None" switch at the right of a field's name: on = the parameter is None (its number is greyed out) */
 function noneSwitch(name, on) {
-  const cb = el("input", { type: "checkbox", "data-focus": `none-${name}`, "aria-label": "None" });
+  const lock = bandLock(name);
+  const cb = el("input", { type: "checkbox", "data-focus": `none-${name}`, "aria-label": "None", disabled: !!lock });
   cb.checked = on;
   cb.addEventListener("change", () => {
     if (cb.checked) state.lastNumbers[name] = state.values[name];
@@ -357,7 +368,7 @@ function noneSwitch(name, on) {
     updateBasicNotes();
     renderResults();
   });
-  return el("label", { class: "switch-row small none-switch", "data-tip": NONE_TIPS[name] }, el("span", {}, "None"),
+  return el("label", { class: "switch-row small none-switch" + (lock ? " locked" : ""), "data-tip": lock || NONE_TIPS[name] }, el("span", {}, lock ? "None · Locked" : "None"),
     el("span", { class: "switch" }, cb, el("span", { class: "knob" })));
 }
 
@@ -642,7 +653,8 @@ function advancedWidget(p) {
   if (k === "num_or_none" || k === "auto_or_num" || k === "steps") {
     const isAuto = k === "num_or_none" ? v === null : (typeof v === "string" && v.toLowerCase() === "auto");
     const autoWord = k === "num_or_none" ? "None" : "Auto";
-    const cb = el("input", { type: "checkbox" }); cb.checked = isAuto;
+    const lock = k === "num_or_none" ? bandLock(name) : null;
+    const cb = el("input", { type: "checkbox", disabled: !!lock }); cb.checked = isAuto;
     const fallback = typeof p.default === "number" ? p.default : (k === "steps" ? 200 : (o.lo ?? 1));
     const lastNumber = isAuto ? (k === "num_or_none" ? numberFor(name, state.values) : (state.lastNumbers[name] ?? fallback)) : v;
     cb.addEventListener("change", () => {
@@ -650,7 +662,8 @@ function advancedWidget(p) {
       else set(lastNumber);
     });
     return el("div", { class: "auto-row" },
-      el("label", { class: "switch-row" }, el("span", { class: "switch" }, cb, el("span", { class: "knob" })), autoWord),
+      el("label", { class: "switch-row" + (lock ? " locked" : ""), "data-tip": lock || null },
+        el("span", { class: "switch" }, cb, el("span", { class: "knob" })), lock ? `${autoWord} · Locked` : autoWord),
       advStepper(isAuto ? null : v, set, { step: stepOf(p), integer: k === "steps", disabled: isAuto }));
   }
   if (k === "rotor_layers") {

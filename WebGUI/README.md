@@ -33,8 +33,9 @@ The parameter list, defaults, help texts and "not used now" rules come from the 
   files). **Advanced** lists every parameter, the ones Basic has included.
 - **None switches** (board inner / outer radius, RX inside / outside radius, R Base, A): on means the parameter is
   None. The RX band is given as an inside and outside radius, or as R Base and A, or by neither (then it is fitted
-  to the board edges). The two numbers of a pair go together, and only one pair is used at a time, so switching one
-  pair on switches the other off and keeps the same band.
+  to the board edges). The two numbers of a pair go together, and only one pair is used at a time: while one pair
+  has numbers, the other pair is None and locked. Set the used pair to None to unlock both, then switch on the
+  pair you want.
 - **Generate** runs the checks and the generator (Ctrl+Enter or Cmd+Enter does the same). Changing a setting
   afterwards marks the board as out of date until you press Generate again. The preview and the downloads
   only change on Generate.
