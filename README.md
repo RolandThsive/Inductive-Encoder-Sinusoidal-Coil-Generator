@@ -478,10 +478,12 @@ The analyser and optimizer are optional. They never change a board or a paramete
   eddy current, so copper edges and copper over the TX are judged physically.
 - **OptimizeCoil** searches the RX profile, sub-coils, split, rotor metal fraction and rotor outer
   edge, and ranks the results by the worst angle error over the tolerance window. It prints the
-  parameter lines to change.
+  parameter lines to change. It has no command-line options: everything it does is set in
+  `Parameters/OptimizerParameters.py`.
 
-**Example.** The optimizer was run on a 1-loop stator (bore radius 18 mm, outer radius 32 mm) with
-`OptimizeCoil.py --quick`. It suggested two sub-coils split by 50° and rotor copper that ends just
+**Example.** The optimizer was run on a 1-loop stator (bore radius 18 mm, outer radius 32 mm) in its
+fast mode (`ECCENTRICITY_MM = 0` and `TILT_DEG = 0` in `OptimizerParameters.py`, so only the air gap
+and metal-fraction tolerances are checked). It suggested two sub-coils split by 50° and rotor copper that ends just
 over the outermost TX turn:
 
 | Design | Worst-Case Angle Error (Air Gap 1 ± 0.2 mm) | Relative Signal | RX Voltage (IPS2550, 6–11 Vpp TX) |
@@ -510,7 +512,7 @@ Sinusoidal Coil Generator/
 │   ├── RX_Parameters.py          Loops, radii, profile, sub-coils, layers, fingers
 │   ├── TX_Parameters.py          Turns, pitch, shape, layers, series / parallel, break style
 │   ├── Rotor_Parameters.py       The rotor (metal target)
-│   ├── OptimizerParameters.py    What the optimizer compares
+│   ├── OptimizerParameters.py    Every setting of the optimizer (it has no command-line options)
 │   └── Parameters.py             Gathers the four board files (do not edit)
 ├── Generator/
 │   ├── RunCoilGenerator.py       The program to run; the only one that writes files
@@ -543,8 +545,12 @@ python Generator/RunCoilGenerator.py              # Check, then write Stator + R
 python Generator/RunCoilGenerator.py --check      # Check only, write nothing
 python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
 python Analyser_And_Optimizer/AnalyzeCoil.py      # Analyse the current parameters
-python Analyser_And_Optimizer/OptimizeCoil.py --quick
+python Analyser_And_Optimizer/OptimizeCoil.py     # Search for a better design (settings: OptimizerParameters.py)
 ```
+
+`OptimizeCoil.py` takes no command-line options: it exits with a message if you give it any. Everything
+it does is set in `Parameters/OptimizerParameters.py`. For a fast run, set `ECCENTRICITY_MM = 0` and
+`TILT_DEG = 0` there; the full run also checks the rotor off-centre and tilted and takes longer.
 
 Every program runs from any folder; it finds the other folders itself.
 
