@@ -21,7 +21,7 @@ const CONFIG = {
 };
 
 /* ---- the starting design ---------------------------------------------------------------------------
-   The page starts from the defaults in the parameter files (2 layers, 25 to 50 mm, 4 loops, TX on the Bottom
+   The page starts from the defaults in the parameter files (2 layers, board 15 to 27 mm, 4 loops, TX on the Bottom
    layer), so its first board is the board RunCoilGenerator.py makes from the files as they are.  Values set here
    would replace those defaults on the web only; keep it empty unless that is wanted. */
 const START_DESIGN = {};
