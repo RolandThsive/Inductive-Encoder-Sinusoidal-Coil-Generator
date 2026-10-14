@@ -11,6 +11,7 @@ give the same boards.
 
 - **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter. Both use the same
   four tabs: Board, RX, TX and Rotor, and a change in one mode shows in the other.
+- **Instant sketch:** the Sketch view redraws the board on every change, before you press Generate.
 - **Live board preview** of the stator, the rotor, or both together, with each copper layer in its own colour
   (Top red, Bottom blue, Inner-1 green, Inner-2 dark yellow).
 - **Design checks** before every board is made: errors and warnings, each with a plain explanation of what to
@@ -80,8 +81,12 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
 
 ## The Preview
 
-- **Stator, Rotor, Overlay:** choose what to show. Overlay puts the rotor over the stator, and the **Rotor Angle**
-  slider turns it.
+- **Sketch, Stator, Rotor, Overlay:** choose what to show. Overlay puts the rotor over the stator, and the
+  **Rotor Angle** slider turns it.
+- **Sketch** is drawn straight from the settings on every change, with no Generate needed: the RX curves on their
+  layers, the gold vias, the fingers, the TX turns and tails, the board edges and the rotor. It is an estimate for
+  trying settings quickly; the TX steps, the windows around the fingers and some junction vias are simplified, and
+  Field Compensated is drawn as Equal Area. If the settings cannot make a board, the Sketch says why.
 - **Layer buttons** (Top, Inner-1, Inner-2, Bottom, Vias): hover to highlight, click to hide or show. Hovering
   Vias makes small vias easier to see.
 - **Sin Loops, Cos Loops, TX Loops:** the same for each coil.

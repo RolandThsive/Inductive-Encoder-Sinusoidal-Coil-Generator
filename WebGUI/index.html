@@ -83,6 +83,7 @@
     <section id="preview" class="panel">
       <div class="preview-head">
         <div class="segmented" id="view-tabs">
+          <button data-view="sketch" data-tip="An instant drawing that follows every setting as you change it, without Generate. An estimate: press Generate for the real boards">Sketch</button>
           <button data-view="stator" data-tip="The generated Stator.kicad_pcb: RX and TX copper, vias and board edge">Stator</button>
           <button data-view="rotor" data-tip="The generated Rotor.kicad_pcb: the copper target">Rotor</button>
           <button data-view="overlay" class="on" data-tip="The rotor drawn over the stator; turn it with the Rotor Angle slider">Overlay</button>
@@ -101,6 +102,7 @@
           <div class="measure-help" id="measure-help" hidden><kbd>S</kbd> Lock line, draw next<br><kbd>Z</kbd> Remove last line || point</div>
         </div>
         <div class="net-toggles" id="net-toggles"></div>
+        <div class="sketch-note" id="sketch-note" hidden></div>
         <div class="readout" id="readout" data-tip="X and Y under the cursor, from the origin (the board centre): right and up are positive"></div>
         <div class="rotor-angle" id="rotor-angle-box" data-tip="Turn the rotor over the stator to see how the target sweeps the coils">
           <span>Rotor Angle</span>
@@ -148,6 +150,7 @@
 
 <script src="BoardPreview.js"></script>
 <script src="Tooltips.js"></script>
+<script src="Sketch.js"></script>
 <script src="WebGUI.js"></script>
 </body>
 </html>
