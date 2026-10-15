@@ -23,7 +23,7 @@ This is the law the Renesas IPS2200 reference design follows. The radius itself 
 as a sine:
 
 $$
-\Large r(\theta) = r_{base} \pm A\,\sin(n\,\theta)
+\Large r(\theta) = r_{base} \pm A \sin(n \theta)
 $$
 
 | Symbol | Meaning |
@@ -48,7 +48,7 @@ Here the **square** of the radius swings as a sine, so that for a uniform field 
 up by a single curve follows an exact sine of the rotor position:
 
 $$
-\Large r^{2}(\theta) = r_{base}^{2} \pm A\,\sin(n\,\theta)
+\Large r^{2}(\theta) = r_{base}^{2} \pm A \sin(n \theta)
 $$
 
 | Symbol | Meaning |
@@ -84,24 +84,24 @@ keeps the same idea but uses the real field. Let `B(r)` be the axial field of th
 rotor and `G(r)` the cumulative weight of the band up to `r`:
 
 $$
-\Large G(r) = \int_{r_{in}}^{r} B(r')\,r'\,dr'
+\Large G(r) = \int_{r_{in}}^{r} B(r') r' dr'
 $$
 
 The radius is then chosen so that `G` swings as a sine, which is the equal-area rule with `B` in place of a
 constant:
 
 $$
-\Large G\big(r(\theta)\big) = \frac{G(r_{out})}{2}\,\big(1 + \sin(n\,\theta)\big)
+\Large G\big(r(\theta)\big) = \frac{G(r_{out})}{2} \big(1 + \sin(n \theta)\big)
 \qquad\Longleftrightarrow\qquad
-r(\theta) = G^{-1}\!\left(\frac{G(r_{out})}{2}\,\big(1 + \sin(n\,\theta)\big)\right)
+r(\theta) = G^{-1}\left(\frac{G(r_{out})}{2} \big(1 + \sin(n \theta)\big)\right)
 $$
 
 The field `B(r)` is the sum over the TX turns of the axial field of a circular current loop (the standard
 closed form with the complete elliptic integrals `K` and `E`):
 
 $$
-\Large B(r) = \sum_{l}\sum_{j} w_l\,\frac{K(m) + \dfrac{R_j^{2} - r^{2} - z_l^{2}}{(R_j - r)^{2} + z_l^{2}}\,E(m)}{\sqrt{(R_j + r)^{2} + z_l^{2}}},
-\qquad m = \frac{4\,R_j\,r}{(R_j + r)^{2} + z_l^{2}}
+\Large B(r) = \sum_{l}\sum_{j} w_l \frac{K(m) + \dfrac{R_j^{2} - r^{2} - z_l^{2}}{(R_j - r)^{2} + z_l^{2}} E(m)}{\sqrt{(R_j + r)^{2} + z_l^{2}}}
+\qquad m = \frac{4 R_j r}{(R_j + r)^{2} + z_l^{2}}
 $$
 
 | Symbol | Meaning |
