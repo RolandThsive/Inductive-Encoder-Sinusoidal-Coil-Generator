@@ -6,16 +6,17 @@
 - [Project Capabilities](Project-Capabilities.md)
 - [Examples](Examples.md)
 
-**How It Works**
-- [Working Principle](Working-Principle.md)
+**Working Principle / Mathematics - Generator**
+- [Induction Encoding - Rotary Working Principle](Working-Principle.md)
 - [RX Profiles](RX-Profiles.md)
-- [Parameters Selection](Parameters-Selection.md)
+- [TX Profiles](TX-Profiles.md)
 - [Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md)
 
 **Design Guide**
 - [Stator Features](Stator-Features.md)
 - [Rotor Features](Rotor-Features.md)
 - [Board Features](Board-Features.md)
+- [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md)
 
 **Reference**
 - [Parameter Reference](Parameter-Reference.md)
@@ -26,7 +27,6 @@
 - [KiCad Compatibility](KiCad-Compatibility.md)
 
 **Research And Community**
-- [Theory And References](Theory-And-References.md)
 - [Glossary](Glossary.md)
 - [Immediate Next Steps](Immediate-Next-Steps.md)
 - [Future Upgrades And Planning](Future-Upgrades-And-Planning.md)

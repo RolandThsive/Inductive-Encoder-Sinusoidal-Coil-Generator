@@ -1,4 +1,4 @@
-# Parameters Selection
+# Quick Guide To Parameters Selections
 
 This page shows, with pictures made by the generator itself, the choices you make before a board is
 built: how the RX band is defined, how many TX turns and how long a TX tail, how the TX is wired and
