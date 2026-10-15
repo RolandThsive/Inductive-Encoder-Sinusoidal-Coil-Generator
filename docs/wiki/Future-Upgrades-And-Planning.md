@@ -10,3 +10,11 @@
 | **KiCad Plugin** | Packaging the generator as a KiCad add-on through the Plugin and Content Manager. |
 
 *Strike-through means done.*
+
+## Previous
+
+[Immediate Next Steps](Immediate-Next-Steps.md)
+
+## Next
+
+[License](License.md)

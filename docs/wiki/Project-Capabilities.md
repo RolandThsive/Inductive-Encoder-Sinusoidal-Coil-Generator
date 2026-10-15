@@ -2,7 +2,8 @@
 
 | Area | Capability |
 |---|---|
-| Language | Pure Python 3 with numpy (matplotlib optional, for plots) |
+| Human Language | English |
+| Programming Language | Pure Python 3 with numpy (matplotlib optional, for plots) |
 | Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
 | RX Loops | 1 to 16 electrical periods per mechanical turn |
 | RX Phases | Four phases only: SIN and COS pairs, each with a positive and a negative half |
@@ -42,3 +43,11 @@ a finer pitch make smaller boards possible.
 
 There is no upper limit in the generator itself. A larger board gives a wider RX band and a
 stronger signal.
+
+## Previous
+
+[Web Tool](Web-Tool.md)
+
+## Next
+
+[Examples](Examples.md)

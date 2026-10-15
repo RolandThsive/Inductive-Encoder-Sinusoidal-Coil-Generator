@@ -1,4 +1,4 @@
-# Working Principle
+# Induction Encoding - Rotary Working Principle
 
 ![Introduction 1: Working Principle](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/intro_1_working_principle.png)
 
@@ -20,3 +20,11 @@ two signals.*
 The generator works with **four phases only: two SIN/COS pairs, each with a positive and a negative
 half** (phases 0/2 form the SIN coil, phases 1/3 the COS coil). This differential arrangement
 cancels the direct coupling from the TX and common-mode interference.
+
+## Previous
+
+[Examples](Examples.md)
+
+## Next
+
+[RX Profiles](RX-Profiles.md)

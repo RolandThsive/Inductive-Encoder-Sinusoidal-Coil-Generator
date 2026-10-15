@@ -49,3 +49,11 @@ python Analyser_And_Optimizer/OptimizeCoil.py     # Search better settings (set 
 ```
 
 Every program runs from any folder; it finds the other folders itself.
+
+## Previous
+
+[Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
+
+## Next
+
+[KiCad Compatibility](KiCad-Compatibility.md)

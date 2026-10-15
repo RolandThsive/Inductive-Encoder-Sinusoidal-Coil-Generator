@@ -172,3 +172,11 @@ Two URL parameters let you self-host the parts: `?pyodide=<url>` sets where the 
 The web tool is under the PolyForm Strict License 1.0.0, separate from the generator's license: see
 [WebGUI/LICENSE.md](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WebGUI/LICENSE.md). It may be used for noncommercial purposes only, and may not be changed or
 redistributed. The core generator it runs stays under the repository's own [LICENSE.md](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/LICENSE.md).
+
+## Previous
+
+[Getting Started](Getting-Started.md)
+
+## Next
+
+[Project Capabilities](Project-Capabilities.md)

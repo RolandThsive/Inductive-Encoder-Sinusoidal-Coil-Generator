@@ -5,6 +5,18 @@ crossing it every half period. The two curves of a pair mirror each other (the `
 curve below), and the coil is the loop they form together. The shape of the weave is chosen by
 `RX_PROFILE`.
 
+The three profiles at a glance:
+
+| Profile | Rule | Compensates for | Use it when |
+|---|---|---|---|
+| `equal_area` (default) | r² swings equally around r_base² | A uniform field | You want the default, well-behaved choice |
+| `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the Renesas reference design, which follows this law |
+| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | You know the air gap and board stack and want the model to correct for the field |
+
+All three are selected with `RX_PROFILE` in `RX_Parameters.py`. As with the rest of the analysis,
+the differences shown here come from the generator and its models. They have not yet been checked
+on hardware.
+
 ## Profile `cosine_r` (Limaçon)
 
 This is the law the Renesas IPS2200 reference design follows. The radius itself swings
@@ -72,12 +84,10 @@ the TX settings, so it changes when any of them changes.
 over one electrical period (90°). `equal_area` and `cosine_r` lie almost on top of each other;
 `field_compensated` departs from them by up to about 1.5 mm in radius at some angles.*
 
-| Profile | Rule | Compensates for | Use it when |
-|---|---|---|---|
-| `equal_area` (default) | r² swings equally around r_base² | A uniform field | You want the default, well-behaved choice |
-| `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the Renesas reference design, which follows this law |
-| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | You know the air gap and board stack and want the model to correct for the field |
+## Previous
 
-All three are selected with `RX_PROFILE` in `RX_Parameters.py`. As with the rest of the analysis,
-the differences shown here come from the generator and its models. They have not yet been checked
-on hardware.
+[Induction Encoding - Rotary Working Principle](Working-Principle.md)
+
+## Next
+
+[TX Profiles](TX-Profiles.md)

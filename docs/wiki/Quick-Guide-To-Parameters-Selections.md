@@ -1,4 +1,4 @@
-# Parameters Selection
+# Quick Guide To Parameters Selections
 
 This page shows, with pictures made by the generator itself, the choices you make before a board is
 built: how the RX band is defined, how many TX turns and how long a TX tail, how the TX is wired and
@@ -141,3 +141,11 @@ page shows how to search for the best duty for your board.
 - [RX Profiles](RX-Profiles.md): the curve that the RX band is filled with.
 - [Stator Features](Stator-Features.md) and [Rotor Features](Rotor-Features.md): every option in detail.
 - [Parameter Reference](Parameter-Reference.md): all parameters, defaults and ranges.
+
+## Previous
+
+[Board Features](Board-Features.md)
+
+## Next
+
+[Parameter Reference](Parameter-Reference.md)
