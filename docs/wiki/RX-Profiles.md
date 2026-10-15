@@ -122,7 +122,7 @@ the field, not a measurement, and it has not yet been checked on hardware.
 
 ![RX Profile 4: Equal area vs field compensated](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_4_equal_area_vs_field_compensated.png)
 
-*RX Profile 4. Computed by the generator for the default band (16.2 to 22.4 mm) with a 3-loop TX ring. A: the TX
+*RX Profile 4. Computed by the generator for the default band (16.2 to 22.4 mm) with a 3-turn TX coil. A: the TX
 field `B(r)` is not constant over the band, which `equal_area` assumes. B: for `sin(nθ) = 0.5` the target weight is
 `G = 0.75`; reading it off each curve gives a different radius (here 0.12 mm apart). C: repeating this for every angle
 gives the two boundaries; they differ by up to 0.28 mm, and that difference is the compensation.*
