@@ -106,8 +106,8 @@ $$
 
 | Symbol | Meaning |
 |---|---|
-| `G(r)` | Cumulative weight of the band from `r_in` to `r`, in arbitrary units. `G(r_in)` = 0 |
-| `B(r)` | Axial field of the TX ring at radius `r`, per ampere, in arbitrary units (only its shape matters) |
+| `G(r)` | Cumulative weight of the band from `r_in` to `r`. Only the ratio `G(r) / G(r_out)` is used, so its absolute size does not matter. `G(r_in)` = 0 |
+| `B(r)` | Axial field of the TX ring at radius `r`, (only its shape across the band matters, not its absolute size, so constant factors such as the current cancel out) |
 | `r_in`, `r_out` | Inside and outside radius of the RX band |
 | `R_j` | Radius of TX turn `j` |
 | `l` | A TX layer that carries turns; `w_l` is its share of the TX current (1 for one layer, 1 for each of the two layers of a series TX, 0.5 for each of the two layers of a parallel TX) |
