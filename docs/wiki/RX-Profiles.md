@@ -115,7 +115,7 @@ $$
 | `K(m)`, `E(m)` | Complete elliptic integrals of the first and second kind with parameter `m` |
 | `n·θ` | Electrical angle, as above |
 
-![RX Profile 4: Equal area vs field compensated](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/Wiki_Modifications/docs/images/rx_profile_4_equal_area_vs_field_compensated.png)
+![RX Profile 4: Equal area vs field compensated](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_4_equal_area_vs_field_compensated.png)
 
 *RX Profile 4. Computed by the generator for the default band (16.2 to 22.4 mm) with a 3-turn TX coil. A: the TX
 field `B(r)` is not constant over the band, which `equal_area` assumes. B: for `sin(nθ) = 0.5` the target weight is
