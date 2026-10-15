@@ -11,7 +11,7 @@ The three profiles at a glance:
 |---|---|---|---|
 | `equal_area` (default) | r² swings equally around r_base² | A uniform field | You want the default, well-behaved choice |
 | `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the Renesas reference design, which follows this law |
-| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | You know the air gap and board stack and want the model to correct for the field |
+| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | Research underway |
 
 All three are selected with `RX_PROFILE` in `RX_Parameters.py`. As with the rest of the analysis,
 the differences shown here come from the generator and its models. They have not yet been checked
@@ -70,62 +70,7 @@ grey line in the right panel is the middle of the band, 44.5 mm, for comparison.
 
 ## 8.3 Profile `field_compensated`
 
-The first two profiles assume that the TX field is the same everywhere in the RX band. In a real
-board it is not: the field of the TX ring changes with the radius and with the height above the
-board. The `field_compensated` profile starts from `equal_area` and bends the curves so that the
-signal stays an exact sine in that non-uniform field. It uses `AIR_GAP_MM`, `PCB_THICKNESS_MM` and
-the TX settings, so it changes when any of them changes.
-
-### 8.3.1 The Bend Calculation
-
-`equal_area` is the special case of a constant field: the cumulative weight up to the radius `r` is then
-proportional to `r²`, and making `r²` swing as a sine makes that weight swing as a sine. `field_compensated`
-keeps the same idea but uses the real field. Let `B(r)` be the axial field of the TX ring at the height of the
-rotor and `G(r)` the cumulative weight of the band up to `r`:
-
-$$
-\Large G(r) = \int_{r_{in}}^{r} B(r') r' dr'
-$$
-
-The radius is then chosen so that `G` swings as a sine, which is the equal-area rule with `B` in place of a
-constant:
-
-$$
-\Large G\big(r(\theta)\big) = \frac{G(r_{out})}{2} \big(1 + \sin(n \theta)\big)
-\qquad\Longleftrightarrow\qquad
-r(\theta) = G^{-1}\left(\frac{G(r_{out})}{2} \big(1 + \sin(n \theta)\big)\right)
-$$
-
-The field `B(r)` is the sum over the TX turns of the axial field of a circular current loop (the standard
-closed form with the complete elliptic integrals `K` and `E`):
-
-$$
-\Large B(r) = \sum_{l}\sum_{j} w_l \frac{K(m) + \dfrac{R_j^{2} - r^{2} - z_l^{2}}{(R_j - r)^{2} + z_l^{2}} E(m)}{\sqrt{(R_j + r)^{2} + z_l^{2}}}
-\qquad m = \frac{4 R_j r}{(R_j + r)^{2} + z_l^{2}}
-$$
-
-| Symbol | Meaning |
-|---|---|
-| `G(r)` | Cumulative weight of the band from `r_in` to `r`. Only the ratio `G(r) / G(r_out)` is used, so its absolute size does not matter. `G(r_in)` = 0 |
-| `B(r)` | Axial field of the TX ring at radius `r`, (only its shape across the band matters, not its absolute size, so constant factors such as the current cancel out) |
-| `r_in`, `r_out` | Inside and outside radius of the RX band |
-| `R_j` | Radius of TX turn `j` |
-| `l` | A TX layer that carries turns; `w_l` is its share of the TX current (1 for one layer, 1 for each of the two layers of a series TX, 0.5 for each of the two layers of a parallel TX) |
-| `z_l` | Height of the rotor above TX layer `l`: `AIR_GAP_MM` plus the depth of that layer below the top copper (Top 0, Inner 1 0.2 mm, Inner 2 `PCB_THICKNESS_MM` − 0.2 mm, Bottom `PCB_THICKNESS_MM`; a board thinner than 0.4 mm puts the inner layers at thirds) |
-| `K(m)`, `E(m)` | Complete elliptic integrals of the first and second kind with parameter `m` |
-| `n·θ` | Electrical angle, as above |
-
-![RX Profile 4: Equal area vs field compensated](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_4_equal_area_vs_field_compensated.png)
-
-*RX Profile 4. Computed by the generator for the default band (16.2 to 22.4 mm) with a 3-turn TX coil. A: the TX
-field `B(r)` is not constant over the band, which `equal_area` assumes. B: for `sin(nθ) = 0.5` the target weight is
-`G = 0.75`; reading it off each curve gives a different radius (here 0.12 mm apart). C: repeating this for every angle
-gives the two boundaries; they differ by up to 0.28 mm, and that difference is the compensation.*
-
-The generator evaluates `B(r)` on 4001 points between `r_in` and `r_out`, integrates it step by step (trapezoid
-rule) to get `G`, and finds `r(θ)` by interpolating the inverse of `G`. The curves therefore depend on
-`AIR_GAP_MM`, `PCB_THICKNESS_MM`, the TX turn radii, the TX layers and the TX wiring. This is a model of
-the field, not a measurement, and it has not yet been checked on hardware.
+**Research underway.**
 
 ## 8.4 Comparing The Three Profiles
 
