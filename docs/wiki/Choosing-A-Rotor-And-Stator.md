@@ -26,3 +26,11 @@ period of the sensor lines up with one electrical period of the motor.
 
 **Absolute And High Resolution Together.** Combine a 1-loop track with a multi-loop track
 (vernier or coarse/fine). This needs two receiver ICs and is planned as the dual-IC version.
+
+## Previous
+
+[TX Profiles](TX-Profiles.md)
+
+## Next
+
+[Stator Features](Stator-Features.md)

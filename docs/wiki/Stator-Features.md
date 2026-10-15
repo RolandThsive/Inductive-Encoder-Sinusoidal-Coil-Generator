@@ -132,3 +132,11 @@ the clearance.
 ![Stator 10: TX Stepped Angle](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_10_tx_step_angle.png)
 
 *Stator 10. Step angles of Auto, 20°, 45° and 90°.*
+
+## Previous
+
+[Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md)
+
+## Next
+
+[Rotor Features](Rotor-Features.md)

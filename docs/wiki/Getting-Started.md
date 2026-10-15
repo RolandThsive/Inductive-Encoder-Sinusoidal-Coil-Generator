@@ -65,3 +65,11 @@ break the coils out where you like.
 - Understand the features: [Stator Features](Stator-Features.md), [Rotor Features](Rotor-Features.md),
   [Board Features](Board-Features.md).
 - Check and improve a design: [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md).
+
+## Previous
+
+[Contents](Contents.md)
+
+## Next
+
+[Web Tool](Web-Tool.md)

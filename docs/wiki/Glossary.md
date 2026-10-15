@@ -38,3 +38,11 @@
 | **Receiver IC** | The chip that drives the TX and reads the RX coils, for example the Renesas IPS2550 or IPS2200. |
 | **KiCad net** | A named electrical connection in the board. The coils use nets `TX`, SIN (`2`) and COS (`1`). |
 | **DRC** | KiCad's design-rule check. It cannot see TX-to-TX shorts because all TX turns are one net. |
+
+## Previous
+
+[KiCad Compatibility](KiCad-Compatibility.md)
+
+## Next
+
+[Immediate Next Steps](Immediate-Next-Steps.md)

@@ -141,3 +141,11 @@ page shows how to search for the best duty for your board.
 - [RX Profiles](RX-Profiles.md): the curve that the RX band is filled with.
 - [Stator Features](Stator-Features.md) and [Rotor Features](Rotor-Features.md): every option in detail.
 - [Parameter Reference](Parameter-Reference.md): all parameters, defaults and ranges.
+
+## Previous
+
+[Board Features](Board-Features.md)
+
+## Next
+
+[Parameter Reference](Parameter-Reference.md)

@@ -18,3 +18,11 @@ Top and on Top + Inner-1.*
 
 Keep layers that carry no coil free of copper pours under the coil area: a plane there acts like an
 extra target and weakens the signal.
+
+## Previous
+
+[Rotor Features](Rotor-Features.md)
+
+## Next
+
+[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md)

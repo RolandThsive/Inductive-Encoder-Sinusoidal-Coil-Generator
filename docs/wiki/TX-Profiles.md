@@ -66,3 +66,11 @@ A TX that does not use the finger's layer is never interrupted.
 
 The recommended combination (series, stepped turns, Top + Inner 2, fingers on Inner 1) is described in the
 [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#recommended-combination).
+
+## Previous
+
+[RX Profiles](RX-Profiles.md)
+
+## Next
+
+[Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md)
