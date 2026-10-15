@@ -1,4 +1,4 @@
-# Web Tool
+# 1. Web Tool
 
 Design the stator and rotor boards of a sinusoidal inductive encoder in your browser, see them straight away,
 and download them as KiCad files. No installation and no account: everything runs on your own computer, and
@@ -9,7 +9,7 @@ give the same boards.
 
 > The Web Tool lives on the `WebUI` branch until it is merged; this page follows its [readme](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WEBUIReadme.md).
 
-## Screenshots
+## 1.1 Screenshots
 
 The tool adapts to both landscape and portrait monitors. Both pictures show the default design, already generated.
 
@@ -21,7 +21,7 @@ The tool adapts to both landscape and portrait monitors. Both pictures show the 
 
 *Web Tool 2. The Web Tool on a portrait monitor.*
 
-## Features
+## 1.2 Features
 
 - **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter. Both use the same
   four tabs: Board, RX, TX and Rotor, and a change in one mode shows in the other.
@@ -36,7 +36,7 @@ The tool adapts to both landscape and portrait monitors. Both pictures show the 
 - **Measuring and inspection tools** in the preview: zoom, highlight a layer or a coil, hide parts, measure
   distances, turn the rotor.
 
-## Getting Started
+## 1.3 Getting Started
 
 1. Open the tool at [ro-h-bots.blogspot.com](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html). The first visit downloads the browser's Python engine (about 20 MB); later visits are quick.
 2. The page starts with the default design, already generated.
@@ -46,9 +46,9 @@ The tool adapts to both landscape and portrait monitors. Both pictures show the 
 
 The tool needs a computer with a mouse or trackpad. Phones and tablets see a short message instead.
 
-## Setting Up A Design
+## 1.4 Setting Up A Design
 
-### Basic
+### 1.4.1 Basic
 
 | Tab | Settings |
 | --- | --- |
@@ -59,13 +59,13 @@ The tool needs a computer with a mouse or trackpad. Phones and tablets see a sho
 
 Every Basic setting is also in Advanced, under the same name.
 
-### Advanced
+### 1.4.2 Advanced
 
 Every parameter of the generator, grouped as in the parameter files. Each one shows its parameter name, and the
 **↺** button puts it back to its starting value. Settings the current design does not use are greyed out and
 marked "not used now". A changed setting gets a dot before its name.
 
-### The RX Band And The None Switches
+### 1.4.3 The RX Band And The None Switches
 
 The RX band is the ring the receiver coils swing across. You can give it in one of three ways:
 
@@ -82,7 +82,7 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
 - A board edge set to None is worked out from the RX band. A board edge with a number is used exactly, and the
   checks tell you if it leaves too little room.
 
-## Generating And Downloading
+## 1.5 Generating And Downloading
 
 - **Generate** makes the boards and runs the checks. After you change a setting, the preview is marked out of
   date until you generate again; the downloads always match the last generated board.
@@ -92,7 +92,7 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
 - **Download Zip** gives both boards, `Parameters.txt` and the four parameter files. **Download Stator** and
   **Download Rotor** give one `.kicad_pcb` each.
 
-## Errors And Warnings
+## 1.6 Errors And Warnings
 
 The checks do more than say that something is wrong: each message tells you what to change to fix it.
 
@@ -114,7 +114,7 @@ error.
 Some mistakes are blocked before they can happen: the RX band pairs lock each other, settings the design does not
 use are greyed out, and a pair that must change together always does.
 
-## The Preview
+## 1.7 The Preview
 
 - **Stator, Rotor, Overlay:** choose what to show. Overlay puts the rotor over the stator, and the **Rotor Angle**
   slider turns it.
@@ -129,7 +129,7 @@ use are greyed out, and a pair that must change together always does.
 
 The preview tools only change what you see, never the boards.
 
-## Saving, Sharing And Starting Over
+## 1.8 Saving, Sharing And Starting Over
 
 - **Export Parameters** downloads the four parameter files, ready for the desktop version.
 - **Import Parameters** loads a `Parameters.txt` from any run (web or desktop) or your own parameter files.
@@ -137,12 +137,12 @@ The preview tools only change what you see, never the boards.
   nothing is uploaded.
 - **Reset** goes back to the default design, after asking.
 
-## What The Web Tool Does Not Include
+## 1.9 What The Web Tool Does Not Include
 
 The web tool makes the boards only. The receiver IC support, the optimizer, the analyser and the electrical
 estimate of the desktop project are not part of it.
 
-## How It Runs
+## 1.10 How It Runs
 
 The Web Tool is a static site (`WebGUI/` on the `WebUI` branch): `index.html`, `WebGUI.js`, `WebGUI.css`,
 `BoardPreview.js`, `Tooltips.js`, `PyodideWorker.js` and `WebGenerator.py`. There is no server. The browser loads
@@ -153,21 +153,21 @@ byte-identical to the desktop run. The generator is never modified for the web.
 The tool is published with GitHub Pages and embedded in a page on the blog. Visitors' browsers fetch the
 generator's `.py` files from Pages, so a new release updates the tool.
 
-## Run It Locally
+## 1.11 Run It Locally
 
 Run `python3 -m http.server 8000` in the repository folder and open `http://localhost:8000/WebGUI/`.
 
 Two URL parameters let you self-host the parts: `?pyodide=<url>` sets where the Python engine is loaded from, and
 `?code=<url>` sets where `Generator/` and `Parameters/` are fetched from (default: the repository root).
 
-## Troubleshooting
+## 1.12 Troubleshooting
 
 - **Slow first load.** The first visit downloads about 20 MB (the Python engine); later visits are quick.
 - **Old version after an update.** Hard-refresh the page (Ctrl+Shift+R / Cmd+Shift+R).
 - **A message instead of the tool.** Touch-only devices (phones, tablets) are not supported; use a computer with a
   mouse or trackpad.
 
-## License
+## 1.13 License
 
 The web tool is under the PolyForm Strict License 1.0.0, separate from the generator's license: see
 [WebGUI/LICENSE.md](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WebGUI/LICENSE.md). It may be used for noncommercial purposes only, and may not be changed or

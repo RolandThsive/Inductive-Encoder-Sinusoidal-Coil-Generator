@@ -1,4 +1,4 @@
-# KiCad Compatibility
+# 1. KiCad Compatibility
 
 | Item | Detail |
 |---|---|

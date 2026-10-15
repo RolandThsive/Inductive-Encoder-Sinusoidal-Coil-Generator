@@ -1,4 +1,4 @@
-# Future Upgrades And Planning
+# 1. Future Upgrades And Planning
 
 | Upgrade | Description |
 |---|---|

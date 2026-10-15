@@ -1,4 +1,4 @@
-# Checks, Errors And Warnings
+# 1. Checks, Errors And Warnings
 
 Before and after a board is built, the generator checks it. `ParameterChecker.py` holds every rule in one place. It
 can also be run alone to check the parameter files without generating anything:
@@ -9,7 +9,7 @@ python Generator/RunCoilGenerator.py --check    # check only, write nothing
 python Generator/RunCoilGenerator.py --strict   # treat warnings as errors
 ```
 
-## Levels
+## 1.1 Levels
 
 | Level | Meaning | What happens |
 |---|---|---|
@@ -20,7 +20,7 @@ python Generator/RunCoilGenerator.py --strict   # treat warnings as errors
 Thresholds called "typical" in the messages are general PCB-fab rules of thumb, not the limits of any particular
 manufacturer. Check yours.
 
-## Two Stages
+## 1.2 Two Stages
 
 1. **Parameter rules** (`check_parameters`). They need only the values: types, ranges, and combinations that cannot
    work. Each parameter has a range (see the [Parameter Reference](Parameter-Reference.md)), and a misspelled or
@@ -31,7 +31,7 @@ manufacturer. Check yours.
 A third check, the generator's own **TX self-clearance** check, exists because all TX turns are one net, so KiCad's
 DRC cannot see a TX turn touching another TX turn.
 
-## What Is Checked
+## 1.3 What Is Checked
 
 | Area | Examples of what the rules look for |
 |---|---|
@@ -49,15 +49,15 @@ DRC cannot see a TX turn touching another TX turn.
 | Page | The board comes close to the top or left of the KiCad page (the page grows right and down automatically). |
 
 Each message names the setting, its value and the limit it broke. The Web Tool adds the "what to change" advice; see
-[Web Tool](Web-Tool.md#errors-and-warnings).
+[Web Tool](Web-Tool.md#16-errors-and-warnings).
 
-## Electrical Checks
+## 1.4 Electrical Checks
 
 The [electrical estimate](Electrical-Estimate.md) adds its own findings, checked against the receiver IC's datasheet
 limits: oscillator frequency out of range, tank resistance too low, receiver signal too small or too large, receiver
 signal varying too much, and TX voltage out of range.
 
-## Examples Of Boards The Generator Refuses
+## 1.5 Examples Of Boards The Generator Refuses
 
 | Situation | Why |
 |---|---|

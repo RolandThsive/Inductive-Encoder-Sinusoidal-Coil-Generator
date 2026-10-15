@@ -1,4 +1,4 @@
-# Induction Encoding - Rotary Working Principle
+# 1. Induction Encoding - Rotary Working Principle
 
 ![Introduction 1: Working Principle](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/intro_1_working_principle.png)
 

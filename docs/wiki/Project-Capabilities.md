@@ -1,4 +1,4 @@
-# Project Capabilities
+# 1. Project Capabilities
 
 | Area | Capability |
 |---|---|
@@ -23,7 +23,7 @@
 
 Each of these is shown with pictures in the sections below.
 
-## Board Size Range
+## 1.1 Board Size Range
 
 The table below gives the board sizes that build without any error or warning for 1, 4 and 16
 loops. It was found by running the generator's own checks over a grid of board radii (1 mm steps)
