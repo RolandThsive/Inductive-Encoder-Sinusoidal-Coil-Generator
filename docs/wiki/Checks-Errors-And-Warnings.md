@@ -66,10 +66,6 @@ signal varying too much, and TX voltage out of range.
 | Sub-coils or `RX_TABS = "all"` at a wide TX pitch | The README's wider-pitch stator pictures (1.5 mm and 2.5 mm) only exist for the loop examples; the sub-coil and finger examples stay at 0.6 mm because the generator will not build those boards at a wider pitch. |
 | `TX_STEPPED_ANGLE_DEG` very steep with a tight pitch | Neighbouring steps would be closer than the clearance; the generator staggers them and prints the gap it got. |
 
-## Previous
-
-[Parameter Reference](Parameter-Reference.md)
-
-## Next
-
-[Electrical Estimate](Electrical-Estimate.md)
+| Previous | Next |
+|:---|---:|
+| [Parameter Reference](Parameter-Reference.md) | [Electrical Estimate](Electrical-Estimate.md) |

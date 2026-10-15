@@ -30,10 +30,6 @@ over the outermost TX turn:
 *Analysis 1. The starting design, the optimizer's suggestion, and their angle error over one turn at
 the nominal air gap. Model results only.*
 
-## Previous
-
-[Electrical Estimate](Electrical-Estimate.md)
-
-## Next
-
-[Project Output Organization](Project-Output-Organization.md)
+| Previous | Next |
+|:---|---:|
+| [Electrical Estimate](Electrical-Estimate.md) | [Project Output Organization](Project-Output-Organization.md) |

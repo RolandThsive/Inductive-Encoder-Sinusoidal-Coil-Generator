@@ -66,10 +66,6 @@ break the coils out where you like.
   [Board Features](Board-Features.md).
 - Check and improve a design: [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md).
 
-## Previous
-
-[Contents](Contents.md)
-
-## Next
-
-[Web Tool](Web-Tool.md)
+| Previous | Next |
+|:---|---:|
+| [Contents](Contents.md) | [Web Tool](Web-Tool.md) |

@@ -39,10 +39,6 @@ All pages of this wiki, in reading order.
 - [Future Upgrades And Planning](Future-Upgrades-And-Planning.md)
 - [License](License.md)
 
-## Previous
-
-[Home](Home.md)
-
-## Next
-
-[Getting Started](Getting-Started.md)
+| Previous | Next |
+|:---|---:|
+| [Home](Home.md) | [Getting Started](Getting-Started.md) |

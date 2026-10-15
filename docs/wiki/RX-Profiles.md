@@ -84,10 +84,6 @@ the TX settings, so it changes when any of them changes.
 over one electrical period (90°). `equal_area` and `cosine_r` lie almost on top of each other;
 `field_compensated` departs from them by up to about 1.5 mm in radius at some angles.*
 
-## Previous
-
-[Induction Encoding - Rotary Working Principle](Working-Principle.md)
-
-## Next
-
-[TX Profiles](TX-Profiles.md)
+| Previous | Next |
+|:---|---:|
+| [Induction Encoding - Rotary Working Principle](Working-Principle.md) | [TX Profiles](TX-Profiles.md) |

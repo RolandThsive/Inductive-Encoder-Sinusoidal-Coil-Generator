@@ -21,6 +21,6 @@ estimates how it will perform.
 - [Repository README](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator#readme)
 - [Web Tool](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
 
-## Next
-
-[Contents](Contents.md)
+| Previous | Next |
+|:---|---:|
+|  | [Contents](Contents.md) |

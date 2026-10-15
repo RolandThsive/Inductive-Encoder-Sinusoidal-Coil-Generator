@@ -44,10 +44,6 @@ a finer pitch make smaller boards possible.
 There is no upper limit in the generator itself. A larger board gives a wider RX band and a
 stronger signal.
 
-## Previous
-
-[Web Tool](Web-Tool.md)
-
-## Next
-
-[Examples](Examples.md)
+| Previous | Next |
+|:---|---:|
+| [Web Tool](Web-Tool.md) | [Examples](Examples.md) |

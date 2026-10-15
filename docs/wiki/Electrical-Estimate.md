@@ -56,10 +56,6 @@ For the IPS2550 the receiver range is 8 mV to 0.47 V with the gain boost on, and
 Set `RECEIVER_IC = None` in `Board_Parameters.py` to switch the checks off, and `TX_AMPLITUDE_VPP` if you know the
 real TX voltage. See the [Parameter Reference](Parameter-Reference.md).
 
-## Previous
-
-[Checks, Errors And Warnings](Checks-Errors-And-Warnings.md)
-
-## Next
-
-[Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
+| Previous | Next |
+|:---|---:|
+| [Checks, Errors And Warnings](Checks-Errors-And-Warnings.md) | [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md) |

@@ -214,10 +214,6 @@ Used only by `OptimizeCoil.py`. These settings change what the optimizer tries; 
 | `BAND_STEP_PERCENT` | 10.0 | Step of the band search, in percent (1 = finest). |
 | `BAND_BOARDS` | 3 | How many of the best boards get the band finder. |
 
-## Previous
-
-[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md)
-
-## Next
-
-[Checks, Errors And Warnings](Checks-Errors-And-Warnings.md)
+| Previous | Next |
+|:---|---:|
+| [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md) | [Checks, Errors And Warnings](Checks-Errors-And-Warnings.md) |

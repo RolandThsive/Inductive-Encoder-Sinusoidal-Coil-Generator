@@ -33,10 +33,6 @@ the TX ring, a shorter inner edge, and metal fractions of 1/3 and 0.4.*
 
 The best metal fraction and outer edge depend on the coil. The optimizer searches them together.
 
-## Previous
-
-[Stator Features](Stator-Features.md)
-
-## Next
-
-[Board Features](Board-Features.md)
+| Previous | Next |
+|:---|---:|
+| [Stator Features](Stator-Features.md) | [Board Features](Board-Features.md) |

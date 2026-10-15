@@ -11,10 +11,6 @@
 If you can help with boards, equipment or measurements, please see [Licensing](License.md) for
 contact details.
 
-## Previous
-
-[Glossary](Glossary.md)
-
-## Next
-
-[Future Upgrades And Planning](Future-Upgrades-And-Planning.md)
+| Previous | Next |
+|:---|---:|
+| [Glossary](Glossary.md) | [Future Upgrades And Planning](Future-Upgrades-And-Planning.md) |

@@ -133,10 +133,6 @@ the clearance.
 
 *Stator 10. Step angles of Auto, 20°, 45° and 90°.*
 
-## Previous
-
-[Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md)
-
-## Next
-
-[Rotor Features](Rotor-Features.md)
+| Previous | Next |
+|:---|---:|
+| [Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md) | [Rotor Features](Rotor-Features.md) |
