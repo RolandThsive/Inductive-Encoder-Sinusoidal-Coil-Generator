@@ -76,6 +76,50 @@ board. The `field_compensated` profile starts from `equal_area` and bends the cu
 signal stays an exact sine in that non-uniform field. It uses `AIR_GAP_MM`, `PCB_THICKNESS_MM` and
 the TX settings, so it changes when any of them changes.
 
+### 8.3.1 The Bend Calculation
+
+`equal_area` is the special case of a constant field: the cumulative weight up to the radius `r` is then
+proportional to `r²`, and making `r²` swing as a sine makes that weight swing as a sine. `field_compensated`
+keeps the same idea but uses the real field. Let `B(r)` be the axial field of the TX ring at the height of the
+rotor and `G(r)` the cumulative weight of the band up to `r`:
+
+$$
+\Large G(r) = \int_{r_{in}}^{r} B(r')\,r'\,dr'
+$$
+
+The radius is then chosen so that `G` swings as a sine, which is the equal-area rule with `B` in place of a
+constant:
+
+$$
+\Large G\big(r(\theta)\big) = \frac{G(r_{out})}{2}\,\big(1 + \sin(n\,\theta)\big)
+\qquad\Longleftrightarrow\qquad
+r(\theta) = G^{-1}\!\left(\frac{G(r_{out})}{2}\,\big(1 + \sin(n\,\theta)\big)\right)
+$$
+
+The field `B(r)` is the sum over the TX turns of the axial field of a circular current loop (the standard
+closed form with the complete elliptic integrals `K` and `E`):
+
+$$
+\Large B(r) = \sum_{l}\sum_{j} w_l\,\frac{K(m) + \dfrac{R_j^{2} - r^{2} - z_l^{2}}{(R_j - r)^{2} + z_l^{2}}\,E(m)}{\sqrt{(R_j + r)^{2} + z_l^{2}}},
+\qquad m = \frac{4\,R_j\,r}{(R_j + r)^{2} + z_l^{2}}
+$$
+
+| Symbol | Meaning |
+|---|---|
+| `G(r)` | Cumulative weight of the band from `r_in` to `r`, in arbitrary units. `G(r_in)` = 0 |
+| `B(r)` | Axial field of the TX ring at radius `r`, per ampere, in arbitrary units (only its shape matters) |
+| `r_in`, `r_out` | Inside and outside radius of the RX band |
+| `R_j` | Radius of TX turn `j` |
+| `l` | A TX layer that carries turns; `w_l` is its share of the TX current (1 for one layer, 1 for each of the two layers of a series TX, 0.5 for each of the two layers of a parallel TX) |
+| `z_l` | Height of the rotor above TX layer `l`: `AIR_GAP_MM` plus the depth of that layer below the top copper (Top 0, Inner 1 0.2 mm, Inner 2 `PCB_THICKNESS_MM` − 0.2 mm, Bottom `PCB_THICKNESS_MM`; a board thinner than 0.4 mm puts the inner layers at thirds) |
+| `K(m)`, `E(m)` | Complete elliptic integrals of the first and second kind with parameter `m` |
+| `n·θ` | Electrical angle, as above |
+
+The generator evaluates `B(r)` on 4001 points between `r_in` and `r_out`, integrates it step by step (trapezoid
+rule) to get `G`, and finds `r(θ)` by interpolating the inverse of `G`. The curves therefore depend on
+`AIR_GAP_MM`, `PCB_THICKNESS_MM`, the TX turn radii, the TX layers and the TX wiring. This is a model of
+the field, not a measurement, and it has not yet been checked on hardware.
+
 ## 8.4 Comparing The Three Profiles
 
 ![RX Profile 3: The three profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
