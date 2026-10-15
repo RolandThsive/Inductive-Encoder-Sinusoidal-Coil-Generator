@@ -1,4 +1,4 @@
-# Future Upgrades And Planning
+# 23. Future Upgrades And Planning
 
 | Upgrade | Description |
 |---|---|
@@ -11,10 +11,6 @@
 
 *Strike-through means done.*
 
-## Previous
-
-[Immediate Next Steps](Immediate-Next-Steps.md)
-
-## Next
-
-[License](License.md)
+| Previous | Next |
+|:---|---:|
+| [Immediate Next Steps](Immediate-Next-Steps.md) | [License](License.md) |

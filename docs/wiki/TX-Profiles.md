@@ -1,4 +1,4 @@
-# TX Profiles
+# 9. TX Profiles
 
 The transmitter (TX) coil is a set of concentric turns around the RX band. This page shows the ways
 the generator can lay it out: on one layer or two, wired in series or in parallel, and with the two
@@ -7,7 +7,7 @@ coils are not shown. Each picture is one run of the generator with only the name
 For the settings themselves see the [Parameter Reference](Parameter-Reference.md); for a short
 decision guide see the [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md).
 
-## Series And Parallel
+## 9.1 Series And Parallel
 
 | | Series (`TX_SERIES = True`) | Parallel (`TX_SERIES = False`) |
 |---|---|---|
@@ -19,7 +19,7 @@ decision guide see the [Quick Guide To Parameters Selections](Quick-Guide-To-Par
 With one TX layer (`TX_LAYERS = 1`) there is nothing to wire in series or in parallel: all
 `TX_TURNS` turns sit on `TX_LAYER_A`, and the inner tail that carries the terminal runs on another layer.
 
-## 2-Layer Board: One TX Layer
+## 9.2 2-Layer Board: One TX Layer
 
 On a 2-layer board the two layers are Top (1) and Bottom (4). A single TX can sit on either one:
 
@@ -30,7 +30,7 @@ On a 2-layer board the two layers are Top (1) and Bottom (4). A single TX can si
 
 *TX Profiles 1. A 2-layer board with the TX on Bottom only and on Top only, whole board and a close-up of the TX terminal and tail. The inner tail runs on the other layer and joins the first turn at the via.*
 
-## 2-Layer Board: TX On Top And Bottom
+## 9.3 2-Layer Board: TX On Top And Bottom
 
 With `TX_LAYERS = 2`, `TX_LAYER_A = 1` and `TX_LAYER_B = 4` the TX uses both layers. Wherever an RX finger runs
 on a layer that carries TX turns, the turns make way for it. The three possible combinations:
@@ -44,7 +44,7 @@ on a layer that carries TX turns, the turns make way for it. The three possible 
 
 *TX Profiles 2. A 2-layer board with the TX on Top and Bottom: series staggered, parallel staggered and parallel stitched. Top row: the whole board. Bottom row: close-up where an RX finger crosses the TX (the finger itself is not drawn).*
 
-## 4-Layer Board: Combinations
+## 9.4 4-Layer Board: Combinations
 
 A 4-layer board has Top (1), Inner 1 (2), Inner 2 (3) and Bottom (4). The TX can use any one layer or any
 two different layers (`TX_LAYER_A`, `TX_LAYER_B`). The TX only has to make way for a finger when the
@@ -65,12 +65,8 @@ A TX that does not use the finger's layer is never interrupted.
 *TX Profiles 3. Six TX combinations on a 4-layer board (RX on Top and Inner 1, fingers on Top), close-up where an RX finger crosses. TX on Bottom only has no turns on the finger's layer, so it runs unbroken.*
 
 The recommended combination (series, stepped turns, Top + Inner 2, fingers on Inner 1) is described in the
-[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#recommended-combination).
+[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#1441-recommended-combination).
 
-## Previous
-
-[RX Profiles](RX-Profiles.md)
-
-## Next
-
-[Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md)
+| Previous | Next |
+|:---|---:|
+| [RX Profiles](RX-Profiles.md) | [Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md) |

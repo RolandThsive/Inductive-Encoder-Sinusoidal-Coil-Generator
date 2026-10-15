@@ -1,4 +1,4 @@
-# Project Capabilities
+# 5. Project Capabilities
 
 | Area | Capability |
 |---|---|
@@ -23,7 +23,7 @@
 
 Each of these is shown with pictures in the sections below.
 
-## Board Size Range
+## 5.1 Board Size Range
 
 The table below gives the board sizes that build without any error or warning for 1, 4 and 16
 loops. It was found by running the generator's own checks over a grid of board radii (1 mm steps)
@@ -44,10 +44,6 @@ a finer pitch make smaller boards possible.
 There is no upper limit in the generator itself. A larger board gives a wider RX band and a
 stronger signal.
 
-## Previous
-
-[Web Tool](Web-Tool.md)
-
-## Next
-
-[Examples](Examples.md)
+| Previous | Next |
+|:---|---:|
+| [Web Tool](Web-Tool.md) | [Examples](Examples.md) |

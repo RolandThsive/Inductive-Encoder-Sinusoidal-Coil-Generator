@@ -1,4 +1,4 @@
-# KiCad Compatibility
+# 20. KiCad Compatibility
 
 | Item | Detail |
 |---|---|
@@ -20,10 +20,6 @@ turn. The generator runs this check itself and reports the smallest gap it found
 
 A KiCad plugin built on the same code is planned (see [Future Upgrades](Future-Upgrades-And-Planning.md)).
 
-## Previous
-
-[Project Output Organization](Project-Output-Organization.md)
-
-## Next
-
-[Glossary](Glossary.md)
+| Previous | Next |
+|:---|---:|
+| [Project Output Organization](Project-Output-Organization.md) | [Glossary](Glossary.md) |

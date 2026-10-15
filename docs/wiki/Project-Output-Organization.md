@@ -1,4 +1,4 @@
-# Project Output Organization
+# 19. Project Output Organization
 
 ![Output 1: Project Organisation](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/output_1_organisation.png)
 
@@ -36,7 +36,7 @@ Sinusoidal Coil Generator/
 
 A run never overwrites anything: if a folder name already exists, `__1`, `__2` and so on are added.
 
-## Quick Start
+## 19.1 Quick Start
 
 ```bash
 pip install numpy matplotlib
@@ -50,10 +50,6 @@ python Analyser_And_Optimizer/OptimizeCoil.py     # Search better settings (set 
 
 Every program runs from any folder; it finds the other folders itself.
 
-## Previous
-
-[Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
-
-## Next
-
-[KiCad Compatibility](KiCad-Compatibility.md)
+| Previous | Next |
+|:---|---:|
+| [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md) | [KiCad Compatibility](KiCad-Compatibility.md) |
