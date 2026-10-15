@@ -1,4 +1,4 @@
-# 1. License
+# 24. License
 
 The project uses three licenses, one for each kind of content.
 

@@ -1,4 +1,4 @@
-# 1. Future Upgrades And Planning
+# 23. Future Upgrades And Planning
 
 | Upgrade | Description |
 |---|---|

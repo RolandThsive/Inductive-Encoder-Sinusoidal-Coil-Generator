@@ -1,4 +1,4 @@
-# 1. Examples
+# 6. Examples
 
 *Coming soon. A curated set of complete example designs will be published here.*
 

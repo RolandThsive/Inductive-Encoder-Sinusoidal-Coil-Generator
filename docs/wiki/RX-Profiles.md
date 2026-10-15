@@ -1,4 +1,4 @@
-# 1. RX Profiles
+# 8. RX Profiles
 
 Each RX coil is a pair of curves that weave around a centre radius `r_base` inside the RX band,
 crossing it every half period. The two curves of a pair mirror each other (the `+` and the `−`
@@ -17,7 +17,7 @@ All three are selected with `RX_PROFILE` in `RX_Parameters.py`. As with the rest
 the differences shown here come from the generator and its models. They have not yet been checked
 on hardware.
 
-## 1.1 Profile `cosine_r` (Limaçon)
+## 8.1 Profile `cosine_r` (Limaçon)
 
 This is the law the Renesas IPS2200 reference design follows. The radius itself swings
 as a sine:
@@ -42,7 +42,7 @@ $$
 *RX Profile 1. The `cosine_r` profile for n = 4 loops, with `r_in` = 38 mm and `r_out` = 51 mm, so
 `r_base` = 44.5 mm and `A` = 6.5 mm. Left: top view. Right: the same curves unrolled.*
 
-## 1.2 Profile `equal_area` (Default)
+## 8.2 Profile `equal_area` (Default)
 
 Here the **square** of the radius swings as a sine, so that for a uniform field the flux picked
 up by a single curve follows an exact sine of the rotor position:
@@ -68,7 +68,7 @@ outwards and 7.0 mm inwards.
 *RX Profile 2. The `equal_area` profile for n = 4 loops on the same band as Profile 1. The dotted
 grey line in the right panel is the middle of the band, 44.5 mm, for comparison.*
 
-## 1.3 Profile `field_compensated`
+## 8.3 Profile `field_compensated`
 
 The first two profiles assume that the TX field is the same everywhere in the RX band. In a real
 board it is not: the field of the TX ring changes with the radius and with the height above the
@@ -76,7 +76,7 @@ board. The `field_compensated` profile starts from `equal_area` and bends the cu
 signal stays an exact sine in that non-uniform field. It uses `AIR_GAP_MM`, `PCB_THICKNESS_MM` and
 the TX settings, so it changes when any of them changes.
 
-## 1.4 Comparing The Three Profiles
+## 8.4 Comparing The Three Profiles
 
 ![RX Profile 3: The three profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
 

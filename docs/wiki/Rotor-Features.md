@@ -1,10 +1,10 @@
-# 1. Rotor Features
+# 12. Rotor Features
 
 The rotor is a separate PCB with copper lobes on its face, mounted copper side towards the stator.
 It is generated from the stator by default (`ROTOR_MODE = "according_to_stator"`), or drawn from
 custom values.
 
-## 1.1 Lobes
+## 12.1 Lobes
 
 The rotor always has one copper lobe for every stator loop.
 
@@ -15,7 +15,7 @@ The rotor always has one copper lobe for every stator loop.
 A 1-lobe rotor is a half disc and is mechanically unbalanced; at high speed it needs a non-metal
 counterweight.
 
-## 1.2 Edges And Metal Fraction
+## 12.2 Edges And Metal Fraction
 
 | Parameter | Effect |
 |---|---|

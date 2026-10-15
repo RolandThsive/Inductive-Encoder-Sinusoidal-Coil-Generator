@@ -1,4 +1,4 @@
-# 1. Immediate Next Steps
+# 22. Immediate Next Steps
 
 - **Hardware Testing.** Funds are being collected to order a wide range of coil PCBs and the test
   equipment to measure them.

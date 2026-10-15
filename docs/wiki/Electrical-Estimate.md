@@ -1,4 +1,4 @@
-# 1. Electrical Estimate
+# 17. Electrical Estimate
 
 `CoilElectrics.py` turns the geometry into absolute electrical numbers. `RunCoilGenerator.py` prints them for every
 generation, `AnalyzeCoil.py` for every case of its tolerance window and `OptimizeCoil.py` for every candidate. Nothing
@@ -7,7 +7,7 @@ here changes a board.
 > [!WARNING]
 > None of these numbers has been checked against a measured board. Keep a margin to every limit of the IC.
 
-## 1.1 What It Gives
+## 17.1 What It Gives
 
 - The **TX inductance** with the rotor away and with the rotor at the air gap.
 - The **TX resistance** (DC) and the **Q**.
@@ -17,7 +17,7 @@ here changes a board.
 
 These are checked against the datasheet limits of `RECEIVER_IC`.
 
-## 1.2 How The Numbers Are Made
+## 17.2 How The Numbers Are Made
 
 | Quantity | Method |
 |---|---|
@@ -32,14 +32,14 @@ sectors that is an exact 2-D problem: the fundamental of the field in the rotor 
 (2/π) sin(π d), where d is the metal fraction. The correction factor is 0.51, 0.65, 0.91, 1.14 and 1.57 at d = 0.2,
 0.25, 1/3, 0.4 and 0.5. The eddy model computes it directly.
 
-## 1.3 Not Included
+## 17.3 Not Included
 
 - Parasitic capacitance (IC pins, coil, wiring; typically some 10 pF), which lowers the frequency a little.
 - The IC's receiver input filter (100 pF per line in the Renesas reference designs), which raises the receiver voltage
   by a few per cent.
 - Temperature (copper resistance rises 0.39 % per kelvin).
 
-## 1.4 Receiver IC Limits
+## 17.4 Receiver IC Limits
 
 The limits are taken from the Renesas datasheets. Check your revision.
 

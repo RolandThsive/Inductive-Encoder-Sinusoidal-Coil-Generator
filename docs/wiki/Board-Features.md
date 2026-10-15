@@ -1,4 +1,4 @@
-# 1. Board Features
+# 13. Board Features
 
 | Feature | Description |
 |---|---|
