@@ -6,6 +6,7 @@ nothing is sent to a server. The web tool runs the same generator as the desktop
 give the same boards.
 
 **[Open The Web Tool](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)**
+
 **[Open Quick Parameter Selection Guide](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections)**
 
 > The Web Tool lives on the `WebUI` branch until it is merged; this page follows its [readme](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WEBUIReadme.md).
