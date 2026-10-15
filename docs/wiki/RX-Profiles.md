@@ -115,17 +115,17 @@ $$
 | `K(m)`, `E(m)` | Complete elliptic integrals of the first and second kind with parameter `m` |
 | `n·θ` | Electrical angle, as above |
 
-The generator evaluates `B(r)` on 4001 points between `r_in` and `r_out`, integrates it step by step (trapezoid
-rule) to get `G`, and finds `r(θ)` by interpolating the inverse of `G`. The curves therefore depend on
-`AIR_GAP_MM`, `PCB_THICKNESS_MM`, the TX turn radii, the TX layers and the TX wiring. This is a model of
-the field, not a measurement, and it has not yet been checked on hardware.
-
 ![RX Profile 4: Equal area vs field compensated](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_4_equal_area_vs_field_compensated.png)
 
 *RX Profile 4. Computed by the generator for the default band (16.2 to 22.4 mm) with a 3-turn TX coil. A: the TX
 field `B(r)` is not constant over the band, which `equal_area` assumes. B: for `sin(nθ) = 0.5` the target weight is
 `G = 0.75`; reading it off each curve gives a different radius (here 0.12 mm apart). C: repeating this for every angle
 gives the two boundaries; they differ by up to 0.28 mm, and that difference is the compensation.*
+
+The generator evaluates `B(r)` on 4001 points between `r_in` and `r_out`, integrates it step by step (trapezoid
+rule) to get `G`, and finds `r(θ)` by interpolating the inverse of `G`. The curves therefore depend on
+`AIR_GAP_MM`, `PCB_THICKNESS_MM`, the TX turn radii, the TX layers and the TX wiring. This is a model of
+the field, not a measurement, and it has not yet been checked on hardware.
 
 ## 8.4 Comparing The Three Profiles
 
