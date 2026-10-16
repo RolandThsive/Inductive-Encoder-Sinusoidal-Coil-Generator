@@ -1,4 +1,4 @@
-# KiCad Compatibility
+# 20. KiCad Compatibility
 
 | Item | Detail |
 |---|---|
@@ -19,3 +19,7 @@ Because every TX turn is on the same net, KiCad's DRC cannot detect a TX turn to
 turn. The generator runs this check itself and reports the smallest gap it found.
 
 A KiCad plugin built on the same code is planned (see [Future Upgrades](Future-Upgrades-And-Planning.md)).
+
+| Previous | Next |
+|:---|---:|
+| [Project Output Organization](Project-Output-Organization.md) | [Glossary](Glossary.md) |

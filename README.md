@@ -8,6 +8,8 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 
 **[WEBUI TOOL](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WEBUIReadme.md)** can be found at [Ro-H-Bots/Inductive Encoder Sinusoidal Coil Generator](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
 
+**[Wiki](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)** has better organized information on this tool. 
+
 </div>
 
 ---

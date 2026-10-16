@@ -1,4 +1,4 @@
-# Parameters Selection
+# 14. Quick Guide To Parameters Selections
 
 This page shows, with pictures made by the generator itself, the choices you make before a board is
 built: how the RX band is defined, how many TX turns and how long a TX tail, how the TX is wired and
@@ -6,7 +6,7 @@ how it makes way for the RX fingers, and how much of the rotor is metal. Every p
 the generator with only the named setting changed. Each parameter is described in full in the
 [Parameter Reference](Parameter-Reference.md).
 
-## Defining The RX Band
+## 14.1 Defining The RX Band
 
 The RX band is the ring of radii in which the RX curves weave. Three things can set it:
 
@@ -51,7 +51,7 @@ Use edges only when the board outline is fixed and you want the largest band tha
 the band radii matter (for example to match a reference design); add the edges when the outline is also
 fixed. Use a pair alone when only the band matters and the board may grow to suit it.
 
-## TX Turns
+## 14.2 TX Turns
 
 `TX_TURNS` is the number of complete TX turns **per layer**. The first turn sits `TX_OFFSET_MM` outside
 the RX band and each next turn `TX_PITCH_MM` further out. More turns raise the inductance and the
@@ -62,7 +62,7 @@ signal, and need a wider board edge.
 *Parameters 2. TX_TURNS = 1, 2, 3 and 5 on one layer (pitch 0.6 mm), close-up beside the TX terminal.
 Everything else is unchanged; only the outer edge moves out.*
 
-## TX Tail
+## 14.3 TX Tail
 
 The tail is the short radial piece that carries the TX terminal out past the outermost turn.
 `TX_TAIL_EXTRA_MM` sets how far it reaches beyond the outermost turn; the default is 1 mm.
@@ -72,7 +72,7 @@ The tail is the short radial piece that carries the TX terminal out past the out
 *Parameters 3. TX_TAIL_EXTRA_MM = 0, 2 and 4 mm. A longer tail makes it easier to solder or connect, and
 moves the outer board edge out with it.*
 
-## TX Styles
+## 14.4 TX Styles
 
 With two TX layers (`TX_LAYERS = 2`) the turns are wired in **series** (`TX_SERIES = True`, two spirals
 joined by a via, twice the turns) or in **parallel** (`TX_SERIES = False`, the same turns on both layers,
@@ -94,7 +94,7 @@ The two wirings and the two styles combine like this:
 
 `TX_PARALLEL_BREAK_STYLE` applies only to a parallel TX; a series TX always goes around the fingers.
 
-### Recommended Combination
+### 14.4.1 Recommended Combination
 
 The best combination is a **4-layer board** with the RX fingers (if you choose to have them) on
 **Inner 1** and a **series TX with stepped turns on Top and Inner 2**:
@@ -121,7 +121,7 @@ generator builds this setup without errors.
 on Top and Bottom, 3 turns per layer, fingers on Top). Top row: the whole board. Bottom row: one finger
 close up.*
 
-## Rotor Metal Fraction
+## 14.5 Rotor Metal Fraction
 
 `ROTOR_AUTO_DUTY` is the share of each period that is metal: 0.5 is half metal and half gap (180°
 electrical). With a 1-loop stator there is one metal sector, so the duty is simply the angle it covers.
@@ -136,8 +136,12 @@ semi-transparent over the stator, so the RX and TX stay visible.*
 if the shaft turns fast. The [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
 page shows how to search for the best duty for your board.
 
-## Related Pages
+## 14.6 Related Pages
 
 - [RX Profiles](RX-Profiles.md): the curve that the RX band is filled with.
 - [Stator Features](Stator-Features.md) and [Rotor Features](Rotor-Features.md): every option in detail.
 - [Parameter Reference](Parameter-Reference.md): all parameters, defaults and ranges.
+
+| Previous | Next |
+|:---|---:|
+| [Board Features](Board-Features.md) | [Parameter Reference](Parameter-Reference.md) |

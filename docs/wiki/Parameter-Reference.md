@@ -1,4 +1,4 @@
-# Parameter Reference
+# 15. Parameter Reference
 
 Every setting lives in a parameter file in `Parameters/`. These are the only files you edit. Units are millimetres,
 degrees and hertz unless a name says otherwise. The **Range** column is what the parameter checker accepts; "None"
@@ -11,9 +11,9 @@ optimizer.
 > Defaults are those of the parameter files on `main`. Settings marked *only if* are greyed out ("not used now") in
 > the Web Tool when the design does not use them.
 
-## Board (`Board_Parameters.py`)
+## 15.1 Board (`Board_Parameters.py`)
 
-### Output
+### 15.1.1 Output
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -22,7 +22,7 @@ optimizer.
 | `CENTER_X_MM`, `CENTER_Y_MM` | 100, 100 | number | Position of the sensor axis on the KiCad page. |
 | `PAGE_SIZE_MM` | (200, 200) | pair | KiCad "User" page size (the generator enlarges it so the title block never overlaps the board). |
 
-### Stator board
+### 15.1.2 Stator board
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -37,7 +37,7 @@ optimizer.
 | `OUTER_EDGE_TAIL_MARGIN_MM` | 0.7 | ≥ 0 | Margin used by the rule above. |
 | `EDGE_LINE_WIDTH_MM` | 0.05 | 0 to 1 | Line width of the `Edge.Cuts` outline. |
 
-### Mechanical assumptions
+### 15.1.3 Mechanical assumptions
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -45,7 +45,7 @@ optimizer.
 | `PCB_THICKNESS_MM` | 1.6 | > 0 | Stator board thickness. |
 | `EXCITATION_FREQ_HZ` | 3.5e6 | > 0 | TX oscillator frequency aimed for, with the rotor in place. The electrical estimate sizes the tank capacitors for it; the rotor summary uses it for the skin depth. A warning appears far outside 1 to 10 MHz. |
 
-### Electrical estimate
+### 15.1.4 Electrical estimate
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -53,9 +53,9 @@ optimizer.
 | `COPPER_THICKNESS_UM` | 35 | 0 to 500 | Stator copper thickness (35 µm = 1 oz). Sets TX resistance and Q. |
 | `TX_AMPLITUDE_VPP` | None | 0 to 100 or None | TX voltage across the coil, peak to peak, if you know it. None = the range from the IC datasheet. |
 
-## RX (`RX_Parameters.py`)
+## 15.2 RX (`RX_Parameters.py`)
 
-### Size and periodicity
+### 15.2.1 Size and periodicity
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -70,7 +70,7 @@ optimizer.
 The band is given in **one** of two ways (the other pair None), or from the board edges when all four are None, which is the default. The
 two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switches.
 
-### Shape
+### 15.2.2 Shape
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -78,14 +78,14 @@ two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switc
 | `STEPS_PER_LOOP` | `"auto"` | "auto" or an integer, a multiple of 8, 48 to 4096 | Chords (polyline segments) per electrical period. "auto" = the smallest multiple of 8 whose midpoint chord error is within `RX_CHORD_TOLERANCE_MM`, at most 1024 (a warning appears if that is not enough). Sub-coils may raise the count. A whole number is used exactly, and the tolerance then only drives the chord-error warning. |
 | `RX_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | How far a straight chord may lie from the true RX curve, in mm (0.001 = 1 micron, also the smallest value allowed; finer adds points, not accuracy). The old default was 0.005. The older name `CHORD_TOLERANCE_MM` is still read when this line is missing. |
 
-### Sub-coils
+### 15.2.3 Sub-coils
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
 | `RX_SUBCOILS` | 1 | 1, 2 or 3 | Sub-coils per coil (distributed winding, as in the Renesas IPS2200 reference design). Each coil stays one closed series loop. |
 | `RX_SUBCOIL_SPLIT_ELEC_DEG` | 45.0 | > 0 (*only if* sub-coils ≥ 2) | Electrical angle between sub-coils. Use 45 for 2, and 30 for 3. Two sub-coils give signal × 2·cos(d/2) (1.85× at 45°); harmonic *h* × 2·cos(h·d/2) (3rd and 5th down about 59 % at 45°, 3rd removed at 60°, 5th removed at 36°). |
 
-### Layers and vias
+### 15.2.4 Layers and vias
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -93,7 +93,7 @@ two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switc
 | `RX_RISING_EDGE_LAYER` | `"F.Cu"` | `F.Cu`, `B.Cu` (*only if* 2 layers) | Which layer carries the rising edges. |
 | `RX_VIA_ELECTRICAL_DEG` | 90.0 | 50 to 130 | Electrical angle of the outer-tip layer-swap via (90 = exactly on the tip). |
 
-### Bridging fingers
+### 15.2.5 Bridging fingers
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -102,11 +102,11 @@ two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switc
 | `RX_TAB_LENGTH_MM` | 3.0 | ≥ 0 | The finger reaches `OUTSIDE_RADIUS_MM` plus this (lengthened if needed to clear the outermost complete TX turn). |
 | `RX_TAB_WIDTH_MM` | 1.0 | > 0 | Spacing of the finger's two legs. Keep at 0.6 or more for etching; narrower disturbs the signal less. |
 
-## TX (`TX_Parameters.py`)
+## 15.3 TX (`TX_Parameters.py`)
 
 Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer board has 1 and 4).
 
-### Turns
+### 15.3.1 Turns
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -123,7 +123,7 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 | `TX_INSIDE_VIA_DISTANCE_MM` | 0.3 | −3 to 3 | Moves the TX terminal via towards the centre (negative = outwards). 0 = on the trace ends, which is closer to the next turn than the clearance allows with the default via and pitch. Keep below `TX_OFFSET_MM` − via radius − half an RX trace − clearance (0.4 mm with the defaults). |
 | `TX_START_ANGLE_DEG` | 0.0 | number or "auto" | Azimuth of the TX tail and via. "auto" = the widest gap between RX fingers (use with many loops or sub-coils). |
 
-### TX layers
+### 15.3.2 TX layers
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -142,13 +142,13 @@ and 2).
 A series TX always makes way for fingers by going around them ("staggered"). All TX turns are one net, so KiCad's DRC
 cannot see a TX turn touching another: the generator checks the clearance itself and warns.
 
-## Rotor (`Rotor_Parameters.py`)
+## 15.4 Rotor (`Rotor_Parameters.py`)
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
 | `ROTOR_MODE` | `"according_to_stator"` | `according_to_stator`, `custom` | Generate the rotor from the stator, or use only the `ROTOR_CUSTOM_*` values. |
 
-### According to stator
+### 15.4.1 According to stator
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -163,7 +163,7 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 | `ROTOR_AUTO_EDGE_CLEARANCE_MM` | 0.5 | ≥ 0 | Copper stays this far from the bore edge and the outline. |
 | `ROTOR_AUTO_COPPER_LAYERS` | `["F.Cu"]` | layer list | Layer(s) carrying the metal sectors. Mount the copper side towards the stator. |
 
-### Custom
+### 15.4.2 Custom
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -175,7 +175,7 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 | `ROTOR_CUSTOM_OUTLINE_RADIUS_MM` | 55.0 | > 0 or None | Outer board edge (None = no outline). |
 | `ROTOR_CUSTOM_BORE_RADIUS_MM` | 36.8 | > 0 or None | Centre hole (None = no hole). |
 
-### Both modes
+### 15.4.3 Both modes
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
@@ -183,7 +183,7 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 | `ROTOR_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | The largest overshoot of the polygon beyond the true circle, in mm (1 micron, also the smallest value allowed). The vertices sit slightly outside the nominal radius, so the copper is never smaller than requested. |
 | `ROTOR_SOLDER_MASK_EXPANSION_MM` | 0.05 | up to 5 | Mask opening over the rotor copper: above 0 = opening that much wider than the copper; 0 = exactly the copper outline; −1 = no opening (mask stays over the copper). No other negative value is accepted. |
 
-## Optimizer (`OptimizerParameters.py`)
+## 15.5 Optimizer (`OptimizerParameters.py`)
 
 Used only by `OptimizeCoil.py`. These settings change what the optimizer tries; they never change a board.
 
@@ -213,3 +213,7 @@ Used only by `OptimizeCoil.py`. These settings change what the optimizer tries; 
 | `BAND_WIDTH_LIMIT_PERCENT` | 70.0 | Narrowest band tried, as a percentage of the widest. |
 | `BAND_STEP_PERCENT` | 10.0 | Step of the band search, in percent (1 = finest). |
 | `BAND_BOARDS` | 3 | How many of the best boards get the band finder. |
+
+| Previous | Next |
+|:---|---:|
+| [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md) | [Checks, Errors And Warnings](Checks-Errors-And-Warnings.md) |

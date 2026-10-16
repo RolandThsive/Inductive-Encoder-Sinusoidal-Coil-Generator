@@ -1,4 +1,4 @@
-# License
+# 24. License
 
 The project uses three licenses, one for each kind of content.
 
@@ -15,3 +15,7 @@ cover the core generator the tool runs, which stays under the code license above
 Commercial use of anything here needs the author's written permission. See the
 [repository `LICENSE.md`](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/LICENSE.md)
 for the full terms and the contact details.
+
+| Previous | Next |
+|:---|---:|
+| [Future Upgrades And Planning](Future-Upgrades-And-Planning.md) |  |
