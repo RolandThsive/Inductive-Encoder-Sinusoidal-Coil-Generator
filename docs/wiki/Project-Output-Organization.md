@@ -22,7 +22,7 @@ Sinusoidal Coil Generator/
 │   ├── OutputDirectoryManager.py Output folders and Parameters.txt
 │   └── CoilElectrics.py          Electrical estimate
 └── Output/
-    └── Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<Stepped|Spiral>/
+    └── Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>/
         ├── Stator.kicad_pcb
         ├── Rotor.kicad_pcb
         └── Parameters.txt

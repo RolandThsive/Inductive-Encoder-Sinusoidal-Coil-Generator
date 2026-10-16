@@ -12,12 +12,12 @@
 | RX Fingers | Bridging fingers to break the coils out across the TX ring: all, single or none |
 | TX Layers | Any one layer, or any two layers of a 4-layer board |
 | TX Wiring | Series or parallel |
-| TX Shape | Stepped or spiral turns, with an adjustable step angle |
+| TX Shape | Stepped diagonal turns (adjustable step angle), stepped arc turns (adjustable arc radius, as on the Renesas reference boards) or spiral turns |
 | TX Break Style | Go-around (staggered) or stitched windows where a finger crosses the TX ring |
 | Rotor | Generated from the stator, or fully custom |
 | Board | 2 or 4 copper layers, through vias only, fixed or automatic board edges |
 | Checks | Parameter rules, finished-geometry rules and the generator's own TX self-clearance check |
-| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and RX voltage against the IC limits |
+| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and tank resistance against the IC limits |
 | Analysis | Angle error, signal, harmonics and a tolerance window (air gap, eccentricity, tilt, etching) |
 | Optimization | Searches profile, sub-coils, split, rotor metal fraction and rotor outer edge |
 

@@ -97,7 +97,7 @@ The two wirings and the two styles combine like this:
 ### 14.4.1 Recommended Combination
 
 The best combination is a **4-layer board** with the RX fingers (if you choose to have them) on
-**Inner 1** and a **series TX with stepped turns on Top and Inner 2**:
+**Inner 1** and a **series TX with stepped turns (`stepped_diagonal`) on Top and Inner 2**:
 
 | Setting | Value |
 |---|---|
@@ -106,7 +106,7 @@ The best combination is a **4-layer board** with the RX fingers (if you choose t
 | `TX_LAYERS` | `2` |
 | `TX_LAYER_A`, `TX_LAYER_B` | `1` (Top) and `3` (Inner 2) |
 | `TX_SERIES` | `True` |
-| `TX_TURN_SHAPE` | `"stepped"` |
+| `TX_TURN_SHAPE` | `"stepped_diagonal"` (or `"stepped_arc"` for the Renesas-style arcs) |
 
 The fingers then sit on a layer that carries no TX turns, so no turn has to go around them. The
 generator builds this setup without errors.

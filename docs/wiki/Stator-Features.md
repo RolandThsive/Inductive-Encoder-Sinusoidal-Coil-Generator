@@ -77,24 +77,31 @@ TX on Top alone.
 
 *Stator 5. Series and parallel TX on Top + Inner-1, with the detail around one RX finger.*
 
-### 11.2.3 Series: Stepped Versus Spiral
+### 11.2.3 Series: Turn Shapes
 
-**Stepped** turns are concentric circles joined by short steps near the terminal. **Spiral** turns
-are one smooth Archimedean spiral with a constant gap, useful when the pitch is tight.
+`TX_TURN_SHAPE` takes three values:
+
+| Value | Turns |
+|---|---|
+| `stepped_diagonal` (default) | Concentric circles joined by straight steps near the terminal. The older name `stepped` still works and gives the same boards. |
+| `stepped_arc` | Concentric circles joined by arcs centred on the terminal via, as on the Renesas reference boards. See [11.2.7](#1127-stepped-arc-radius) and the picture in [TX Profiles](TX-Profiles.md#95-turn-shapes). |
+| `spiral` | One smooth Archimedean spiral with a constant gap, useful when the pitch is tight. |
+
+The pictures below show `stepped_diagonal` and `spiral`.
 
 ![Stator 6: Series TX Stepped vs Spiral](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_6_tx_series_shape.png)
 
-*Stator 6. Series TX with stepped and spiral turns, with the detail at the TX terminal.*
+*Stator 6. Series TX with `stepped_diagonal` and `spiral` turns, with the detail at the TX terminal.*
 
 In a series spiral the two layers are mirror images. They coincide at the terminal and at 180°, and
 are up to half a pitch apart at 90° and 270°. This is inherent: identical spirals would cancel each
 other.
 
-### 11.2.4 Parallel: Stepped Versus Spiral
+### 11.2.4 Parallel: Turn Shapes
 
 ![Stator 7: Parallel TX Stepped vs Spiral](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_7_tx_parallel_shape.png)
 
-*Stator 7. Parallel TX with stepped and spiral turns. The two layers lie on top of each other, so
+*Stator 7. Parallel TX with `stepped_diagonal` and `spiral` turns. The two layers lie on top of each other, so
 the Top turns are mostly hidden under Inner-1.*
 
 ### 11.2.5 Break Styles At The Fingers
@@ -112,12 +119,12 @@ A series TX always uses the go-around. For a parallel TX, `TX_PARALLEL_BREAK_STY
 
 *Stator 8. Close-up of one finger: series go-around, parallel stitched and parallel go-around.*
 
-### 11.2.6 Terminal Via Placement And Step Angle
+### 11.2.6 Terminal Via Placement And Step Angle (`stepped_diagonal`)
 
 All TX turns are one net, so KiCad's DRC cannot see a TX turn touching another TX turn. The
 generator measures these gaps itself and warns.
 
-`TX_INSIDE_VIA_DISTANCE_MM` moves the terminal via towards the centre, away from the next turn. At
+`TX_INSIDE_VIA_DISTANCE_MM` (used by `stepped_diagonal` and `spiral`, not by `stepped_arc`) moves the terminal via towards the centre, away from the next turn. At
 0 mm (the original layout) the via comes too close to the neighbouring turn, and the generator
 warns.
 
@@ -125,13 +132,37 @@ warns.
 
 *Stator 9. Terminal via at 0 mm and at 0.3 mm (the default).*
 
-`TX_STEPPED_ANGLE_DEG` sets the angle of the steps, measured from the turn: `auto` keeps the
+`TX_STEPPED_ANGLE_DEG` (`stepped_diagonal` only) sets the angle of the steps, measured from the turn: `auto` keeps the
 original two-piece step, 90° steps straight out. Steep steps are staggered automatically to keep
 the clearance.
 
 ![Stator 10: TX Stepped Angle](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_10_tx_step_angle.png)
 
 *Stator 10. Step angles of Auto, 20°, 45° and 90°.*
+
+### 11.2.7 Stepped Arc Radius
+
+With `stepped_arc` the terminal via sits on the first turn and is the centre of all the arcs. Arc `n` has the
+radius `TX_STEPPED_ARC_RADIUS_MM + n × TX_PITCH_MM` (n = 0 innermost). It leaves turn `n` on one side of the via,
+runs round the via and lands on turn `n + 1` on the other side. The arcs are one pitch apart, so the copper gap
+between neighbouring arcs equals the gap between the turns. The last arc stops at its outermost point and the outer
+tail leaves radially from there.
+
+| Setting | Meaning |
+|---|---|
+| `"auto"` (default) | The larger of `TX_PITCH_MM` and via radius + half a TX trace + `MIN_CLEARANCE_MM`, plus 0.02 mm and the chord sag of the turns. 0.72 mm on the example board (arcs 0.72, 1.32 and 1.92 mm). |
+| a number | That radius, in mm. It must be larger than `TX_PITCH_MM` and smaller than `TX_PITCH_MM + TX_TAIL_EXTRA_MM` (both are errors otherwise). Below the via clearance radius the generator warns. |
+
+`stepped_arc` works with every TX layout: one layer, two layers in series (the arcs of the second layer are the
+mirror image and one via is the centre of both sets), two layers in parallel, the windows around the fingers and
+4-layer boards. All TX turns are one net, so KiCad's DRC cannot see TX copper touching TX copper; the generator
+measures the smallest gap between the pieces of TX copper around the via itself and warns below `MIN_CLEARANCE_MM`
+(0.399 mm on the example board). The arcs bulge outwards, so the outer tail starts 0.12 mm farther out than the
+outer step of `stepped_diagonal` (24.42 mm on the example board); the board outline is the same.
+
+![TX Profiles 4: TX turn shapes](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/tx_profiles_4_turn_shapes.png)
+
+*Stator 11. The TX shapes around the terminal via on the example board (TX only, terminal pointing right): (a) the default board with `stepped_arc`, (b) two layers in series, (c) two layers in parallel (stitched; only the Bottom turns show near the terminal), (d) five turns, (e) `stepped_diagonal` for comparison and (f) an arc radius of 1.0 mm.*
 
 | Previous | Next |
 |:---|---:|

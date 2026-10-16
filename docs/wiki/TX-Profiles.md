@@ -64,8 +64,15 @@ A TX that does not use the finger's layer is never interrupted.
 
 *TX Profiles 3. Six TX combinations on a 4-layer board (RX on Top and Inner 1, fingers on Top), close-up where an RX finger crosses. TX on Bottom only has no turns on the finger's layer, so it runs unbroken.*
 
-The recommended combination (series, stepped turns, Top + Inner 2, fingers on Inner 1) is described in the
+The recommended combination (series, `stepped_diagonal` turns, Top + Inner 2, fingers on Inner 1) is described in the
 [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#1441-recommended-combination).
+## 9.5 Turn Shapes
+
+Every combination above can use any of the three `TX_TURN_SHAPE` values: `stepped_diagonal` (the default), `stepped_arc` (arcs centred on the terminal via, as on the Renesas reference boards) and `spiral`. The shape changes only the copper around the terminal, not the layers or the wiring. `stepped_arc` takes one extra setting, `TX_STEPPED_ARC_RADIUS_MM`, described in [Stator Features](Stator-Features.md#1127-stepped-arc-radius).
+
+![TX Profiles 4: TX turn shapes](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/tx_profiles_4_turn_shapes.png)
+
+*TX Profiles 4. The TX shapes around the terminal via on the example board (TX only, terminal pointing right): (a) `stepped_arc` on the default board, (b) two layers in series, (c) two layers in parallel (stitched), (d) five turns, (e) `stepped_diagonal` for comparison and (f) an arc radius of 1.0 mm.*
 
 | Previous | Next |
 |:---|---:|
