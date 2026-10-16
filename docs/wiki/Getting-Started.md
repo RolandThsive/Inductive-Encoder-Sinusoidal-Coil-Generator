@@ -35,9 +35,9 @@ pip install numpy matplotlib
 python Generator/RunCoilGenerator.py              # Check, then write Stator + Rotor
 python Generator/RunCoilGenerator.py --check      # Check only, write nothing
 python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
-python Analyser_And_Optimizer/AnalyzeCoil.py      # Analyse the current parameters
-python Analyser_And_Optimizer/OptimizeCoil.py     # Search better settings (set in OptimizerParameters.py)
 ```
+
+The analyser (`AnalyzeCoil.py`) and optimizer (`OptimizeCoil.py`) are not on main. They are under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
 Every program runs from any folder; it finds the other folders itself. A run never overwrites anything: if the output
 folder name already exists, `__1`, `__2` and so on are added. See

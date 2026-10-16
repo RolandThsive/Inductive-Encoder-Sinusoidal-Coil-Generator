@@ -24,16 +24,18 @@
 | **Chord** | One straight segment of the polyline that approximates a curve. Every RX curve, TX turn and rotor arc is a polyline of chords. |
 | **Chord tolerance** | The largest gap, in mm, allowed between the true curve and its chord. RX, TX and rotor each have their own setting (`RX_`, `TX_`, `ROTOR_CHORD_TOLERANCE_MM`, default and minimum 0.001 mm). |
 | **Auto steps** | The "auto" setting of `STEPS_PER_LOOP`, `TX_STEPS` and `ROTOR_ARC_STEPS_PER_SECTOR`: the generator picks the number of chords or points from the chord tolerance. A whole number is used exactly. |
-| **Stepped / spiral** | TX turn shapes: concentric circles joined by short steps, or one smooth Archimedean spiral. |
-| **Step angle** | The angle of the radial steps of a stepped TX turn, measured from the turn. |
+| **Stepped diagonal** | TX turn shape: concentric circles joined by straight steps (the default; older name `stepped`). |
+| **Stepped arc** | TX turn shape: concentric circles joined by arcs centred on the terminal via, as on the Renesas reference boards. |
+| **Spiral** | TX turn shape: one smooth Archimedean spiral. |
+| **Step angle** | The angle of the steps of a `stepped_diagonal` TX turn, measured from the turn. |
+| **Arc radius** | The radius of the innermost arc of a `stepped_arc` TX (`TX_STEPPED_ARC_RADIUS_MM`). |
 | **Terminal via** | The via at the TX terminal that joins the inner tail to the first turn (or the two spirals of a series TX). |
 | **Series / parallel TX** | Two TX layers wired end to end, or the same turns on both layers stitched together. |
 | **Underpass** | The layer carrying the TX inner tail or the go-around brackets. |
 | **Metal fraction (duty)** | The fraction of each rotor period that is copper. 0.5 = 180 electrical degrees. |
 | **Air gap** | The distance from the stator top copper to the rotor copper. |
 | **Tolerance window** | The range of air gap, rotor eccentricity, tilt and etching over which the analyser judges a design. |
-| **Eddy-current model** | The default rotor model: each copper sector is a thin perfect conductor carrying its own eddy current. |
-| **Ideal-screen model** | The older, faster rotor model: TX flux is simply removed wherever there is copper. |
+| **Ideal-screen model** | The rotor copper is taken as a perfect screen of the TX flux; this gives an upper estimate of the drop in TX inductance. |
 | **Tank** | The TX coil plus its capacitors; the oscillator runs at the tank's resonant frequency. |
 | **Receiver IC** | The chip that drives the TX and reads the RX coils, for example the Renesas IPS2550 or IPS2200. |
 | **KiCad net** | A named electrical connection in the board. The coils use nets `TX`, SIN (`2`) and COS (`1`). |

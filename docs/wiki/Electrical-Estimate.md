@@ -1,7 +1,7 @@
 # 17. Electrical Estimate
 
 `CoilElectrics.py` turns the geometry into absolute electrical numbers. `RunCoilGenerator.py` prints them for every
-generation, `AnalyzeCoil.py` for every case of its tolerance window and `OptimizeCoil.py` for every candidate. Nothing
+generation. The analyser and optimizer (under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer)) print them for every case of the tolerance window and every candidate. Nothing
 here changes a board.
 
 > [!WARNING]
@@ -12,10 +12,9 @@ here changes a board.
 - The **TX inductance** with the rotor away and with the rotor at the air gap.
 - The **TX resistance** (DC) and the **Q**.
 - The **tank capacitors** for `EXCITATION_FREQ_HZ` and the **oscillator frequency** they give.
-- The **parallel resistance of the tank**, which is what the oscillator has to drive.
-- The **receiver voltage**, peak to peak, at the TX voltage of the IC.
+- The **parallel resistance of the tank**, which is what the oscillator has to drive, as a range.
 
-These are checked against the datasheet limits of `RECEIVER_IC`.
+The oscillator frequency and the tank resistance are checked against the datasheet limits of `RECEIVER_IC`. The receiver voltage is not estimated: it needs a model of the whole sensor, which is not part of the generator.
 
 ## 17.2 How The Numbers Are Made
 
@@ -23,20 +22,15 @@ These are checked against the datasheet limits of `RECEIVER_IC`.
 |---|---|
 | TX inductance | Every TX turn is taken as a circular loop (radius from the generator, depth from the stack-up). L = the turn self-inductances (a ring of a w × t trace) plus the mutual inductances of every pair of turns (Maxwell's formula for coaxial circles). Radial steps, spiral pitch and terminal tails are left out; against the full TX polyline (Neumann integral) this is within 2 %. |
 | Resistance | DC resistance of all the TX copper. At the TX frequency skin and proximity effects raise it; the checks allow for up to an AC factor times the DC value. |
-| Rotor effect | The default eddy-current model solves the eddy currents in the rotor copper, and the change of TX inductance follows from them exactly (thin, perfectly conducting copper, centred rotor). With the older ideal-screen model the drop is an upper estimate, so the true frequency lies between "rotor away" and the predicted one. |
-| Receiver voltage | The analyser's receiver signal (the same model as its angle error) in volts. The IC sets the TX voltage, so the ratio counts: V_RX / V_TX = M / L, with M the TX-to-receiver mutual inductance at the rotor angle where it is largest and L the TX inductance with the rotor. |
+| Rotor effect | The rotor copper is taken as an ideal screen of the TX field. That is an upper estimate of the drop in inductance (a real rotor with gaps lets the field through them), so the true frequency with the rotor lies between "rotor away" and the predicted one. |
+| Tank resistance | The true value lies between the value with the estimated rotor and the value with the rotor's effect left out. It is a warning only if even the higher value is below the IC's minimum. If only the lower value is, it is an info line that gives the range. |
 | Tank capacitors | Two capacitors C from each TX pin to ground (2 C from TX1 and 2 C from TX2), E12 C0G values just below and above the value needed. |
 
-With the ideal-screen model the receiver voltage misses the crowding of the field at the copper edges. For long radial
-sectors that is an exact 2-D problem: the fundamental of the field in the rotor plane is 1 − cos(π d) instead of
-(2/π) sin(π d), where d is the metal fraction. The correction factor is 0.51, 0.65, 0.91, 1.14 and 1.57 at d = 0.2,
-0.25, 1/3, 0.4 and 0.5. The eddy model computes it directly.
+**Example (default board).** L = 1.146 µH with the rotor away and 1.004 µH with the rotor at the 1 mm air gap (−12.4 %, upper estimate). The tank for 3.5 MHz is 2 × 4.12 nF. The tank resistance is 224 to 255 Ω against the IPS2550's 250 Ω, so it gets an info line, not a warning.
 
 ## 17.3 Not Included
 
 - Parasitic capacitance (IC pins, coil, wiring; typically some 10 pF), which lowers the frequency a little.
-- The IC's receiver input filter (100 pF per line in the Renesas reference designs), which raises the receiver voltage
-  by a few per cent.
 - Temperature (copper resistance rises 0.39 % per kelvin).
 
 ## 17.4 Receiver IC Limits
@@ -47,14 +41,8 @@ The limits are taken from the Renesas datasheets. Check your revision.
 |---|---|---|
 | Oscillator frequency | 2.0 to 5.6 MHz | 1.7 to 5.8 MHz |
 | Minimum tank resistance (R_Peq) | 250 Ω | 100 Ω |
-| TX voltage (peak to peak) | 6 to 11 V | 11 V |
-| Receiver voltage (peak to peak) | 15 mV to 0.92 V (default AGC target 1.8 Vpp, gain boost off) | 5 mV to 5.2 V (input range; the usable part depends on the front-end gain) |
 
-For the IPS2550 the receiver range is 8 mV to 0.47 V with the gain boost on, and 25 mV to 1.5 V with the AGC target at
-3.0 Vpp. A receiver voltage closer than a factor of 2 to a limit is pointed out.
-
-Set `RECEIVER_IC = None` in `Board_Parameters.py` to switch the checks off, and `TX_AMPLITUDE_VPP` if you know the
-real TX voltage. See the [Parameter Reference](Parameter-Reference.md).
+Set `RECEIVER_IC = None` in `Board_Parameters.py` to switch the checks off. See the [Parameter Reference](Parameter-Reference.md).
 
 | Previous | Next |
 |:---|---:|

@@ -4,8 +4,8 @@ Every setting lives in a parameter file in `Parameters/`. These are the only fil
 degrees and hertz unless a name says otherwise. The **Range** column is what the parameter checker accepts; "None"
 means the generator works the value out itself. The Web Tool shows the same names in its Advanced mode.
 
-`Parameters.py` only gathers the four board files and is not edited. `OptimizerParameters.py` is read only by the
-optimizer.
+`Parameters.py` only gathers the four board files and is not edited. `OptimizerParameters.py` belongs to the optimizer, which is
+under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
 > [!NOTE]
 > Defaults are those of the parameter files on `main`. Settings marked *only if* are greyed out ("not used now") in
@@ -51,7 +51,6 @@ optimizer.
 |---|---|---|---|
 | `RECEIVER_IC` | `"IPS2550"` | `"IPS2550"`, `"IPS2200"`, None | The IC the coil is checked against (see [Electrical Estimate](Electrical-Estimate.md)). None switches the checks off. |
 | `COPPER_THICKNESS_UM` | 35 | 0 to 500 | Stator copper thickness (35 µm = 1 oz). Sets TX resistance and Q. |
-| `TX_AMPLITUDE_VPP` | None | 0 to 100 or None | TX voltage across the coil, peak to peak, if you know it. None = the range from the IC datasheet. |
 
 ## 15.2 RX (`RX_Parameters.py`)
 
@@ -118,9 +117,10 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 | `TX_STEPS` | `"auto"` | "auto" or a whole number, 12 to 20000 | Polyline points per TX turn. "auto" = as many as `TX_CHORD_TOLERANCE_MM` needs on the outermost full turn (the worst case), rounded up to a multiple of 8, at least 48. A whole number is used exactly; the old default was 300. |
 | `TX_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | How far a straight chord of a TX turn may lie from the true circle, in mm (1 micron, also the smallest value allowed). |
 | `TX_TAIL_EXTRA_MM` | 1.0 | ≥ 0 | Radial tail that carries the TX terminal. |
-| `TX_TURN_SHAPE` | `"stepped"` | `stepped`, `spiral` | Concentric circles joined by short steps, or one smooth Archimedean spiral (use it when the pitch is tight). |
-| `TX_STEPPED_ANGLE_DEG` | 45 | "auto" or 5 to 90 (*only if* stepped) | Angle of the steps, measured from the turn: 90 = radial, smaller = a longer slope. "auto" = the original two-piece step (about 40°). Neighbouring steps have a gap of pitch × cos(angle) − width; above about 45° with the defaults that is below `MIN_CLEARANCE_MM`, and the steps are staggered automatically. |
-| `TX_INSIDE_VIA_DISTANCE_MM` | 0.3 | −3 to 3 | Moves the TX terminal via towards the centre (negative = outwards). 0 = on the trace ends, which is closer to the next turn than the clearance allows with the default via and pitch. Keep below `TX_OFFSET_MM` − via radius − half an RX trace − clearance (0.4 mm with the defaults). |
+| `TX_TURN_SHAPE` | `"stepped_diagonal"` | `stepped_diagonal`, `stepped_arc`, `spiral` | Concentric circles joined by straight steps, concentric circles joined by arcs centred on the terminal via (as on the Renesas reference boards), or one smooth Archimedean spiral (use it when the pitch is tight). `stepped` is the older name of `stepped_diagonal` and still works (the checker asks you to rename it). Capitals do not matter. |
+| `TX_STEPPED_ARC_RADIUS_MM` | `"auto"` | "auto" or a number above 0 (*only if* stepped_arc) | Radius of the innermost arc, from the centre of the terminal via. Arc `n` has the radius this + n × `TX_PITCH_MM`. "auto" = the larger of `TX_PITCH_MM` and via radius + half a TX trace + `MIN_CLEARANCE_MM`, plus 0.02 mm and the chord sag (0.72 mm on the example board). A number must be larger than `TX_PITCH_MM` and smaller than `TX_PITCH_MM + TX_TAIL_EXTRA_MM` (errors otherwise); below the via clearance radius it warns. |
+| `TX_STEPPED_ANGLE_DEG` | 45 | "auto" or 5 to 90 (*only if* stepped_diagonal) | Angle of the steps, measured from the turn: 90 = radial, smaller = a longer slope. "auto" = the original two-piece step (about 40°). Neighbouring steps have a gap of pitch × cos(angle) − width; above about 45° with the defaults that is below `MIN_CLEARANCE_MM`, and the steps are staggered automatically. |
+| `TX_INSIDE_VIA_DISTANCE_MM` | 0.3 | −3 to 3 (*not used by* stepped_arc) | Moves the TX terminal via towards the centre (negative = outwards). 0 = on the trace ends, which is closer to the next turn than the clearance allows with the default via and pitch. Keep below `TX_OFFSET_MM` − via radius − half an RX trace − clearance (0.4 mm with the defaults). |
 | `TX_START_ANGLE_DEG` | 0.0 | number or "auto" | Azimuth of the TX tail and via. "auto" = the widest gap between RX fingers (use with many loops or sub-coils). |
 
 ### 15.3.2 TX layers
@@ -185,34 +185,8 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 
 ## 15.5 Optimizer (`OptimizerParameters.py`)
 
-Used only by `OptimizeCoil.py`. These settings change what the optimizer tries; they never change a board.
-
-| Name | Default | Meaning |
-|---|---|---|
-| `PROFILES` | all three | RX profiles tried. |
-| `SUBCOIL_COUNTS` | (1, 2) | Sub-coil counts tried. |
-| `SUBCOIL_SPLITS_DEG` | 36, 40, 45, 50, 55, 60 | Splits tried for two or more sub-coils. |
-| `DUTY_RANGE` | (0.25, 0.50) | Rotor metal fraction searched. |
-| `SEARCH_ROTOR_OUTER_EDGE` | True | Also search where the rotor copper ends on the outside. |
-| `OUTER_RANGE_MM` | (−0.2, 0.5) | Outer-edge range for the older screen model only. |
-| `COMPARE_FINGERS` | False | Try `all`, `single` and `none` fingers and compare (about three times the run time). |
-| `GAP_TOLERANCE_MM` | 0.2 | Air gap ± that every candidate must stay good within. |
-| `DUTY_TOLERANCE` | 0.005 | Metal fraction ± (etching). |
-| `OUTER_TOLERANCE_MM` | 0.05 | Rotor outer edge ± (screen model only). |
-| `ECCENTRICITY_MM` | 0.2 | Rotor axis offset from the stator axis. |
-| `TILT_DEG` | 0.3 | Rotor plane tilt. |
-| `ECC_DIRECTIONS` | 3 | Eccentricity directions tried over one loop pitch. |
-| `MIN_SIGNAL` | 0.8 | Smallest allowed signal, as a fraction of the current design's. |
-| `ALLOW_WARNINGS` | False | Whether candidates that trigger generator warnings may be recommended. |
-| `FINALISTS` | 6 | Candidates re-checked over the full tolerance window. |
-| `ROTOR_MODEL` | `"eddy"` | `eddy` (eddy currents in the rotor copper, slower, sees copper over the TX) or `screen` (older, much faster). |
-| `TRUE_3D_GEOMETRY` | True | Every receiver trace at its real layer depth and the TX from its real copper. |
-| `SCREEN_SHARP_EDGES` | False | Screen model only: perfectly sharp rotor edges. |
-| `JOBS` | 0 | Worker processes (0 = automatic, at most 4). |
-| `RX_BASE_AND_AMPLITUDE_FINDER` | True | When only the board edges are given, search the best `RX_R_BASE_MM` and `RX_A_MM`. |
-| `BAND_WIDTH_LIMIT_PERCENT` | 70.0 | Narrowest band tried, as a percentage of the widest. |
-| `BAND_STEP_PERCENT` | 10.0 | Step of the band search, in percent (1 = finest). |
-| `BAND_BOARDS` | 3 | How many of the best boards get the band finder. |
+> [!NOTE]
+> **Under construction.** The optimizer and its parameter file are not on main. They live on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
 | Previous | Next |
 |:---|---:|
