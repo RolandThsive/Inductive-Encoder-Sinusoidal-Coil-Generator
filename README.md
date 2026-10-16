@@ -238,8 +238,8 @@ contact details.
 | Board | 2 or 4 copper layers, through vias only, fixed or automatic board edges |
 | Checks | Parameter rules, finished-geometry rules and the generator's own TX self-clearance check |
 | Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and RX voltage against the IC limits |
-| Analysis | Angle error, signal, harmonics and a tolerance window (air gap, eccentricity, tilt, etching) |
-| Optimization | Searches profile, sub-coils, split, rotor metal fraction and rotor outer edge |
+| Analysis (`analyser_and_optimizer` branch, under construction) | Angle error, signal, harmonics and a tolerance window (air gap, eccentricity, tilt, etching) |
+| Optimization (`analyser_and_optimizer` branch, under construction) | Searches profile, sub-coils, split, rotor metal fraction and rotor outer edge |
 
 Each of these is shown with pictures in the sections below.
 
@@ -471,6 +471,8 @@ extra target and weakens the signal.
 
 The analyser and optimizer are optional. They never change a board or a parameter file.
 
+> **Under construction.** The analyser and optimizer now live on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer), not on main. The generator on main does not need them.
+
 - **AnalyzeCoil** builds the stator and rotor in memory and simulates both receiver coils while the
   rotor turns. It reports the signal, offset, SIN/COS match, harmonics and angle error, for the
   nominal design and for a tolerance window of air gap, rotor eccentricity, tilt and etching.
@@ -514,7 +516,7 @@ Sinusoidal Coil Generator/
 │   ├── RX_Parameters.py          Loops, radii, profile, sub-coils, layers, fingers
 │   ├── TX_Parameters.py          Turns, pitch, shape, layers, series / parallel, break style
 │   ├── Rotor_Parameters.py       The rotor (metal target)
-│   ├── OptimizerParameters.py    Every setting of the optimizer (it has no command-line options)
+│   ├── OptimizerParameters.py    Every setting of the optimizer (analyser_and_optimizer branch)
 │   └── Parameters.py             Gathers the four board files (do not edit)
 ├── Generator/
 │   ├── RunCoilGenerator.py       The program to run; the only one that writes files
@@ -524,7 +526,7 @@ Sinusoidal Coil Generator/
 │   ├── ParameterChecker.py       Rules for parameters and finished geometry
 │   ├── OutputDirectoryManager.py Output folders and Parameters.txt
 │   └── CoilElectrics.py          Electrical estimate
-├── Analyser_And_Optimizer/
+├── Analyser_And_Optimizer/     Moved to the analyser_and_optimizer branch (under construction)
 │   ├── AnalyzeCoil.py
 │   ├── OptimizeCoil.py
 │   ├── RealCopper.py
@@ -546,6 +548,11 @@ pip install numpy matplotlib
 python Generator/RunCoilGenerator.py              # Check, then write Stator + Rotor
 python Generator/RunCoilGenerator.py --check      # Check only, write nothing
 python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
+```
+
+The analyser and optimizer are on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer) and are under construction. On that branch:
+
+```bash
 python Analyser_And_Optimizer/AnalyzeCoil.py      # Analyse the current parameters
 python Analyser_And_Optimizer/OptimizeCoil.py     # Search for a better design (settings: OptimizerParameters.py)
 ```
