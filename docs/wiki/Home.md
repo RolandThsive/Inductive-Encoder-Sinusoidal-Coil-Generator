@@ -1,6 +1,6 @@
 # 1. Inductive Encoder Sinusoidal Coil Generator Wiki
 
-An open, all-in-one coil generator for rotary inductive encoders: set the parameters, get a stator and rotor as KiCad boards, and check them with the built-in analyser and optimizer.
+An open, all-in-one coil generator for rotary inductive encoders: set the parameters, get a stator and rotor as KiCad boards, and, once finished, check them with the analyser and optimizer (under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer)).
 
 The goal is to make 20-bit and higher rotary encoding available to anyone, with nothing more than KiCad and a PCB order, and to bring the price of such encoders down from hundreds or thousands of dollars to tens.
 

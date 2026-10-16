@@ -31,7 +31,7 @@ counterweight.
 *Rotor 2. A 4-lobe rotor over its stator: the default, a larger TX overhang, copper ending inside
 the TX ring, a shorter inner edge, and metal fractions of 1/3 and 0.4.*
 
-The best metal fraction and outer edge depend on the coil. The optimizer searches them together.
+The best metal fraction and outer edge depend on the coil. The optimizer (under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer)) searches them together.
 
 | Previous | Next |
 |:---|---:|

@@ -1,7 +1,7 @@
 # 17. Electrical Estimate
 
 `CoilElectrics.py` turns the geometry into absolute electrical numbers. `RunCoilGenerator.py` prints them for every
-generation, `AnalyzeCoil.py` for every case of its tolerance window and `OptimizeCoil.py` for every candidate. Nothing
+generation. The analyser and optimizer (under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer)) print them for every case of the tolerance window and every candidate. Nothing
 here changes a board.
 
 > [!WARNING]

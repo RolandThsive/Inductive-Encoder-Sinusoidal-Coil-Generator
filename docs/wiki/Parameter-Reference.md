@@ -4,8 +4,8 @@ Every setting lives in a parameter file in `Parameters/`. These are the only fil
 degrees and hertz unless a name says otherwise. The **Range** column is what the parameter checker accepts; "None"
 means the generator works the value out itself. The Web Tool shows the same names in its Advanced mode.
 
-`Parameters.py` only gathers the four board files and is not edited. `OptimizerParameters.py` is read only by the
-optimizer.
+`Parameters.py` only gathers the four board files and is not edited. `OptimizerParameters.py` belongs to the optimizer, which is
+under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
 > [!NOTE]
 > Defaults are those of the parameter files on `main`. Settings marked *only if* are greyed out ("not used now") in
@@ -184,6 +184,9 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 | `ROTOR_SOLDER_MASK_EXPANSION_MM` | 0.05 | up to 5 | Mask opening over the rotor copper: above 0 = opening that much wider than the copper; 0 = exactly the copper outline; −1 = no opening (mask stays over the copper). No other negative value is accepted. |
 
 ## 15.5 Optimizer (`OptimizerParameters.py`)
+
+> [!NOTE]
+> **Under construction.** The optimizer is not on main. It lives on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
 Used only by `OptimizeCoil.py`. These settings change what the optimizer tries; they never change a board.
 

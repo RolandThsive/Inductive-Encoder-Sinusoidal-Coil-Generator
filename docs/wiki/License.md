@@ -4,7 +4,7 @@ The project uses three licenses, one for each kind of content.
 
 | Content | License | What it allows |
 |---|---|---|
-| Generator code (`Generator/`, `Parameters/`, `Analyser_And_Optimizer/`) | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) | Use, change and share, for noncommercial purposes |
+| Generator code (`Generator/`, `Parameters/`, and `Analyser_And_Optimizer/` on the analyser_and_optimizer branch) | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) | Use, change and share, for noncommercial purposes |
 | Documentation and images (`docs/`, this wiki) | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) | Share and adapt with credit, noncommercial, under the same license |
 | Web Tool (`WebGUI/` and its design) | [PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0/) | Noncommercial use only; no changes and no redistribution |
 
