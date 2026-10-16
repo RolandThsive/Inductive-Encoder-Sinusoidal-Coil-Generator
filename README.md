@@ -17,8 +17,8 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 ## Contents
 
 1. [Disclaimer](#disclaimer)
-2. [Introduction](#introduction)
-3. [Goal](#goal)
+2. [Goal](#goal)
+3. [Introduction](#introduction)
 4. [Immediate Next Steps](#immediate-next-steps)
 5. [Project Capabilities](#project-capabilities)
 6. [Examples](#examples)
@@ -48,6 +48,16 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 
 ---
 
+## Goal
+
+The goal is an **all-in-one, openly available coil generator for rotary inductive encoders**, one
+that anyone in the world can use to reach **20-bit and higher motor encoding** on demand, with
+nothing more than KiCad and a PCB order. Industrial absolute encoders with this kind of resolution
+and robustness cost hundreds to thousands of dollars each. This project aims to close that gap, and
+it is completely open to industry experts, researchers and hobbyists who want to add to it.
+
+---
+
 ## Introduction
 
 Inductive position sensors measure angle with nothing more than copper traces on printed circuit
@@ -70,14 +80,6 @@ two signals.* More in the wiki: [Working Principle](https://github.com/RolandThs
 > calibration. See [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator).
 
 ---
-
-## Goal
-
-The goal is an **all-in-one, openly available coil generator for rotary inductive encoders**, one
-that anyone in the world can use to reach **20-bit and higher motor encoding** on demand, with
-nothing more than KiCad and a PCB order. Industrial absolute encoders with this kind of resolution
-and robustness cost hundreds to thousands of dollars each. This project aims to close that gap, and
-it is completely open to industry experts, researchers and hobbyists who want to add to it.
 
 ---
 
