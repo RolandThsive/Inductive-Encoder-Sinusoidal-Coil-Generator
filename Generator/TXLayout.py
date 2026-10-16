@@ -27,6 +27,46 @@ SHARED_NAMES = ("TX_LAYERS", "TX_LAYER_A", "TX_LAYER_B")
 LEGACY_NAMES = ("TX_PLACEMENT", "TX_SECOND_LAYER", "TX_BREAK_STYLE")         # only without TX_SERIES
 NEW_NAMES = ("TX_SERIES", "TX_SERIES_UNDERPASS_LAYER", "TX_PARALLEL_BREAK_STYLE")
 
+# TX_TURN_SHAPE: the values it may take, and the shape each one gives
+#   "stepped_diagonal" : concentric turns joined by straight (diagonal) steps   ("stepped" = its older name)
+#   "stepped_arc"      : concentric turns joined by arcs centred on the TX terminal via
+#   "spiral"           : one smooth Archimedean spiral
+TX_SHAPE_VALUES = ("stepped_diagonal", "stepped_arc", "spiral", "stepped")
+_SHAPES = {"stepped_diagonal": "diagonal", "stepped": "diagonal", "stepped_arc": "arc", "spiral": "spiral"}
+ARC_MARGIN_MM = 0.02           # added to the smallest arc radius on "auto" (and the chord sag of the turns)
+
+
+def tx_shape(P):
+    """'diagonal', 'arc' or 'spiral' for TX_TURN_SHAPE (any letter case; "stepped" is the older name of
+    "stepped_diagonal").  Raises ValueError for anything else."""
+    s = str(getattr(P, "TX_TURN_SHAPE", "stepped_diagonal")).strip().lower()
+    if s not in _SHAPES:
+        raise ValueError('TX_TURN_SHAPE must be "stepped_diagonal", "stepped_arc" or "spiral"')
+    return _SHAPES[s]
+
+
+def arc_radius_limits(P):
+    """Limits of the radius of the innermost arc of a "stepped_arc" TX (mm):
+      corner : the arcs are one pitch apart and arc n must reach turn n + 1, so the innermost radius must be
+               larger than TX_PITCH_MM
+      via    : the innermost arc keeps MIN_CLEARANCE_MM from the terminal via (via radius + half a trace +
+               clearance)
+      top    : the last arc ends (radius + (turns - 1) x pitch) outside the first turn, where the outer tail starts;
+               it must stay inside the tail end, so the radius must be smaller than TX_PITCH_MM + TX_TAIL_EXTRA_MM"""
+    p = float(P.TX_PITCH_MM)
+    via = float(P.VIA_DIAMETER_MM) / 2.0 + float(P.TX_TRACE_WIDTH_MM) / 2.0 + float(P.MIN_CLEARANCE_MM)
+    return dict(corner=p, via=via, top=p + float(P.TX_TAIL_EXTRA_MM))
+
+
+def arc_first_radius(P, sag=0.0):
+    """Radius of the innermost arc of a "stepped_arc" TX (mm): TX_STEPPED_ARC_RADIUS_MM, or ("auto") the smallest
+    radius that forms a corner with the next turn and clears the via, plus ARC_MARGIN_MM and the chord sag."""
+    v = getattr(P, "TX_STEPPED_ARC_RADIUS_MM", "auto")
+    if _is_auto(v):
+        lim = arc_radius_limits(P)
+        return max(lim["corner"], lim["via"]) + ARC_MARGIN_MM + float(sag)
+    return float(v)
+
 
 def _is_auto(v):
     return isinstance(v, str) and v.strip().lower() == "auto"

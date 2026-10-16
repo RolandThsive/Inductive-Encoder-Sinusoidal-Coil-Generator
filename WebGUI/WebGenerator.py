@@ -7,7 +7,7 @@ It does what RunCoilGenerator.py does, without touching the generator itself:
   2. ParameterChecker.check_parameters, StatorDesign + check_design, RotorDesign + check_design,
   3. the files are written with OutputDirectoryManager into Output/Coil_..., and zipped.
 
-The electrical estimate (CoilElectrics.py, which needs the analyser) is not made in the web GUI's first
+The electrical estimate (CoilElectrics.py) is not made in the web GUI's first
 release; Parameters.txt says so.  Nothing here is needed to run the generator on a desktop.
 
 Every function returns JSON text, so the JavaScript side never sees Python objects.
@@ -274,6 +274,8 @@ def describe():
             continue
         opts = {k: _jsonable(v) for k, v in o.items() if k in ("lo", "hi", "lo_ex", "hi_ex", "values", "ci",
                                                                   "optional", "default")}
+        if name == "TX_TURN_SHAPE":                       # "stepped" is the old name of "stepped_diagonal": not offered
+            opts["values"] = [x for x in opts["values"] if x != "stepped"]
         default = getattr(P, name, o.get("default"))
         default = WEB_DEFAULTS.get(name, default)
         help_text = _web_text(helps.get(name) or FALLBACK_HELP.get(name, ""))
@@ -387,7 +389,7 @@ def generate(values_json, strict=False):
     folder = ODM.create_output_folder(stator, P)
     written = [stator.write(os.path.join(folder, P.STATOR_FILE)), rotor.write(os.path.join(folder, P.ROTOR_FILE))]
     note = ["ELECTRICAL ESTIMATE",
-            "  not made: the web GUI's first release runs the generator only (no CoilElectrics / AnalyzeCoil).",
+            "  not made: the web GUI's first release runs the generator only (no CoilElectrics).",
             "  Run RunCoilGenerator.py on a desktop with these parameter files for the estimate."]
     ODM.write_record(folder, P, written, stator=stator, rotor=rotor, electrical_lines=note,
                      warnings=warn_texts, command="Web GUI (generator only)")
