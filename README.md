@@ -119,7 +119,11 @@ Full details, board sizes and every parameter are in the wiki:
 
 ![Stator 1: Loops](docs/images/stator_1_loops.png)
 
-*Stator 1. The same board with 1, 2, 4, 8 and 16 loops.* More pictures in the wiki:
+*Stator 1. The same board with 1, 2, 4, 8 and 16 loops.*
+
+![Rotor 1: Lobes](docs/images/rotor_1_lobes.png)
+
+*Rotor 1. Rotors with 1, 2, 3, 4, 6, 8, 12 and 16 lobes.* More pictures in the wiki:
 [Examples](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples).
 
 ---
