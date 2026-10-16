@@ -18,14 +18,30 @@ TX_TRACE_WIDTH_MM  = 0.2
 #   also the smallest value allowed.
 TX_STEPS           = "auto"
 TX_CHORD_TOLERANCE_MM = 0.001
-TX_TAIL_EXTRA_MM   = 1.0            # radial tail that carries the TX terminal
-# Shape of the turns:
-#   "stepped" : concentric circles joined by a short radial step (your examples)
-#   "spiral"  : one smooth Archimedean spiral, the gap between turns equals the pitch
-#               everywhere.  Use it when TX_PITCH_MM is tight (pitch - trace width close
-#               to the clearance), e.g. the 0.4 mm pitch of the Renesas reference.
-TX_TURN_SHAPE      = "stepped"
-# TX_STEPPED_ANGLE_DEG = the angle of the steps of a "stepped" TX (where each turn steps out to the next one,
+TX_TAIL_EXTRA_MM   = 2.0            # radial tail that carries the TX terminal
+# Shape of the turns (any letter case):
+#   "stepped_diagonal" : concentric circles joined by short straight steps just before the TX terminal, at
+#                        TX_STEPPED_ANGLE_DEG (your examples).  "stepped" is its older name and still works.
+#   "stepped_arc"      : concentric circles joined by arcs centred on the TX terminal via (as on the Renesas
+#                        reference boards).  The via sits on the first turn; arc n (radius
+#                        TX_STEPPED_ARC_RADIUS_MM + n x TX_PITCH_MM) leaves turn n on one side of the via, runs
+#                        round it and lands on turn n + 1 on the other side, with sharp corners.  The arcs are one
+#                        pitch apart, so the copper gap between them is the same as between the turns, and the
+#                        outer tail leaves from the outermost point of the last arc.  TX_STEPPED_ANGLE_DEG and
+#                        TX_INSIDE_VIA_DISTANCE_MM are not used.
+#   "spiral"           : one smooth Archimedean spiral, the gap between turns equals the pitch
+#                        everywhere.  Use it when TX_PITCH_MM is tight (pitch - trace width close
+#                        to the clearance), e.g. the 0.4 mm pitch of the Renesas reference.
+TX_TURN_SHAPE      = "stepped_diagonal"
+# TX_STEPPED_ARC_RADIUS_MM = radius of the innermost arc of a "stepped_arc" TX (mm, measured from the centre of the
+#   terminal via); the other arcs follow at TX_PITCH_MM.
+#     "auto" : the smallest radius that keeps MIN_CLEARANCE_MM from the via (via radius + half a TX trace +
+#              clearance) and is larger than TX_PITCH_MM (each arc must reach the next turn), plus 0.02 mm:
+#              0.72 mm with the defaults.
+#     number : that radius; it must be larger than TX_PITCH_MM and smaller than TX_PITCH_MM + TX_TAIL_EXTRA_MM.
+#   Only used by "stepped_arc".
+TX_STEPPED_ARC_RADIUS_MM = "auto"
+# TX_STEPPED_ANGLE_DEG = the angle of the steps of a "stepped_diagonal" TX (where each turn steps out to the next one,
 #   just before the TX terminal), measured from the turn: 90 = straight out (radial), 45 = diagonal, smaller =
 #   a longer, gentler slope.  Each step is one straight piece, and the run down to the terminal via
 #   (TX_INSIDE_VIA_DISTANCE_MM) takes the same angle.
@@ -35,7 +51,7 @@ TX_TURN_SHAPE      = "stepped"
 #              TX_PITCH_MM * cos(angle) - TX_TRACE_WIDTH_MM; at steep angles (above about 45 deg with the
 #              defaults) that is less than MIN_CLEARANCE_MM, and each step then starts a little before the one
 #              inside it to keep the clearance.  The generator prints the gap it got.
-#   Not used by a "spiral" TX (it has no steps).
+#   Only used by "stepped_diagonal" (a "stepped_arc" TX has arcs, a "spiral" TX no steps).
 TX_STEPPED_ANGLE_DEG = 45
 # TX_INSIDE_VIA_DISTANCE_MM = where the via at the TX terminal sits (the via that joins the inner tail
 #   to the first turn, or the two spirals of a series TX).  0 = on the trace ends, as originally - only
@@ -45,6 +61,7 @@ TX_STEPPED_ANGLE_DEG = 45
 #   the via at the slope of the TX's own steps, with a short flat piece into the via.  Keep it below
 #   TX_OFFSET_MM - via radius - half an RX trace - MIN_CLEARANCE_MM (0.4 mm with the defaults), or the
 #   via comes too close to the RX coils.  The generator measures it and warns.
+#   Not used by "stepped_arc" (its via always sits on the first turn, at the centre of the arcs).
 TX_INSIDE_VIA_DISTANCE_MM = 0.3
 TX_START_ANGLE_DEG = 0.0            # azimuth of the TX tail / via: a number of degrees, or
                                     # "auto" = the widest gap between RX bridging fingers
@@ -111,4 +128,4 @@ TX_SERIES_UNDERPASS_LAYER = "auto"
 #                 other layer carries the current past it (no copper outside the TX ring).
 #   "staggered" : the turns on the finger's layer go around the finger (go-around), with the
 #                 brackets on the other TX layer outside its turns; both layers stay complete.
-TX_PARALLEL_BREAK_STYLE = "staggered"
+TX_PARALLEL_BREAK_STYLE = "stitched"

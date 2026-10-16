@@ -1,3 +1,7 @@
-# Examples
+# 6. Examples
 
-*Coming soon. A curated set of complete example designs will be published here.*
+*A curated set of examples validated against hardware is pending and will be ordered after clearly defining the set of tests I need to perform.*
+
+| Previous | Next |
+|:---|---:|
+| [Project Capabilities](Project-Capabilities.md) | [Induction Encoding - Rotary Working Principle](Working-Principle.md) |

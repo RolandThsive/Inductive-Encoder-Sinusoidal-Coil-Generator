@@ -1,4 +1,4 @@
-# Future Upgrades And Planning
+# 23. Future Upgrades And Planning
 
 | Upgrade | Description |
 |---|---|
@@ -10,3 +10,7 @@
 | **KiCad Plugin** | Packaging the generator as a KiCad add-on through the Plugin and Content Manager. |
 
 *Strike-through means done.*
+
+| Previous | Next |
+|:---|---:|
+| [Immediate Next Steps](Immediate-Next-Steps.md) | [License](License.md) |

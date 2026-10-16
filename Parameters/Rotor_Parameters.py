@@ -16,18 +16,17 @@ ROTOR_AUTO_DUTY             = 0.5   # metal fraction of each period (0.5 = 180 d
                                     # 3rd), but the field it leaves has: the eddy currents crowd the
                                     # field at the copper edges, which moves the fraction that removes
                                     # the 3rd harmonic of the field above 1/3 and changes the signal.
-                                    # OptimizeCoil.py finds the best value for your coil with the
-                                    # eddy-current model; check it on a test rotor.
+                                    # The best value for your coil needs a model of the eddy currents
+                                    # or a test rotor.
 ROTOR_AUTO_START_ANGLE_DEG  = 0.0   # mechanical angle of the first sector edge
 
 # ---- outer edge of the copper: over the TX turns (default) -----------------
 # True: the copper runs over the TX turns and ends ROTOR_AUTO_TX_OVERHANG_MM past the outer edge
 # of the outermost TX turn, as in the Renesas reference designs.  Every sector is a shorted turn
 # driven by the TX flux it encloses, and that flux is densest right beside the TX conductors: in
-# the eddy-current model (AnalyzeCoil.py) that gives 5-8 % more receiver signal than ending the
-# copper inside the TX ring; most of the gain is reached 0.5 mm past the outer turn.  Whether it
-# also lowers the angle error depends on the coil (in the model it does for 1 loop and not for
-# 16), so OptimizeCoil.py searches the outer edge together with the metal fraction.
+# an eddy-current model that gave 5-8 % more receiver signal than ending the copper inside the
+# TX ring; most of the gain is reached 0.5 mm past the outer turn.  Whether it also lowers the
+# angle error depends on the coil (in the model it did for 1 loop and not for 16).
 # False: the older rule (ROTOR_AUTO_EXTENSION_OUTER_MM, ROTOR_AUTO_TX_CLEARANCE_MM below).
 ROTOR_AUTO_COVER_TX         = True
 ROTOR_AUTO_TX_OVERHANG_MM   = 0.5   # mm past the outer edge of the outermost TX turn (negative = ends

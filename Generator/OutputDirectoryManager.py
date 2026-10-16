@@ -3,7 +3,7 @@
 OutputDirectoryManager.py  -  where RunCoilGenerator.py puts every generation, and the record it leaves there.
 
 Every generation gets its own folder inside OUTPUT_DIR (Board_Parameters.py; "Output" = the Output folder of
-the project, next to Parameters, Generator and Analyser_And_Optimizer):
+the project, next to Parameters and Generator):
 
     Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_<TX wiring>_<TX shape>
 
@@ -15,10 +15,10 @@ the project, next to Parameters, Generator and Analyser_And_Optimizer):
     TX wiring             Single   (TX_LAYERS = 1: one layer)
                           Series   (TX_LAYERS = 2, TX_SERIES = True: two layers in series)
                           Parallel (TX_LAYERS = 2, TX_SERIES = False: two layers in parallel)
-    TX shape              Stepped or Spiral (TX_TURN_SHAPE)
+    TX shape              SteppedDiagonal, SteppedArc or Spiral (TX_TURN_SHAPE)
 
-for example  Coil_36.8_56.6_8_1_3_Single_Stepped.  If that folder already exists, the next free one of
-Coil_..._Stepped__1, Coil_..._Stepped__2, ... is used, so nothing is ever overwritten.
+for example  Coil_36.8_56.6_8_1_3_Single_SteppedDiagonal.  If that folder already exists, the next free one of
+Coil_..._SteppedDiagonal__1, Coil_..._SteppedDiagonal__2, ... is used, so nothing is ever overwritten.
 
 A relative OUTPUT_DIR is taken from the project folder (the one that holds Parameters, Generator, ...), not
 from the folder you run the program in, so the boards always land in the same place.  (With every file in one
@@ -37,6 +37,8 @@ files when they are run on their own.
 import datetime
 import os
 
+import TXLayout
+
 PARAMETER_FILES = ("Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py")
 RECORD_FILE = "Parameters.txt"
 FOLDER_PREFIX = "Coil"
@@ -50,18 +52,22 @@ def _num(x):
 
 
 TX_WIRING_WORDS = {"single": "Single", "series2": "Series", "parallel": "Parallel"}
+TX_SHAPE_WORDS = {"diagonal": "SteppedDiagonal", "arc": "SteppedArc", "spiral": "Spiral"}
 FOLDER_PATTERN = ("Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_"
                   "<TX wiring>_<TX shape>")
 
 
 def tx_words(stator, P):
-    """('Single' | 'Series' | 'Parallel', 'Stepped' | 'Spiral') of this TX."""
+    """('Single' | 'Series' | 'Parallel', 'SteppedDiagonal' | 'SteppedArc' | 'Spiral') of this TX."""
     mode = getattr(stator, "tx_mode", None)
     if mode is None:                                   # (no stator: from the parameters)
         mode = "single" if int(getattr(P, "TX_LAYERS", 1)) == 1 else (
             "series2" if getattr(P, "TX_SERIES", True) is True else "parallel")
     wiring = TX_WIRING_WORDS.get(mode, str(mode).title())
-    shape = "Spiral" if str(getattr(P, "TX_TURN_SHAPE", "stepped")).lower() == "spiral" else "Stepped"
+    try:
+        shape = TX_SHAPE_WORDS[TXLayout.tx_shape(P)]
+    except ValueError:                                 # (a bad TX_TURN_SHAPE is reported by the checks)
+        shape = str(getattr(P, "TX_TURN_SHAPE", "")).title().replace("_", "")
     return wiring, shape
 
 
@@ -73,7 +79,7 @@ def folder_name(stator, P):
 
 
 def project_folder():
-    """The project folder (it holds Parameters, Generator, Analyser_And_Optimizer and Output), or None when every
+    """The project folder (it holds Parameters, Generator and Output), or None when every
     file sits in one folder (earlier versions)."""
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return root if os.path.isdir(os.path.join(root, "Parameters")) and os.path.isdir(os.path.join(root, "Generator")) \
