@@ -10,10 +10,11 @@ Nothing in this file is computed - edit values only.
 # =============================================================================
 # RunCoilGenerator.py makes a NEW folder inside OUTPUT_DIR for every run (OutputDirectoryManager.py):
 #     Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_<TX wiring>_<TX shape>
-#     TX wiring = Single (one TX layer), Series or Parallel (two TX layers); TX shape = Stepped or Spiral
-# e.g. Coil_36.8_56.6_8_1_3_Single_Stepped; if it exists already: ..._Stepped__1, __2, ...
+#     TX wiring = Single (one TX layer), Series or Parallel (two TX layers);
+#     TX shape  = SteppedDiagonal, SteppedArc or Spiral (TX_TURN_SHAPE)
+# e.g. Coil_36.8_56.6_8_1_3_Single_SteppedDiagonal; if it exists already: ..._SteppedDiagonal__1, __2, ...
 # It holds the two boards below and Parameters.txt (every value used for that run).
-# "Output" = the Output folder of the project (next to Parameters, Generator, Analyser_And_Optimizer), whatever
+# "Output" = the Output folder of the project (next to Parameters and Generator), whatever
 # folder you run the program from.  A relative path is always taken from the project folder; a full path
 # (e.g. "C:/Boards") is used as it is.
 OUTPUT_DIR   = "Output"             # folder in which the Coil_... folders are made
@@ -74,13 +75,10 @@ EXCITATION_FREQ_HZ   = 3.5e6        # TX oscillator frequency aimed for, with th
 
 
 # =============================================================================
-# ELECTRICAL ESTIMATE  (CoilElectrics.py, printed by RunCoilGenerator.py, AnalyzeCoil.py and
-# OptimizeCoil.py: TX inductance, tank capacitors, oscillator frequency, receiver voltage.
-# These values never change a board.)
+# ELECTRICAL ESTIMATE  (CoilElectrics.py, printed by RunCoilGenerator.py: TX inductance, tank
+# capacitors, oscillator frequency.  These values never change a board.)
 # =============================================================================
 RECEIVER_IC          = "IPS2550"    # the IC the coil is checked against: "IPS2550", "IPS2200", or None
-                                    # (no checks).  Its oscillator range, minimum tank resistance, TX
-                                    # voltage and receiver input range are taken from the Renesas datasheets.
+                                    # (no checks).  Its oscillator range and minimum tank resistance are
+                                    # taken from the Renesas datasheets.
 COPPER_THICKNESS_UM  = 35           # stator copper thickness in micrometres (35 = 1 oz): TX resistance and Q
-TX_AMPLITUDE_VPP     = None         # TX voltage across the coil, peak-to-peak, if you know it (measured, or
-                                    # set by the IC's coil current).  None = the range given by the IC's datasheet.
