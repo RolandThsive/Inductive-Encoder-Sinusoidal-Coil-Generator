@@ -29,8 +29,8 @@ LOOPS = 1
 # board edges (INNER_EDGE_RADIUS_MM and OUTER_EDGE_RADIUS_MM, Board_Parameters.py, must then be set).
 # With the band given, a board edge that is None is calculated from it; a board edge that is set is
 # used as given (it must leave the usual margins - the checker says how much is needed).
-INSIDE_RADIUS_MM  = None
-OUTSIDE_RADIUS_MM = None
+INSIDE_RADIUS_MM  = 16.2
+OUTSIDE_RADIUS_MM = 21.4
 RX_R_BASE_MM      = None
 RX_A_MM           = None
 
@@ -143,7 +143,7 @@ RX_VIA_ELECTRICAL_DEG = 90.0
 #              the TX via and the other finger: the coils are broken out next to the
 #              TX terminal.  (With TX_START_ANGLE_DEG = "auto" the tail goes to 0 deg.)
 #   "none"   = plain RX band, no fingers
-# In the analyser "single" was as accurate as "none" and, untuned, more accurate than
+# In an earlier analysis "single" was as accurate as "none" and, untuned, more accurate than
 # "all" from 4 loops up (the many fingers distort the coil shape); once the rotor is
 # tuned for each, the three are within about 20 %.  A 3-D check with the real TX tail,
 # via and layer depths gave a constant offset below about 0.2 % of the signal for

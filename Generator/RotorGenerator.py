@@ -12,8 +12,9 @@ StatorGenerator.py: a PCB carrying N copper sectors, N = number of periods
                                copper pattern of fraction k/h has no h-th
                                harmonic, but the field it leaves does (the eddy
                                currents crowd it at the copper edges), so the
-                               fraction that suits a coil best is found with the
-                               eddy-current model: OptimizeCoil.py.
+                               fraction that suits a coil best has to be found
+                               with a model of the eddy currents or on a test
+                               rotor.
         * outer edge         = by default (ROTOR_AUTO_COVER_TX = True) the copper
                                runs over the TX turns and ends
                                ROTOR_AUTO_TX_OVERHANG_MM past the outer edge of
@@ -21,9 +22,9 @@ StatorGenerator.py: a PCB carrying N copper sectors, N = number of periods
                                reference designs.  Every sector is a shorted
                                turn driven by the TX flux it encloses, and that
                                flux is densest right beside the TX conductors;
-                               in the eddy-current model of AnalyzeCoil.py this
-                               gives 5-8 % more receiver signal than ending the
-                               copper inside the TX ring.  It never comes
+                               in an eddy-current model this gave 5-8 % more
+                               receiver signal than ending the copper inside the
+                               TX ring.  It never comes
                                closer than ROTOR_AUTO_EDGE_CLEARANCE_MM to the
                                board outline.
                                With ROTOR_AUTO_COVER_TX = False the older rule:
@@ -62,10 +63,10 @@ import math
 import os
 import sys
 
-# The project folders sit next to each other: Parameters, Generator, Analyser_And_Optimizer (and Output).
-# Put all three on the import path, so every program runs from any folder.  (All files in one folder works too.)
+# The project folders sit next to each other: Parameters and Generator (and Output).
+# Put both on the import path, so every program runs from any folder.  (All files in one folder works too.)
 _PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-for _sub in ("Analyser_And_Optimizer", "Generator", "Parameters"):
+for _sub in ("Generator", "Parameters"):
     _p = os.path.join(_PROJECT, _sub)
     if os.path.isdir(_p) and _p not in sys.path:
         sys.path.insert(0, _p)
