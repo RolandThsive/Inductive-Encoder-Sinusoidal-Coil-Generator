@@ -1,4 +1,4 @@
-# Checks, Errors And Warnings
+# 16. Checks, Errors And Warnings
 
 Before and after a board is built, the generator checks it. `ParameterChecker.py` holds every rule in one place. It
 can also be run alone to check the parameter files without generating anything:
@@ -9,7 +9,7 @@ python Generator/RunCoilGenerator.py --check    # check only, write nothing
 python Generator/RunCoilGenerator.py --strict   # treat warnings as errors
 ```
 
-## Levels
+## 16.1 Levels
 
 | Level | Meaning | What happens |
 |---|---|---|
@@ -20,7 +20,7 @@ python Generator/RunCoilGenerator.py --strict   # treat warnings as errors
 Thresholds called "typical" in the messages are general PCB-fab rules of thumb, not the limits of any particular
 manufacturer. Check yours.
 
-## Two Stages
+## 16.2 Two Stages
 
 1. **Parameter rules** (`check_parameters`). They need only the values: types, ranges, and combinations that cannot
    work. Each parameter has a range (see the [Parameter Reference](Parameter-Reference.md)), and a misspelled or
@@ -31,7 +31,7 @@ manufacturer. Check yours.
 A third check, the generator's own **TX self-clearance** check, exists because all TX turns are one net, so KiCad's
 DRC cannot see a TX turn touching another TX turn.
 
-## What Is Checked
+## 16.3 What Is Checked
 
 | Area | Examples of what the rules look for |
 |---|---|
@@ -49,19 +49,33 @@ DRC cannot see a TX turn touching another TX turn.
 | Page | The board comes close to the top or left of the KiCad page (the page grows right and down automatically). |
 
 Each message names the setting, its value and the limit it broke. The Web Tool adds the "what to change" advice; see
-[Web Tool](Web-Tool.md#errors-and-warnings).
+[Web Tool](Web-Tool.md#46-errors-and-warnings).
 
-## Electrical Checks
+## 16.4 Electrical Checks
 
 The [electrical estimate](Electrical-Estimate.md) adds its own findings, checked against the receiver IC's datasheet
-limits: oscillator frequency out of range, tank resistance too low, receiver signal too small or too large, receiver
-signal varying too much, and TX voltage out of range.
+limits: oscillator frequency out of range and tank resistance too low. When only the lower end of the tank resistance
+range is below the limit, you get an info line that gives the range, not a warning.
 
-## Examples Of Boards The Generator Refuses
+### 16.4.1 TX Shape Checks
+
+| Message | Level |
+|---|---|
+| `TX_TURN_SHAPE = "stepped"` is the older name of `stepped_diagonal` | Info: rename it |
+| `TX_STEPPED_ARC_RADIUS_MM` not larger than `TX_PITCH_MM` | Error: each arc must reach the next turn |
+| `TX_STEPPED_ARC_RADIUS_MM` not smaller than `TX_PITCH_MM + TX_TAIL_EXTRA_MM` | Error: the last arc would pass the end of the tail |
+| `TX_STEPPED_ARC_RADIUS_MM` below via radius + half a TX trace + clearance | Warning: the innermost arc comes within the clearance of the via (KiCad's DRC does not see it, all TX is one net) |
+| Smallest gap between TX copper pieces around the via below `MIN_CLEARANCE_MM` | Warning |
+
+## 16.5 Examples Of Boards The Generator Refuses
 
 | Situation | Why |
 |---|---|
 | 16 loops on a very small board (outer radius below about 26 mm) | The tip vias crowd at small bore radii; a quarter loop needs about 1.3 mm of arc at the RX inner edge. See the board size table in [Board Features](Board-Features.md). |
 | 2 sub-coils with 13 to 16 loops at the default band | The tip vias of neighbouring coils get too close. Use 1 sub-coil or a wider band. |
 | Sub-coils or `RX_TABS = "all"` at a wide TX pitch | The README's wider-pitch stator pictures (1.5 mm and 2.5 mm) only exist for the loop examples; the sub-coil and finger examples stay at 0.6 mm because the generator will not build those boards at a wider pitch. |
-| `TX_STEPPED_ANGLE_DEG` very steep with a tight pitch | Neighbouring steps would be closer than the clearance; the generator staggers them and prints the gap it got. |
+| `TX_STEPPED_ANGLE_DEG` very steep with a tight pitch (`stepped_diagonal`) | Neighbouring steps would be closer than the clearance; the generator staggers them and prints the gap it got. |
+
+| Previous | Next |
+|:---|---:|
+| [Parameter Reference](Parameter-Reference.md) | [Electrical Estimate](Electrical-Estimate.md) |

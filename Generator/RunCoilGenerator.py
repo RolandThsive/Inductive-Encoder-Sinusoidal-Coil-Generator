@@ -16,15 +16,15 @@ Steps
   2. build the stator                    (the generator's own clearance warnings are shown here),
      ParameterChecker.check_design       rules on the finished geometry
   3. build the rotor, check again
-  4. CoilElectrics.estimate              TX inductance, tank capacitors, oscillator frequency and
-                                         receiver voltage, checked against RECEIVER_IC (an estimate:
-                                         it never changes the boards, its warnings count like the others)
+  4. CoilElectrics.estimate              TX inductance, tank capacitors and oscillator frequency,
+                                         checked against RECEIVER_IC (an estimate: it never changes
+                                         the boards, its warnings count like the others)
   5. decide (--strict, --check)
   6. write the files - only if no step reported an error.  OutputDirectoryManager.py makes a new
      folder for every run inside OUTPUT_DIR (the Output folder of the project),
          Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_<TX wiring>_<TX shape>
-     e.g. Coil_36.8_56.6_8_1_3_Single_Stepped (TX wiring: Single, Series or Parallel; TX shape: Stepped or
-     Spiral), with __1, __2, ... added when that name exists already, and writes Stator.kicad_pcb,
+     e.g. Coil_36.8_56.6_8_1_3_Single_SteppedDiagonal (TX wiring: Single, Series or Parallel; TX shape:
+     SteppedDiagonal, SteppedArc or Spiral), with __1, __2, ... added when that name exists already, and writes Stator.kicad_pcb,
      Rotor.kicad_pcb and Parameters.txt (every value used, the summaries, the electrical estimate
      and copies of the parameter files) into it.  Nothing is ever overwritten.
 
@@ -40,10 +40,10 @@ import io
 import os
 import sys
 
-# The project folders sit next to each other: Parameters, Generator, Analyser_And_Optimizer (and Output).
-# Put all three on the import path, so every program runs from any folder.  (All files in one folder works too.)
+# The project folders sit next to each other: Parameters and Generator (and Output).
+# Put both on the import path, so every program runs from any folder.  (All files in one folder works too.)
 _PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-for _sub in ("Analyser_And_Optimizer", "Generator", "Parameters"):
+for _sub in ("Generator", "Parameters"):
     _p = os.path.join(_PROJECT, _sub)
     if os.path.isdir(_p) and _p not in sys.path:
         sys.path.insert(0, _p)

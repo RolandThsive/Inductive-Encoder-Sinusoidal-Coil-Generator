@@ -1,4 +1,4 @@
-# Board Features
+# 13. Board Features
 
 | Feature | Description |
 |---|---|
@@ -18,3 +18,7 @@ Top and on Top + Inner-1.*
 
 Keep layers that carry no coil free of copper pours under the coil area: a plane there acts like an
 extra target and weakens the signal.
+
+| Previous | Next |
+|:---|---:|
+| [Rotor Features](Rotor-Features.md) | [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md) |

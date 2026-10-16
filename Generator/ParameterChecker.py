@@ -133,6 +133,14 @@ _tx2 = lambda P: _get(P, "TX_LAYERS") == 2
 _txa = lambda P: not _tx_old(P) or _tx2(P)                         # (earlier versions: TX_LAYERS = 1 meant Bottom)
 _ser = lambda P: not _tx_old(P) and (_get(P, "TX_SERIES") is True or _get(P, "TX_LAYERS") == 1)
 _par = lambda P: not _tx_old(P) and _get(P, "TX_SERIES") is False and _tx2(P)
+
+
+def _shape(P):
+    """'diagonal' | 'arc' | 'spiral' (TXLayout.tx_shape), None for a TX_TURN_SHAPE that is not valid (reported)."""
+    try:
+        return TXLayout.tx_shape(P)
+    except ValueError:
+        return None
 _auto = lambda P: str(_get(P, "ROTOR_MODE", "")).lower() == "according_to_stator"
 _custom = lambda P: str(_get(P, "ROTOR_MODE", "")).lower() == "custom"
 _cover = lambda P: _get(P, "ROTOR_AUTO_COVER_TX", True) is True        # auto rotor over the TX turns (default)
@@ -160,7 +168,9 @@ _add(_B, "EXCITATION_FREQ_HZ", "num", lo=0, lo_ex=True)
 # electrical estimate (CoilElectrics.py); default = what it uses when the line is missing
 _add(_B, "RECEIVER_IC", "ic", optional=True, default="IPS2550", values=RECEIVER_ICS)
 _add(_B, "COPPER_THICKNESS_UM", "num", optional=True, default=35.0, lo=0, lo_ex=True, hi=500)
-_add(_B, "TX_AMPLITUDE_VPP", "num_or_none", optional=True, default=None, lo=0, lo_ex=True, hi=100)
+# TX_AMPLITUDE_VPP is no longer used (the generator does not estimate the receiver voltage); it is still accepted
+# so that older Board_Parameters.py files pass
+_add(_B, "TX_AMPLITUDE_VPP", "num_or_none", lambda P: False, optional=True, default=None, lo=0, lo_ex=True, hi=100)
 
 # ---- RX_Parameters.py
 _add(_RX, "LOOPS", "int", lo=1, hi=16)
@@ -199,11 +209,13 @@ _add(_TX, "TX_TRACE_WIDTH_MM", "num", lo=0, lo_ex=True)
 _add(_TX, "TX_STEPS", "auto_or_int", optional=True, default="auto", lo=12, hi=20000)
 _add(_TX, "TX_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)
 _add(_TX, "TX_TAIL_EXTRA_MM", "num", lo=0)
-_add(_TX, "TX_TURN_SHAPE", "choice", values=("stepped", "spiral"), ci=True)
+_add(_TX, "TX_TURN_SHAPE", "choice", values=TXLayout.TX_SHAPE_VALUES, ci=True)
 _add(_TX, "TX_START_ANGLE_DEG", "auto_or_num")
-_add(_TX, "TX_INSIDE_VIA_DISTANCE_MM", "num", optional=True, default=0.0, lo=-3.0, hi=3.0)
-_add(_TX, "TX_STEPPED_ANGLE_DEG", "auto_or_num", lambda P: str(_get(P, "TX_TURN_SHAPE", "")).lower() != "spiral",
+_add(_TX, "TX_INSIDE_VIA_DISTANCE_MM", "num", lambda P: _shape(P) != "arc", optional=True, default=0.0, lo=-3.0, hi=3.0)
+_add(_TX, "TX_STEPPED_ANGLE_DEG", "auto_or_num", lambda P: _shape(P) == "diagonal",
      optional=True, default="auto", lo=5.0, hi=90.0)
+_add(_TX, "TX_STEPPED_ARC_RADIUS_MM", "auto_or_num", lambda P: _shape(P) == "arc",
+     optional=True, default="auto", lo=0.0, lo_ex=True, hi=20.0)
 # TX layers (TXLayout.py): TX_LAYERS, TX_LAYER_A / TX_LAYER_B, TX_SERIES and its series / parallel block
 _add(_TX, "TX_LAYERS", "choice", values=(1, 2))
 _add(_TX, "TX_LAYER_A", "choice", active=_txa, values=(1, 2, 3, 4))
@@ -780,6 +792,25 @@ def check_parameters(P):
         elif dv < 0:
             rep.warn(f"TX_INSIDE_VIA_DISTANCE_MM = {dv:g} moves the TX terminal via outwards, onto the next TX turns; "
                      f"use 0 or a positive value")
+    if isinstance(getattr(P, "TX_TURN_SHAPE", None), str) and P.TX_TURN_SHAPE.strip().lower() == "stepped":
+        rep.info('TX_TURN_SHAPE = "stepped" is the older name of "stepped_diagonal" (the same boards); rename it in '
+                 'TX_Parameters.py')
+    if _shape(P) == "arc" and has("TX_STEPPED_ARC_RADIUS_MM", "TX_PITCH_MM", "TX_TRACE_WIDTH_MM", "VIA_DIAMETER_MM",
+                                  "MIN_CLEARANCE_MM", "TX_TAIL_EXTRA_MM") and v["TX_STEPPED_ARC_RADIUS_MM"] != "auto":
+        rho0 = v["TX_STEPPED_ARC_RADIUS_MM"]
+        lim = TXLayout.arc_radius_limits(types.SimpleNamespace(**{n: v[n] for n in (
+            "TX_PITCH_MM", "TX_TRACE_WIDTH_MM", "VIA_DIAMETER_MM", "MIN_CLEARANCE_MM", "TX_TAIL_EXTRA_MM")}))
+        if rho0 <= lim["corner"]:
+            rep.error(f"TX_STEPPED_ARC_RADIUS_MM = {rho0:g} must be larger than TX_PITCH_MM = {lim['corner']:g}: the arcs "
+                      f"are one pitch apart and each must reach the next turn (\"auto\" = "
+                      f"{max(lim['corner'], lim['via']) + TXLayout.ARC_MARGIN_MM:.2f} mm)")
+        elif rho0 >= lim["top"]:
+            rep.error(f"TX_STEPPED_ARC_RADIUS_MM = {rho0:g} must be smaller than TX_PITCH_MM + TX_TAIL_EXTRA_MM = "
+                      f"{lim['top']:g}: the last arc would reach past the end of the TX tail")
+        elif rho0 < lim["via"]:
+            rep.warn(f"TX_STEPPED_ARC_RADIUS_MM = {rho0:g} brings the innermost arc within MIN_CLEARANCE_MM of the TX "
+                     f"terminal via (via radius + half a TX trace + clearance = {lim['via']:.2f} mm): all TX turns are "
+                     f"one net, so KiCad's DRC will not flag it, but it shorts a turn")
     if has("TX_STEPS", "OUTSIDE_RADIUS_MM", "TX_OFFSET_MM") and v["TX_STEPS"] != "auto":
         r = v["OUTSIDE_RADIUS_MM"] + v["TX_OFFSET_MM"]
         sag = r * (1 - math.cos(math.pi / v["TX_STEPS"]))
@@ -1052,10 +1083,10 @@ def classify_generator_output(text):
 
 # =============================================================================
 if __name__ == "__main__":
-    # The project folders sit next to each other: Parameters, Generator, Analyser_And_Optimizer (and Output).
-    # Put all three on the import path, so every program runs from any folder.  (All files in one folder works too.)
+    # The project folders sit next to each other: Parameters and Generator (and Output).
+    # Put both on the import path, so every program runs from any folder.  (All files in one folder works too.)
     _PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    for _sub in ("Analyser_And_Optimizer", "Generator", "Parameters"):
+    for _sub in ("Generator", "Parameters"):
         _p = os.path.join(_PROJECT, _sub)
         if os.path.isdir(_p) and _p not in sys.path:
             sys.path.insert(0, _p)

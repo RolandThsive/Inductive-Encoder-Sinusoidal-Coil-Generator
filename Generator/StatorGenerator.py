@@ -66,10 +66,10 @@ import sys
 
 import numpy as np
 
-# The project folders sit next to each other: Parameters, Generator, Analyser_And_Optimizer (and Output).
-# Put all three on the import path, so every program runs from any folder.  (All files in one folder works too.)
+# The project folders sit next to each other: Parameters and Generator (and Output).
+# Put both on the import path, so every program runs from any folder.  (All files in one folder works too.)
 _PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-for _sub in ("Analyser_And_Optimizer", "Generator", "Parameters"):
+for _sub in ("Generator", "Parameters"):
     _p = os.path.join(_PROJECT, _sub)
     if os.path.isdir(_p) and _p not in sys.path:
         sys.path.insert(0, _p)
@@ -457,8 +457,7 @@ class StatorDesign:
             if not (P.RX_SUBCOIL_SPLIT_ELEC_DEG > 0
                     and (P.RX_SUBCOILS - 1) * P.RX_SUBCOIL_SPLIT_ELEC_DEG < 180.0):
                 raise ValueError("RX_SUBCOIL_SPLIT_ELEC_DEG must be > 0 and (RX_SUBCOILS-1)*split < 180")
-        if str(P.TX_TURN_SHAPE).lower() not in ("stepped", "spiral"):
-            raise ValueError('TX_TURN_SHAPE must be "stepped" or "spiral"')
+        self.tx_shape = TXLayout.tx_shape(P)            # "diagonal" | "arc" | "spiral" (raises on a bad value)
         if P.PCB_LAYERS not in (2, 4):
             raise ValueError("PCB_LAYERS must be 2 or 4")
         if P.PCB_LAYERS == 2 and P.RX_RISING_EDGE_LAYER not in ("F.Cu", "B.Cu"):
@@ -937,7 +936,8 @@ class StatorDesign:
         self._place_terminal_via()
 
     def _step_plan(self):
-        """The steps between the turns of a "stepped" TX at TX_STEPPED_ANGLE_DEG, or None ("auto" or a spiral: the
+        """The steps between the turns of a "stepped_diagonal" TX at TX_STEPPED_ANGLE_DEG, or None ("auto", a
+        "stepped_arc" or a spiral: the
         original shapes).  Every step is one straight piece from a turn to the next one at that angle to the turn
         (90 = straight out).  Two neighbouring steps are parallel, one pitch apart along the radius, so the copper
         gap between them is pitch * cos(angle) - trace width: when that is below MIN_CLEARANCE_MM, each step starts
@@ -946,7 +946,7 @@ class StatorDesign:
           steps reach back from the terminal, all turns)."""
         P = self.P
         a = getattr(P, "TX_STEPPED_ANGLE_DEG", "auto")
-        if (isinstance(a, str) and a.lower() == "auto") or str(P.TX_TURN_SHAPE).lower() == "spiral":
+        if (isinstance(a, str) and a.lower() == "auto") or self.tx_shape != "diagonal":
             return None
         th = math.radians(min(90.0, max(1.0, float(a))))
         p, tw, clr = float(P.TX_PITCH_MM), float(P.TX_TRACE_WIDTH_MM), float(P.MIN_CLEARANCE_MM)
@@ -980,13 +980,122 @@ class StatorDesign:
         """Slope (rad) of the TX's own radial steps between turns: TX_STEPPED_ANGLE_DEG, or ("auto") 2/3 of a pitch
         over 0.45 of a step of the original shape (45 deg for the spiral, which has no steps)."""
         P = self.P
-        if str(P.TX_TURN_SHAPE).lower() == "spiral":
+        if self.tx_shape != "diagonal":
             return math.radians(45.0)
         plan = self._step_plan()
         if plan is not None:
             return plan["theta"]
         step_mm = 2.0 * math.pi * self.tx_first_radius / float(self.tx_steps)
         return math.atan2(2.0 / 3.0 * float(P.TX_PITCH_MM), 0.45 * step_mm)
+
+    def _arc_plan(self):
+        """The arcs of a "stepped_arc" TX (None for the other shapes).  All arcs are centred on the terminal via,
+        which sits on the first turn at the TX start angle; arc n (radius rho0 + n x pitch) leaves turn n where it
+        crosses it on the far side of the terminal and runs round the via to turn n + 1, which it meets on the near
+        side; the last arc ends at its outermost point, where the outer tail starts.  Arcs one pitch apart have the
+        same copper gap as the turns.  Local coordinates: x towards the terminal, angles from the centre relative
+        to the TX start angle (positive = the way the turns run on a counter-clockwise layer).
+          rho, xv (the via's distance from the centre), low[n] / up[n] (angle where arc n meets turn n / n + 1),
+          b_low[n] / b_up[n] (the same points seen from the via), apex (radius where the outer tail starts),
+          ext (smallest, largest angle of the arcs), tol (chord tolerance)."""
+        if self.tx_shape != "arc":
+            return None
+        if getattr(self, "_arc_cache", None) is not None:
+            return self._arc_cache
+        P = self.P
+        T, p = int(P.TX_TURNS), float(P.TX_PITCH_MM)
+        r0 = float(self.tx_first_radius)
+        sag = (r0 + T * p) * (1.0 - math.cos(math.pi / float(self.tx_steps)))
+        rho0 = TXLayout.arc_first_radius(P, sag)
+        lim = TXLayout.arc_radius_limits(P)
+        if rho0 <= lim["corner"] + 1e-9:
+            raise ValueError(f"TX_STEPPED_ARC_RADIUS_MM = {rho0:g} must be larger than TX_PITCH_MM = {p:g}: the arcs are "
+                             f"one pitch apart and each must reach the next turn")
+        if rho0 >= lim["top"] - 1e-9:
+            raise ValueError(f"TX_STEPPED_ARC_RADIUS_MM = {rho0:g} must be smaller than TX_PITCH_MM + TX_TAIL_EXTRA_MM = "
+                             f"{lim['top']:g}: the last arc would reach past the end of the TX tail")
+        xv = r0
+        rho = [rho0 + n * p for n in range(T)]
+
+        def meet(R, rr, sign):
+            x = (R * R - rr * rr + xv * xv) / (2.0 * xv)
+            y = sign * math.sqrt(max(0.0, R * R - x * x))
+            return math.atan2(y, x), math.atan2(y, x - xv)
+        low, b_low, up, b_up = [], [], [], []
+        for n in range(T):
+            a, b = meet(r0 + n * p, rho[n], -1.0)
+            low.append(a); b_low.append(b)
+            if n < T - 1:
+                a, b = meet(r0 + (n + 1) * p, rho[n], +1.0)
+                up.append(a); b_up.append(b)
+        ext = (min(low), max(up) if up else 0.0)
+        self._arc_cache = dict(rho=rho, xv=xv, low=low, up=up, b_low=b_low, b_up=b_up, apex=xv + rho[-1], ext=ext,
+                               tol=chord_tolerance(P, "TX"), auto=isinstance(getattr(P, "TX_STEPPED_ARC_RADIUS_MM",
+                                                                                      "auto"), str))
+        return self._arc_cache
+
+    def _check_arc_region(self, arc_polys, via):
+        """"stepped_arc": the smallest copper gap around the terminal via between pieces of TX copper on the same layer
+        that are not joined there (all TX turns are one net, so KiCad's DRC cannot see it).  The pieces: every arc,
+        the start and the end of every turn (a full turn apart along the copper), the outer tail.  Joined: arc n with
+        the end of turn n and the start of turn n + 1, the last arc with the outer tail.  (The via itself is measured
+        by _place_terminal_via.)"""
+        P = self.P
+        T, tw, clr = int(P.TX_TURNS), float(P.TX_TRACE_WIDTH_MM), float(P.MIN_CLEARANCE_MM)
+        arc = self._arc_plan()
+        V = np.asarray(via, dtype=float)
+        reach = arc["rho"][-1] + 1.5
+        rot = math.radians(self._tx_start())
+        sig = {layer: sg for layer, sg, _n, _p in arc_polys}
+        pieces = {}                                       # (layer, name) -> list of (a, b)
+
+        def put(layer, name, a, b):
+            a, b = np.asarray(a, float), np.asarray(b, float)
+            if min(np.hypot(*(a - V)), np.hypot(*(b - V))) <= reach:
+                pieces.setdefault((layer, name), []).append((a, b))
+        for layer, _sg, n, pts in arc_polys:
+            for a, b in zip(pts[:-1], pts[1:]):
+                put(layer, ("arc", n), a, b)
+        for (a, b, layer), (tid, kind) in zip(self.tx_segments, self.tx_seg_info):
+            if layer not in sig:
+                continue
+            if kind == "turn" and tid >= 0:
+                n = tid % T
+                m = 0.5 * (np.asarray(a) + np.asarray(b)) - (self.cx, self.cy)
+                ang = sig[layer] * (((math.atan2(m[1], m[0]) - rot) + math.pi) % (2.0 * math.pi) - math.pi)
+                put(layer, ("start", n) if ang >= 0.0 else ("end", n), a, b)
+            elif kind == "tail" and tid < 0:
+                if min(np.hypot(*(np.asarray(a) - V)), np.hypot(*(np.asarray(b) - V))) > 1e-6:
+                    put(layer, ("tail",), a, b)            # (the outer tail: the inner one starts at the via)
+        joined = set()
+        for n in range(T):
+            joined.add((("arc", n), ("end", n)))
+            if n < T - 1:
+                joined.add((("arc", n), ("start", n + 1)))
+        joined.add((("arc", T - 1), ("tail",)))
+        joined |= {(b, a) for a, b in joined}
+        worst, who = math.inf, None
+        keys = sorted(pieces)
+        for i, ka in enumerate(keys):
+            for kb in keys[i + 1:]:
+                if ka[0] != kb[0] or (ka[1], kb[1]) in joined:
+                    continue
+                A = np.array([s[0] for s in pieces[kb]]); B = np.array([s[1] for s in pieces[kb]])
+                pts = []
+                for a, b in pieces[ka]:
+                    k = max(1, int(math.ceil(np.hypot(*(b - a)) / 0.02)))
+                    pts.append(a[None, :] + (b - a)[None, :] * np.linspace(0.0, 1.0, k + 1)[:, None])
+                g = float(points_segments_min_distance(np.vstack(pts), A, B).min()) - tw
+                if g < worst:
+                    worst, who = g, (ka, kb)
+        self.tx_arc_gap = worst if math.isfinite(worst) else None
+        self.tx_arc_gap_pieces = who
+        if self.tx_arc_gap is not None and worst < clr - 1e-6:
+            name = lambda k: " ".join(str(x) for x in k[1])
+            print(f"WARNING: around the TX terminal via the arcs of the stepped_arc TX come within {worst:.3f} mm of "
+                  f"other TX copper ({name(who[0])} / {name(who[1])} on {who[0][0]}, wanted {clr} mm): all TX turns are "
+                  f"one net, so KiCad's DRC will not flag it, but it shorts turns; raise TX_STEPPED_ARC_RADIUS_MM or "
+                  f"TX_PITCH_MM", file=sys.stderr)
 
     def _place_terminal_via(self, own_mm=2.0):
         """The via at the TX terminal (tx_vias[0]: inner tail -> first turn, or the via joining the two spirals of a
@@ -999,7 +1108,8 @@ class StatorDesign:
         P = self.P
         vr, tw, clr = float(P.VIA_DIAMETER_MM) / 2.0, float(P.TX_TRACE_WIDTH_MM), float(P.MIN_CLEARANCE_MM)
         rw = float(P.RX_TRACE_WIDTH_MM)
-        D = float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM", 0.0))
+        # (a "stepped_arc" TX keeps the via on the first turn: its arcs are centred on it)
+        D = 0.0 if self.tx_shape == "arc" else float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM", 0.0))
         self.terminal_via_shift = D
         self.terminal_via_clearance = None
         if not self.tx_vias:
@@ -1135,8 +1245,8 @@ class StatorDesign:
                   f"{clr} mm); lower TX_INSIDE_VIA_DISTANCE_MM (now {D:g}) or raise TX_OFFSET_MM", file=sys.stderr)
 
     def _build_tx_copper(self):
-        if getattr(self, "tx_new_builder", False) or self._step_plan() is not None:
-            # (TX_STEPPED_ANGLE_DEG = a number: the original layouts too, with steps at that angle)
+        if getattr(self, "tx_new_builder", False) or self._step_plan() is not None or self.tx_shape == "arc":
+            # (TX_STEPPED_ANGLE_DEG = a number, or a "stepped_arc" TX: the original layouts too, with those steps)
             self._build_tx_placed()
             return
         if self.tx_mode == "series2":
@@ -1224,6 +1334,15 @@ class StatorDesign:
                 span /= r0
             tail_lo = min(tail_lo, -span - (tw / 2.0 + clr) / r0)
             tail_hi = max(tail_hi, span + (tw / 2.0 + clr) / r0)
+        arc = None if spiral else self._arc_plan()
+        if arc is not None:
+            # "stepped_arc": the arcs around the terminal via (angles seen from the centre, relative to the terminal)
+            lo_a, hi_a = arc["ext"]
+            pad = (tw / 2.0 + clr) / r0
+            if self.tx_mode == "series2":                     # mirrored arcs on the two layers
+                lo_a, hi_a = -max(-lo_a, hi_a), max(-lo_a, hi_a)
+            tail_lo = min(tail_lo, lo_a - pad)
+            tail_hi = max(tail_hi, hi_a + pad)
         return dict(T=T, steps=steps, pitch=pitch, tw=tw, vr=vr, clr=clr, need=need, delta=delta, ramp=ramp,
                     stag=stag, d0=d0, reach=reach, r0=r0, step=step, spiral=spiral, tail=(tail_lo, tail_hi))
 
@@ -1336,7 +1455,7 @@ class StatorDesign:
 
     def _build_tx_placed(self):
         """Every TX that is not one of the original layouts (TXLayout.tx_layout, "new_builder").  The turns follow
-        the original shapes ("stepped" or "spiral", the same radial steps and terminal).
+        the original shapes ("stepped_diagonal", "stepped_arc" or "spiral", the same steps and terminal).
           single   : the turns on one layer (TX_LAYERS = 1, TX_LAYER_A), the inner tail on the underpass layer.
           series2  : the original two-layer series TX (two mirrored spirals joined by a via at the inner end).
           parallel : the full spiral on one TX layer; on the other one the same turns run in parallel as arcs that
@@ -1463,6 +1582,8 @@ class StatorDesign:
             return length + plen(pts)
 
         plan = None if spiral else self._step_plan()
+        arc = None if spiral else self._arc_plan()
+        arc_polys = []                         # "stepped_arc": (layer, sigma, n, points) of every arc
 
         def step_end(n):
             # TX_STEPPED_ANGLE_DEG: local angle where the step from turn n reaches turn n + 1 (each step staggered
@@ -1476,11 +1597,28 @@ class StatorDesign:
 
         def turn_span(n):
             """local angles (ta, tb) of turn n between the steps"""
+            if arc is not None:
+                # "stepped_arc": from the arc of the turn inside it (turn 0: from the terminal via) to its own arc
+                return (0.0 if n == 0 else arc["up"][n - 1]), two_pi + arc["low"][n]
             if plan is None:
                 return 0.0, (two_pi if spiral else two_pi - step)
             return (0.0 if n == 0 else step_end(n - 1)), two_pi + step_start(n)
 
         def step_poly(n, layer, sigma):
+            if arc is not None:
+                # "stepped_arc": an arc centred on the terminal via, from turn n to turn n + 1 (the last one up to
+                # its outermost point, where the outer tail starts); sharp corners where it meets the turns
+                xv, rho = arc["xv"], arc["rho"][n]
+                b0, b1 = arc["b_low"][n], (arc["b_up"][n] if n < T - 1 else 0.0)
+                m = max(2, int(math.ceil(abs(b1 - b0) / (2.0 * math.acos(max(-1.0, 1.0 - arc["tol"] / rho))))))
+                pts = [pt(sigma * (two_pi + arc["low"][n]), r0 + n * pitch)]
+                for b in np.linspace(b0, b1, m + 1)[1:-1]:
+                    x, y = xv + rho * math.cos(b), rho * math.sin(b)
+                    pts.append(pt(sigma * math.atan2(y, x), math.hypot(x, y)))
+                pts.append(pt(sigma * arc["up"][n], r0 + (n + 1) * pitch) if n < T - 1 else pt(0.0, arc["apex"]))
+                add_poly(pts, layer, -1, "step")
+                arc_polys.append((layer, sigma, n, pts))
+                return
             if plan is not None:
                 # one straight piece at TX_STEPPED_ANGLE_DEG from turn n to the next one (or the outer terminal)
                 pts = [pt(sigma * (two_pi + step_start(n)), r0 + n * pitch), pt(sigma * step_end(n), r0 + (n + 1) * pitch)]
@@ -1510,14 +1648,14 @@ class StatorDesign:
                     emit_turn(n, id0 + n, layer, sigma, *turn_span(n), gos, "turn")
                     if not spiral:
                         step_poly(n, layer, sigma)
-                add_poly([pt(0.0, r0 + T * pitch), tail_end], layer, -1, "tail")
+                add_poly([pt(0.0, arc["apex"] if arc is not None else r0 + T * pitch), tail_end], layer, -1, "tail")
             vias.insert(0, pt(0.0, r0)); via_turn.insert(0, 0)          # joins the two spirals at the inner end
             tail_inner = None
         else:
             tail_inner = lay["tail_layer"]
             # terminal: inner tail and the via joining it to the start of the spiral (as in the original layout)
             add_poly([pt(0.0, r0), tail_end], tail_inner, -1, "tail")
-            if plan is not None:
+            if plan is not None or arc is not None:
                 vias.append(pt(0.0, r0)); via_turn.append(0)               # (on the trace ends)
             else:
                 vias.append(pt(0.15 * step, r0 + (pitch * 0.15 / steps if spiral else 0.0))); via_turn.append(0)
@@ -1547,12 +1685,14 @@ class StatorDesign:
                         parallel_len += emit_turn(n, n, other, +1, a, b, gos, "arc")
                         vias.append(pt(a, r_nom(n, a))); via_turn.append(n)
                         vias.append(pt(b, r_nom(n, b))); via_turn.append(n)
-            add_poly([pt(0.0, r0 + T * pitch), tail_end], base, -1, "tail")
+            add_poly([pt(0.0, arc["apex"] if arc is not None else r0 + T * pitch), tail_end], base, -1, "tail")
         self.tx_segments, self.tx_vias = segs, vias
         self.tx_seg_info, self.tx_via_turn = info, via_turn
         self.tx_parallel_length_mm = parallel_len
         self.tx_base_layer, self.tx_other_layer, self.tx_tail_layer = base, other, tail_inner
         self.tx_window_list = [(math.degrees(lo + rot), math.degrees(hi + rot), t, k) for lo, hi, t, k in windows]
+        if arc is not None:
+            self._check_arc_region(arc_polys, pt(0.0, r0))
 
     def _tx_summary(self):
         P = self.P
@@ -1579,6 +1719,13 @@ class StatorDesign:
                 txt += (f"\n  TX windows: {len(st)} around the {n_f} finger(s) on {self.tab_layer}, the turns on "
                         f"{self.tab_layer} stitched to {lay['base_layer']}")
             txt += f"; {len(self.tx_vias) - 1} TX vias besides the terminal via"
+        arc = self._arc_plan()
+        if arc is not None:
+            txt += (f"\n  TX arcs: {T} around the terminal via (stepped_arc), radius {arc['rho'][0]:.3f} ... "
+                    f"{arc['rho'][-1]:.3f} mm" + (" (TX_STEPPED_ARC_RADIUS_MM = auto)" if arc["auto"] else "")
+                    + (f", smallest gap to other TX copper {self.tx_arc_gap:.3f} mm"
+                       if getattr(self, "tx_arc_gap", None) is not None else "")
+                    + f"; the outer tail starts at r = {arc['apex']:.3f} mm")
         plan = self._step_plan()
         if plan is not None:
             txt += (f"\n  TX steps: {math.degrees(plan['theta']):g} deg to the turns (TX_STEPPED_ANGLE_DEG), "
@@ -1906,7 +2053,9 @@ class StatorDesign:
                f"{'inside' if self.terminal_via_shift > 0 else 'outside'} the first turn (TX_INSIDE_VIA_DISTANCE_MM), "
                f"{self.terminal_via_clearance:.3f} mm from the other turns"
                if getattr(self, "terminal_via_shift", 0.0) and getattr(self, "terminal_via_clearance", None) is not None
-               else ""),
+               else (f"; terminal via on the first turn (the centre of the arcs), {self.terminal_via_clearance:.3f} mm "
+                     f"from the other turns"
+                     if self.tx_shape == "arc" and getattr(self, "terminal_via_clearance", None) is not None else "")),
             f"  board edge: bore r = {self.inner_edge_radius:g} mm, outer r = {self.outer_edge_radius:g} mm",
         ]
         b = self.band

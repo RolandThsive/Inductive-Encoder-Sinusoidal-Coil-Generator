@@ -1,8 +1,9 @@
-# Project Capabilities
+# 5. Project Capabilities
 
 | Area | Capability |
 |---|---|
-| Language | Pure Python 3 with numpy (matplotlib optional, for plots) |
+| Human Language | English |
+| Programming Language | Pure Python 3 with numpy (matplotlib optional, for plots) |
 | Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
 | RX Loops | 1 to 16 electrical periods per mechanical turn |
 | RX Phases | Four phases only: SIN and COS pairs, each with a positive and a negative half |
@@ -11,18 +12,18 @@
 | RX Fingers | Bridging fingers to break the coils out across the TX ring: all, single or none |
 | TX Layers | Any one layer, or any two layers of a 4-layer board |
 | TX Wiring | Series or parallel |
-| TX Shape | Stepped or spiral turns, with an adjustable step angle |
+| TX Shape | Stepped diagonal turns (adjustable step angle), stepped arc turns (adjustable arc radius, as on the Renesas reference boards) or spiral turns |
 | TX Break Style | Go-around (staggered) or stitched windows where a finger crosses the TX ring |
 | Rotor | Generated from the stator, or fully custom |
 | Board | 2 or 4 copper layers, through vias only, fixed or automatic board edges |
 | Checks | Parameter rules, finished-geometry rules and the generator's own TX self-clearance check |
-| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and RX voltage against the IC limits |
+| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and tank resistance against the IC limits |
 | Analysis | Angle error, signal, harmonics and a tolerance window (air gap, eccentricity, tilt, etching) |
 | Optimization | Searches profile, sub-coils, split, rotor metal fraction and rotor outer edge |
 
 Each of these is shown with pictures in the sections below.
 
-## Board Size Range
+## 5.1 Board Size Range
 
 The table below gives the board sizes that build without any error or warning for 1, 4 and 16
 loops. It was found by running the generator's own checks over a grid of board radii (1 mm steps)
@@ -42,3 +43,7 @@ a finer pitch make smaller boards possible.
 
 There is no upper limit in the generator itself. A larger board gives a wider RX band and a
 stronger signal.
+
+| Previous | Next |
+|:---|---:|
+| [Web Tool](Web-Tool.md) | [Examples](Examples.md) |
