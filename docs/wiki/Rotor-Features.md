@@ -25,11 +25,12 @@ counterweight.
 | `ROTOR_AUTO_DUTY` | The metal fraction of each period (0.5 = half copper, half gap) |
 | `ROTOR_AUTO_COPPER_LAYERS` | Which layers carry the copper |
 | `ROTOR_SOLDER_MASK_EXPANSION_MM` | Solder mask opening over the copper |
+| `ROTOR_PCB_THICKNESS_MM` | Thickness of the rotor board written into the KiCad file (None = the stator's `PCB_THICKNESS_MM`); it changes nothing in the copper |
 
 ![Rotor 2: Rotor Edges And Metal Fraction](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rotor_2_edges.png)
 
 *Rotor 2. A 4-lobe rotor over its stator: the default, a larger TX overhang, copper ending inside
-the TX ring, a shorter inner edge, and metal fractions of 1/3 and 0.4.*
+the TX ring, a shorter inner edge, and metal fractions of 1/3 and 0.4. The stator is drawn faintly (Top red, Inner-1 green); series TX on Top + Inner-1, pitch 1.2 mm.*
 
 The best metal fraction and outer edge depend on the coil. The optimizer (under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer)) searches them together.
 
