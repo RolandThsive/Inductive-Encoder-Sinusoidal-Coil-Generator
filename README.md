@@ -103,11 +103,11 @@ equipment or measurements, please see [Licensing](#licensing) for contact detail
 | Area | Capability |
 |---|---|
 | Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
-| RX | 1 to 16 loops, three profiles, 1 to 3 sub-coils, bridging fingers |
-| TX | One or two layers, series or parallel, stepped-diagonal, stepped-arc or spiral turns |
+| RX | 1 to 16 loops, two profiles (`equal_area`, `cosine_r`; a field-compensated one is research underway), 1 to 3 sub-coils, bridging fingers |
+| TX | One or two layers, single, series or parallel wiring, stepped-diagonal, stepped-arc or spiral turns, terminal placed automatically |
 | Rotor | Generated from the stator, or fully custom |
 | Board | 2 or 4 copper layers, through vias only |
-| Checks And Estimate | Parameter and geometry checks, TX inductance, resistance, tank capacitors and oscillator frequency |
+| Checks And Estimate | Parameter and geometry checks with named conflicts (`GENERATOR_MODE` `normal` or `strict`), TX inductance, resistance, tank capacitors and oscillator frequency |
 | Analysis And Optimization | On the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer), under construction |
 
 Full details, board sizes and every parameter are in the wiki:
@@ -135,12 +135,16 @@ Full details, board sizes and every parameter are in the wiki:
 ```bash
 pip install numpy matplotlib
 
-python Generator/RunCoilGenerator.py              # Check, then write Stator + Rotor
-python Generator/RunCoilGenerator.py --check      # Check only, write nothing
-python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
+cd "Single Generator"
+python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor
+python Generator/Run/RunCoilGenerator.py --check      # Check only, write nothing
+python Generator/Run/RunCoilGenerator.py --stator     # Only the stator
+python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor
 ```
 
-Edit only the files in `Parameters/`. Each run writes a new folder in `Output/`
+Edit only the files in `Single Generator/Parameters/`. To treat clearance warnings as errors, set
+`GENERATOR_MODE = "strict"` in `Board_Parameters.py`. Each run writes a new folder in
+`Single Generator/Output/`
 (`Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>`)
 with `Stator.kicad_pcb`, `Rotor.kicad_pcb` and `Parameters.txt`, and never overwrites an earlier one.
 See [Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started) and [Project Output Organization](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Project-Output-Organization).
