@@ -27,26 +27,28 @@ const LAYER_NUM_CU = { 1: "F.Cu", 2: "In1.Cu", 3: "In2.Cu", 4: "B.Cu" };
 const CU_NAME = { "F.Cu": "Top", "In1.Cu": "Inner-1", "In2.Cu": "Inner-2", "B.Cu": "Bottom" };
 const BOARD_FILE = { stator: "Stator", rotor: "Rotor" };       // the part's name in its .kicad_pcb file name
 
-/* TX layouts offered in Basic (from the examples in TX_Parameters.py) */
+/* TX layouts offered in Basic (from the examples in TX_Parameters.py).  A card sets only the TX and layer settings.  A
+   series TX goes around the RX fingers on its layer, so the fingers must run out past the go-around brackets; RX Tab
+   Length is exact and a card leaves it alone, so when it is too short the check names the length the design needs. */
 const PRESETS = [
   { id: "2-bottom", layers: 2, name: "Single On Bottom", note: "The original, proven layout",
-    set: { PCB_LAYERS: 2, TX_LAYERS: 1, TX_LAYER_A: 4, TX_LAYER_B: 1, TX_SERIES: true } },
+    set: { PCB_LAYERS: 2, TX_WIRING: "single", TX_LAYER_A: 4, TX_LAYER_B: 1 } },
   { id: "2-top", layers: 2, name: "Single On Top", note: "Next to the rotor: more signal in the model",
-    set: { PCB_LAYERS: 2, TX_LAYERS: 1, TX_LAYER_A: 1, TX_LAYER_B: 4, TX_SERIES: true } },
+    set: { PCB_LAYERS: 2, TX_WIRING: "single", TX_LAYER_A: 1, TX_LAYER_B: 4 } },
   { id: "2-series", layers: 2, name: "Series Top + Bottom", note: "The fingers go around the Top turns",
-    set: { PCB_LAYERS: 2, TX_LAYERS: 2, TX_LAYER_A: 1, TX_LAYER_B: 4, TX_SERIES: true } },
+    set: { PCB_LAYERS: 2, TX_WIRING: "series", TX_LAYER_A: 1, TX_LAYER_B: 4 } },
   { id: "4-bottom", layers: 4, name: "Single On Bottom", note: "RX on Top + Inner-1",
-    set: { PCB_LAYERS: 4, TX_LAYERS: 1, TX_LAYER_A: 4, TX_LAYER_B: 1, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
+    set: { PCB_LAYERS: 4, TX_WIRING: "single", TX_LAYER_A: 4, TX_LAYER_B: 1, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
   { id: "4-renesas", layers: 4, name: "Series Top + Inner-2", note: "The Renesas IPS2200 reference",
-    set: { PCB_LAYERS: 4, TX_LAYERS: 2, TX_LAYER_A: 1, TX_LAYER_B: 3, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
-  { id: "4-inner1", layers: 4, name: "Series Top + Inner-1", note: "The default in TX_Parameters.py",
-    set: { PCB_LAYERS: 4, TX_LAYERS: 2, TX_LAYER_A: 1, TX_LAYER_B: 2, TX_SERIES: true, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
+    set: { PCB_LAYERS: 4, TX_WIRING: "series", TX_LAYER_A: 1, TX_LAYER_B: 3, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
+  { id: "4-inner1", layers: 4, name: "Series Top + Inner-1", note: "Series on Top and Inner-1, the fingers go around the Top turns",
+    set: { PCB_LAYERS: 4, TX_WIRING: "series", TX_LAYER_A: 1, TX_LAYER_B: 2, RX_LAYER_A: 1, RX_LAYER_B: 2 } },
 ];
 // every parameter Basic can change (Advanced lists all of them, these included); the others are counted in the note
 // under Basic's controls
 const BASIC_NAMES = new Set(["INNER_EDGE_RADIUS_MM", "OUTER_EDGE_RADIUS_MM", "PCB_LAYERS", "AIR_GAP_MM",
-  "LOOPS", "RX_SUBCOILS", "RX_SUBCOIL_SPLIT_ELEC_DEG", "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM",
-  "RX_LAYER_A", "RX_LAYER_B", "TX_START_ANGLE_DEG", "TX_TURNS", "TX_LAYERS", "TX_LAYER_A", "TX_LAYER_B", "TX_SERIES",
+  "LOOPS", "RX_SUBCOILS", "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM",
+  "RX_LAYER_A", "RX_LAYER_B", "TX_TURNS", "TX_WIRING", "TX_LAYER_A", "TX_LAYER_B",
   "ROTOR_MODE", "ROTOR_AUTO_DUTY", "ROTOR_AUTO_COVER_TX", "ROTOR_CUSTOM_SECTORS", "ROTOR_CUSTOM_DUTY"]);
 
 /* The RX band (BandLayout.py) is given as an inside and outside radius, or as a centre (R Base) and a swing (A), or by
@@ -71,8 +73,8 @@ const GROUP_TITLES = {
   "Board outline (Edge.Cuts circles)": "Board Outline",
   "Mechanical / Physical Assumptions": "Mechanical Assumptions",
   "Tx Layers": "TX Layers",
-  "SERIES block (TX_SERIES = True, and every TX on one layer)": "Series TX",
-  "PARALLEL block (TX_LAYERS = 2 and TX_SERIES = False)": "Parallel TX",
+  'SERIES block (TX_WIRING = "single" or "series")': "Series TX",
+  'PARALLEL block (TX_WIRING = "parallel")': "Parallel TX",
   "According_to_stator": "Automatic Rotor",
   "Outer edge of the copper: over the TX turns (default)": "Automatic Rotor: Edges",
   "Custom": "Custom Rotor",
@@ -156,9 +158,9 @@ function el(tag, attrs = {}, ...kids) {
 function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 function fmt(x) { return typeof x === "number" ? String(Math.round(x * 1000) / 1000) : String(x); }
 let toastTimer;
-function toast(text) {
+function toast(text, ms = 2600) {
   const t = $("toast"); t.textContent = text; t.hidden = false;
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 2600);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), ms);
 }
 function setProgressText(text) {
   if (!state.ready) $("btn-generate").textContent = text.replace("…", "") + "…";
@@ -166,8 +168,10 @@ function setProgressText(text) {
   $("checks-list").append(el("p", { class: "hint" }, text));
 }
 // one row of the checks list
-function checkRow(level, stage, msg) {
-  return el("div", { class: "check " + level }, el("span", { class: "lvl" }, level.toUpperCase()), el("span", { class: "stage" }, stage), el("span", { class: "msg" }, msg));
+// (a conflict between parameters has a title, "NAME_A conflicts with NAME_B", and the explanation under it)
+function checkRow(level, stage, msg, title) {
+  const body = title ? el("span", { class: "msg" }, el("b", { class: "conflict-title" }, title), "\n", msg) : el("span", { class: "msg" }, msg);
+  return el("div", { class: "check " + level }, el("span", { class: "lvl" }, level.toUpperCase()), el("span", { class: "stage" }, stage), body);
 }
 // a small square in a layer's colour
 function swatch(cu) { return el("span", { class: "sw", style: `background: var(${LAYER_INFO[cu].css})` }); }
@@ -296,8 +300,12 @@ function setValues(changes, from) {
   if (state.result) { state.stale = true; }
   refreshAfterChange(from);
 }
+function syncStrict() {
+  $("strict").checked = String(state.values.GENERATOR_MODE).toLowerCase() === "strict";
+}
 let inactiveTimer;
 function refreshAfterChange(from) {
+  syncStrict();
   updateStale();
   if (from !== "basic") renderBasic();
   if (state.mode === "advanced") renderAdvanced();      // a field edited in Advanced redraws Advanced too (widgets show the new value)
@@ -366,7 +374,7 @@ window.addEventListener("resize", placeBadge);
 function presetOf(v) {
   for (const p of PRESETS) {
     if (Object.entries(p.set).every(([k, x]) => {
-      if (k === "TX_LAYER_B" && v.TX_LAYERS === 1) return true;            // not used by a one-layer TX
+      if (k === "TX_LAYER_B" && v.TX_WIRING === "single") return true;     // not used by a one-layer TX
       if ((k === "RX_LAYER_A" || k === "RX_LAYER_B") && v.PCB_LAYERS === 2) return true;
       return same(v[k], x);
     })) return p.id;
@@ -453,7 +461,7 @@ function presetCard(p, selected) {
   const v = Object.assign({}, state.values, p.set);
   const layers = p.layers === 2 ? [1, 4] : [1, 2, 3, 4];
   const rx = p.layers === 2 ? [1, 4] : [v.RX_LAYER_A, v.RX_LAYER_B];
-  const tx = v.TX_LAYERS === 2 ? [v.TX_LAYER_A, v.TX_LAYER_B] : [v.TX_LAYER_A];
+  const tx = v.TX_WIRING !== "single" ? [v.TX_LAYER_A, v.TX_LAYER_B] : [v.TX_LAYER_A];
   const W = 100, H = 54, gap = H / (layers.length + 1);
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -476,15 +484,7 @@ function pickPreset(id) {
 }
 
 function basicChange(name, value) {
-  const ch = { [name]: value };
-  if (name === "RX_SUBCOILS") ch.RX_SUBCOIL_SPLIT_ELEC_DEG = value === 3 ? 30 : 45;   // as the parameter file advises
-  const loops = name === "LOOPS" ? value : state.values.LOOPS;
-  const subs = name === "RX_SUBCOILS" ? value : state.values.RX_SUBCOILS;
-  if (name === "LOOPS" || name === "RX_SUBCOILS") {
-    // many fingers: put the TX tail in the widest gap between them (TX_START_ANGLE_DEG = "auto")
-    ch.TX_START_ANGLE_DEG = loops >= 8 || subs >= 2 ? "auto" : state.start.TX_START_ANGLE_DEG;
-  }
-  setValues(ch, "basic");
+  setValues({ [name]: value }, "basic");
   updateBasicNotes();
   renderResults();
 }
@@ -493,7 +493,7 @@ function noteFor(name) {
   const v = state.values;
   if (name === "LOOPS") return `Range: ${fmt(v.LOOPS ? 360 / v.LOOPS : 360)}°`;
   if (name === "RX_SUBCOILS") return v.RX_SUBCOILS > 1 ? `Split: ${fmt(v.RX_SUBCOIL_SPLIT_ELEC_DEG)}° el` : "";
-  if (name === "TX_TURNS") return `Total: ${v.TX_LAYERS === 2 ? v.TX_TURNS * 2 : v.TX_TURNS}`;
+  if (name === "TX_TURNS") return `Total: ${v.TX_WIRING === "series" ? v.TX_TURNS * 2 : v.TX_TURNS}`;
   if (name === "RX_BAND") {                                    // which of the three ways the band is given (BandLayout.py)
     if (BAND_RADII.every((n) => v[n] !== null)) return "From the radii";
     if (BAND_CENTRE.every((n) => v[n] !== null)) return "From R Base and A";
@@ -507,12 +507,10 @@ function updateBasicNotes() {
 
 /* Basic has the same four categories as Advanced (the parameter files); each page holds the main settings of one. */
 function basicBoardFields() {
-  const v = state.values;
   return [
     numberField({ name: "INNER_EDGE_RADIUS_MM", label: "Board Inner Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 120], none: true }),
     numberField({ name: "OUTER_EDGE_RADIUS_MM", label: "Board Outer Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [10, 150], none: true }),
-    segmentedField({ name: "PCB_LAYERS", label: "Board Layers", options: [[2, "2 Layers"], [4, "4 Layers"]],
-      onPick: (n) => { if (n !== v.PCB_LAYERS) pickPreset(n === 2 ? "2-bottom" : "4-inner1"); } }),
+    segmentedField({ name: "PCB_LAYERS", label: "Board Layers", options: [[2, "2 Layers"], [4, "4 Layers"]] }),
     numberField({ name: "AIR_GAP_MM", label: "Air Gap", unit: "mm", min: 0.1, max: 10, step: 0.1, slider: [0.2, 5] }),
   ];
 }
@@ -532,7 +530,7 @@ function basicRxFields() {
 function txLayoutField() {
   const v = state.values, current = presetOf(v);
   const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, "TX Layout"));
-  attachHelp(head, "TX_LAYERS");
+  attachHelp(head, "TX_WIRING");
   head.append(el("span", { class: "field-note" }, current ? PRESETS.find((p) => p.id === current).note
     : state.mode === "advanced" ? "Custom (set below)" : "Custom (set in Advanced)"));
   const slider = el("div", { class: "slider" });
@@ -590,7 +588,7 @@ function updateAdvNote() {
 /* ---- Advanced mode -------------------------------------------------------------------------- */
 function choiceText(name, val) {
   if (val === "auto") return "Auto";
-  // layer numbers (TX_LAYER_A, RX_TAB_LAYER, ...) read as layer names; layer counts (PCB_LAYERS, TX_LAYERS) as counts
+  // layer numbers (TX_LAYER_A, RX_TAB_LAYER, ...) read as layer names; the layer count (PCB_LAYERS) as a count
   if (typeof val === "number" && /LAYERS$/.test(name)) return `${val} Layer${val === 1 ? "" : "s"}`;
   if (typeof val === "number" && /LAYER(_[AB])?$/.test(name) && LAYER_NUM_NAME[val]) return LAYER_NUM_NAME[val];
   if (CU_NAME[val]) return CU_NAME[val];
@@ -740,7 +738,7 @@ function renderAdvanced() {
       box.append(shell);
       card = inner;
     }
-    if (p.name === "TX_LAYERS") card.append(txLayoutField());      // Basic's layout cards, set TX_LAYERS / _A / _B / TX_SERIES at once
+    if (p.name === "TX_WIRING") card.append(txLayoutField());      // Basic's layout cards, set TX_WIRING / TX_LAYER_A / _B at once
     const lab = labelOf(p.name);
     const head = el("div", { class: "field-head" }, el("span", { class: "field-label" }, lab.text, lab.unit ? el("span", { class: "unit" }, " " + lab.unit) : null));
     attachHelp(head, p.name);
@@ -808,7 +806,7 @@ async function generate() {
   btn.disabled = true; btn.textContent = "Generating…";
   try {
     const sent = state.values;
-    const r = await ask("generate", { values: sent, strict: $("strict").checked });
+    const r = await ask("generate", { values: sent });
     state.result = r;
     state.stale = false;
     renderChecks();
@@ -845,7 +843,7 @@ function renderChecks() {
   const order = { error: 0, warning: 1, info: 2 };
   const shown = items.filter((i) => state.showInfo || i.level !== "info").sort((a, b) => order[a.level] - order[b.level]);
   for (const i of shown) {
-    list.append(checkRow(i.level, i.stage, i.msg));
+    list.append(checkRow(i.level, i.stage, i.msg, i.title));
   }
   if (!shown.length) list.append(el("p", { class: "hint" }, r.ok ? "Nothing to report. Turn on Info to see the generator's notes." : ""));
 }
@@ -977,17 +975,20 @@ async function exportFiles() {
   } catch (e) { toast("Export failed: " + e.message); }
 }
 async function importFiles(files) {
-  const found = {};
+  const found = {}, ignored = [];
   for (const f of files) {
     const text = await f.text();
-    Object.assign(found, await ask("readValues", { text }));
+    const r = await ask("readValues", { text });
+    Object.assign(found, r.values);
+    for (const n of r.ignored) if (!ignored.includes(n)) ignored.push(n);
   }
   const n = Object.keys(found).length;
-  if (!n) { toast("No parameter values found in that file"); return; }
+  if (!n) { toast(ignored.length ? `No settings of this version found (ignored: ${ignored.join(", ")})` : "No parameter values found in that file", 6000); return; }
   setValues(found, "import");
   renderBasic();
   if (state.mode === "advanced") renderAdvanced();
-  toast(`Loaded ${n} value${n > 1 ? "s" : ""}`);
+  // a file of an older version names settings that were removed: say so, so nothing is silently lost
+  toast(`Loaded ${n} value${n > 1 ? "s" : ""}` + (ignored.length ? `. Ignored (not settings of this version): ${ignored.join(", ")}` : ""), ignored.length ? 7000 : 2600);
 }
 
 /* ---- start -------------------------------------------------------------------------------------- */
@@ -1049,7 +1050,8 @@ async function main() {
     if (!(await confirmBox("Are you sure to reset the board?"))) return;
     setValues(Object.assign({}, state.start), "reset"); renderBasic(); toast("Back to the starting design");
   });
-  $("strict").addEventListener("change", () => { if (state.result) { state.stale = true; updateStale(); } });
+  // the Strict switch is the parameter GENERATOR_MODE ("strict" / "normal"), so Share, Export and Reset carry it too
+  $("strict").addEventListener("change", () => setValues({ GENERATOR_MODE: $("strict").checked ? "strict" : "normal" }, "strict"));
   $("nav-back").addEventListener("click", (e) => { e.preventDefault(); if (history.length > 1) history.back(); else location.href = CONFIG.blogHome; });
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") generate();
@@ -1083,7 +1085,13 @@ async function main() {
   for (const p of state.spec) state.start[p.name] = p.default;
   state.values = JSON.parse(JSON.stringify(state.start));
   const shared = decodeDesign(location.hash);
-  if (shared) Object.assign(state.values, shared);
+  if (shared) {
+    // a link made by an older version can name settings this version no longer has: those are left out
+    const unknown = Object.keys(shared).filter((k) => !(k in state.byName));
+    for (const k of Object.keys(shared)) if (k in state.byName) state.values[k] = shared[k];
+    if (unknown.length) setTimeout(() => toast(`Ignored: ${unknown.join(", ")} (not settings of this version)`, 6000), 800);
+  }
+  syncStrict();
   state.ready = true;
   setBusy(false);
   $("btn-generate").disabled = false;

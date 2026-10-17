@@ -1,4 +1,4 @@
-# Publishes the web GUI (WebGUI/) and the generator it runs (Generator/, Parameters/) to GitHub Pages.
+# Publishes the web GUI (WebGUI/) and the generator it runs ("Single Generator/") to GitHub Pages.
 # Visitors' browsers fetch the generator's .py files from here, so a new release updates the tool on the blog.
 name: Web GUI On GitHub Pages
 
@@ -27,17 +27,21 @@ jobs:
 
       - name: Check the generator is in the repository
         run: |
-          for f in Generator/ParameterChecker.py Generator/StatorGenerator.py Generator/RotorGenerator.py \
-                   Generator/TXLayout.py Generator/BandLayout.py Generator/OutputDirectoryManager.py \
-                   Parameters/Board_Parameters.py Parameters/RX_Parameters.py Parameters/TX_Parameters.py \
-                   Parameters/Rotor_Parameters.py Parameters/Parameters.py WebGUI/WebGenerator.py WebGUI/index.html; do
+          for f in "Single Generator/Generator/__init__.py" "Single Generator/Generator/Run/CheckParameters.py" \
+                   "Single Generator/Generator/Stator/StatorAssembly.py" "Single Generator/Generator/Rotor/RotorBuilder.py" \
+                   "Single Generator/Parameters/Board_Parameters.py" "Single Generator/Parameters/RX_Parameters.py" \
+                   "Single Generator/Parameters/TX_Parameters.py" "Single Generator/Parameters/Rotor_Parameters.py" \
+                   "Single Generator/Parameters/Parameters.py" WebGUI/WebGenerator.py WebGUI/index.html; do
             test -f "$f" || { echo "::error::$f is missing (push the generator first)"; exit 1; }
           done
 
       - name: Collect the site
         run: |
           mkdir -p _site
-          cp -r Generator Parameters WebGUI _site/
+          mkdir -p "_site/Single Generator"
+          cp -r "Single Generator/Generator" "Single Generator/Parameters" "_site/Single Generator/"
+          cp -r WebGUI _site/
+          find _site -name __pycache__ -type d -prune -exec rm -rf {} +
           rm -f _site/WebGUI/BloggerPage.html
           printf '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=WebGUI/"><a href="WebGUI/">Coil Generator</a>\n' > _site/index.html
 

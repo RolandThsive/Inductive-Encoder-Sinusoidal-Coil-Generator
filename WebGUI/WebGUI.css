@@ -469,6 +469,7 @@ button.group-title.collapsed .chevron { transform: rotate(-90deg); }
 .check.warning .lvl, .check.warning .msg { color: var(--warning); }
 .check .stage { color: var(--text-3); }
 .check .msg { white-space: pre-wrap; }
+.check .conflict-title { font-weight: 700; }
 .check.info { color: var(--text-2); background: rgba(0, 0, 0, 0.035); border-left-color: #b5b5b5; }
 .check.info .lvl { color: var(--text-3); }
 .checks-list .hint { font-family: var(--ui-font); }
