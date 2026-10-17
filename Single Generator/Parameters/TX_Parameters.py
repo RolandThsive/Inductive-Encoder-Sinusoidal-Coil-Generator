@@ -102,9 +102,9 @@ TX_INSIDE_VIA_DISTANCE_MM = 0.3
 #        of the finger and the turns of the other layer carry the current past it.
 # All TX turns are one net, so KiCad's DRC cannot see a via touching another turn: the
 # generator checks that itself and warns.
-TX_WIRING  = "single"
-TX_LAYER_A = 4
-TX_LAYER_B = 1
+TX_WIRING  = 'series'
+TX_LAYER_A = 1
+TX_LAYER_B = 4
 
 # ---- SERIES block (TX_WIRING = "single" or "series") ---------------------------------------
 # A series TX always makes way for the fingers with "staggered" (go-around).

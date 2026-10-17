@@ -72,7 +72,8 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
 
 - **Generate** makes the boards and runs the checks. After you change a setting, the preview is marked out of
   date until you generate again; the downloads always match the last generated board.
-- **Strict** turns every warning into an error, so a design with any warning is not generated.
+- **Strict** turns every warning about the finished boards into an error (`GENERATOR_MODE = "strict"` on the
+  desktop), so such a design is not generated.
 - **Checks** lists the errors and warnings. Turn on **Info** to also see the generator's notes.
 - **Summary** shows the generator's full report on the stator and the rotor.
 - **Download Zip** gives both boards, `Parameters.txt` and the four parameter files. **Download Stator** and
@@ -94,8 +95,8 @@ The checks do more than say that something is wrong: each message tells you what
 
 **Errors** stop the run. No board is made, the preview keeps the last board marked out of date, and the downloads
 stay off until a run works. **Warnings** still make the boards but point at something to look at, often a
-manufacturing limit such as a very fine trace or a small via ring. Turn on **Strict** to treat every warning as an
-error.
+manufacturing limit such as a very fine trace or a small via ring. Turn on **Strict** to treat every warning about the
+finished boards as an error.
 
 Some mistakes are blocked before they can happen: the RX band pairs lock each other, settings the design does not
 use are greyed out, and a pair that must change together always does.
@@ -119,7 +120,9 @@ The preview tools only change what you see, never the boards.
 
 - **Export Parameters** downloads the four parameter files, ready for the desktop version.
 - **Help / Tutorial** opens the [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections) guide on the project wiki in a new tab.
-- **Import Parameters** loads a `Parameters.txt` from any run (web or desktop) or your own parameter files.
+- **Import Parameters** loads a `Parameters.txt` from any run (web or desktop) or your own parameter files. Files of
+  version 17 or older name settings this version no longer has (for example `TX_LAYERS`, `TX_SERIES`,
+  `TX_START_ANGLE_DEG`); those are left out and the page lists them.
 - **Share Link** copies a link that opens the tool with your design. Only your changes are in the link, and
   nothing is uploaded.
 - **Reset** goes back to the default design, after asking.

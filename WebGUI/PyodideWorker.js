@@ -4,7 +4,7 @@
    and sends {type: "progress", text} while it loads.  The commands:
      init      {pyodideBase, codeBase}  ->  {description, seconds}
      inactive  {values}                 ->  [names of the parameters the generator ignores]
-     generate  {values, strict}         ->  {ok, items, name, files, summaries, rx, edges, center, seconds, zipBytes}
+     generate  {values}                 ->  {ok, items, name, files, summaries, rx, edges, center, seconds, zipBytes}
                                             (on a failed run: ok false, items and failed; no zipBytes)
      exportZip {values}                 ->  {zipBytes}
      readValues {text}                  ->  {name: value}
@@ -14,14 +14,30 @@
 
 let pyodide = null;
 const ROOT = "/coilgen";
-const FILES = {
-  "Generator": ["ParameterChecker.py", "StatorGenerator.py", "RotorGenerator.py", "TXLayout.py",
-                "BandLayout.py", "OutputDirectoryManager.py"],
-  "Parameters_Default": ["Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py",
-                         "Rotor_Parameters.py", "Parameters.py"],
-  "WebGUI": ["WebGenerator.py"],
-};
-const SOURCE_FOLDER = { "Generator": "Generator", "Parameters_Default": "Parameters", "WebGUI": "WebGUI" };
+// The generator is a package ("Single Generator/Generator"); GitHub Pages cannot list a folder, so the files are named
+// here.  Not fetched: RunCoilGenerator.py (the desktop program) and TX_Electrics.py (the electrical estimate is not
+// made on the web).  Each name is a path inside "Single Generator".
+const GENERATOR_FILES = [
+  "__init__.py",
+  "Checks/__init__.py", "Checks/ConflictRules.py", "Checks/DesignChecks.py", "Checks/ParameterRules.py",
+  "Core/__init__.py", "Core/BoardLayout.py", "Core/Conflict.py", "Core/Copper.py", "Core/Geometry.py",
+  "Core/KiCadWriter.py", "Core/Layers.py",
+  "Rotor/__init__.py", "Rotor/RotorBuilder.py",
+  "Run/__init__.py", "Run/CheckParameters.py", "Run/OutputFolders.py",
+  "Stator/__init__.py", "Stator/StatorAssembly.py",
+  "Stator/RX/__init__.py", "Stator/RX/RX_Builder.py", "Stator/RX/RX_Coils.py", "Stator/RX/RX_Fingers.py",
+  "Stator/RX/RX_Profiles.py",
+  "Stator/TX/__init__.py", "Stator/TX/TX_Builder.py", "Stator/TX/TX_Shapes.py", "Stator/TX/TX_Terminal.py",
+  "Stator/TX/TX_Windows.py", "Stator/TX/TX_Wiring.py",
+];
+const PARAMETER_FILES = ["Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py", "Parameters.py"];
+const SOURCE = "Single Generator/";            // the generator's folder in the repository
+// [file in the repository, file in the browser's in-memory file system]
+const FETCH = [
+  ...GENERATOR_FILES.map((f) => [`${SOURCE}Generator/${f}`, `Generator/${f}`]),
+  ...PARAMETER_FILES.map((f) => [`${SOURCE}Parameters/${f}`, `Parameters_Default/${f}`]),
+  ["WebGUI/WebGenerator.py", "WebGUI/WebGenerator.py"],
+];
 
 function progress(text) { postMessage({ type: "progress", text }); }
 
@@ -40,12 +56,11 @@ async function init({ pyodideBase, codeBase }) {
   await pyodide.loadPackage("numpy");
   progress("Fetching the generator from the repository…");
   const jobs = [];
-  for (const [dir, names] of Object.entries(FILES)) {
+  for (const [from, to] of FETCH) {
+    const dir = to.slice(0, to.lastIndexOf("/"));
     pyodide.FS.mkdirTree(`${ROOT}/${dir}`);
-    for (const n of names) {
-      const url = new URL(`${SOURCE_FOLDER[dir]}/${n}`, codeBase).href;
-      jobs.push(fetchText(url).then((t) => pyodide.FS.writeFile(`${ROOT}/${dir}/${n}`, t)));
-    }
+    const url = new URL(from, codeBase).href;
+    jobs.push(fetchText(url).then((t) => pyodide.FS.writeFile(`${ROOT}/${to}`, t)));
   }
   await Promise.all(jobs);
   pyodide.runPython(`
@@ -79,7 +94,7 @@ onmessage = async (ev) => {
     else if (cmd === "inactive") result = call("inactive", JSON.stringify(args.values));
     else if (cmd === "generate") {
       const t0 = performance.now();
-      result = call("generate", JSON.stringify(args.values), !!args.strict);
+      result = call("generate", JSON.stringify(args.values));
       result.seconds = (performance.now() - t0) / 1000;
       if (result.ok) {
         result.zipBytes = readFileBuffer(result.zip);
