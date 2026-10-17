@@ -4,18 +4,19 @@ WebGenerator.py  -  the web GUI's entry point into the generator (runs inside th
 It does what RunCoilGenerator.py does, without touching the generator itself:
   1. the visitor's values are written into copies of the four parameter files (only the changed lines
      change, so Parameters.txt keeps its verbatim copies),
-  2. ParameterChecker.check_parameters, StatorDesign + check_design, RotorDesign + check_design,
-  3. the files are written with OutputDirectoryManager into Output/Coil_..., and zipped.
+  2. the chain of RunCoilGenerator.py: CheckParameters.check_parameters, RX_Builder.build_rx, TX_Builder.build_tx,
+     StatorAssembly.assemble + DesignChecks, RotorBuilder.RotorDesign + DesignChecks,
+  3. the files are written with OutputFolders into Output/Coil_..., and zipped.
 
-The electrical estimate (CoilElectrics.py) is not made in the web GUI's first
-release; Parameters.txt says so.  Nothing here is needed to run the generator on a desktop.
+The electrical estimate (TX_Electrics.py) is not made in the web GUI; Parameters.txt says so.  Nothing here is
+needed to run the generator on a desktop.
 
 Every function returns JSON text, so the JavaScript side never sees Python objects.
 
 Folder layout in the browser's in-memory file system (ROOT):
-    ROOT/Generator/*.py               fetched from the repository
+    ROOT/Generator/...                the generator package ("Single Generator/Generator" in the repository)
     ROOT/WebGUI/WebGenerator.py       this file
-    ROOT/Parameters_Default/*.py      the four parameter files as published (never changed)
+    ROOT/Parameters_Default/*.py      the parameter files as published (never changed)
     ROOT/Parameters/*.py              the same files with the visitor's values (rewritten on every run)
     ROOT/Output/Coil_.../             the run's folder (emptied before every run)
     ROOT/out.zip                      the run's zip (generate)
@@ -35,46 +36,22 @@ import zipfile
 
 ROOT = "/coilgen"
 PARAMETER_FILES = ("Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py")
-GENERATOR_MODULES = ("ParameterChecker", "StatorGenerator", "RotorGenerator", "TXLayout", "BandLayout",
-                     "OutputDirectoryManager", "Parameters") + tuple(f[:-3] for f in PARAMETER_FILES)
+PARAMETER_MODULES = ("Parameters",) + tuple(f[:-3] for f in PARAMETER_FILES)
 
-# Not shown in the web GUI (decided for the first release): settings that only feed the electrical estimate,
-# and the settings of earlier versions (read only from old parameter files).
-HIDDEN = {"RECEIVER_IC", "COPPER_THICKNESS_UM", "TX_AMPLITUDE_VPP",
-          "TX_PLACEMENT", "TX_SECOND_LAYER", "TX_BREAK_STYLE", "CHORD_TOLERANCE_MM"}
-# The web page names no research papers: references to them in the help texts and the checker's notes (they come
-# from the generator's own files, which stay unchanged) are taken out before the page shows them.
-_PAPER = re.compile(r"(?:,\s*)?(?:as in\s+|the layout of\s+)?Hoxha\s+et\s+al\.?,?(?:\s+Sensors)?\s+2022(?:,\s*22,\s*4683)?"
-                    r"(?:,?\s*(?:\(Fig\.\s*2\)|Fig\.\s*2))?")
-
-
-def _no_papers(text):
-    # The last line also tidies spacing: taking a reference out can leave double spaces, and column alignment
-    # means nothing in the help popover.
-    t = re.sub(r"the 2-layer layout of\s+Hoxha\s+et\s+al\.?\s+2022\s*\(Fig\.\s*2\)", "the 2-layer go-around layout", text)
-    t = _PAPER.sub("", t)
-    t = re.sub(r"\s*\(as in the paper(?:'s layout)?\)", "", t)
-    t = re.sub(r"\(go-around,\s*\)", "(go-around)", t)
-    t = re.sub(r"\(\s*\)", "", t)
-    return re.sub(r"[ \t]{2,}", " ", t)
+# Not shown in the web GUI: settings that only feed the electrical estimate.
+HIDDEN = {"RECEIVER_IC", "COPPER_THICKNESS_UM"}
 
 
 def _no_removed_features(text):
-    """The web page has no electrical estimate, optimizer or analyser, so the help texts and notes that point to
-    them (they come from the generator's own files, which stay unchanged) lose those sentences, like _no_papers."""
-    t = re.sub(r"The electrical estimate sizes the tank capacitors for it; the rotor summary", "The rotor summary", text)
-    t = re.sub(r"OptimizeCoil\.py\s+finds\s+the\s+best\s+value\s+for\s+your\s+coil\s+with\s+the\s+eddy-current\s+model;\s+check",
-               "Check", t)
-    t = re.sub(r"\s*\(AnalyzeCoil\.py\)", "", t)
-    t = re.sub(r",\s+so\s+OptimizeCoil\.py\s+searches\s+the\s+outer\s+edge\s+together\s+with\s+the\s+metal\s+fraction", "", t)
-    t = re.sub(r'\s*In the analyser "single".*?"all" and "none"\.', "", t, flags=re.S)
-    t = re.sub(r"Parameters, Generator, Analyser_And_Optimizer", "Parameters and Generator", t)
+    """The web page has no electrical estimate, so the help texts and notes that point to it (they come from the
+    generator's own files, which stay unchanged) lose those sentences."""
+    t = re.sub(r"\s*The electrical estimate sizes the\s+tank capacitors for it; the rotor summary", " The rotor summary", text)
     t = re.sub(r"\s*\(see the electrical estimate\)", "", t)
-    return t
+    return re.sub(r"[ \t]{2,}", " ", t)
 
 
 def _web_text(text):
-    return _no_removed_features(_no_papers(text))
+    return _no_removed_features(text)
 
 
 # Starting values that differ from the parameter files in the web version only (none now: the files themselves
@@ -90,8 +67,8 @@ def _paths():
     # cached .pyc keyed on time and size could look valid and the old values would be used.  Never cache them.
     sys.dont_write_bytecode = True
     shutil.rmtree(os.path.join(ROOT, "Parameters", "__pycache__"), ignore_errors=True)
-    for sub in ("Generator", "Parameters"):
-        p = os.path.join(ROOT, sub)
+    # the generator is the package ROOT/Generator; importing it puts ROOT/Parameters on the path too
+    for p in (os.path.join(ROOT, "Parameters"), ROOT):
         if p not in sys.path:
             sys.path.insert(0, p)
 
@@ -101,8 +78,9 @@ def _forget_modules():
     import importlib
     importlib.invalidate_caches()
     shutil.rmtree(os.path.join(ROOT, "Parameters", "__pycache__"), ignore_errors=True)
-    for name in GENERATOR_MODULES:
-        sys.modules.pop(name, None)
+    for name in list(sys.modules):
+        if name == "Generator" or name.startswith("Generator.") or name in PARAMETER_MODULES:
+            sys.modules.pop(name, None)
 
 
 def _jsonable(x):
@@ -169,7 +147,7 @@ def _help_texts(source):
             text = (text + "\n" if text else "") + " ".join(trailing)
         text = text.strip()
         # a parameter written right under another one, with no comment of its own, shares that one's text
-        # (TX_LAYERS / TX_LAYER_A / TX_LAYER_B / TX_SERIES)
+        # (TX_WIRING / TX_LAYER_A / TX_LAYER_B)
         if not text and prev_end.get("line") == i - 1 and prev_end.get("name"):
             text = out[prev_end["name"]]
         # "... or set a fixed radius here" finishes the sentence of the parameter above ("... - this ...")
@@ -215,8 +193,8 @@ def _py_literal(value, kind):
 def _write_parameter_files(values):
     """Write ROOT/Parameters/*.py: the published files with the visitor's values put in.  Only the value
     expressions of changed parameters are replaced; comments and layout stay as they are."""
-    import ParameterChecker as PC
-    kinds = {name: kind for _f, name, kind, _o, _a in PC.SPEC}
+    from Generator.Checks import ParameterRules as PR
+    kinds = {name: kind for _f, name, kind, _o, _a in PR.SPEC}
     os.makedirs(os.path.join(ROOT, "Parameters"), exist_ok=True)
     changed = []
     for fname in PARAMETER_FILES:
@@ -261,7 +239,7 @@ def describe():
     _restore_default_files()
     _forget_modules()
     import Parameters as P
-    import ParameterChecker as PC
+    from Generator.Checks import ParameterRules as PR
     helps, groups = {}, {}
     for fname in PARAMETER_FILES:
         with open(os.path.join(ROOT, "Parameters_Default", fname), encoding="utf-8") as fh:
@@ -269,13 +247,11 @@ def describe():
         helps.update(_help_texts(src))
         groups.update(_groups(src))
     out = []
-    for file, name, kind, o, active in PC.SPEC:
+    for file, name, kind, o, active in PR.SPEC:
         if name in HIDDEN:
             continue
         opts = {k: _jsonable(v) for k, v in o.items() if k in ("lo", "hi", "lo_ex", "hi_ex", "values", "ci",
                                                                   "optional", "default")}
-        if name == "TX_TURN_SHAPE":                       # "stepped" is the old name of "stepped_diagonal": not offered
-            opts["values"] = [x for x in opts["values"] if x != "stepped"]
         default = getattr(P, name, o.get("default"))
         default = WEB_DEFAULTS.get(name, default)
         help_text = _web_text(helps.get(name) or FALLBACK_HELP.get(name, ""))
@@ -293,12 +269,12 @@ def describe():
 def inactive(values_json):
     """Names of the parameters the generator ignores with these values (greyed out in the GUI)."""
     _paths()
-    import ParameterChecker as PC
+    from Generator.Checks import ParameterRules as PR
     values = json.loads(values_json)
     ns = types.SimpleNamespace(**{k: (tuple(v) if isinstance(v, list) and k == "PAGE_SIZE_MM" else v)
                                   for k, v in values.items()})
     out = []
-    for _file, name, _kind, _o, active in PC.SPEC:
+    for _file, name, _kind, _o, active in PR.SPEC:
         if active is None or name in HIDDEN:
             continue
         try:
@@ -309,7 +285,7 @@ def inactive(values_json):
     return json.dumps(out)
 
 
-def generate(values_json, strict=False):
+def generate(values_json):
     """Run the generator with the visitor's values.  Returns the findings and, when nothing failed, the files."""
     _paths()
     values = json.loads(values_json)
@@ -317,8 +293,11 @@ def generate(values_json, strict=False):
     result = {"ok": False, "items": items, "name": None, "files": {}, "summaries": {}}
 
     def take(stage, rep):
-        for level, msg in rep.items:
-            items.append({"stage": stage, "level": level, "msg": _web_text(msg)})
+        from Generator.Core.Conflict import conflict_title
+        for level, msg, names in rep.items:
+            items.append({"stage": stage, "level": level, "msg": _web_text(msg), "names": list(names),
+                          # a conflict between parameters: "NAME_A conflicts with NAME_B", the explanation below it
+                          "title": conflict_title(names) if len(names) >= 2 else None})
 
     def fail(why):
         result["failed"] = why
@@ -342,27 +321,40 @@ def generate(values_json, strict=False):
         import Parameters as P
     except Exception as e:
         return fail(f"the parameter files cannot be loaded: {type(e).__name__}: {e}")
-    import ParameterChecker as PC
-    import OutputDirectoryManager as ODM
-    rep = PC.check_parameters(P)
+    from Generator.Checks import DesignChecks
+    from Generator.Core.Conflict import Report
+    from Generator.Run import OutputFolders as OF
+    from Generator.Run.CheckParameters import check_parameters
+    rep = check_parameters(P)
     take("Parameters", rep)
     warn_texts = list(rep.warnings)
     if rep.errors:
         return fail(f"{len(rep.errors)} parameter error(s)")
+    strict = str(getattr(P, "GENERATOR_MODE", "normal")).strip().lower() == "strict"
 
-    # 2. stator
-    import StatorGenerator as SG
-    import RotorGenerator as RG
+    # 2. stator: the chain of RunCoilGenerator.py (the RX reads the parameters, the TX reads the RX, the assembly turns
+    #    the board so that the TX terminal sits at 0 deg, the checks measure the result)
+    from Generator.Stator import StatorAssembly
+    from Generator.Stator.RX import RX_Builder
+    from Generator.Stator.TX import TX_Builder
+    from Generator.Rotor import RotorBuilder as RB
     buf = io.StringIO()
     try:
         with contextlib.redirect_stderr(buf), contextlib.redirect_stdout(io.StringIO()):
-            stator = SG.StatorDesign(P)
+            rx = RX_Builder.build_rx(P)
+            tx = TX_Builder.build_tx(rx)
+            DesignChecks.check_tx_terminal(tx)
+            stator = StatorAssembly.assemble(P, rx, tx)
+            DesignChecks.check_stator_clearances(stator)
     except (ValueError, RuntimeError) as e:
-        items.append({"stage": "Stator", "level": "error", "msg": f"the stator cannot be built: {e}"})
+        failed = Report()
+        failed.add_exception(e)
+        take("Stator", failed)
         return fail("stator cannot be built")
-    gen_rep = PC.classify_generator_output(buf.getvalue())
-    gen_rep.extend(PC.check_design(P, stator))
+    gen_rep = DesignChecks.classify_generator_output(buf.getvalue())
+    gen_rep.extend(DesignChecks.check_design(P, stator))
     take("Stator", gen_rep)
+    board_warn = len(gen_rep.warnings)                        # warnings about the finished boards
     warn_texts += gen_rep.warnings
     if gen_rep.errors:
         return fail(f"{len(gen_rep.errors)} geometry error(s)")
@@ -370,31 +362,34 @@ def generate(values_json, strict=False):
     # 3. rotor
     try:
         with contextlib.redirect_stdout(io.StringIO()):
-            rotor = RG.RotorDesign(P, stator=stator)
+            rotor = RB.RotorDesign(P, stator=stator)
     except (ValueError, RuntimeError) as e:
-        items.append({"stage": "Rotor", "level": "error", "msg": f"the rotor cannot be built: {e}"})
+        failed = Report()
+        failed.add_exception(e)
+        take("Rotor", failed)
         return fail("rotor cannot be built")
-    rot_rep = PC.check_design(P, stator, rotor)
-    rot_rep.items = [(l, m) for l, m in rot_rep.items if (l, m) not in gen_rep.items]
+    rot_rep = DesignChecks.check_design(P, stator, rotor)
+    rot_rep.items = [it for it in rot_rep.items if it not in gen_rep.items]
     take("Rotor", rot_rep)
+    board_warn += len(rot_rep.warnings)
     warn_texts += rot_rep.warnings
     if rot_rep.errors:
         return fail(f"{len(rot_rep.errors)} rotor error(s)")
 
-    # 4. strict (the desktop's electrical estimate is not made on the web)
-    if strict and warn_texts:
-        return fail(f"Strict: {len(warn_texts)} warning(s) count as errors")
+    # 4. GENERATOR_MODE = "strict": every warning about the finished boards counts as an error
+    if strict and board_warn:
+        return fail(f'GENERATOR_MODE = "strict": {board_warn} warning(s) about the boards count as errors')
 
     # 5. write
-    folder = ODM.create_output_folder(stator, P)
+    folder = OF.create_output_folder(stator, P)
     written = [stator.write(os.path.join(folder, P.STATOR_FILE)), rotor.write(os.path.join(folder, P.ROTOR_FILE))]
     note = ["ELECTRICAL ESTIMATE",
-            "  not made: the web GUI's first release runs the generator only (no CoilElectrics).",
+            "  not made: the web GUI runs the generator only (no TX_Electrics).",
             "  Run RunCoilGenerator.py on a desktop with these parameter files for the estimate."]
-    ODM.write_record(folder, P, written, stator=stator, rotor=rotor, electrical_lines=note,
-                     warnings=warn_texts, command="Web GUI (generator only)")
+    OF.write_record(folder, P, written, stator=stator, rotor=rotor, electrical_lines=note,
+                    warnings=warn_texts, command="Web GUI (generator only)")
     name = os.path.basename(folder)
-    record = os.path.join(folder, ODM.RECORD_FILE)          # the browser's folder means nothing to the reader
+    record = os.path.join(folder, OF.RECORD_FILE)          # the browser's folder means nothing to the reader
     with open(record, encoding="utf-8") as f:
         text = f.read()
     with open(record, "w", encoding="utf-8") as f:
@@ -407,7 +402,7 @@ def generate(values_json, strict=False):
             # inside the run's own folder, so the zip is a self-contained record of the run
             z.write(os.path.join(ROOT, "Parameters", fname), arcname=f"{name}/Parameter_Files/{fname}")
     files = {}
-    for key, fname in (("stator", P.STATOR_FILE), ("rotor", P.ROTOR_FILE), ("record", ODM.RECORD_FILE)):
+    for key, fname in (("stator", P.STATOR_FILE), ("rotor", P.ROTOR_FILE), ("record", OF.RECORD_FILE)):
         with open(os.path.join(folder, fname), encoding="utf-8") as fh:
             files[key] = fh.read()
     result.update(ok=True, name=name, files=files, zip=zpath,
@@ -443,29 +438,30 @@ def export_zip(values_json):
 
 
 def read_values(text):
-    """Values found in a dropped Parameters.txt or parameter file (Import): every NAME = literal it holds."""
+    """Values found in a dropped Parameters.txt or parameter file (Import): every NAME = literal it holds.
+    {"values": {name: value}, "ignored": [names the program does not know]}: a file of an older version carries
+    names that were removed (e.g. TX_LAYERS, TX_START_ANGLE_DEG); they are listed so the page can say so."""
     _paths()
-    import ParameterChecker as PC
-    known = {name for _f, name, _k, _o, _a in PC.SPEC}
-    found = {}
+    from Generator.Checks import ParameterRules as PR
+    known = {name for _f, name, _k, _o, _a in PR.SPEC}
+    found, ignored = {}, []
     for line in text.split("\n"):
         s = line.strip()
         if "=" not in s or s.startswith("#"):
             continue
         name, _, rest = s.partition("=")
         name = name.strip()
-        legacy = name == "CHORD_TOLERANCE_MM"              # the older name of RX_CHORD_TOLERANCE_MM
-        if legacy:
-            name = "RX_CHORD_TOLERANCE_MM"
-        if name not in known or name in HIDDEN or name in READ_ONLY:
+        if name not in known:
+            if re.fullmatch(r"[A-Z][A-Z0-9_]*", name) and name not in ignored:
+                ignored.append(name)
+            continue
+        if name in HIDDEN or name in READ_ONLY:
             continue
         expr = rest.split("   (not used")[0].strip()
         for cut in range(len(expr), 0, -1):                # longest prefix that is a Python literal
             try:
-                value = _jsonable(ast.literal_eval(expr[:cut].strip()))
-                if not (legacy and name in found):         # the new name wins when a file has both
-                    found[name] = value
+                found[name] = _jsonable(ast.literal_eval(expr[:cut].strip()))
                 break
             except Exception:
                 continue
-    return json.dumps(found)
+    return json.dumps({"values": found, "ignored": ignored})
