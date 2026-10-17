@@ -2,7 +2,7 @@
 on the first free port from 8000."""
 import functools, http.server, os, socket, sys, webbrowser
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))     # the repository root: Generator/, Parameters/ and WebGUI/ sit here
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))     # the repository root: "Single Generator/" and WebGUI/ sit here
 
 
 class NoCache(http.server.SimpleHTTPRequestHandler):

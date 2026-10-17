@@ -21,8 +21,9 @@ loading on `file://` pages, so the page has to come from `http://`.
 
 The tester is the repository itself. Nothing is built or copied.
 
-- `serve.py` serves the repository root (the folder above `LocalTesting/`) so that `WebGUI/`, `Generator/` and
-  `Parameters/` sit side by side, as they do on GitHub Pages. The page finds the generator at `../` from `WebGUI/`.
+- `serve.py` serves the repository root (the folder above `LocalTesting/`) so that `WebGUI/` and `Single Generator/`
+  (the generator and its parameter files) sit side by side, as they do on GitHub Pages. The page finds the generator at
+  `../Single Generator/` from `WebGUI/`.
 - The Start scripts only run `serve.py`.
 - Python for the browser (Pyodide) is loaded from a CDN, as on the live site.
 
