@@ -1,14 +1,3 @@
-Required Notice: Copyright (c) 2026 Ro-H-Bots (https://ro-h-bots.blogspot.com/). All rights not granted below are reserved.
-Required Notice: This software is the Sinusoidal Coil Generator. Any copy, fork or derived work must state clearly that it is derived from the Sinusoidal Coil Generator and link to the original repository.
-Required Notice: Commercial use requires written permission from the author. Contact: rolandthsive@yahoo.com
-
-The source code is licensed under the PolyForm Noncommercial License 1.0.0, reproduced in LICENSE-PolyForm-Noncommercial-1.0.0.md.
-The pictures in docs/images and the documentation are licensed under Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International (https://creativecommons.org/licenses/by-nc-sa/4.0/), reproduced in LICENSE-CC-BY-NC-SA-4.0.md.
-The Web UI (the WebGUI folder and its design) is not covered by this license; it is under the PolyForm Strict License 1.0.0 (LICENSE-PolyForm-Strict-1.0.0.md, and WebGUI/LICENSE.md on the WebUI branch).
-
----
-
 # Licenses Of This Repository
 
 This repository is **free for non-commercial use**. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [LICENSE-PolyForm-Noncommercial-1.0.0.md](LICENSE-PolyForm-Noncommercial-1.0.0.md), [LICENSE-CC-BY-NC-SA-4.0.md](LICENSE-CC-BY-NC-SA-4.0.md) and [LICENSE-PolyForm-Strict-1.0.0.md](LICENSE-PolyForm-Strict-1.0.0.md).
