@@ -1,6 +1,6 @@
 # Licenses Of This Repository
 
-This repository is **free for non-commercial use**. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [LICENSE-PolyForm-Noncommercial-1.0.0](LICENSE-PolyForm-Noncommercial-1.0.0), [LICENSE-CC-BY-NC-SA-4.0](LICENSE-CC-BY-NC-SA-4.0) and [LICENSE-PolyForm-Strict-1.0.0](LICENSE-PolyForm-Strict-1.0.0).
+This repository is **free for non-commercial use**. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and [PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
 
 > **Commercial use of anything in this repository requires written permission from the author.** Contact: [rolandthsive@yahoo.com](mailto:rolandthsive@yahoo.com).
 
@@ -8,9 +8,9 @@ This repository is **free for non-commercial use**. It uses three licenses, each
 
 | License | Full Text | Covers | Where |
 |---|---|---|---|
-| **PolyForm Noncommercial 1.0.0** | [LICENSE-PolyForm-Noncommercial-1.0.0](LICENSE-PolyForm-Noncommercial-1.0.0) | The source code: the generator, its parameter files and the analyser and optimizer | `Single Generator/` (`Generator/`, `Parameters/`) on `main`; the `analyser_and_optimizer` branch |
-| **CC BY-NC-SA 4.0** | [LICENSE-CC-BY-NC-SA-4.0](LICENSE-CC-BY-NC-SA-4.0) | The pictures and the documentation | `docs/images/` (except the Web UI pictures), `docs/wiki/`, `README.md`, `CONTRIBUTING.md` |
-| **PolyForm Strict 1.0.0** | [LICENSE-PolyForm-Strict-1.0.0](LICENSE-PolyForm-Strict-1.0.0) | The Web UI and every aspect of it: its code, the workflow that publishes it, every page where the author publishes it, and its design (layout, look and feel, colours, panels, controls, icons, wording, help texts, and pictures and recordings of it) | `WebGUI/` and `.github/workflows/WebGUI-Pages.yml` on the `WebUI` branch, the published Web Tool, `docs/images/webui_*.png`; its own notice is `WebGUI/LICENSE.md` |
+| **PolyForm Noncommercial 1.0.0** | [PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0) | The source code: the generator, its parameter files and the analyser and optimizer | `Single Generator/` (`Generator/`, `Parameters/`) on `main`; the `analyser_and_optimizer` branch |
+| **CC BY-NC-SA 4.0** | [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) | The pictures and the documentation | `docs/images/` (except the Web UI pictures), `docs/wiki/`, `README.md`, `CONTRIBUTING.md` |
+| **PolyForm Strict 1.0.0** | [PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0) | The Web UI and every aspect of it: its code, the workflow that publishes it, every page where the author publishes it, and its design (layout, look and feel, colours, panels, controls, icons, wording, help texts, and pictures and recordings of it) | `WebGUI/` and `.github/workflows/WebGUI-Pages.yml` on the `WebUI` branch, the published Web Tool, `docs/images/webui_*.png`; its own notice is `WebGUI/LICENSE.md` |
 
 The Web UI runs the generator unchanged. The generator, its pictures and its documentation stay under their own
 licenses above, not under the Web UI's.
