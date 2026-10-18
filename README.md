@@ -207,9 +207,7 @@ cells and rocket electronics, designing PCBs in KiCad and firmware for STM32 and
 
 Without a job at the moment, I put my full time into building industrial-grade software and making
 well-researched but hard-to-find scientific knowledge free for everyone. I will keep maintaining
-this project until it becomes a highly capable rotary inductive sensor coil generator. Meanwhile I
-am gathering data on the encoders sold today at very high prices and collecting the research
-papers behind them.
+this project until it becomes a highly capable rotary inductive sensor coil generator.
 
 **[Website](https://ro-h-bots.blogspot.com/)** ·
 **[Instagram](https://www.instagram.com/ro_h_bots)** ·
