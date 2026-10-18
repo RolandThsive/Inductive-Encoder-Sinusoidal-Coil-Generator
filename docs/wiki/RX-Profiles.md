@@ -5,15 +5,15 @@ crossing it every half period. The two curves of a pair mirror each other (the `
 curve below), and the coil is the loop they form together. The shape of the weave is chosen by
 `RX_PROFILE`.
 
-The three profiles at a glance:
+Two profiles can be selected now; a third is research in progress:
 
 | Profile | Rule | Compensates for | Use it when |
 |---|---|---|---|
 | `equal_area` (default) | r² swings equally around r_base² | A uniform field | You want the default, well-behaved choice |
 | `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the Renesas reference design, which follows this law |
-| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | Research underway |
+| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | Research underway (not selectable in V18) |
 
-All three are selected with `RX_PROFILE` in `RX_Parameters.py`. As with the rest of the analysis,
+`RX_PROFILE` in `RX_Parameters.py` accepts `equal_area` and `cosine_r`. As with the rest of the analysis,
 the differences shown here come from the generator and its models. They have not yet been checked
 on hardware.
 
@@ -70,15 +70,13 @@ grey line in the right panel is the middle of the band, 44.5 mm, for comparison.
 
 ## 8.3 Profile `field_compensated`
 
-**Research underway.**
+**Research underway.** It was removed from the generator in V18 and returns when the field model does.
 
-## 8.4 Comparing The Three Profiles
+## 8.4 Comparing The Profiles
 
 ![RX Profile 3: The three profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
 
-*RX Profile 3. The same 4-loop board built with each profile, and the radius of one curve pair
-over one electrical period (90°). `equal_area` and `cosine_r` lie almost on top of each other;
-`field_compensated` departs from them by up to about 1.5 mm in radius at some angles.*
+*RX Profile 3. The same 4-loop board (board edges 30 / 50 mm, series TX on Top + Inner-1, pitch 1.2 mm) built with each of the two profiles, and the radius of the SIN curves over one electrical period (90°). The two profiles lie almost on top of each other.*
 
 | Previous | Next |
 |:---|---:|
