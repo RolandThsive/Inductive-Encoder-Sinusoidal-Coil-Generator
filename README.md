@@ -18,7 +18,7 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 
 1. [Disclaimer](#disclaimer)
 2. [Goal](#goal)
-3. [Introduction](#introduction)
+3. [Working Principle](#Working-Principle)
 4. [Immediate Next Steps](#immediate-next-steps)
 5. [Project Capabilities](#project-capabilities)
 6. [Examples](#examples)
