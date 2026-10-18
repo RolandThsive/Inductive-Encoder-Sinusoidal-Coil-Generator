@@ -2,83 +2,44 @@ Required Notice: Copyright (c) 2026 Ro-H-Bots (https://ro-h-bots.blogspot.com/).
 Required Notice: This software is the Sinusoidal Coil Generator. Any copy, fork or derived work must state clearly that it is derived from the Sinusoidal Coil Generator and link to the original repository.
 Required Notice: Commercial use requires written permission from the author. Contact: rolandthsive@yahoo.com
 
-The source code is licensed under the PolyForm Noncommercial License 1.0.0, reproduced below.
+The source code is licensed under the PolyForm Noncommercial License 1.0.0, reproduced in LICENSE-PolyForm-Noncommercial-1.0.0.md.
 The pictures in docs/images and the documentation are licensed under Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International (https://creativecommons.org/licenses/by-nc-sa/4.0/).
-The Web UI (the WebGUI folder and its design) is not covered by this license; it is under the PolyForm Strict License 1.0.0 in WebGUI/LICENSE.md.
+Attribution-NonCommercial-ShareAlike 4.0 International (https://creativecommons.org/licenses/by-nc-sa/4.0/), reproduced in LICENSE-CC-BY-NC-SA-4.0.md.
+The Web UI (the WebGUI folder and its design) is not covered by this license; it is under the PolyForm Strict License 1.0.0 (LICENSE-PolyForm-Strict-1.0.0.md, and WebGUI/LICENSE.md on the WebUI branch).
 
 ---
 
-# PolyForm Noncommercial License 1.0.0
+# Licenses Of This Repository
 
-<https://polyformproject.org/licenses/noncommercial/1.0.0>
+This repository is **free for non-commercial use**. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [LICENSE-PolyForm-Noncommercial-1.0.0.md](LICENSE-PolyForm-Noncommercial-1.0.0.md), [LICENSE-CC-BY-NC-SA-4.0.md](LICENSE-CC-BY-NC-SA-4.0.md) and [LICENSE-PolyForm-Strict-1.0.0.md](LICENSE-PolyForm-Strict-1.0.0.md).
 
-## Acceptance
+> **Commercial use of anything in this repository requires written permission from the author.** Contact: [rolandthsive@yahoo.com](mailto:rolandthsive@yahoo.com).
 
-In order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.
+## Which License Applies Where
 
-## Copyright License
+| License | Full Text | Covers | Where |
+|---|---|---|---|
+| **PolyForm Noncommercial 1.0.0** | [LICENSE-PolyForm-Noncommercial-1.0.0.md](LICENSE-PolyForm-Noncommercial-1.0.0.md) | The source code: the generator, its parameter files and the analyser and optimizer | `Single Generator/` (`Generator/`, `Parameters/`) on `main`; the `analyser_and_optimizer` branch |
+| **CC BY-NC-SA 4.0** | [LICENSE-CC-BY-NC-SA-4.0.md](LICENSE-CC-BY-NC-SA-4.0.md) | The pictures and the documentation | `docs/images/` (except the Web UI pictures), `docs/wiki/`, `README.md`, `CONTRIBUTING.md` |
+| **PolyForm Strict 1.0.0** | [LICENSE-PolyForm-Strict-1.0.0.md](LICENSE-PolyForm-Strict-1.0.0.md) | The Web UI and every aspect of it: its code, the workflow that publishes it, every page where the author publishes it, and its design (layout, look and feel, colours, panels, controls, icons, wording, help texts, and pictures and recordings of it) | `WebGUI/` and `.github/workflows/WebGUI-Pages.yml` on the `WebUI` branch, the published Web Tool, `docs/images/webui_*.png`; its own notice is `WebGUI/LICENSE.md` |
 
-The licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose.  However, you may only distribute the software according to [Distribution License](#distribution-license) and make changes or new works based on the software according to [Changes and New Works License](#changes-and-new-works-license).
+The Web UI runs the generator unchanged. The generator, its pictures and its documentation stay under their own
+licenses above, not under the Web UI's.
 
-## Distribution License
+## What Each License Allows
 
-The licensor grants you an additional copyright license to distribute copies of the software.  Your license to distribute covers distributing the software with changes and new works permitted by [Changes and New Works License](#changes-and-new-works-license).
+| License | You May | You Must | You May Not, Without Written Permission |
+|---|---|---|---|
+| **PolyForm Noncommercial 1.0.0** | Use, study and modify the code for any non-commercial purpose: personal, educational, research and hobby use, and use by charities, schools, public research bodies and government institutions. Share your changes for non-commercial use. | Keep the license and copyright notices in every copy. State clearly that your version is forked from or derived from this project, with a link to this repository. | Use the code, or boards made with it, in a commercial product or service, or inside a company or startup for its business. |
+| **CC BY-NC-SA 4.0** | Copy, share and adapt the pictures and the documentation for non-commercial purposes. | Give credit (Ro-H-Bots, with a link to this repository), say if you made changes, and share your adaptations under the same license. | Use them commercially. |
+| **PolyForm Strict 1.0.0** | Use the Web UI for any non-commercial purpose (personal use, study, research, and non-commercial organizations). | Keep the required notices. | Distribute the Web UI, change it or make new works based on it, copy its design, or use it commercially. |
 
-## Notices
+## Commercial Use
 
-You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms or the URL for them above, as well as copies of any plain-text lines beginning with `Required Notice:` that the licensor provided with the software.  For example:
+Companies and startups are welcome to use this project once terms are agreed. Please get in touch by email (above).
+Approved organizations will be listed in the [README](README.md#licensing).
 
-> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
+## Disclaimer
 
-## Changes and New Works License
-
-The licensor grants you an additional copyright license to make changes and new works based on the software for any permitted purpose.
-
-## Patent License
-
-The licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.
-
-## Noncommercial Purposes
-
-Any noncommercial purpose is a permitted purpose.
-
-## Personal Uses
-
-Personal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.
-
-## Noncommercial Organizations
-
-Use by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.
-
-## Fair Use
-
-You may have "fair use" rights for the software under the law. These terms do not limit them.
-
-## No Other Rights
-
-These terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else.  These terms do not imply any other licenses.
-
-## Patent Defense
-
-If you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
-
-## Violations
-
-The first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice.  Otherwise, all your licenses end immediately.
-
-## No Liability
-
-***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***
-
-## Definitions
-
-The **licensor** is the individual or entity offering these terms, and the **software** is the software the licensor makes available under these terms.
-
-**You** refers to the individual or entity agreeing to these terms.
-
-**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization.  **Control** means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise.  Control can be direct or indirect.
-
-**Your licenses** are all the licenses granted to you for the software under these terms.
-
-**Use** means anything you do with the software requiring one of your licenses.
+This page is a plain-language summary to help you find your way. It is not legal advice. If it differs from the full
+license texts, the full texts and the notices at the top of this file apply.

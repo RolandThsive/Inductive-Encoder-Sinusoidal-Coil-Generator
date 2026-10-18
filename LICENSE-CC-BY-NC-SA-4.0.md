@@ -1,4 +1,4 @@
-The pictures in `docs/images` and the documentation are licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International, reproduced below (the text is also at <https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode>). Copyright (c) 2026 Ro-H-Bots (https://ro-h-bots.blogspot.com/). Where the license applies is listed in [License.md](License.md).
+The pictures in `docs/images` and the documentation are licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International, reproduced below (the text is also at <https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode>). Copyright (c) 2026 Ro-H-Bots (https://ro-h-bots.blogspot.com/). Where the license applies is listed in [LICENSE.md](LICENSE.md).
 
 ---
 

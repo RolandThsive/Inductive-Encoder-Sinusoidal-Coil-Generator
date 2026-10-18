@@ -2,7 +2,7 @@ Required Notice: Copyright (c) 2026 Ro-H-Bots (https://ro-h-bots.blogspot.com/),
 Required Notice: This is the Web UI of the Sinusoidal Coil Generator. The Web UI and its design belong to the author alone.
 Required Notice: Commercial use requires written permission from the author. Contact: rolandthsive@yahoo.com
 
-The Web UI is licensed under the PolyForm Strict License 1.0.0, reproduced below. Where the license applies is listed in [License.md](License.md).
+The Web UI is licensed under the PolyForm Strict License 1.0.0, reproduced below. Where the license applies is listed in [LICENSE.md](LICENSE.md).
 
 ---
 

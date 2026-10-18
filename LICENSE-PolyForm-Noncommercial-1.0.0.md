@@ -2,7 +2,7 @@ Required Notice: Copyright (c) 2026 Ro-H-Bots (https://ro-h-bots.blogspot.com/).
 Required Notice: This software is the Sinusoidal Coil Generator. Any copy, fork or derived work must state clearly that it is derived from the Sinusoidal Coil Generator and link to the original repository.
 Required Notice: Commercial use requires written permission from the author. Contact: rolandthsive@yahoo.com
 
-The source code is licensed under the PolyForm Noncommercial License 1.0.0, reproduced below. Where the license applies is listed in [License.md](License.md).
+The source code is licensed under the PolyForm Noncommercial License 1.0.0, reproduced below. Where the license applies is listed in [LICENSE.md](LICENSE.md).
 
 ---
 
