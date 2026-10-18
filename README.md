@@ -18,7 +18,7 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 
 1. [Disclaimer](#disclaimer)
 2. [Goal](#goal)
-3. [Working Principle](#Working-Principle)
+3. [Working Principle](#working-principle)
 4. [Immediate Next Steps](#immediate-next-steps)
 5. [Project Capabilities](#project-capabilities)
 6. [Examples](#examples)
@@ -81,8 +81,6 @@ two signals.* More in the wiki: [Working Principle](https://github.com/RolandThs
 
 ---
 
----
-
 ## Immediate Next Steps
 
 - **Hardware Testing.** Funds are being collected to order a wide range of coil PCBs and the test
@@ -94,7 +92,7 @@ two signals.* More in the wiki: [Working Principle](https://github.com/RolandThs
 
 See the wiki for [Immediate Next Steps](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Immediate-Next-Steps) and
 [Future Upgrades And Planning](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Future-Upgrades-And-Planning). If you can help with boards,
-equipment or measurements, please see [Licensing](#licensing) for contact details.
+equipment or measurements, please read [CONTRIBUTING.md](CONTRIBUTING.md) and see [Licensing](#licensing) for contact details.
 
 ---
 
@@ -167,9 +165,14 @@ The analyser and optimizer are on the [`analyser_and_optimizer` branch](https://
 
 ## Licensing
 
-**Licence:** [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/)
-for the source code, and [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) for
-the pictures and documentation. The full text and the required notices are in [LICENSE.md](LICENSE.md).
+**Licences:** [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/)
+for the source code, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) for
+the pictures and documentation, and [PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0/)
+for the Web UI. [LICENSE.md](LICENSE.md) says which one applies where. The full texts are in
+[PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and
+[PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
+
+The table below is for the source code (PolyForm Noncommercial).
 
 | You May | You Must | You May Not, Without Written Permission |
 |---|---|---|
