@@ -20,7 +20,7 @@ true absolute 0–360° sensor. More loops divide the turn into finer periods fo
 
 ![Stator 1: RX Loops](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_1_loops.png)
 
-*Stator 1. The same board with 1, 2, 4, 8 and 16 loops.*
+*Stator 1. The same board with 1, 2, 4, 8 and 16 loops (RX only, the TX is not drawn).*
 
 ### 11.1.2 Sub-Coils
 
@@ -32,7 +32,7 @@ most.
 
 ![Stator 2: RX Sub-Coils](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_2_subcoils.png)
 
-*Stator 2. A miniature 1-loop stator with 1 sub-coil and with 2 sub-coils split by 45°.*
+*Stator 2. A miniature 1-loop stator with 1 sub-coil and with 2 sub-coils split by 45° (RX only, the TX is not drawn).*
 
 ### 11.1.3 Finger Styles
 
@@ -50,7 +50,7 @@ the outermost TX turn (a longer TX pitch needs longer fingers) the generator sto
 ![Stator 3: RX Bridging Fingers](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_3_fingers.png)
 
 *Stator 3. A 4-loop stator with fingers set to All, Single and None. In the models, Single is as
-accurate as None.*
+accurate as None. RX only, the TX is not drawn.*
 
 ## 11.2 TX Coils
 
