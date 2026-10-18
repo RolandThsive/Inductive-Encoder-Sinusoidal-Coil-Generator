@@ -70,7 +70,7 @@
       <div id="results" class="results"></div>
       <div class="generate-row">
         <button id="btn-reset" class="reset-btn" data-tip="Go back to the default design: 2 layers, board 30 to 50 mm, 4 loops, 3 TX turns in series on Top and Bottom">Reset</button>
-        <label class="switch-row" data-tip="Treat warnings about the finished boards as errors: nothing is generated if there is one (GENERATOR_MODE = "strict" on the desktop)">
+        <label class="switch-row" data-tip="Generator Mode. Off (normal): a gap smaller than the minimum clearance is a warning and the boards are written. On (strict): every such warning is an error and nothing is written. Copper that overlaps another net is always an error.">
           <span>Strict</span>
           <span class="switch"><input type="checkbox" id="strict"><span class="knob"></span></span>
         </label>
