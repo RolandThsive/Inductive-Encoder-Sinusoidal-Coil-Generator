@@ -53,7 +53,7 @@ const TOOLTIPS = {
   TX_INSIDE_VIA_DISTANCE_MM: "Moves the TX terminal via this far towards the centre, so it clears the next turn. 0 puts it on the trace ends. Keep it small enough not to reach the RX coils. Not used by Stepped Arc.",
   TX_STEPPED_ANGLE_DEG: "Slope of the steps between TX turns: 90 is straight out, 45 diagonal, smaller is gentler. Auto: the original shape. Only used by Stepped Diagonal.",
   TX_STEPPED_ARC_RADIUS_MM: "Stepped Arc only: radius of the innermost arc around the terminal via. The other arcs follow one pitch apart. Auto: the smallest radius that clears the via, plus 0.02 mm. A number must be larger than the TX pitch and smaller than pitch plus tail extra.",
-  TX_WIRING: "How many layers carry TX turns and how they are joined. Single: all turns on Layer A. Series: Layer A and Layer B joined in series by one via at the inner end (2 × the turns, both run the same way so the fields add). Parallel: the same turns on both layers, stitched through vias around the terminal (lower resistance).",
+  TX_WIRING: "How many layers carry TX turns and how they are joined. Single: all turns on TX Layer A. Series: two spirals on Layer A and B joined by a via, twice the turns (both run the same way, so the fields add). Parallel: the same turns on both layers, stitched through vias around the terminal (about 6 % more signal and twice the Q in the model). Put Layer A on Top for parallel.",
   TX_LAYER_A: "The (first) layer carrying the TX turns.",
   TX_LAYER_B: "The second TX layer. Only used when TX Wiring is Series or Parallel.",
   TX_SERIES_UNDERPASS_LAYER: "Layer used for the TX inner tail and for the brackets that carry the turns around the fingers. Auto picks a free layer.",
@@ -81,4 +81,5 @@ const TOOLTIPS = {
   ROTOR_ARC_STEPS_PER_SECTOR: "Points per curved edge of a rotor sector. Auto: the fewest that keep the chord error within Rotor Chord Tolerance (at least 8). A number is used exactly: 8 to 5000.",
   ROTOR_CHORD_TOLERANCE_MM: "Largest allowed gap between the true curve and the straight segment between two points. Used only when Steps is Auto: smaller gives more points and smoother copper. Lowest: 0.001 mm (1 micron). The points sit just outside the arc, so the copper is never smaller than asked.",
   ROTOR_SOLDER_MASK_EXPANSION_MM: "Solder mask over the rotor copper. Above 0: bare copper, with the opening this much wider. 0: opening exactly the copper. -1: copper stays covered by mask.",
+  ROTOR_PCB_THICKNESS_MM: "Thickness of the rotor board written into the KiCad file. None: the stator's board thickness. It changes nothing in the copper.",
 };
