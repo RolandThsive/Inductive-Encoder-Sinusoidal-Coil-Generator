@@ -76,7 +76,7 @@ grey line in the right panel is the middle of the band, 44.5 mm, for comparison.
 
 ![RX Profile 3: The three profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
 
-*RX Profile 3. The same 4-loop board (board edges 30 / 50 mm, series TX on Top + Inner-1, pitch 1.2 mm) built with each of the two profiles, and the radius of the SIN curves over one electrical period (90°). The two profiles lie almost on top of each other.*
+*RX Profile 3. The same 4-loop board (board edges 30 / 50 mm, RX only, the TX is not drawn) built with each of the two profiles, and the radius of the SIN curves over one electrical period (90°). The two profiles lie almost on top of each other.*
 
 | Previous | Next |
 |:---|---:|
