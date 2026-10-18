@@ -58,7 +58,7 @@ it is completely open to industry experts, researchers and hobbyists who want to
 
 ---
 
-## Introduction
+## Working Principle
 
 Inductive position sensors measure angle with nothing more than copper traces on printed circuit
 boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
