@@ -76,7 +76,7 @@ RX_CHORD_TOLERANCE_MM  = 0.001
 # series loop that you break out where you like.
 #
 #   RX_SUBCOILS = 1 : today's layout (the split is ignored)
-#   RX_SUBCOILS = 2 : IPS2200-style, 2 sub-coils per coil (use split = 45)
+#   RX_SUBCOILS = 2 : as in the IPS2200 reference, 2 sub-coils per coil (use split = 45)
 #   RX_SUBCOILS = 3 : three sub-coils, centred on the coil axis (use split = 30, which spaces the curves
 #                     evenly; 45 puts two curves on top of each other.  Crowded: needs a wide RX band
 #                     or small vias; watch the clearance warnings)

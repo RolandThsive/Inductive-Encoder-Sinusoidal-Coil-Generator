@@ -13,13 +13,13 @@ decision guide see the [Quick Guide To Parameters Selections](Quick-Guide-To-Par
 |---|---|---|
 | Layers | Two TX layers (`TX_LAYER_A`, `TX_LAYER_B`) | Two TX layers (`TX_LAYER_A`, `TX_LAYER_B`) |
 | Wiring | Two spirals joined by a via at the inner end; the turns of both add, so 2 × `TX_TURNS` turns | The same `TX_TURNS` turns on both layers, stitched together by vias |
-| Both terminals | Leave radially at the TX terminal | One terminal, with the vias around it |
+| Both terminals | Leave radially at the TX terminal | Leave radially at the TX terminal, with the stitching vias around it |
 | Making way for RX fingers | Staggered (go-around) only | Stitched (default) or staggered (go-around), set by `TX_PARALLEL_BREAK_STYLE` |
 
 With one TX layer (`TX_WIRING = "single"`) there is nothing to wire in series or in parallel: all
 `TX_TURNS` turns sit on `TX_LAYER_A`, and the inner tail that carries the terminal runs on another layer.
 
-The TX terminal has no setting. The generator puts it where it keeps the largest gap from the RX copper, then turns
+The TX terminal has no setting. The generator puts it where it keeps the largest gap from the RX copper. With `RX_TABS = "single"` it takes instead the place nearest the two fingers that keeps `MIN_CLEARANCE_MM`. It then turns
 the whole board so that the terminal ends up at 0° (to the right), as in every picture on this page.
 
 ## 9.2 2-Layer Board: One TX Layer
@@ -72,7 +72,7 @@ The recommended combination is described in the
 
 ## 9.5 Turn Shapes
 
-Every combination above can use any of the three `TX_SHAPE` values: `stepped_diagonal` (the default), `stepped_arc` (arcs centred on the terminal via, as on the Renesas reference boards) and `spiral`. The shape changes only the copper around the terminal, not the layers or the wiring. `stepped_arc` takes one extra setting, `TX_STEPPED_ARC_RADIUS_MM`, described in [Stator Features](Stator-Features.md#1127-stepped-arc-radius).
+Every combination above can use any of the three `TX_SHAPE` values: `stepped_diagonal` (the default), `stepped_arc` (arcs centred on the terminal via, as on the Renesas reference boards) and `spiral`. The stepped shapes change only the copper around the terminal. With `spiral` every turn is one smooth spiral that grows by one pitch per turn, so the TX ring ends one pitch farther out. No shape changes the layers or the wiring. `stepped_arc` takes one extra setting, `TX_STEPPED_ARC_RADIUS_MM`, described in [Stator Features](Stator-Features.md#1127-stepped-arc-radius).
 
 ![TX Profiles 4: TX turn shapes](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/tx_profiles_4_turn_shapes.png)
 

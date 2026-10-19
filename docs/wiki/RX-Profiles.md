@@ -1,6 +1,6 @@
 # 8. RX Profiles
 
-Each RX coil is a pair of curves that weave around a centre radius `r_base` inside the RX band,
+Each RX coil is a pair of curves (with `RX_SUBCOILS` > 1, several pairs in series) that weave around a centre radius `r_base` inside the RX band,
 crossing it every half period. The two curves of a pair mirror each other (the `+` and the `−`
 curve below), and the coil is the loop they form together. The shape of the weave is chosen by
 `RX_PROFILE`.
@@ -74,7 +74,7 @@ grey line in the right panel is the middle of the band, 44.5 mm, for comparison.
 
 ## 8.4 Comparing The Profiles
 
-![RX Profile 3: The three profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
+![RX Profile 3: The two profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
 
 *RX Profile 3. The same 4-loop board (board edges 30 / 50 mm, RX only, the TX is not drawn) built with each of the two profiles, and the radius of the SIN curves over one electrical period (90°). The two profiles lie almost on top of each other.*
 
