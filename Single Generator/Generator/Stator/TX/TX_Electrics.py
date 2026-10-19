@@ -8,8 +8,8 @@ changes a board.  It gives
     the tank capacitors for EXCITATION_FREQ_HZ and the oscillator frequency they give,
     the parallel resistance of the tank (what the oscillator has to drive),
 
-and checks the oscillator frequency and the tank resistance against the datasheet limits of RECEIVER_IC
-(Board_Parameters.py).  The receiver voltage needs a model of the whole sensor (rotor angle, coupling): that
+and checks the oscillator frequency and the tank resistance against the limits of the receiver IC
+(IC_Parameters.py).  The receiver voltage needs a model of the whole sensor (rotor angle, coupling): that
 is not part of the generator.
 
 How the numbers are made  (read this before trusting them)
@@ -46,20 +46,13 @@ AC_FACTOR = 2.0                      # at the TX frequency R can be up to this x
 MODEL_TO_HENRY = MU0 / (2.0 * math.pi) * 1e-3   # flux per ampere (field in mu0 / 2 pi per mm, area in mm2) -> H
 E12 = (1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2)   # C0G capacitor values per decade
 
-DEFAULT_RECEIVER_IC = "IPS2550"      # used when Board_Parameters.py has no RECEIVER_IC line (as ParameterRules.py)
+# the receiver IC used when IC_Parameters.py has no such lines (as ParameterRules.py): the IPS2550
+DEFAULT_IC = dict(name="IPS2550", f_min=2.0e6, f_max=5.6e6, rp_min=250.0)
 DEFAULT_COPPER_THICKNESS_UM = 35.0   # ... no COPPER_THICKNESS_UM line
 
-# Datasheet limits of the receiver ICs that RECEIVER_IC can name (from their datasheets - check your revision).
-# Both reference designs put the tank capacitance in two halves: 2 C from TX1 and 2 C from TX2 to ground.
-IC_LIMITS = {
-    "IPS2550": dict(
-        f_min=2.0e6, f_max=5.6e6,           # LC oscillator frequency
-        rp_min=250.0),                      # R_Peq: "the minimum loss resistance that the oscillator can drive
-                                            # for safe operation"
-    "IPS2200": dict(
-        f_min=1.7e6, f_max=5.8e6,           # f_LC
-        rp_min=100.0),                      # R_Peq
-}
+# The IC limits come from its datasheet: f_min ... f_max = the LC oscillator range, rp_min = the smallest
+# parallel (loss) resistance of the tank that its oscillator can drive.  These ICs take the tank capacitance in
+# two halves: 2 C from TX1 and 2 C from TX2 to ground.
 
 
 # =============================================================================
@@ -157,13 +150,23 @@ def standard_caps(c_needed, n=2):
     return lo + hi
 
 
+def ic_name(P):
+    """IC_NAME as shown in the estimate ("receiver IC" when it is None)."""
+    name = getattr(P, "IC_NAME", DEFAULT_IC["name"])
+    return str(name).strip() if name is not None and str(name).strip() else "receiver IC"
+
+
 def ic_limits(P):
-    """(name, limits dict) of RECEIVER_IC, or (None, None) for None or a name that is not in IC_LIMITS."""
-    name = getattr(P, "RECEIVER_IC", DEFAULT_RECEIVER_IC)
-    if name is None:
-        return None, None
-    key = str(name).strip().upper()
-    return (key, IC_LIMITS[key]) if key in IC_LIMITS else (None, None)
+    """{f_min, f_max (Hz), rp_min (ohm)} from IC_OSC_MIN_MHZ, IC_OSC_MAX_MHZ and IC_MIN_RP_OHM (IC_Parameters.py);
+    a limit set to None is None (not checked).  None when no limit is set."""
+    def get(name, key, scale):
+        val = getattr(P, name, DEFAULT_IC[key] / scale)
+        return None if val is None else float(val) * scale
+    lim = dict(f_min=get("IC_OSC_MIN_MHZ", "f_min", 1e6), f_max=get("IC_OSC_MAX_MHZ", "f_max", 1e6),
+               rp_min=get("IC_MIN_RP_OHM", "rp_min", 1.0))
+    if lim["f_min"] is None or lim["f_max"] is None:        # the range needs both ends
+        lim["f_min"] = lim["f_max"] = None
+    return lim if any(x is not None for x in lim.values()) else None
 
 
 # =============================================================================
@@ -172,7 +175,7 @@ def ic_limits(P):
 class Electrics:
     """Electrical estimate of one stator + rotor.  rotor may be None (inductance without a rotor only), or
     anything with .r_in, .r_out (mm) and .duty.
-    .findings = [(level, code, message), ...]: the checks against RECEIVER_IC at the nominal air gap."""
+    .findings = [(level, code, message), ...]: the checks against the IC limits at the nominal air gap."""
 
     def __init__(self, stator, rotor, P, prepreg=None):
         self.P = P
@@ -189,7 +192,7 @@ class Electrics:
             self.rotor_in, self.rotor_out, self.duty = float(rotor.r_in), float(rotor.r_out), float(rotor.duty)
         else:
             self.rotor_in = self.rotor_out = self.duty = None
-        self.ic, self.lim = ic_limits(P)
+        self.ic, self.lim = ic_name(P), ic_limits(P)
         self.f_target = float(P.EXCITATION_FREQ_HZ)
         # the tank is designed for the target frequency with the rotor in place at the nominal air gap
         self.L_nom = self.L_at(self.gap)
@@ -228,17 +231,23 @@ class Electrics:
                 self.rp_range(self.L_free, self.f_at(self.L_free))[0])
 
     # ------------------------------------------------------------ IC checks
+    def _in_range(self, f):
+        """True when f is inside the IC's oscillator range, or no range is set."""
+        return not self.lim or self.lim["f_min"] is None or self.lim["f_min"] <= f <= self.lim["f_max"]
+
     def _check(self):
         add, lim, ic = self.findings.append, self.lim, self.ic
         if not lim:
             return
         f = self.f_at(self.L_nom)
-        if not lim["f_min"] <= f <= lim["f_max"]:
+        if not self._in_range(f):
             add(("warning", "f_range",
                  f"the oscillator frequency at the nominal air gap ({_mhz(f)}) is outside the {ic}'s range "
                  f"{lim['f_min'] / 1e6:g} ... {lim['f_max'] / 1e6:g} MHz.  Change EXCITATION_FREQ_HZ"))
         rp, rp_best = self.rp_lowest()
-        if rp_best < lim["rp_min"]:
+        if lim["rp_min"] is None:
+            pass
+        elif rp_best < lim["rp_min"]:
             add(("warning", "rp_low",
                  f"the tank's parallel resistance at the nominal air gap may be as low as {rp:.0f} ohm (if the AC "
                  f"resistance is {AC_FACTOR:g} x the DC value); the {ic} needs at least {lim['rp_min']:g} ohm.  More "
@@ -249,9 +258,9 @@ class Electrics:
                  f"resistance is {AC_FACTOR:g} x the DC value): the lower value comes from the upper estimate of the "
                  f"rotor's effect and is below the {ic}'s {lim['rp_min']:g} ohm.  Measure it on the board, or raise it "
                  f"with more TX turns, wider TX traces, thicker copper or a higher EXCITATION_FREQ_HZ"))
-        if self.has_rotor and lim["f_min"] <= self.f_target <= lim["f_max"]:
+        if self.has_rotor and lim["f_min"] is not None and self._in_range(self.f_target):
             f_free = self.f_at(self.L_free)
-            if not lim["f_min"] <= f_free <= lim["f_max"]:
+            if not self._in_range(f_free):
                 add(("info", "f_free", f"with the rotor removed the oscillator would run at {f_free / 1e6:.2f} MHz, "
                                        f"outside the {ic}'s range {lim['f_min'] / 1e6:g} ... {lim['f_max'] / 1e6:g} "
                                        f"MHz (with the rotor it runs between that and "
@@ -263,7 +272,9 @@ class Electrics:
 
     # ------------------------------------------------------------ text
     def heading(self):
-        return ((f"receiver IC {self.ic}" if self.lim else "no receiver IC set (RECEIVER_IC): no IC checks")
+        return ((f"receiver IC {self.ic}" if self.lim and self.ic != "receiver IC" else
+                 "receiver IC limits from IC_Parameters.py" if self.lim else
+                 "no IC limits set (IC_Parameters.py): no IC checks")
                 + "; model only, not checked on hardware")
 
     def title(self):
@@ -306,7 +317,7 @@ class Electrics:
         osc = (f"              oscillator with the exact capacitors: {f_free / 1e6:.2f} MHz with the rotor away, "
                f"{f / 1e6:.2f} MHz with it" if self.has_rotor else
                f"              oscillator with the exact capacitors: {f / 1e6:.2f} MHz")
-        if self.lim:
+        if self.lim and self.lim["f_min"] is not None:
             fl, fh = self.lim["f_min"], self.lim["f_max"]
             osc += f"  ({self.ic} range {fl / 1e6:g} ... {fh / 1e6:g} MHz: " + ("OK)" if fl <= f <= fh else "OUTSIDE)")
         out.append(osc)
@@ -316,7 +327,7 @@ class Electrics:
         q_lo, q_hi = self.q_range(self.L_nom, f)
         rp_lo, rp_hi = self.rp_range(self.L_nom, f)
         line = f"              Q = {q_lo:.0f} ... {q_hi:.0f}, parallel resistance {_ohm(rp_lo)} ... {_ohm(rp_hi)}"
-        if self.lim:
+        if self.lim and self.lim["rp_min"] is not None:
             low, best = self.rp_lowest()
             line += f"  ({self.ic} needs >= {self.lim['rp_min']:g} ohm: " + (
                 "OK)" if low >= self.lim["rp_min"] else "TOO LOW)" if best < self.lim["rp_min"] else

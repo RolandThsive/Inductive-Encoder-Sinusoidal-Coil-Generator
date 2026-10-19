@@ -16,7 +16,9 @@ from Generator.Core import BoardLayout, Layers
 from Generator.Stator.TX.TX_Shapes import DEFAULT_INSIDE_VIA_DISTANCE_MM
 
 KICAD_EDGE_CLEARANCE_MM = 0.5      # KiCad's default "copper to edge clearance" (Board Setup > Constraints)
-RECEIVER_ICS = ("IPS2550", "IPS2200")   # the ICs TX_Electrics.py knows the limits of (RECEIVER_IC)
+# parameters of earlier versions that are no longer read: what replaced them
+RETIRED = {"RECEIVER_IC": "the receiver IC is now set in IC_Parameters.py (IC_NAME, IC_OSC_MIN_MHZ, IC_OSC_MAX_MHZ, "
+                          "IC_MIN_RP_OHM)"}
 
 
 # Each entry: (file, name, kind, options, active_when)
@@ -33,6 +35,7 @@ def _get(P, name, default=None):
 
 
 _B, _RX, _TX, _RO = "Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py"
+_IC = "IC_Parameters.py"
 
 _pcb4 = lambda P: _get(P, "PCB_LAYERS") == 4
 _pcb2 = lambda P: _get(P, "PCB_LAYERS") == 2
@@ -75,7 +78,6 @@ _add(_B, "AIR_GAP_MM", "num", lo=0, lo_ex=True)
 _add(_B, "PCB_THICKNESS_MM", "num", lo=0, lo_ex=True)
 _add(_B, "EXCITATION_FREQ_HZ", "num", lo=0, lo_ex=True)
 # electrical estimate (TX_Electrics.py); default = what it uses when the line is missing
-_add(_B, "RECEIVER_IC", "ic", optional=True, default="IPS2550", values=RECEIVER_ICS)
 _add(_B, "COPPER_THICKNESS_UM", "num", optional=True, default=35.0, lo=0, lo_ex=True, hi=500)
 _add(_B, "GENERATOR_MODE", "choice", values=("normal", "strict"), ci=True, optional=True, default="normal")
 
@@ -154,6 +156,13 @@ _add(_RO, "ROTOR_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.
 # default: what RotorBuilder.py uses (DEFAULT_SOLDER_MASK_EXPANSION_MM) when the line is missing
 _add(_RO, "ROTOR_SOLDER_MASK_EXPANSION_MM", "mask_expansion", optional=True, default=0.05, hi=5.0)
 
+# ---- IC_Parameters.py  (electrical estimate, TX_Electrics.py; default = what it uses when the line is missing:
+#      the IPS2550)
+_add(_IC, "IC_NAME", "str_or_none", optional=True, default="IPS2550")
+_add(_IC, "IC_OSC_MIN_MHZ", "num_or_none", optional=True, default=2.0, lo=0, lo_ex=True, hi=100.0)
+_add(_IC, "IC_OSC_MAX_MHZ", "num_or_none", optional=True, default=5.6, lo=0, lo_ex=True, hi=100.0)
+_add(_IC, "IC_MIN_RP_OHM", "num_or_none", optional=True, default=250.0, lo=0, hi=1e6)
+
 KNOWN_NAMES = {s[1] for s in SPEC}
 
 def _is_num(x):
@@ -217,6 +226,12 @@ def _check_value(name, val, kind, o):
         if not isinstance(val, str) or not val.strip():
             return None, f"{name} = {val!r}: must be a non-empty text"
         return val, None
+    if kind == "str_or_none":
+        if val is None:
+            return None, None
+        if not isinstance(val, str) or not val.strip():
+            return None, f"{name} = {val!r}: must be None or a non-empty text"
+        return val.strip(), None
     if kind == "net":
         # the name is written between double quotes into the KiCad file: a quote, a backslash or a line break
         # in it would break the file
@@ -267,14 +282,6 @@ def _check_value(name, val, kind, o):
         if isinstance(val, bool):
             return val, None
         return None, f"{name} = {val!r}: must be True or False"
-    if kind == "ic":
-        # a receiver IC name in any letter case, or None
-        if val is None:
-            return None, None
-        if isinstance(val, str) and val.strip().upper() in o["values"]:
-            return val.strip().upper(), None
-        opts = ", ".join(repr(x) for x in o["values"])
-        return None, f"{name} = {val!r}: must be one of {opts}, or None (no receiver IC checks)"
     if kind == "mask_expansion":
         # 0 or more = mask opening that many mm wider than the copper; exactly -1 = no opening
         what = "0 or more (mm), or exactly -1 for no mask opening"
@@ -329,7 +336,9 @@ def load_values(P, rep):
             v[name] = val
     # names that exist in the parameter files but are not known: probably typos
     for name in sorted(n for n in dir(P) if n.isupper() and not n.startswith("_")):
-        if name not in KNOWN_NAMES:
+        if name in RETIRED:
+            rep.warn(f"{name} is no longer used and is ignored: {RETIRED[name]}")
+        elif name not in KNOWN_NAMES:
             close = difflib.get_close_matches(name, KNOWN_NAMES, n=1, cutoff=0.7)
             hint = f" - did you mean {close[0]}?" if close else ""
             rep.warn(f"{name} is not a parameter of this program and is ignored{hint}")

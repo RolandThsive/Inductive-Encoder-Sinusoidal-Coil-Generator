@@ -87,9 +87,7 @@ EXCITATION_FREQ_HZ   = 3.5e6        # TX oscillator frequency aimed for, with th
 
 # =============================================================================
 # ELECTRICAL ESTIMATE  (TX_Electrics.py, printed by RunCoilGenerator.py: TX inductance, tank
-# capacitors, oscillator frequency.  These values never change a board.)
+# capacitors, oscillator frequency.  These values never change a board.  The receiver IC the coil is
+# checked against: IC_Parameters.py.)
 # =============================================================================
-RECEIVER_IC          = "IPS2550"    # the IC the coil is checked against: "IPS2550", "IPS2200", or None
-                                    # (no checks).  Its oscillator range and minimum tank resistance are
-                                    # taken from the IC datasheets.
 COPPER_THICKNESS_UM  = 35           # stator copper thickness in micrometres (35 = 1 oz): TX resistance and Q
