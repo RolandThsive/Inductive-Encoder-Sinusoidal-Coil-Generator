@@ -78,7 +78,7 @@ two signals.* More in the wiki: [Working Principle](https://github.com/RolandThs
 
 > [!NOTE]
 > The coil sets how many electrical periods there are per turn and how clean the signals are. The
-> final number of bits also depends on the receiver IC, the ADC or interpolator, noise and
+> final number of bits also depends on the receiver electronics, the ADC or interpolator, noise and
 > calibration. See [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator).
 
 ---
@@ -142,7 +142,9 @@ python Generator/Run/RunCoilGenerator.py --stator     # Only the stator
 python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor
 ```
 
-Edit only the files in `Single Generator/Parameters/`. To treat every warning about the finished boards as an
+Edit only the files in `Single Generator/Parameters/`: `RX_Parameters.py`, `TX_Parameters.py`, `Board_Parameters.py`,
+`Rotor_Parameters.py` and `IC_Parameters.py` (the limits of your receiver IC that the electrical estimate checks
+against). To treat every warning about the finished boards as an
 error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`. Each run writes a new folder in
 `Single Generator/Output/`
 (`Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>`)
