@@ -18,7 +18,7 @@ StatorAssembly.py: a PCB carrying N copper sectors, N = number of periods
         * outer edge         = by default (ROTOR_AUTO_COVER_TX = True) the copper
                                runs over the TX turns and ends
                                ROTOR_AUTO_TX_OVERHANG_MM past the outer edge of
-                               the outermost TX turn, as in the Renesas
+                               the outermost TX turn, as in the IC makers'
                                reference designs.  Every sector is a shorted
                                turn driven by the TX flux it encloses, and that
                                flux is densest right beside the TX conductors;

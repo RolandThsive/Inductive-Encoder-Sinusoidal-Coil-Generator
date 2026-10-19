@@ -22,7 +22,7 @@ ROTOR_AUTO_START_ANGLE_DEG  = 0.0   # mechanical angle of the first sector edge
 
 # ---- outer edge of the copper: over the TX turns (default) -----------------
 # True: the copper runs over the TX turns and ends ROTOR_AUTO_TX_OVERHANG_MM past the outer edge
-# of the outermost TX turn, as in the Renesas reference designs.  Every sector is a shorted turn
+# of the outermost TX turn, as in the IC makers' reference designs.  Every sector is a shorted turn
 # driven by the TX flux it encloses, and that flux is densest right beside the TX conductors: in
 # an eddy-current model that gave 5-8 % more receiver signal than ending the copper inside the
 # TX ring; most of the gain is reached 0.5 mm past the outer turn.  Whether it also lowers the
