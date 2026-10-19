@@ -41,8 +41,8 @@ PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
 # =============================================================================
 # Via / copper-to-copper rules the generator must respect when it places vias.  Through vias go
 # through every layer, so a via of one set is checked against the copper of the other set on every layer.
-VIA_DIAMETER_MM   = 0.6             # (the Single Generator's example uses 0.8 / 0.4; the reference dual boards use
-VIA_DRILL_MM      = 0.3             #  0.6 / 0.3, which leaves room in the inner set's tight TX ring)
+VIA_DIAMETER_MM   = 0.6             # (the Single Generator's example uses 0.8 / 0.4; 0.6 / 0.3 leaves room in
+VIA_DRILL_MM      = 0.3             #  the inner set's tight TX ring)
 MIN_CLEARANCE_MM  = 0.2
 
 # ---- board edges (Edge.Cuts circles) and the gap between the sets ----------
@@ -78,14 +78,13 @@ EDGE_LINE_WIDTH_MM    = 0.05
 #   MIN_CLEARANCE_MM.
 #   What the gap does NOT do: it is not what isolates the two sets.  A balanced RX band sees no net flux from a
 #   round TX ring, however close; the residual TX1 -> RX2 coupling comes from asymmetry (the exits, the vias,
-#   layer misregistration) and falls only slowly with distance (no published measurement of coupling against
-#   track gap exists; the reference dual boards leave 1.1 ... 1.4 mm between the two RX bands, all of it TX
-#   turns).  Keep the gap for the copper clearance and the solder mask; what keeps the fine track clean is the
+#   layer misregistration) and falls only slowly with distance (dual boards in practice leave 1.1 ... 1.4 mm
+#   between the two RX bands, all of it TX turns).  Keep the gap for the copper clearance and the solder mask; what keeps the fine track clean is the
 #   distance from ring 1 of the rotor to the RX2 band (ROTOR_1_TO_RX2_MM below).
 TRACK_GAP_MM = 0.5
 
-# BAND_SPLIT (mode 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths.  The reference
-# 1x/16x boards are near 0.5 (6.1 and 6.4 mm); their 1x/32x board is near 0.35 (5.4 and 10 mm).
+# BAND_SPLIT (mode 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths (a 1x/16x board
+# is usually near 0.5, a 1x/32x board near 0.35: the fine track gets the width).
 BAND_SPLIT = 0.5
 
 
@@ -99,13 +98,13 @@ BAND_SPLIT = 0.5
 TERMINAL_1_DEG = 180.0              # set 1 (inner)
 TERMINAL_2_DEG = 0.0                # set 2 (outer)
 
-# The two TX oscillators run free at their own EXCITATION_FREQ_HZ (Dual_TX1 / TX2).  Nobody publishes a dual
-# board with two free-running carriers over one coil area: the CN317 reference 1x + 16x board drives ONE tank
-# and sets the second IC's TX current to zero; onsemi (AND90299) couples two tanks so that they lock to one
-# frequency and phase.  If the two tanks here are driven separately, the IC's switching demodulator mixes the
-# other carrier down to |f2 - n*f1|, and the AGC sees both carriers, so:
-#   - the two frequencies must differ by at least this fraction of the lower one (0.2 = 20 %, the figure TI
-#     gives for neighbouring LDC sensors; closer is a warning), and
+# The two TX oscillators run free at their own EXCITATION_FREQ_HZ (Dual_TX1 / TX2).  Two free-running carriers
+# over one coil area are unproven: two-IC dual boards usually drive ONE tank and set the second IC's TX current
+# to zero, or couple the two tanks so that they lock to one frequency and phase.  If the two tanks here are
+# driven separately, the IC's switching demodulator mixes the other carrier down to |f2 - n*f1|, and the AGC
+# sees both carriers, so:
+#   - the two frequencies must differ by at least this fraction of the lower one (0.2 = 20 %, the usual rule
+#     for neighbouring LC sensors; closer is a warning), and
 #   - they must not sit on a small integer ratio (3.0 / 4.5 MHz = 2:3 puts the 2nd harmonic of TX2 onto the
 #     3rd harmonic of IC1's demodulator; 3.0 / 4.3 MHz does not): a ratio within 2 % of p:q with p, q <= 4
 #     is a warning.
@@ -154,17 +153,17 @@ ROTOR_CUSTOM_OUTLINE_RADIUS_MM  = 29.5   # custom: outer edge of the disc (None 
 ROTOR_CUSTOM_BORE_RADIUS_MM     = 8.5    # custom: centre hole (None = no hole)
 
 # ROTOR_TRACK_GAP_MM = the bare ring that must stay between ring 1's outer radius and ring 2's inner radius
-# (an error when smaller, naming the extension to change).  The reference dual boards keep 2.3 ... 3.0 mm.  It is
+# (an error when smaller, naming the extension to change).  Dual boards in practice keep 2.3 ... 3.0 mm.  It is
 # a proxy: the quantity that matters is how far each ring's metal stays from the OTHER set's RX band, below.
 ROTOR_TRACK_GAP_MM = 2.0
 
 # ROTOR_1_TO_RX2_MM = the least distance from ring 1's outer radius to the innermost RX2 copper (a warning
 # when smaller).  Ring 1 is the dangerous one: a 1x target is a half moon, so any of its field reaching the
 # RX2 band modulates the fine signal once per turn, a first-harmonic error that no fine-track calibration
-# removes (Melexis: nearby metal "causes a first-order harmonic on the measured angle").  The IC vendor's layout
-# rule for any copper near a coil is 3 mm, 5 mm if the design allows; its shielded-design note measures 12 %
-# of the RX voltage left with copper 0.9 mm from a coil and 45 % at 2.6 mm.  The reference 1x/16x boards sit
-# at about 3 mm.  Use 5.0 when the radius allows it.
+# removes (nearby metal adds a first-order harmonic to the measured angle).  The usual layout rule for any
+# copper near a coil is 3 mm, 5 mm if the design allows: copper 0.9 mm from a coil leaves about 12 % of the
+# RX voltage, copper 2.6 mm away about 45 %.  Dual 1x/16x boards in practice sit at about 3 mm.  Use 5.0 when
+# the radius allows it.
 ROTOR_1_TO_RX2_MM = 3.0
 
 # ROTOR_2_TO_RX1_MM = the least distance from ring 2's inner radius to the outermost RX1 copper (a warning

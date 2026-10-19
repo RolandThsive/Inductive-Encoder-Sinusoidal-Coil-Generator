@@ -5,11 +5,11 @@ thickness, arc resolution, solder mask) is set once in Dual_Board_Parameters.py.
 
 The names are the Single Generator's own (Rotor_Parameters.py).  Left out on purpose: ROTOR_AUTO_COVER_TX and
 ROTOR_AUTO_TX_OVERHANG_MM - ring 1 never covers its TX turns, because metal over TX1 would sit right next to
-set 2's RX band; it stops ROTOR_AUTO_TX_CLEARANCE_MM inside the TX1 ring (the reference dual boards stop their
+set 2's RX band; it stops ROTOR_AUTO_TX_CLEARANCE_MM inside the TX1 ring (dual boards in practice stop their
 1x target about 1.4 mm inside its own RX band).  Ring 1 is a half moon when LOOPS of set 1 is 1: any of its
 field that reaches the RX2 band modulates the fine signal once per turn, so its outer radius must stay
 ROTOR_1_TO_RX2_MM (Dual_Board_Parameters.py) inside set 2's RX copper; the generator warns when it does not.
-Covering TX1 would gain a few percent of coarse signal (the IPS2550's AGC does not need it) and put that half
+Covering TX1 would gain a few percent of coarse signal (the IC's AGC does not need it) and put that half
 moon about half a millimetre from the fine band.
 
 Units: millimetres, degrees.  Nothing in this file is computed - edit values only.

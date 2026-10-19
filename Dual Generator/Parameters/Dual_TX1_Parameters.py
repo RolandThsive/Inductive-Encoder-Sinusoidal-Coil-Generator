@@ -20,7 +20,7 @@ EXCITATION_FREQ_HZ  = 3.0e6         # TX oscillator frequency aimed for, with th
                                     # the two sets different frequencies (TX_FREQ_SEPARATION_MIN,
                                     # Dual_Board_Parameters.py).  The generator draws two TX rings; whether both
                                     # ICs drive their own, or one IC drives both tanks in parallel and the other
-                                    # has its TX current set to 0 (the CN317 reference way, one carrier), is decided
+                                    # has its TX current set to 0 (one carrier), is decided
                                     # on the schematic, not here
 
 # =============================================================================
@@ -37,7 +37,7 @@ TX_NET             = "TX_1"
 TX_WIRING          = "series"
 
 TX_TURNS           = 3              # complete turns PER TX LAYER.  The inner ring sits between the sets: every turn and every mm of pitch pushes set 2 outwards
-                                    # (2 turns at 3 MHz leave the IPS2550 tank below its 250 ohm parallel resistance: the estimate says so)
+                                    # (2 turns at 3 MHz leave the tank below the IC's least parallel resistance: the estimate says so)
 TX_OFFSET_MM       = 0.8            # first turn radius = RX outside radius + this
 TX_PITCH_MM        = 0.6            # radial pitch between turns
 TX_TRACE_WIDTH_MM  = 0.2
