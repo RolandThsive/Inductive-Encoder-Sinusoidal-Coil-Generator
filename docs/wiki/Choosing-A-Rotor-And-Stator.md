@@ -1,8 +1,8 @@
 # 10. Choosing A Rotor And Stator
 
 - A **stator loop** is one full electrical period: one sine wave of the RX coils around the board.
-- A **rotor lobe** is one copper sector on the rotor. The rotor always has as many lobes as the
-  stator has loops.
+- A **rotor lobe** is one copper sector on the rotor. The rotor must have as many lobes as the
+  stator has loops (a custom rotor with another count gets a warning).
 - The receiver IC reports the angle within one electrical period. With N loops, that period covers
   360°/N of mechanical rotation.
 

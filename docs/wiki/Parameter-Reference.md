@@ -2,7 +2,7 @@
 
 Every setting lives in a parameter file in `Single Generator/Parameters/`. These are the only files you edit. Units are millimetres,
 degrees and hertz unless a name says otherwise. The **Range** column is what the parameter checker accepts; "None"
-means the generator works the value out itself. The Web Tool shows the same names in its Advanced mode.
+usually means the generator works the value out itself (the row says what it does). The Web Tool shows the same names in its Advanced mode, except the output settings of 15.1.1 (`GENERATOR_MODE` is its Strict switch) and the two settings of 15.1.4.
 
 `Parameters.py` only gathers the four parameter files and is not edited. `OptimizerParameters.py` belongs to the optimizer, which is
 under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
@@ -19,7 +19,7 @@ under construction on the [`analyser_and_optimizer` branch](https://github.com/R
 |---|---|---|---|
 | `OUTPUT_DIR` | `"Output"` | text | Folder in which each run's `Coil_...` folder is made. A relative path is taken from the `Single Generator` folder; a full path is used as it is. |
 | `STATOR_FILE`, `ROTOR_FILE` | `Stator.kicad_pcb`, `Rotor.kicad_pcb` | file names | Names of the two boards inside each run folder. They must differ and should end in `.kicad_pcb`. |
-| `GENERATOR_MODE` | `"normal"` | `normal`, `strict` | What a clearance warning on the finished boards does. `normal`: a gap smaller than `MIN_CLEARANCE_MM` is a warning and the boards are written. `strict`: every such warning is an error and nothing is written. Copper that overlaps copper of another net (a short) is always an error. Capitals do not matter. |
+| `GENERATOR_MODE` | `"normal"` | `normal`, `strict` | What a warning about the finished boards does (a clearance, the board edge, the page, the rotor). `normal`: such a warning, for example a gap smaller than `MIN_CLEARANCE_MM`, is printed and the boards are written. `strict`: every such warning is an error and nothing is written. Warnings from the parameter check and from the electrical estimate never stop the run. Copper that overlaps copper of another net (a short) is always an error. Capitals do not matter. |
 | `CENTER_X_MM`, `CENTER_Y_MM` | 100, 100 | number | Position of the sensor axis on the KiCad page. |
 | `PAGE_SIZE_MM` | (200, 200) | pair | KiCad "User" page size (the generator enlarges it so the title block never overlaps the board). |
 
@@ -34,7 +34,7 @@ under construction on the [`analyser_and_optimizer` branch](https://github.com/R
 | `INNER_EDGE_INSET_MM` | 1.2 | ≥ 0 | Centre hole radius = RX band start minus this, when `INNER_EDGE_RADIUS_MM` is None. |
 | `INNER_EDGE_RADIUS_MM` | 15.0 | > 0 or None | Fixed centre-hole radius. When the RX band is given, both are used as given. |
 | `OUTER_EDGE_OFFSET_MM` | 4.0 | ≥ 0 | Outer edge = RX band end plus this, when `OUTER_EDGE_RADIUS_MM` is None. |
-| `OUTER_EDGE_RADIUS_MM` | 27.0 | > 0 or None | Fixed outer board radius. With None, the edge is the largest of the offset rule, the TX tail end plus the margin, and the bridging-finger tip plus the margin. |
+| `OUTER_EDGE_RADIUS_MM` | 27.0 | > 0 or None | Fixed outer board radius. With None, the edge is the largest of the offset rule, the TX tail end plus the margin, and the bridging-finger tip plus half an RX trace plus the margin. |
 | `OUTER_EDGE_TAIL_MARGIN_MM` | 0.7 | ≥ 0 | Margin used by the rule above. |
 | `EDGE_LINE_WIDTH_MM` | 0.05 | 0 to 1 | Line width of the `Edge.Cuts` outline. |
 
@@ -73,7 +73,7 @@ two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switc
 | Name | Default | Range | Meaning |
 |---|---|---|---|
 | `RX_PROFILE` | `"equal_area"` | `equal_area`, `cosine_r` | The shape of the RX curves. See [RX Profiles](RX-Profiles.md). A field-compensated profile is a research topic and is not offered now. |
-| `STEPS_PER_LOOP` | `"auto"` | "auto" or an integer, a multiple of 8, 48 to 4096 | Chords (polyline segments) per electrical period. "auto" = the smallest multiple of 8 whose midpoint chord error is within `RX_CHORD_TOLERANCE_MM`, at most 1024 (a warning appears if that is not enough). Sub-coils may raise the count. A whole number is used exactly, and the tolerance then only drives the chord-error warning. |
+| `STEPS_PER_LOOP` | `"auto"` | "auto" or an integer, a multiple of 8, 48 to 4096 | Chords (polyline segments) per electrical period. "auto" = the smallest multiple of 8 whose midpoint chord error is within `RX_CHORD_TOLERANCE_MM`, at most 1024 (a warning appears if that is not enough). Sub-coils may raise the count. A whole number is used exactly, and the tolerance is then not used. A warning appears when the chord error at the outer radius is above 0.01 mm. |
 | `RX_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | How far a straight chord may lie from the true RX curve, in mm (0.001 = 1 micron, also the smallest value allowed; finer adds points, not accuracy). |
 
 ### 15.2.3 Sub-coils
@@ -96,9 +96,9 @@ two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switc
 | Name | Default | Range | Meaning |
 |---|---|---|---|
 | `RX_TABS` | `"all"` | `all`, `single`, `none` | Fingers that leave the RX band, cross over the TX turns and return, so the coils can be broken out outside the TX ring. `all` = every outer tip of every phase; `single` = one per coil (two fingers in all), on neighbouring outer tips, with the TX terminal placed as close to them as the clearances allow; `none` = no fingers. |
-| `RX_TAB_LAYER` | `"auto"` | auto, 1 to 4 | Layer of the fingers. "auto" = the RX layer nearest the top that carries no TX turn. |
-| `RX_TAB_LENGTH_MM` | 3.0 | ≥ 0 | The exact finger length: the finger reaches `OUTSIDE_RADIUS_MM` plus this. It is never changed for you. When it is too short to clear the outermost TX turn (or the outermost go-around bracket) the generator stops and names the length it needs ("Set RX_TAB_LENGTH_MM to at least ..."). A longer TX pitch needs longer fingers. |
-| `RX_TAB_WIDTH_MM` | 1.0 | > 0 | Spacing of the finger's two legs. Keep at 0.6 or more for etching; narrower disturbs the signal less. |
+| `RX_TAB_LAYER` | `"auto"` | auto, 1 to 4 | Layer of the fingers. "auto" = the RX layer nearest the top that carries no TX turn. When both RX layers carry TX turns, it is the RX layer nearest the top, and the TX makes way for the fingers there. |
+| `RX_TAB_LENGTH_MM` | 3.0 | ≥ 0 (*only if* fingers) | The exact finger length: the finger reaches `OUTSIDE_RADIUS_MM` plus this. It is never changed for you. When it is too short to clear the outermost TX turn (or the outermost go-around bracket) the generator stops and names the length it needs ("Set RX_TAB_LENGTH_MM to at least ..."). A longer TX pitch needs longer fingers. |
+| `RX_TAB_WIDTH_MM` | 1.0 | > 0 (*only if* fingers) | Spacing of the finger's two legs. Keep at 0.6 or more for etching; narrower disturbs the signal less. |
 
 ## 15.3 TX (`TX_Parameters.py`)
 
@@ -110,7 +110,7 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
-| `TX_NET` | `"TX"` | text | Net name of the TX coil. |
+| `TX_NET` | `"TX"` | text, different from the RX nets | Net name of the TX coil. |
 | `TX_TURNS` | 3 | 1 to 50 | Complete turns **per TX layer**. |
 | `TX_OFFSET_MM` | 1.1 | > 0 | First turn radius = RX outside radius plus this. |
 | `TX_PITCH_MM` | 0.6 | > 0 | Radial pitch between turns. |
@@ -127,7 +127,7 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
-| `TX_WIRING` | `"single"` | `single`, `series`, `parallel` | How many layers carry TX turns and how they are joined. `single`: `TX_TURNS` turns on `TX_LAYER_A`, the inner tail on the underpass layer. `series`: `TX_TURNS` turns on each of two layers, joined by a via at the inner end (two spirals, same sense, fields add). `parallel`: the same turns on both layers, stitched through vias around the terminal (about 6 % more signal and twice the Q in the model). Put `TX_LAYER_A` on Top for parallel. Capitals do not matter. |
+| `TX_WIRING` | `"single"` | `single`, `series`, `parallel` | How many layers carry TX turns and how they are joined. `single`: `TX_TURNS` turns on `TX_LAYER_A`, the inner tail on the underpass layer. `series`: `TX_TURNS` turns on each of two layers, joined by a via at the inner end (two spirals, same sense, fields add). `parallel`: the same turns on both layers, stitched through vias around the terminal (about 6 % more signal than Top alone in the analyser's model; in the electrical estimate the Q is only about 1.3 times higher, since the inductance drops as well). Put `TX_LAYER_A` on Top for parallel. Capitals do not matter. |
 | `TX_LAYER_A` | 4 | 1 to 4 | The TX layer (or, for series, the spiral that runs inwards from the terminal). |
 | `TX_LAYER_B` | 1 | 1 to 4, different (*only if* series or parallel) | The second TX layer (or the spiral that runs back out). |
 | `TX_SERIES_UNDERPASS_LAYER` | `"auto"` | auto, 1 to 4 (*only if* single or series) | Layer of the inner tail (single) and of the go-around brackets. |
@@ -155,7 +155,7 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 | `ROTOR_AUTO_START_ANGLE_DEG` | 0.0 | number | Mechanical angle of the first sector edge. |
 | `ROTOR_AUTO_COVER_TX` | True | True or False | True: the copper runs over the TX turns and ends `ROTOR_AUTO_TX_OVERHANG_MM` past the outermost turn, as in Renesas reference designs (5 to 8 % more signal in the model). False: the older rule below. |
 | `ROTOR_AUTO_TX_OVERHANG_MM` | 0.5 | −20 to 20 (*only if* cover) | Millimetres past the outer edge of the outermost TX turn (negative = ends over the TX turns). |
-| `ROTOR_AUTO_EXTENSION_MM` | None | number or None | How far the copper reaches past the RX band on both edges. None = `AIR_GAP_MM`. |
+| `ROTOR_AUTO_EXTENSION_MM` | None | number or None | How far the copper reaches past the RX band on the inner edge, and also on the outer edge when `ROTOR_AUTO_COVER_TX` is False. None = `AIR_GAP_MM`. |
 | `ROTOR_AUTO_EXTENSION_INNER_MM` | None | number or None | Inner edge only. None = `ROTOR_AUTO_EXTENSION_MM`. |
 | `ROTOR_AUTO_EXTENSION_OUTER_MM` | None | number or None (*only if* not cover) | Outer edge only. |
 | `ROTOR_AUTO_TX_CLEARANCE_MM` | 0.1 | ≥ 0 (*only if* not cover) | Copper stays this far inside the TX ring. |
@@ -179,7 +179,7 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 | Name | Default | Range | Meaning |
 |---|---|---|---|
 | `ROTOR_PCB_THICKNESS_MM` | None | > 0 up to 20, or None | Thickness of the rotor board written into the KiCad file. None = the stator's `PCB_THICKNESS_MM`. It changes nothing in the copper. |
-| `ROTOR_ARC_STEPS_PER_SECTOR` | `"auto"` | "auto" or a whole number, 8 to 5000 | Polygon points on every circular arc of a sector. "auto" = as many as `ROTOR_CHORD_TOLERANCE_MM` needs (at least 8). A whole number is used exactly. |
+| `ROTOR_ARC_STEPS_PER_SECTOR` | `"auto"` | "auto" or a whole number, 8 to 5000 | Chords (polygon segments) on every circular arc of a sector. "auto" = as many as `ROTOR_CHORD_TOLERANCE_MM` needs (at least 8). A whole number is used exactly. |
 | `ROTOR_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | The largest overshoot of the polygon beyond the true circle, in mm (1 micron, also the smallest value allowed). The vertices sit slightly outside the nominal radius, so the copper is never smaller than requested. |
 | `ROTOR_SOLDER_MASK_EXPANSION_MM` | 0.05 | up to 5 | Mask opening over the rotor copper: above 0 = opening that much wider than the copper; 0 = exactly the copper outline; −1 = no opening (mask stays over the copper). No other negative value is accepted. |
 

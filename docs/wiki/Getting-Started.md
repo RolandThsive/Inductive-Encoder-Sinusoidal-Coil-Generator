@@ -1,12 +1,12 @@
 # 3. Getting Started
 
-The generator is pure Python 3 with numpy (matplotlib is optional, for plots). There is also a
+The generator is pure Python 3 and needs only numpy. There is also a
 [Web Tool](Web-Tool.md) that needs no installation.
 
 ## 3.1 Install
 
 ```bash
-pip install numpy matplotlib
+pip install numpy
 ```
 
 ## 3.2 First Run

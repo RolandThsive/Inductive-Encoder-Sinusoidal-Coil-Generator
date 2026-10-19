@@ -62,7 +62,7 @@ Everything else is unchanged; only the outer edge moves out.*
 ## 14.3 TX Tail
 
 The tail is the short radial piece that carries the TX terminal out past the outermost turn.
-`TX_TAIL_EXTRA_MM` sets how far it reaches beyond the outermost turn; the default is 2 mm.
+`TX_TAIL_EXTRA_MM` sets how far it reaches beyond the circle one `TX_PITCH_MM` outside the outermost turn; the default is 2 mm.
 
 ![Parameters 3: TX Tail](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_3_tx_tail.png)
 
@@ -73,12 +73,13 @@ moves the outer board edge out with it.*
 
 `TX_WIRING` sets how the TX uses its layers: `"single"` (all turns on `TX_LAYER_A`), `"series"` (two spirals on
 `TX_LAYER_A` and `TX_LAYER_B` joined by a via, twice the turns) or `"parallel"` (the same turns on both layers,
-stitched together by vias). With two TX layers, wherever an RX finger crosses the TX, the turns on the finger's layer must
+stitched together by vias). Wherever an RX finger crosses the TX on a layer that carries TX turns, the turns on that layer must
 make way for it:
 
 - **Staggered (go-around).** Each turn ends before the finger, runs out to a via, and a bracket on the
   other layer carries it around the end of the finger. Both layers stay complete. The finger sticks out
-  past the brackets, so the board grows by about 2 mm.
+  past the brackets, so it is about 2 mm longer. The board edge grows much less (about 0.1 mm with the
+  defaults), because the TX tail already reaches almost as far.
 - **Stitched.** The turns on the finger's layer stop at a via on each side of the finger and the turns of
   the other layer carry the current past it. There is no copper outside the TX ring. **Parallel TX only.**
 
@@ -92,6 +93,10 @@ The two wirings and the two styles combine like this:
 `TX_PARALLEL_BREAK_STYLE` applies only to a parallel TX; a series TX always goes around the fingers. The TX terminal has no setting: the generator puts it where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, next to the two fingers) and turns the whole board so that it sits at 0°.
 
 A longer `TX_PITCH_MM` puts the outermost turn farther out and needs longer fingers. `RX_TAB_LENGTH_MM` is the exact finger length; when it is too short the generator stops and says "Set RX_TAB_LENGTH_MM to at least ...".
+
+![Parameters 4: TX Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_4_tx_styles.png)
+
+*Parameters 4. A single TX on Top (fingers on Inner-1), a series TX on Top + Inner-1 and a parallel stitched TX on Top + Inner-1, each shown as a to-scale close-up of one finger crossing the TX ring (4 loops, 3 turns per layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm).*
 
 ### 14.4.1 Recommended Combination
 
@@ -109,23 +114,19 @@ The best combination is a **4-layer board** with the RX fingers (if you choose t
 The fingers then sit on a layer that carries no TX turns, so no turn has to go around them. The
 generator builds this setup without errors.
 
-![Parameters 6: Recommended Combination](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_6_recommended.png)
+![Parameters 5: Recommended Combination](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_6_recommended.png)
 
-*Parameters 6. The recommended combination, generated with the settings in the table above (4 loops, one finger per coil with `RX_TABS = "single"`, 3 turns per TX layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm). The TX turns on Inner-2 run directly below the Top turns at the same radii, so they are hidden by them in this view; only the steps beside the TX terminal show. The fingers are on Inner-1, away from every TX turn. Right: one finger.*
-
-![Parameters 4: TX Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_4_tx_styles.png)
-
-*Parameters 4. A single TX on Top (fingers on Inner-1), a series TX on Top + Inner-1 and a parallel stitched TX on Top + Inner-1, each shown as a to-scale close-up of one finger crossing the TX ring (4 loops, 3 turns per layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm).*
+*Parameters 5. The recommended combination, generated with the settings in the table above (4 loops, one finger per coil with `RX_TABS = "single"`, 3 turns per TX layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm). The TX turns on Inner-2 run directly below the Top turns at the same radii, so they are hidden by them in this view; only the steps beside the TX terminal show. The fingers are on Inner-1, away from every TX turn. Right: one finger.*
 
 ## 14.5 Rotor Metal Fraction
 
 `ROTOR_AUTO_DUTY` is the share of each period that is metal: 0.5 is half metal and half gap (180°
-electrical). With a 1-loop stator there is one metal sector, so the duty is simply the angle it covers.
-The rotor's metal also covers the TX ring by `ROTOR_AUTO_TX_OVERHANG_MM`.
+electrical). With a 1-loop stator there is one metal sector, so the duty is simply the share of the full turn it covers (0.25 = 90°).
+By default the rotor's metal also covers the TX ring and ends `ROTOR_AUTO_TX_OVERHANG_MM` past the outer edge of the outermost TX turn.
 
-![Parameters 5: Rotor Metal Fraction](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_5_rotor_duty.png)
+![Parameters 6: Rotor Metal Fraction](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_5_rotor_duty.png)
 
-*Parameters 5. ROTOR_AUTO_DUTY = 0.5, 0.25 and 0.75 over the same 1-loop stator. The rotor is drawn
+*Parameters 6. ROTOR_AUTO_DUTY = 0.5, 0.25 and 0.75 over the same 1-loop stator. The rotor is drawn
 semi-transparent over the stator, so the RX and TX stay visible.*
 
 0.5 is the default. A smaller or larger duty changes the signal shape and amplitude, and a single metal sector is mechanically unbalanced, so add a counterweight

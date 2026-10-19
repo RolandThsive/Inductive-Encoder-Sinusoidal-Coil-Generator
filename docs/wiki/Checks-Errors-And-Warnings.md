@@ -42,7 +42,7 @@ The explanation says which value to change and, where it can be worked out, the 
 
 1. **Parameter rules** (`check_parameters`). They need only the values: types, ranges, and combinations that cannot
    work. Each parameter has a range (see the [Parameter Reference](Parameter-Reference.md)), and a misspelled or
-   unknown name is reported with a suggestion.
+   unknown name is reported as a warning, with a suggestion when a known name is close.
 2. **Finished-geometry rules** (`check_design`). They need the built stator and rotor: the board edge against the
    copper it must contain, via clearances, and the page size.
 
@@ -53,20 +53,20 @@ DRC cannot see a TX turn touching another TX turn.
 
 | Area | Examples of what the rules look for |
 |---|---|
-| RX band | Band narrower than one via (error) or very narrow for the vias (warning); a quarter loop with too little arc at the inner radius for the tip vias; both board edges and the band set at once (info: each is used as given). |
+| RX band | Band narrower than one via (error) or very narrow for the vias (warning); a quarter loop with too little arc at the inner radius for the RX traces (warning); a board edge and the band set at once (info: each is used as given). |
 | Fab limits | Trace widths below about 0.1 mm, `MIN_CLEARANCE_MM` tighter than typical, a via annular ring below about 0.1 mm; `VIA_DRILL_MM` not smaller than `VIA_DIAMETER_MM` (error). |
-| RX layers | `RX_LAYER_A` and `RX_LAYER_B` equal (error); RX on layers far apart in the stack-up (warning). |
-| Sub-coils | A split so large that curves overlap, or that puts two curves on top of each other (errors); crowded tip vias with 3 sub-coils, or 2 sub-coils with 13 to 16 loops at the default radii (warnings). |
+| RX layers | `RX_LAYER_A` and `RX_LAYER_B` equal (error); on a 4-layer board, RX on any layer pair other than Top + Inner-1 (warning). |
+| Sub-coils | A split so large that curves overlap, or that puts two curves on top of each other (errors); crowded tip vias with 3 sub-coils, or 2 sub-coils with too little arc per curve for the vias that join them, from 5 loops at the default radii (warnings). |
 | Fingers | Finger legs closer than the clearance (error); `RX_TAB_WIDTH_MM` below about 0.6 mm (warning); a finger length that does not clear the outermost TX turn, or the outermost go-around bracket (error: `RX_TAB_LENGTH_MM` is the exact length and is never changed for you, and the message states the length it needs). |
-| TX turns | Turns closer than the clearance (error) or practically equal to it (warning); the first TX turn too close to the RX copper on the same layer (error); the terminal via too near the RX band or the next turns (warnings). The TX terminal itself has no setting: the generator searches the ring for the place with the largest gap to the RX copper and turns the board so that it ends up at 0°; if no place keeps the clearance, a note says so. |
-| Resolution | A fixed `STEPS_PER_LOOP`, `TX_STEPS` or `ROTOR_ARC_STEPS_PER_SECTOR` giving a chord error above its chord tolerance (warning). With "auto" the count is chosen from the tolerance instead; for the RX coils a warning appears if more than 1024 chords per loop would be needed (the count then stops at 1024). |
+| TX turns | Turns closer than the clearance (error) or practically equal to it (warning); the first TX turn too close to the RX copper on the same layer (error); the terminal via too near the RX band or the next turns (warnings). The TX terminal itself has no setting: the generator searches the ring for the place with the largest gap to the RX copper (with `RX_TABS = "single"`, the place nearest the middle of the two fingers that keeps the clearance) and turns the board so that it ends up at 0°. With `RX_TABS = "single"`, if no place keeps the clearance, a note says so and the terminal goes where the gap is largest. |
+| Resolution | A fixed `STEPS_PER_LOOP` or `TX_STEPS` giving a chord error above 0.01 mm, or a fixed `ROTOR_ARC_STEPS_PER_SECTOR` giving one above 0.05 mm (warning; the chord tolerances are not used for these). With "auto" the count is chosen from the chord tolerance instead; for the RX coils a warning appears if more than 1024 chords per loop would be needed (the count then stops at 1024). |
 | Board edge | `OUTER_EDGE_RADIUS_MM` cutting through the outermost TX turn, the fingers or the TX tail (errors); inner-tip vias running over the centre hole; a via touching copper of another net (error). |
 | Rotor | Rotor metal fraction giving a weak fundamental (warning) or removing a harmonic (info); rotor copper with no width; custom rotor sector count different from `LOOPS`; custom radii out of order, copper too near the bore or the outline; solder-mask opening reaching the bore or outline; `ROTOR_ARC_STEPS_PER_SECTOR` giving a coarse arc. |
 | Files | Stator and rotor file names equal (error); names not ending in `.kicad_pcb`; `OUTPUT_DIR` not a writable folder. |
 | Chord tolerances | Each of `RX_CHORD_TOLERANCE_MM`, `TX_CHORD_TOLERANCE_MM` and `ROTOR_CHORD_TOLERANCE_MM` must be at least 0.001 mm (error below that). |
 | Page | The board comes close to the top or left of the KiCad page (the page grows right and down automatically). |
 
-Each message names the setting, its value and the limit it broke. The Web Tool adds the "what to change" advice; see
+Each message names the setting, its value and the limit it broke, and many also say what to change. The Web Tool shows the same messages; see
 [Web Tool](Web-Tool.md#46-errors-and-warnings).
 
 ## 16.4 Electrical Checks
@@ -88,10 +88,9 @@ range is below the limit, you get an info line that gives the range, not a warni
 
 | Situation | Why |
 |---|---|
-| 16 loops on a very small board (outer radius below about 26 mm) | The tip vias crowd at small bore radii; a quarter loop needs about 1.3 mm of arc at the RX inner edge. See the board size table in [Board Features](Board-Features.md). |
-| 2 sub-coils with 13 to 16 loops at the default band | The tip vias of neighbouring coils get too close. Use 1 sub-coil or a wider band. |
-| `RX_TABS = "all"` on a small board at a wide TX pitch (above about 1.2 mm on a board of 15 to 27 mm) | A TX window under an RX finger would reach the TX terminal. Use `RX_TABS = "single"`, a smaller pitch or a bigger board. A longer pitch also needs longer fingers; the message states the `RX_TAB_LENGTH_MM` needed. |
-| `TX_STEPPED_ANGLE_DEG` very steep with a tight pitch (`stepped_diagonal`) | Neighbouring steps would be closer than the clearance; the generator staggers them and prints the gap it got. |
+| 16 loops on a very small board (outer radius below about 26 mm) | The tip vias crowd at small bore radii; a quarter loop needs at least 1.2 mm of arc at the RX inner edge. On many such boards a via touches copper of another net, which is an error; some only get via clearance warnings, and those are refused only with `GENERATOR_MODE = "strict"`. See the board size table in [Project Capabilities](Project-Capabilities.md#51-board-size-range). |
+| 2 sub-coils with 4 or more loops at the default band | The vias that join the sub-coils do not fit between the curves, or a via touches copper of another net. Use 1 sub-coil, fewer loops or a wider band. |
+| `RX_TABS = "all"` on a small board when the TX turns go around the fingers (the fingers on a layer with TX turns) and there are several loops (on a board of 15 to 27 mm with a series TX on Top + Inner-1, 4 loops fail even at the default 0.6 mm pitch) | A TX window under an RX finger would reach the TX terminal. Use `RX_TABS = "single"`, a smaller pitch or a bigger board. A longer pitch also needs longer fingers; the message states the `RX_TAB_LENGTH_MM` needed. |
 
 | Previous | Next |
 |:---|---:|
