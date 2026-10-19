@@ -12,6 +12,7 @@ import numpy as np
 
 
 
+
 def fingers_on(rx):
     """Bridging fingers at all: RX_TABS = "all" (every outer tip) or "single" (one per coil)."""
     return str(rx.P.RX_TABS).lower() in ("all", "single")
@@ -20,7 +21,7 @@ def fingers_on(rx):
 def fingers_single(rx):
     return str(rx.P.RX_TABS).lower() == "single"
 
-# ------------------------------------------------------------ radius law
+# ------------------------------------------------------------ finger positions
 
 
 
@@ -34,11 +35,22 @@ def finger_starts(rx):
         tip0 = S // 4
         ds = float(np.hypot(*(rx.nodes[0][tip0 + 1] - rx.nodes[0][tip0])))
         q = max(1, int(math.ceil(P.RX_TAB_WIDTH_MM / ds - 1e-9)))
-        qmax = 2 * (S // 8 - 2)
+        qmax = 2 * (S // 8 - 2)                         # about 90 electrical degrees
+        # the middle piece of a finger is ONE straight chord between the leg ends at rx.tab_end_radius: it must not
+        # dip back into the RX band, where it would cross the other coil's traces on the finger layer (half the
+        # angle between the legs at most acos(clear / tab_end_radius))
+        clear = rx.ro + float(P.RX_TRACE_WIDTH_MM) + float(P.MIN_CLEARANCE_MM)
+        if rx.tab_end_radius > clear:
+            q_chord = int(math.floor(2.0 * math.acos(clear / rx.tab_end_radius) / (rx.L / S)))
+            if q_chord >= 1:
+                qmax = min(qmax, q_chord)
         if q > qmax:
-            print(f"WARNING: RX_TAB_WIDTH_MM too wide for this loop count; using {qmax * ds:.2f} mm",
-                  file=sys.stderr)
             q = qmax
+            a = tip0 - q // 2
+            legs = float(np.hypot(*(rx.nodes[0][a + q] - rx.nodes[0][a])))       # the real spacing of the legs
+            print(f"WARNING: RX_TAB_WIDTH_MM too wide for this loop count and finger length (the straight middle "
+                  f"piece would dip back into the RX band); using legs {legs:.2f} mm apart",
+                  file=sys.stderr)
         a0 = tip0 - q // 2
         tab_starts = {m * S + a0 for m in range(N)}
     rx.tab_q = q

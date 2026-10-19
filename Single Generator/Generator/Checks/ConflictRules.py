@@ -15,6 +15,7 @@ import types
 
 from Generator.Core import BoardLayout, Layers
 from Generator.Checks.ParameterRules import SPEC, KICAD_EDGE_CLEARANCE_MM, _shape
+from Generator.Stator.RX import RX_Coils, RX_Profiles
 from Generator.Stator.TX import TX_Shapes
 
 LAYER_NAME = Layers.LAYER_NAMES
@@ -64,7 +65,7 @@ class _Skip(Exception):
     """a value BoardLayout needs is missing or invalid (its own error is already reported)"""
 
 
-def _outer_edge_room(v, lay=None):
+def _outer_edge_room(v):
     """BoardLayout.outer_edge_room on checked values: how far inside a fixed OUTER_EDGE_RADIUS_MM the RX band
     ends.  None when a value it needs is missing or invalid (its own error is reported)."""
     need = ("OUTER_EDGE_OFFSET_MM", "OUTER_EDGE_TAIL_MARGIN_MM", "TX_OFFSET_MM", "TX_TURNS", "TX_PITCH_MM",
@@ -75,7 +76,7 @@ def _outer_edge_room(v, lay=None):
     room = max(v["OUTER_EDGE_OFFSET_MM"],
                v["TX_OFFSET_MM"] + v["TX_TURNS"] * v["TX_PITCH_MM"] + v["TX_TAIL_EXTRA_MM"] + margin)
     if str(v["RX_TABS"]).lower() in ("all", "single"):
-        tab_need = ("RX_TAB_LENGTH_MM", "TX_TRACE_WIDTH_MM", "RX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM")
+        tab_need = ("RX_TAB_LENGTH_MM", "RX_TRACE_WIDTH_MM")
         if any(v.get(n) is None for n in tab_need):
             return None
         room = max(room, v["RX_TAB_LENGTH_MM"] + v["RX_TRACE_WIDTH_MM"] / 2.0 + margin)
@@ -102,7 +103,7 @@ def _check_tx_layout(P, v, rep, has, lay):
     if mode == "single":
         base, tail = lay["base_layer"], lay["tail_layer"]
         if not (base == "B.Cu" and tail == "F.Cu") or lay["windows_on"]:
-            rep.info(f"series TX on {base}, the inner tail on {tail}"
+            rep.info(f"single-layer TX on {base}, the inner tail on {tail}"
                      + (f"; the turns go around every finger on {base} (go-around), with the brackets on "
                         f"{lay['bracket_layer']}" if go else (f"; the fingers cross it on {tab}" if tabs else "")))
     elif mode == "series":
@@ -146,7 +147,7 @@ def check(P, v, rep):
     band_ok = all(n in v for n in band_names) and v.get("INNER_EDGE_INSET_MM") is not None
     if band_ok:
         def _room():
-            r = _outer_edge_room(v, lay)
+            r = _outer_edge_room(v)
             if r is None:
                 raise _Skip()
             return r
@@ -194,8 +195,8 @@ def check(P, v, rep):
                                              f"mm vias: outer and inner tip vias of the same curve will be crowded",
                                  level="warning")
     if has("LOOPS", "INSIDE_RADIUS_MM", "RX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM") and v["LOOPS"] >= 1:
-        # the curves of a coil run side by side near the band centre: spacing there is about
-        # circumference / (4 * loops) per quarter period; it must hold two traces plus a gap
+        # the curves of a coil run side by side near the inner radius: spacing there is about
+        # circumference / (4 * loops) per quarter period; it should hold about three times (trace + clearance)
         quarter = 2 * math.pi * v["INSIDE_RADIUS_MM"] / (4 * v["LOOPS"])
         need = v["RX_TRACE_WIDTH_MM"] + v["MIN_CLEARANCE_MM"]
         if quarter < 3 * need:
@@ -246,9 +247,20 @@ def check(P, v, rep):
                                     f"other (within a sub-coil the curves are 90 electrical degrees apart), so no "
                                     f"layout exists.\nUse {even:g}: it spaces all the curves evenly.")
         elif n_sub == 2 and not (35.0 <= sp <= 55.0):
-            rep.conflict(sub_names, f"with a split of {sp:g} the tip vias of the sin and cos coils end up {sp:g} and "
-                                    f"{90 - sp:g} electrical degrees apart; far from 45 they crowd each other (about "
+            a = sp % 90.0
+            rep.conflict(sub_names, f"with a split of {sp:g} the tip vias of the sin and cos coils end up {a:g} and "
+                                    f"{90 - a:g} electrical degrees apart; far from 45 they crowd each other (about "
                                     f"35 ... 55 is workable)", level="warning")
+        elif n_sub == 2 and has("RX_VIA_ELECTRICAL_DEG") and not (
+                57.0 + sp / 2.0 <= v["RX_VIA_ELECTRICAL_DEG"] <= 123.0 - sp / 2.0):
+            # the junction between the two sub-coils needs a stub that ends before the tip via of its lobe and keeps
+            # clear of the other phases: it fits only for vias near the tip (measured: split 45 -> 80 ... 100,
+            # split 36 -> 75 ... 105, with LOOPS = 1 and the default band)
+            rep.conflict(("RX_VIA_ELECTRICAL_DEG", "RX_SUBCOIL_SPLIT_ELEC_DEG", "RX_SUBCOILS"),
+                         f"with 2 sub-coils and a split of {sp:g} the via that joins the sub-coils only fits for "
+                         f"RX_VIA_ELECTRICAL_DEG of about {57.0 + sp / 2.0:g} ... {123.0 - sp / 2.0:g} (it is "
+                         f"{v['RX_VIA_ELECTRICAL_DEG']:g}); the generator will probably stop. Bring it closer to 90 or "
+                         f"lower the split (a wider RX band does not help)", level="warning")
         elif n_sub == 3 and spacing < 0.8 * even:
             rep.conflict(sub_names, f"with a split of {sp:g} and 3 sub-coils some receiver curves are only "
                                     f"{spacing:.0f} electrical degrees apart, which crowds their vias; {even:g} spaces "
@@ -270,12 +282,17 @@ def check(P, v, rep):
                          "the clearance checks", level="warning")
 
     # ------------------------------------------------------------ RX resolution
-    if has("STEPS_PER_LOOP", "LOOPS", "OUTSIDE_RADIUS_MM") and v["STEPS_PER_LOOP"] != "auto":
-        d = 2 * math.pi / (v["LOOPS"] * v["STEPS_PER_LOOP"])
-        sag = v["OUTSIDE_RADIUS_MM"] * d * d / 8
+    if has("STEPS_PER_LOOP", "LOOPS", "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_PROFILE") \
+            and v["STEPS_PER_LOOP"] != "auto" and 0 < v["INSIDE_RADIUS_MM"] < v["OUTSIDE_RADIUS_MM"]:
+        # the real chord error of the RX curves (the same measure RX_Coils.pick_steps uses): set mostly by the
+        # radial swing of the curve, not by the circle it runs around
+        probe = types.SimpleNamespace(P=types.SimpleNamespace(RX_PROFILE=v["RX_PROFILE"]), ri=v["INSIDE_RADIUS_MM"],
+                                      ro=v["OUTSIDE_RADIUS_MM"], L=2.0 * math.pi / v["LOOPS"])
+        RX_Profiles.radius_law(probe)
+        sag = RX_Coils.chord_error(probe, int(v["STEPS_PER_LOOP"]))
         if sag > 0.01:
             rep.conflict(("STEPS_PER_LOOP", "LOOPS", "OUTSIDE_RADIUS_MM"), f"{v['STEPS_PER_LOOP']} chords per loop give "
-                         f"about {sag:.3f} mm chord error at the outer radius for {v['LOOPS']} loops; use \"auto\" or a "
+                         f"about {sag:.3f} mm chord error on the RX curves for {v['LOOPS']} loops; use \"auto\" or a "
                          f"larger value", level="warning")
 
     # ------------------------------------------------------------ fingers
@@ -288,12 +305,15 @@ def check(P, v, rep):
     if (v.get("RX_TABS") in ("all", "single") and has("OUTSIDE_RADIUS_MM", "RX_TAB_LENGTH_MM", "TX_OFFSET_MM", "TX_PITCH_MM",
                                            "TX_TURNS", "TX_TRACE_WIDTH_MM", "RX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM")):
         ro = v["OUTSIDE_RADIUS_MM"]
-        tx_outer = ro + v["TX_OFFSET_MM"] + (v["TX_TURNS"] - 1) * v["TX_PITCH_MM"]
+        # the outermost TX copper (centre line): a spiral's last turn reaches one pitch farther out
+        tx_outer = ro + v["TX_OFFSET_MM"] + (v["TX_TURNS"] if _shape(P) == "spiral" else v["TX_TURNS"] - 1) \
+            * v["TX_PITCH_MM"]
         need = tx_outer + v["TX_TRACE_WIDTH_MM"] / 2 + v["RX_TRACE_WIDTH_MM"] / 2 + v["MIN_CLEARANCE_MM"] + 0.2
         if ro + v["RX_TAB_LENGTH_MM"] < need - 1e-9:
             rep.conflict(("RX_TAB_LENGTH_MM", "TX_OFFSET_MM", "TX_TURNS", "TX_PITCH_MM"), f"the fingers end at r = "
-                         f"{ro + v['RX_TAB_LENGTH_MM']:.2f} mm, too close to the outermost TX turn (r = {tx_outer:g} mm): they "
-                         f"must reach {need:.2f} mm (the turn, half a TX and half an RX trace, the clearance and 0.2 mm). "
+                         f"{ro + v['RX_TAB_LENGTH_MM']:.2f} mm, too close to the outermost TX copper (r = {tx_outer:g} mm): "
+                         f"they must reach {need:.2f} mm (that copper, half a TX and half an RX trace, the clearance and "
+                         f"0.2 mm). "
                          f"Set RX_TAB_LENGTH_MM to at least {need - ro:.2f}, or bring the TX in (TX_OFFSET_MM, TX_TURNS, "
                          f"TX_PITCH_MM)")
         elif lay is not None and lay["goaround"]:
@@ -308,16 +328,17 @@ def check(P, v, rep):
     # ------------------------------------------------------------ TX
     if has("TX_PITCH_MM", "TX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM"):
         gap = v["TX_PITCH_MM"] - v["TX_TRACE_WIDTH_MM"]
-        if v.get("TX_TURNS", 1) > 1 or (lay is not None and lay["mode"] != "single"):
-            tx_names = ("TX_PITCH_MM", "TX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM")
-            if gap < v["MIN_CLEARANCE_MM"]:
-                rep.conflict(tx_names, f"the TX turns are only {gap:.3f} mm apart (pitch - trace width); they need at "
-                                       f"least the clearance, {v['MIN_CLEARANCE_MM']:g} mm. Raise TX_PITCH_MM")
-            elif gap < v["MIN_CLEARANCE_MM"] + 0.02:
-                rep.conflict(tx_names, f"the TX turns are {gap:.3f} mm apart, practically equal to the clearance "
-                                       f"({v['MIN_CLEARANCE_MM']:g} mm): the polyline chords make the real gap a hair "
-                                       f"smaller (a 0.4 mm pitch with 0.2 mm traces and 0.2 mm clearance was measured to "
-                                       f"fail). Raise TX_PITCH_MM a little", level="warning")
+        # (also with one turn: the outer tail / step runs one pitch outside the turn, next to the terminal via)
+        tx_names = ("TX_PITCH_MM", "TX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM")
+        if gap < v["MIN_CLEARANCE_MM"]:
+            rep.conflict(tx_names, f"the TX turns (and the outer tail, one pitch outside the last turn) are only "
+                                   f"{gap:.3f} mm apart (pitch - trace width); they need at "
+                                   f"least the clearance, {v['MIN_CLEARANCE_MM']:g} mm. Raise TX_PITCH_MM")
+        elif gap < v["MIN_CLEARANCE_MM"] + 0.02:
+            rep.conflict(tx_names, f"the TX turns are {gap:.3f} mm apart, practically equal to the clearance "
+                                   f"({v['MIN_CLEARANCE_MM']:g} mm): the polyline chords make the real gap a hair "
+                                   f"smaller (a 0.4 mm pitch with 0.2 mm traces and 0.2 mm clearance was measured to "
+                                   f"fail). Raise TX_PITCH_MM a little", level="warning")
     if has("OUTSIDE_RADIUS_MM", "TX_OFFSET_MM", "TX_TRACE_WIDTH_MM", "RX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM") \
             and rx_l and tx_l and (rx_l & tx_l):
         room = v["TX_OFFSET_MM"] - (v["RX_TRACE_WIDTH_MM"] + v["TX_TRACE_WIDTH_MM"]) / 2
@@ -326,14 +347,26 @@ def check(P, v, rep):
                          f"RX copper on the same layer ({', '.join(sorted(rx_l & tx_l))}); it needs the clearance, "
                          f"{v['MIN_CLEARANCE_MM']:g} mm. Raise TX_OFFSET_MM to at least "
                          f"{v['MIN_CLEARANCE_MM'] + (v['RX_TRACE_WIDTH_MM'] + v['TX_TRACE_WIDTH_MM']) / 2:.2f}")
-    if has("TX_INSIDE_VIA_DISTANCE_MM", "TX_OFFSET_MM", "VIA_DIAMETER_MM", "RX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM"):
-        dv = v["TX_INSIDE_VIA_DISTANCE_MM"]
+    if has("TX_OFFSET_MM", "VIA_DIAMETER_MM", "RX_TRACE_WIDTH_MM", "MIN_CLEARANCE_MM") \
+            and (_shape(P) == "arc" or has("TX_INSIDE_VIA_DISTANCE_MM")):
+        # the TX terminal via against the RX band ("stepped_arc": the via sits on the first turn, no shift)
+        arc = _shape(P) == "arc"
+        dv = 0.0 if arc else v["TX_INSIDE_VIA_DISTANCE_MM"]
         room = v["TX_OFFSET_MM"] - v["VIA_DIAMETER_MM"] / 2 - v["RX_TRACE_WIDTH_MM"] / 2 - v["MIN_CLEARANCE_MM"]
-        if dv > room + 1e-9:
+        need_off = v["VIA_DIAMETER_MM"] / 2 + v["RX_TRACE_WIDTH_MM"] / 2 + v["MIN_CLEARANCE_MM"] + max(dv, 0.0)
+        if arc and room < -1e-9:
+            rep.conflict(("TX_OFFSET_MM", "VIA_DIAMETER_MM", "MIN_CLEARANCE_MM"), f"the TX terminal via of a stepped_arc "
+                         f"TX sits on the first turn, within the clearance of the RX band (its outer tips reach the RX "
+                         f"outside radius): raise TX_OFFSET_MM to at least {need_off:.2f}", level="warning")
+        elif not arc and dv > room + 1e-9:
+            if room >= 0:
+                fix = f"at most {room:.2f} mm with these settings, or raise TX_OFFSET_MM to at least {need_off:.2f}"
+            else:
+                fix = f"raise TX_OFFSET_MM to at least {need_off:.2f}"
             rep.conflict(("TX_INSIDE_VIA_DISTANCE_MM", "TX_OFFSET_MM"), f"a via shift of {dv:g} mm puts the TX terminal via "
-                         f"within the clearance of the RX band (its outer tips reach the RX outside radius): at most "
-                         f"{room:.2f} mm with these settings, or raise TX_OFFSET_MM", level="warning")
-        elif dv < 0:
+                         f"within the clearance of the RX band (its outer tips reach the RX outside radius): {fix}",
+                         level="warning")
+        elif not arc and dv < 0:
             rep.warn(f"TX_INSIDE_VIA_DISTANCE_MM = {dv:g} moves the TX terminal via outwards, onto the next TX turns; "
                      f"use 0 or a positive value")
     if _shape(P) == "arc" and has("TX_STEPPED_ARC_RADIUS_MM", "TX_PITCH_MM", "TX_TRACE_WIDTH_MM", "VIA_DIAMETER_MM",
@@ -342,9 +375,22 @@ def check(P, v, rep):
         lim = TX_Shapes.arc_radius_limits(types.SimpleNamespace(**{n: v[n] for n in (
             "TX_PITCH_MM", "TX_TRACE_WIDTH_MM", "VIA_DIAMETER_MM", "MIN_CLEARANCE_MM", "TX_TAIL_EXTRA_MM")}))
         if rho0 <= lim["corner"]:
+            auto = max(lim["corner"], lim["via"]) + TX_Shapes.ARC_MARGIN_MM
+            if has("OUTSIDE_RADIUS_MM", "TX_OFFSET_MM", "TX_TURNS"):
+                # "auto" adds the chord sag of the outermost turn (TX_Shapes.arc_plan)
+                r_top = v["OUTSIDE_RADIUS_MM"] + v["TX_OFFSET_MM"] + v["TX_TURNS"] * v["TX_PITCH_MM"]
+                steps = v.get("TX_STEPS", "auto")
+                if steps == "auto":
+                    steps = TX_Shapes.points_per_turn(types.SimpleNamespace(
+                        TX_STEPS="auto", TX_CHORD_TOLERANCE_MM=v.get("TX_CHORD_TOLERANCE_MM")),
+                        r_top - v["TX_PITCH_MM"])
+                auto += r_top * (1 - math.cos(math.pi / float(steps)))
+                auto_txt = f"\"auto\" = {auto:.2f} mm"
+            else:
+                auto_txt = f"\"auto\" = at least {auto:.2f} mm"
             rep.conflict(("TX_STEPPED_ARC_RADIUS_MM", "TX_PITCH_MM"), f"the innermost arc radius ({rho0:g} mm) must be "
                          f"larger than the pitch ({lim['corner']:g} mm): the arcs are one pitch apart and each must reach "
-                         f"the next turn (\"auto\" = {max(lim['corner'], lim['via']) + TX_Shapes.ARC_MARGIN_MM:.2f} mm)")
+                         f"the next turn ({auto_txt})")
         elif rho0 >= lim["top"]:
             rep.conflict(("TX_STEPPED_ARC_RADIUS_MM", "TX_PITCH_MM", "TX_TAIL_EXTRA_MM"), f"the innermost arc radius "
                          f"({rho0:g} mm) must be smaller than pitch + tail length ({lim['top']:g} mm): the last arc would "
@@ -353,13 +399,15 @@ def check(P, v, rep):
             rep.conflict(("TX_STEPPED_ARC_RADIUS_MM", "VIA_DIAMETER_MM", "MIN_CLEARANCE_MM"), f"an innermost arc radius of "
                          f"{rho0:g} mm brings the arc within the clearance of the TX terminal via (via radius + half a TX "
                          f"trace + clearance = {lim['via']:.2f} mm): all TX turns are one net, so KiCad's DRC will not "
-                         f"flag it, but it shorts a turn", level="warning")
-    if has("TX_STEPS", "OUTSIDE_RADIUS_MM", "TX_OFFSET_MM") and v["TX_STEPS"] != "auto":
-        r = v["OUTSIDE_RADIUS_MM"] + v["TX_OFFSET_MM"]
+                         f"flag it; closer than the clearance (a short if the gap reaches 0)", level="warning")
+    if has("TX_STEPS", "OUTSIDE_RADIUS_MM", "TX_OFFSET_MM", "TX_TURNS", "TX_PITCH_MM") and v["TX_STEPS"] != "auto":
+        # at the outermost turn, where the sag is largest (a spiral's last turn reaches one pitch farther out)
+        r = v["OUTSIDE_RADIUS_MM"] + v["TX_OFFSET_MM"] + (v["TX_TURNS"] - 1 + (1 if _shape(P) == "spiral" else 0)) \
+            * v["TX_PITCH_MM"]
         sag = r * (1 - math.cos(math.pi / v["TX_STEPS"]))
         if sag > 0.01:
             rep.conflict(("TX_STEPS", "OUTSIDE_RADIUS_MM"), f"{v['TX_STEPS']} points per turn give about {sag:.3f} mm chord "
-                         f"error on the TX turns at this radius; raise TX_STEPS", level="warning")
+                         f"error on the outermost TX turn (r = {r:.2f} mm); raise TX_STEPS", level="warning")
 
     # ------------------------------------------------------------ nets
     if has("RX_NET_PHASE_0_2", "RX_NET_PHASE_1_3", "TX_NET"):
@@ -400,12 +448,18 @@ def check(P, v, rep):
     if mode == "according_to_stator":
         e_all = v.get("ROTOR_AUTO_EXTENSION_MM")
         e_in, e_out = v.get("ROTOR_AUTO_EXTENSION_INNER_MM"), v.get("ROTOR_AUTO_EXTENSION_OUTER_MM")
-        if e_all is not None and e_in is not None and e_out is not None:
-            rep.info("ROTOR_AUTO_EXTENSION_MM is not used: the inner and the outer edge each have their own value")
         cover = v.get("ROTOR_AUTO_COVER_TX") is not False
-        if cover and (e_out is not None or (e_all is not None and e_in is not None)):
-            rep.info("ROTOR_AUTO_COVER_TX = True: the outer edge of the rotor copper is set by ROTOR_AUTO_TX_OVERHANG_MM "
-                     "(ROTOR_AUTO_EXTENSION_OUTER_MM is not used)")
+        # (with the TX covered ROTOR_AUTO_EXTENSION_OUTER_MM is not checked, so it is not in v: read the raw value)
+        raw_out = getattr(P, "ROTOR_AUTO_EXTENSION_OUTER_MM", None)
+        if cover:
+            if raw_out is not None:
+                rep.info("ROTOR_AUTO_COVER_TX = True: the outer edge of the rotor copper is set by "
+                         "ROTOR_AUTO_TX_OVERHANG_MM (ROTOR_AUTO_EXTENSION_OUTER_MM is not used)")
+            if e_all is not None and e_in is not None:
+                rep.info("ROTOR_AUTO_EXTENSION_MM is not used: ROTOR_AUTO_EXTENSION_INNER_MM sets the inner edge and, "
+                         "with ROTOR_AUTO_COVER_TX = True, ROTOR_AUTO_TX_OVERHANG_MM sets the outer edge")
+        elif e_all is not None and e_in is not None and e_out is not None:
+            rep.info("ROTOR_AUTO_EXTENSION_MM is not used: the inner and the outer edge each have their own value")
         over = v.get("ROTOR_AUTO_TX_OVERHANG_MM")
         if cover and over is not None and over < 0:
             rep.info(f"ROTOR_AUTO_TX_OVERHANG_MM = {over:g}: the rotor copper ends over the TX turns, {-over:g} mm "
@@ -475,10 +529,36 @@ def check(P, v, rep):
     if has("ROTOR_ARC_STEPS_PER_SECTOR", "OUTSIDE_RADIUS_MM") and v["ROTOR_ARC_STEPS_PER_SECTOR"] != "auto":
         n = (v.get("ROTOR_CUSTOM_SECTORS") if mode == "custom" else v.get("LOOPS")) or 1
         d = (duty or 0.5) * 2 * math.pi / n / v["ROTOR_ARC_STEPS_PER_SECTOR"]
-        sag = (v.get("ROTOR_CUSTOM_OUTER_RADIUS_MM") if mode == "custom" and v.get("ROTOR_CUSTOM_OUTER_RADIUS_MM")
-               else v["OUTSIDE_RADIUS_MM"]) * (1 - math.cos(d / 2))
+        r = _rotor_outer_radius(P, v, mode)
+        sag = r * (1 / math.cos(d / 2) - 1)              # the vertices sit outside r (RotorBuilder.sector_polygon)
         if sag > 0.05:
             rep.conflict(("ROTOR_ARC_STEPS_PER_SECTOR", "LOOPS" if mode != "custom" else "ROTOR_CUSTOM_SECTORS"),
-                         f"{v['ROTOR_ARC_STEPS_PER_SECTOR']} points per arc give about {sag:.3f} mm chord error on the "
+                         f"{v['ROTOR_ARC_STEPS_PER_SECTOR']} chords per arc give about {sag:.3f} mm chord error on the "
                          f"rotor edge at this sector width; raise it", level="warning")
 
+
+def _rotor_outer_radius(P, v, mode):
+    """The outer radius of the rotor copper, as RotorBuilder.RotorDesign sets it (as far as the checked values tell)."""
+    ro = v["OUTSIDE_RADIUS_MM"]
+    if mode == "custom":
+        return v.get("ROTOR_CUSTOM_OUTER_RADIUS_MM") or ro
+    if mode != "according_to_stator" or any(v.get(n) is None for n in ("TX_OFFSET_MM", "TX_TURNS", "TX_PITCH_MM",
+                                                                        "TX_TRACE_WIDTH_MM")):
+        return ro
+    tw = v["TX_TRACE_WIDTH_MM"]
+    first = ro + v["TX_OFFSET_MM"]
+    if v.get("ROTOR_AUTO_COVER_TX") is not False:
+        spiral = _shape(P) == "spiral"
+        tx_outer_edge = first + (v["TX_TURNS"] if spiral else v["TX_TURNS"] - 1) * v["TX_PITCH_MM"] + tw / 2
+        over = v.get("ROTOR_AUTO_TX_OVERHANG_MM")
+        r = tx_outer_edge + (0.5 if over is None else over)
+        if v.get("OUTER_EDGE_RADIUS_MM") is not None and v.get("EDGE_LINE_WIDTH_MM") is not None \
+                and v.get("ROTOR_AUTO_EDGE_CLEARANCE_MM") is not None:
+            r = min(r, v["OUTER_EDGE_RADIUS_MM"] - v["EDGE_LINE_WIDTH_MM"] / 2 - v["ROTOR_AUTO_EDGE_CLEARANCE_MM"])
+        return r
+    e_all, e_out = v.get("ROTOR_AUTO_EXTENSION_MM"), v.get("ROTOR_AUTO_EXTENSION_OUTER_MM")
+    ext = e_out if e_out is not None else (e_all if e_all is not None else v.get("AIR_GAP_MM", 0.0) or 0.0)
+    r = ro + ext
+    if v.get("ROTOR_AUTO_TX_CLEARANCE_MM") is not None:
+        r = min(r, first - tw / 2 - v["ROTOR_AUTO_TX_CLEARANCE_MM"])
+    return r

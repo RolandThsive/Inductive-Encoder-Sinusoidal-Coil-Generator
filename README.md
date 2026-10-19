@@ -133,7 +133,7 @@ Full details, board sizes and every parameter are in the wiki:
 ## Quick Start
 
 ```bash
-pip install numpy matplotlib
+pip install numpy        # the generator needs only Python 3 and numpy
 
 cd "Single Generator"
 python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor

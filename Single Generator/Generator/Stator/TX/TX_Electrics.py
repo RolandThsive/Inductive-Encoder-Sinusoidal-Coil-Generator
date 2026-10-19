@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 TX_Electrics.py  -  electrical estimates of the TX coil for the generated stator + rotor.
 
@@ -27,7 +26,9 @@ How the numbers are made  (read this before trusting them)
     frequency a little), the temperature (copper: +0.39 % resistance per K).
   * None of it has been checked against a measured board: keep a margin to every limit of the IC.
 
-Needs only Python 3 and numpy.  Runs from any folder (project layout: README.txt in the top folder).
+Needs only Python 3 and numpy.  Imported by RunCoilGenerator.py (step 4); not a script.  (Project layout: wiki
+page "Project Output Organization", docs/wiki/Project-Output-Organization.md; overview in README.md in the top
+folder.)
 """
 
 import math
@@ -81,7 +82,7 @@ def ring_self(radius, width, thickness):
 # =============================================================================
 # the TX coil
 # =============================================================================
-def tx_layers(stator, P):
+def tx_layers(P):
     """[(layer, share of the TX current)] of the TX turns: one layer (1), two in series (1, 1) or, with a parallel
     TX (TX_WIRING = "parallel"), the same turns on two layers in parallel (1/2, 1/2: equal halves of the current)."""
     return list(Layers.layer_plan(P)["field_layers"])
@@ -92,7 +93,7 @@ def tx_loops(stator, P, prepreg=STACKUP_PREPREG_MM):
     radii = [float(r) for r in stator.tx_radii]
     if tx_shape(P) == "spiral":
         radii = [r + 0.5 * float(P.TX_PITCH_MM) for r in radii]          # a spiral turn runs from r to r + pitch
-    return [(r, layer_depth(l, P, prepreg), float(w)) for l, w in tx_layers(stator, P) for r in radii]
+    return [(r, layer_depth(l, P, prepreg), float(w)) for l, w in tx_layers(P) for r in radii]
 
 
 def tx_inductance(loops, width_mm, thickness_um):
@@ -109,14 +110,19 @@ def tx_inductance(loops, width_mm, thickness_um):
 
 
 def tx_resistance_dc(stator, P, thickness_um):
-    """(DC resistance in ohm, copper length in m) of the whole TX trace."""
-    length_mm = sum(math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]) for s in stator.tx_segments)
-    # parallel TX (TX_WIRING = "parallel"): the turns run twice, in parallel - where both copies exist the pair counts as half
-    # the length of one (equal halves of the current), i.e. 2 x length / 4
-    par = float(getattr(stator, "tx_parallel_length_mm", 0.0) or 0.0)
-    length_mm -= 1.5 * par
+    """(DC resistance in ohm, equivalent length in m, copper length in m) of the whole TX trace.  The equivalent
+    length is the length of one trace with that resistance: for a parallel TX it is shorter than the copper."""
+    copper_mm = sum(math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]) for s in stator.tx_segments)
+    # parallel TX (TX_WIRING = "parallel"): where the turns run twice, in parallel, the pair counts as one resistance
+    # of the two paths in parallel (TX_Wiring.emit_parallel_arcs works out how much length that saves: equal paths
+    # count as half the length of one, i.e. 1.5 x the arc comes off; a go-around path with its run-outs and brackets
+    # is longer than the base turn beside it, L_a * L_b / (L_a + L_b))
+    saving = getattr(stator, "tx_parallel_saving_mm", None)
+    if saving is None:
+        saving = 1.5 * float(getattr(stator, "tx_parallel_length_mm", 0.0) or 0.0)
+    length_mm = copper_mm - float(saving)
     area = float(P.TX_TRACE_WIDTH_MM) * 1e-3 * float(thickness_um) * 1e-6
-    return RHO_CU * length_mm * 1e-3 / area, length_mm * 1e-3
+    return RHO_CU * length_mm * 1e-3 / area, length_mm * 1e-3, copper_mm * 1e-3
 
 
 def rotor_inductance_drop(loops, r_in, r_out, duty, gap_mm, n=4001):
@@ -176,7 +182,7 @@ class Electrics:
         self.loops = tx_loops(stator, P, self.prepreg)
         self.n_turns = int(round(sum(w for _r, _d, w in self.loops)))     # turns in series
         self.L_free = tx_inductance(self.loops, self.width_mm, self.thickness_um)
-        self.R_dc, self.length_m = tx_resistance_dc(stator, P, self.thickness_um)
+        self.R_dc, self.length_m, self.copper_m = tx_resistance_dc(stator, P, self.thickness_um)
         self.gap = float(P.AIR_GAP_MM)
         self.has_rotor = rotor is not None
         if self.has_rotor:
@@ -229,7 +235,7 @@ class Electrics:
         f = self.f_at(self.L_nom)
         if not lim["f_min"] <= f <= lim["f_max"]:
             add(("warning", "f_range",
-                 f"the oscillator frequency at the nominal air gap ({_mhz(f, f)}) is outside the {ic}'s range "
+                 f"the oscillator frequency at the nominal air gap ({_mhz(f)}) is outside the {ic}'s range "
                  f"{lim['f_min'] / 1e6:g} ... {lim['f_max'] / 1e6:g} MHz.  Change EXCITATION_FREQ_HZ"))
         rp, rp_best = self.rp_lowest()
         if rp_best < lim["rp_min"]:
@@ -272,9 +278,13 @@ class Electrics:
             drop = (self.L_free - self.L_nom) / self.L_free * 100.0
             out.append(f"              L = {self.L_nom * 1e6:.3f} uH with the rotor at the {self.gap:g} mm air gap "
                        f"({-drop:+.1f} %: an upper estimate of the drop)")
-        out.append(f"              R = {self.R_dc:.2f} ohm DC ({self.n_turns} turn(s), {self.length_m:.2f} m of "
-                   f"{self.width_mm:g} mm x {self.thickness_um:g} um copper), up to about {AC_FACTOR:g}x that at "
-                   f"{f / 1e6:g} MHz")
+        if abs(self.copper_m - self.length_m) < 0.005:
+            copper = f"{self.length_m:.2f} m of {self.width_mm:g} mm x {self.thickness_um:g} um copper"
+        else:
+            copper = (f"{self.copper_m:.2f} m of {self.width_mm:g} mm x {self.thickness_um:g} um copper, "
+                      f"{self.length_m:.2f} m equivalent for the two layers in parallel")
+        out.append(f"              R = {self.R_dc:.2f} ohm DC ({self.n_turns} turn(s), {copper}), up to about "
+                   f"{AC_FACTOR:g}x that at {f / 1e6:g} MHz")
         where = "with the rotor in place" if self.has_rotor else "(no rotor)"
         if self.lim:
             out.append(f"  tank        for {f / 1e6:g} MHz {where}: 2 x {_cap(2 * self.C)}, from TX1 and from TX2 "
@@ -347,5 +357,5 @@ def _ohm(r):
     return f"{r:.0f} ohm" if r < 1000 else f"{r / 1000:.3g} kohm"
 
 
-def _mhz(lo, hi):
-    return f"{lo / 1e6:.3f} MHz" if abs(hi - lo) < 0.5e3 else f"{lo / 1e6:.3f} ... {hi / 1e6:.3f} MHz"
+def _mhz(f):
+    return f"{f / 1e6:.3f} MHz"

@@ -45,7 +45,9 @@ class TXBuilder:
         self.tx_radii, self.tx_first_radius = ring["radii"], ring["first"]
         self.tx_outer_radius, self.tx_tail_end_radius = ring["outer"], ring["tail_end"]
         self.tx_shape = BoardLayout.tx_shape(P)            # "diagonal" | "arc" | "spiral"
-        self.tx_steps = TX_Shapes.points_per_turn(P, self.tx_outer_radius)
+        # (a spiral's last turn reaches one pitch farther out than tx_outer_radius)
+        self.tx_steps = TX_Shapes.points_per_turn(
+            P, self.tx_outer_radius + (float(P.TX_PITCH_MM) if self.tx_shape == "spiral" else 0.0))
         lay = self.tx_lay = Layers.layer_plan(P)
         self.tx_mode, self.tx_goaround, self.tx_windows_on = lay["mode"], lay["goaround"], lay["windows_on"]
         self.tx_layer_p = self.tx_layer_q = None
@@ -108,6 +110,7 @@ def build_placed(tx):
         TX_Wiring.emit_single_or_parallel(tx)
     tx.tx_segments, tx.tx_vias = tx.segs, tx.vias
     tx.tx_parallel_length_mm = tx.parallel_len
+    tx.tx_parallel_saving_mm = tx.parallel_saving
     tx.tx_base_layer, tx.tx_other_layer, tx.tx_tail_layer = tx.base, tx.other, tx.tail_inner
     rot = tx.rot
     tx.tx_window_list = [(math.degrees(lo + rot), math.degrees(hi + rot), t, k) for lo, hi, t, k in tx.windows]
@@ -152,10 +155,11 @@ def prepare(tx):
     tx.arc_polys = []                    # "stepped_arc": (layer, sigma, n, points) of every arc
     tx.segs, tx.vias = [], []
     tx.parallel_len = 0.0
+    tx.parallel_saving = 0.0             # mm of summed copper length that the parallel paths save (TX_Electrics)
     tx.tail_inner = None
     tx.tail_end = tx.pt(0.0, tx.tx_tail_end_radius)
 
-# ------------------------------------------------------------ small geometry helpers
+# ------------------------------------------------------------ summary text
 
 
 def summary(tx):
@@ -166,10 +170,11 @@ def summary(tx):
         txt = (f"  TX (series): {T} turns on {tx.tx_layer_p} + {T} turns on {tx.tx_layer_q}, joined by a via "
                f"at the inner end, {shape} turns")
     elif tx.tx_mode == "single":
-        txt = f"  TX (series): {T} turns on {lay['base_layer']}, inner tail on {lay['tail_layer']}, {shape} turns"
+        txt = f"  TX (single layer): {T} turns on {lay['base_layer']}, inner tail on {lay['tail_layer']}, {shape} turns"
     else:
         txt = (f"  TX (parallel): {T} turns on {lay['base_layer']} and the same turns in parallel on "
-               f"{lay['arc_layer']}, stitched through vias around the TX terminal; tail on {lay['arc_layer']}")
+               f"{lay['arc_layer']}, stitched through vias around the TX terminal; inner tail on {lay['arc_layer']}, "
+               f"outer tail on {lay['base_layer']}")
     wl = getattr(tx, "tx_window_list", None)
     if wl:
         n_f = len(tx.tab_segments) // 3
@@ -196,7 +201,12 @@ def summary(tx):
                 f"{plan['run']:.2f} mm along the turn each, {plan['gap']:.3f} mm between neighbouring steps")
         if plan["stagger"] > 0:
             txt += f", each step {plan['stagger']:.2f} mm before the one inside it"
-    if getattr(tx, "min_tx_self_clearance", None) is not None:
-        txt += (f"\n  TX copper: smallest gap between different turns {tx.min_tx_self_clearance:.3f} mm, "
-                f"TX via to RX copper {tx.min_tx_via_rx_clearance:.3f} mm")
+    if hasattr(tx, "min_tx_self_clearance"):
+        gap, via_rx = tx.min_tx_self_clearance, getattr(tx, "min_tx_via_rx_clearance", None)
+        parts = [f"smallest gap between different turns {gap:.3f} mm" if gap is not None else
+                 f"gap between different turns not measured (no TX via near a turn; the nominal pitch gives "
+                 f"{float(P.TX_PITCH_MM) - float(P.TX_TRACE_WIDTH_MM):.3f} mm)"]
+        if via_rx is not None:
+            parts.append(f"TX via to RX copper {via_rx:.3f} mm")
+        txt += "\n  TX copper: " + ", ".join(parts)
     return txt

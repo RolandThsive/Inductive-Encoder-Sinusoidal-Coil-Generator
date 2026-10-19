@@ -13,6 +13,7 @@ import os
 import types
 
 from Generator.Core import BoardLayout, Layers
+from Generator.Stator.TX.TX_Shapes import DEFAULT_INSIDE_VIA_DISTANCE_MM
 
 KICAD_EDGE_CLEARANCE_MM = 0.5      # KiCad's default "copper to edge clearance" (Board Setup > Constraints)
 RECEIVER_ICS = ("IPS2550", "IPS2200")   # the ICs TX_Electrics.py knows the limits of (RECEIVER_IC)
@@ -111,10 +112,11 @@ _add(_TX, "TX_STEPS", "auto_or_int", optional=True, default="auto", lo=12, hi=20
 _add(_TX, "TX_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)
 _add(_TX, "TX_TAIL_EXTRA_MM", "num", lo=0)
 _add(_TX, "TX_SHAPE", "choice", values=BoardLayout.TX_SHAPE_VALUES, ci=True)
-_add(_TX, "TX_INSIDE_VIA_DISTANCE_MM", "num", lambda P: _shape(P) != "arc", optional=True, default=0.0, lo=-3.0, hi=3.0)
+_add(_TX, "TX_INSIDE_VIA_DISTANCE_MM", "num", lambda P: _shape(P) != "arc", optional=True,
+     default=DEFAULT_INSIDE_VIA_DISTANCE_MM, lo=-3.0, hi=3.0)
 _add(_TX, "TX_STEPPED_ANGLE_DEG", "num", lambda P: _shape(P) == "diagonal", lo=5.0, hi=90.0)
 _add(_TX, "TX_STEPPED_ARC_RADIUS_MM", "auto_or_num", lambda P: _shape(P) == "arc",
-     optional=True, default="auto", lo=0.0, lo_ex=True, hi=20.0)
+     optional=True, default="auto", lo=0.0, lo_ex=True, hi=20.0, unit="mm")
 # TX layers (Layers.py): TX_WIRING, TX_LAYER_A / TX_LAYER_B and the series / parallel block
 _add(_TX, "TX_WIRING", "choice", values=Layers.TX_WIRING_VALUES, ci=True)
 _add(_TX, "TX_LAYER_A", "choice", values=(1, 2, 3, 4))
@@ -160,13 +162,13 @@ def _is_num(x):
 
 def _range_text(o):
     lo, hi = o.get("lo"), o.get("hi")
+    lo_txt = None if lo is None else f"{'greater than' if o.get('lo_ex') else 'at least'} {lo:g}"
+    hi_txt = None if hi is None else f"{'less than' if o.get('hi_ex') else 'at most'} {hi:g}"
     if lo is not None and hi is not None:
-        return f"between {lo:g} and {hi:g}" + (" (both excluded)" if o.get("lo_ex") and o.get("hi_ex") else "")
-    if lo is not None:
-        return f"{'greater than' if o.get('lo_ex') else 'at least'} {lo:g}"
-    if hi is not None:
-        return f"{'less than' if o.get('hi_ex') else 'at most'} {hi:g}"
-    return ""
+        if not o.get("lo_ex") and not o.get("hi_ex"):
+            return f"between {lo:g} and {hi:g}"
+        return f"{lo_txt} and {hi_txt}"                # (each bound says whether it is excluded)
+    return lo_txt or hi_txt or ""
 
 
 def _in_range(x, o):
@@ -252,9 +254,10 @@ def _check_value(name, val, kind, o):
             return "auto", None
         if _is_num(val):
             if not _in_range(val, o):
-                return None, f'{name} = {val:g}: must be "auto" or a number of degrees {rng}'
+                return None, f'{name} = {val:g}: must be "auto" or a number of {o.get("unit", "mm")} {rng}'
             return float(val), None
-        return None, f'{name} = {val!r}: must be a number of degrees or "auto"' + (f" ({rng})" if rng else "")
+        return None, (f'{name} = {val!r}: must be a number of {o.get("unit", "mm")} or "auto"'
+                      + (f" ({rng})" if rng else ""))
     if kind == "rotor_layers":
         if (isinstance(val, (list, tuple)) and len(val) >= 1
                 and all(l in ("F.Cu", "B.Cu") for l in val) and len(set(val)) == len(val)):
@@ -299,9 +302,7 @@ def load_values(P, rep):
                     unused = active is not None and not active(P)
                 except Exception:
                     unused = False
-                if not unused and o.get("missing"):
-                    rep.info(o["missing"])
-                elif not unused:
+                if not unused:
                     shown = ("None" if default is None else
                              f"the default {default!r}" if isinstance(default, (bool, str, list, tuple)) else
                              f"the default {default:g}")
@@ -337,7 +338,8 @@ def load_values(P, rep):
 
 
 def single_value_warnings(v, rep):
-    """Warnings and notes about one value on its own (the value is valid; it is just unusual)."""
+    """Warnings and notes about one value on its own (the value is valid; it is just unusual) - and the errors about
+    OUTPUT_DIR (a folder that cannot be written or created)."""
     has = lambda *names: all(n in v and v[n] is not None for n in names)
     for nm in ("RX_TRACE_WIDTH_MM", "TX_TRACE_WIDTH_MM"):
         if has(nm) and v[nm] < 0.1:
@@ -365,7 +367,17 @@ def single_value_warnings(v, rep):
         elif os.path.isdir(d) and not os.access(d, os.W_OK):
             rep.error(f"OUTPUT_DIR {d!r} is not writable")
         elif not os.path.exists(d):
-            rep.info(f"OUTPUT_DIR {d!r} does not exist yet and will be created (the Coil_... folder goes inside it)")
+            # it is created in step 6: the nearest folder above it that exists must be a writable folder
+            up = os.path.dirname(os.path.abspath(d))
+            while up and not os.path.exists(up) and os.path.dirname(up) != up:
+                up = os.path.dirname(up)
+            if not os.path.isdir(up):
+                rep.error(f"OUTPUT_DIR {d!r} cannot be created: {up!r} is not a folder")
+            elif not os.access(up, os.W_OK):
+                rep.error(f"OUTPUT_DIR {d!r} cannot be created: {up!r} is not writable")
+            else:
+                rep.info(f"OUTPUT_DIR {d!r} does not exist yet and will be created (the Coil_... folder goes inside "
+                         f"it)")
     e_mask = v.get("ROTOR_SOLDER_MASK_EXPANSION_MM")             # -1 = no mask opening
     if e_mask is not None and e_mask > 0.25:
         rep.warn(f"ROTOR_SOLDER_MASK_EXPANSION_MM = {e_mask:g}: the mask opening is that much wider than the "

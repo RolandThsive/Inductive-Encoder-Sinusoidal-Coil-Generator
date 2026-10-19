@@ -15,7 +15,8 @@ Run (needs only Python 3 and numpy), from the "Single Generator" folder:
     python Generator/Run/RunCoilGenerator.py
         ->  Output/Coil_<inside r>_<outside r>_<loops>_<sub-coils>_<TX turns>_<TX wiring>_<TX shape>/
             Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt
-(project layout: README.txt in the top folder)
+(project layout: wiki page "Project Output Organization", docs/wiki/Project-Output-Organization.md;
+overview in README.md in the top folder)
 The files are written in the KiCad 7 format, which KiCad 7, 8, 9 and 10 open.
 """
 

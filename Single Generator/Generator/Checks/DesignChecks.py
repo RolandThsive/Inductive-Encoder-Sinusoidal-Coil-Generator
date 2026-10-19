@@ -34,7 +34,7 @@ def check_arc_region(tx, arc_polys, via):
     that are not joined there (all TX turns are one net, so KiCad's DRC cannot see it).  The pieces: every arc,
     the start and the end of every turn (a full turn apart along the copper), the outer tail.  Joined: arc n with
     the end of turn n and the start of turn n + 1, the last arc with the outer tail.  (The via itself is measured
-    by _place_terminal_via.)"""
+    by measure_terminal_via.)"""
     P = tx.P
     T, tw, clr = int(P.TX_TURNS), float(P.TX_TRACE_WIDTH_MM), float(P.MIN_CLEARANCE_MM)
     arc = TX_Shapes.arc_plan(tx)
@@ -87,10 +87,10 @@ def check_arc_region(tx, arc_polys, via):
     tx.tx_arc_gap_pieces = who
     if tx.tx_arc_gap is not None and worst < clr - 1e-6:
         name = lambda k: " ".join(str(x) for x in k[1])
-        print(f"WARNING: around the TX terminal via the arcs of the stepped_arc TX come within {worst:.3f} mm of "
+        print(f"WARNING: around the TX terminal via the arcs of the stepped_arc TX come within {worst:.4f} mm of "
               f"other TX copper ({name(who[0])} / {name(who[1])} on {who[0][0]}, wanted {clr} mm): all TX turns are "
-              f"one net, so KiCad's DRC will not flag it, but it shorts turns; raise TX_STEPPED_ARC_RADIUS_MM or "
-              f"TX_PITCH_MM", file=sys.stderr)
+              f"one net, so KiCad's DRC will not flag it; closer than the clearance, and a short if the gap reaches "
+              f"0; raise TX_STEPPED_ARC_RADIUS_MM or TX_PITCH_MM", file=sys.stderr)
 
 # ================================================================== the terminal via
 
@@ -141,16 +141,23 @@ def measure_terminal_via(tx, D, n_added):
         g_new = min(g_new, float(points_segments_min_distance(pts, Af[same], Bf[same]).min()) - tw)
     g_rx = float(np.linalg.norm(vpos - c)) - vr - (tx.ro + rw / 2.0)
     tx.terminal_via_clearance = min(g_via, g_new)
+    # TX_INSIDE_VIA_DISTANCE_MM is not used by "stepped_arc" (the via sits on the first turn): name what does move it
+    if tx.tx_shape == "arc":
+        fix_turn = "raise TX_STEPPED_ARC_RADIUS_MM or TX_PITCH_MM"
+        fix_rx = "raise TX_OFFSET_MM"
+    else:
+        fix_turn = f"change TX_INSIDE_VIA_DISTANCE_MM (now {D:g})"
+        fix_rx = f"lower TX_INSIDE_VIA_DISTANCE_MM (now {D:g}) or raise TX_OFFSET_MM"
     if g_via < clr - 1e-6:
-        print(f"WARNING: the TX terminal via comes within {g_via:.3f} mm of another TX turn (wanted {clr} mm): all "
-              f"TX turns are one net, so KiCad's DRC will not flag it, but it shorts a turn; change "
-              f"TX_INSIDE_VIA_DISTANCE_MM (now {D:g})", file=sys.stderr)
+        print(f"WARNING: the TX terminal via comes within {g_via:.4f} mm of another TX turn (wanted {clr} mm): all "
+              f"TX turns are one net, so KiCad's DRC will not flag it; closer than the clearance, and a short if the "
+              f"gap reaches 0; {fix_turn}", file=sys.stderr)
     if g_new < clr - 1e-6:
-        print(f"WARNING: the TX run down to the terminal via comes within {g_new:.3f} mm of another TX turn (wanted "
-              f"{clr} mm); change TX_INSIDE_VIA_DISTANCE_MM (now {D:g})", file=sys.stderr)
+        print(f"WARNING: the TX run down to the terminal via comes within {g_new:.4f} mm of another TX turn (wanted "
+              f"{clr} mm); {fix_turn}", file=sys.stderr)
     if g_rx < clr - 1e-6:
-        print(f"WARNING: the TX terminal via comes within {g_rx:.3f} mm of the RX band (its outer tips) (wanted "
-              f"{clr} mm); lower TX_INSIDE_VIA_DISTANCE_MM (now {D:g}) or raise TX_OFFSET_MM", file=sys.stderr)
+        print(f"WARNING: the TX terminal via comes within {g_rx:.4f} mm of the RX band (its outer tips) (wanted "
+              f"{clr} mm); {fix_rx}", file=sys.stderr)
 
 # ------------------------------------------------- TX windows and the TX layouts of the new builder
 
@@ -167,7 +174,7 @@ def check_tx_copper(tx):
     layer = np.array([s.layer for s in tx.tx_segments])
     turn = np.array([s.turn for s in tx.tx_segments])
     kind = np.array([s.kind for s in tx.tx_segments])
-    worst_tt, worst_tv, worst_vr = pitch - tw, 1e9, 1e9
+    worst_tt = worst_tv = worst_vr = math.inf         # (inf = nothing measured)
     cut = max(pitch, tw + clr) + 0.5                   # distances above this are of no interest
     spiral = tx.tx_shape == "spiral"
     rot = math.radians(tx.start())
@@ -220,18 +227,20 @@ def check_tx_copper(tx):
         if len(ov):
             dd = np.hypot(*(vs[:, None, :] - ov[None, :, :]).transpose(2, 0, 1)).min()
             worst_tv = min(worst_tv, float(dd) - 2.0 * vr)
-    tx.min_tx_self_clearance = min(worst_tt, worst_tv)
-    tx.min_tx_via_rx_clearance = worst_vr
+    measured = min(worst_tt, worst_tv)
+    tx.min_tx_self_clearance = measured if math.isfinite(measured) else None
+    tx.min_tx_via_rx_clearance = worst_vr if math.isfinite(worst_vr) else None
     if worst_tt < clr - 1e-6:
-        print(f"WARNING: two TX turns come within {worst_tt:.3f} mm of each other (wanted {clr} mm): all TX turns "
-              f"are one net, so KiCad's DRC will not flag it, but it shorts turns; raise TX_PITCH_MM",
+        print(f"WARNING: two TX turns come within {worst_tt:.4f} mm of each other (wanted {clr} mm): all TX turns "
+              f"are one net, so KiCad's DRC will not flag it; closer than the clearance, and a short if the gap "
+              f"reaches 0; raise TX_PITCH_MM",
               file=sys.stderr)
     if worst_tv < clr - 1e-6:
-        print(f"WARNING: a TX via comes within {worst_tv:.3f} mm of another TX turn or via (wanted {clr} mm): all "
-              f"TX turns are one net, so KiCad's DRC will not flag it, but it shorts turns; raise TX_PITCH_MM or "
-              f"use smaller vias", file=sys.stderr)
+        print(f"WARNING: a TX via comes within {worst_tv:.4f} mm of another TX turn or via (wanted {clr} mm): all "
+              f"TX turns are one net, so KiCad's DRC will not flag it; closer than the clearance, and a short if "
+              f"the gap reaches 0; raise TX_PITCH_MM or use smaller vias", file=sys.stderr)
     if worst_vr < clr - 1e-6:
-        print(f"WARNING: a TX via comes within {worst_vr:.3f} mm of RX copper (wanted {clr} mm)", file=sys.stderr)
+        print(f"WARNING: a TX via comes within {worst_vr:.4f} mm of RX copper (wanted {clr} mm)", file=sys.stderr)
 
 
 def check_stator_clearances(stator):
@@ -268,7 +277,7 @@ def check_stator_clearances(stator):
     if worst[1] and worst[0] < need:
         print(f"WARNING: a via sits only {worst[0] - P.VIA_DIAMETER_MM / 2.0:.3f} mm from other copper "
               f"(wanted {P.MIN_CLEARANCE_MM} mm); phase/node {worst[1]}", file=sys.stderr)
-    # bridging fingers against the TX tail (F.Cu) and the TX via (through all layers)
+    # bridging fingers against all TX copper on the finger layer (tail, turns, brackets) and the TX vias (through all layers)
     if stator.tab_segments:
         fa = np.array([[t.a[0], t.a[1]] for t in stator.tab_segments])
         fb = np.array([[t.b[0], t.b[1]] for t in stator.tab_segments])
@@ -307,7 +316,7 @@ def check_stator_clearances(stator):
                       f"(wanted {P.MIN_CLEARANCE_MM} mm); raise RX_SUBCOIL_SPLIT_ELEC_DEG or lower RX_TAB_WIDTH_MM",
                       file=sys.stderr)
         if gmin < P.MIN_CLEARANCE_MM:
-            print(f"WARNING: an RX bridging finger comes within {gmin:.3f} mm of the TX tail/via on {stator.tab_layer}",
+            print(f"WARNING: an RX bridging finger comes within {gmin:.3f} mm of TX copper/via on {stator.tab_layer}",
                   file=sys.stderr)
     if stator.inner_edge_clear() < 0.3:
         print("WARNING: inner-tip vias are closer than 0.3 mm to the inner board edge", file=sys.stderr)
@@ -338,11 +347,9 @@ def check_design(P, stator, rotor=None):
         if R < stator.tx_tail_end_radius + ew / 2 - 1e-6:
             rep.conflict(("OUTER_EDGE_RADIUS_MM", "TX_TAIL_EXTRA_MM"), f"the outer board edge ({R:g} mm) cuts off the TX "
                          f"tail (it ends at r = {stator.tx_tail_end_radius:g} mm); raise the edge or shorten the tail")
-        elif R < stator.tx_tail_end_radius + P.OUTER_EDGE_TAIL_MARGIN_MM - 1e-6:
-            rep.conflict(("OUTER_EDGE_RADIUS_MM", "TX_TAIL_EXTRA_MM", "OUTER_EDGE_TAIL_MARGIN_MM"), f"the TX tail ends at "
-                         f"r = {stator.tx_tail_end_radius:g} mm, only {R - stator.tx_tail_end_radius:.2f} mm from the "
-                         f"board edge ({R:g} mm); the margin asked for is {P.OUTER_EDGE_TAIL_MARGIN_MM:g} mm",
-                         level="warning")
+        # (no warning for a tail that ends closer than OUTER_EDGE_TAIL_MARGIN_MM: BoardLayout.resolve has already
+        # required R >= tail end + OUTER_EDGE_TAIL_MARGIN_MM when OUTER_EDGE_RADIUS_MM is set.  The rules above stay
+        # reachable when that margin is smaller than half the edge line width.)
 
     # inner hole against the inner tip vias
     clear = stator.inner_edge_clear()
@@ -364,7 +371,8 @@ def check_design(P, stator, rotor=None):
     if cx - R - ew / 2 < margin or cy - R - ew / 2 < margin:
         rep.conflict(("CENTER_X_MM", "CENTER_Y_MM", "OUTER_EDGE_RADIUS_MM"), f"the board (outer radius {R:g} mm at "
                      f"{cx:g}, {cy:g}) comes within {margin:g} mm of the top or left edge of the KiCad page (the drawing "
-                     f"frame); it will still be written, but it crosses the frame. Raise the centre to at least "
+                     f"frame); in normal mode it is still written, but it crosses the frame (in strict mode nothing is "
+                     f"written). Raise the centre to at least "
                      f"{math.ceil(R + ew / 2 + margin):g}", level="warning")
     else:
         w, h = page_size(P, cx, cy, R)
@@ -376,6 +384,16 @@ def check_design(P, stator, rotor=None):
     if rotor is not None:
         for note in rotor.notes:
             rep.info(note)
+        # the rotor board against the top and left side of its KiCad page (the page grows only right and down)
+        r_rot = max(x for x in (rotor.outline_radius, rotor.r_out + max(0.0, rotor.mask_expansion or 0.0))
+                    if x is not None)
+        if (rotor.cx - r_rot - ew / 2 < margin or rotor.cy - r_rot - ew / 2 < margin) and r_rot > R:
+            rep.conflict(("CENTER_X_MM", "CENTER_Y_MM", "ROTOR_CUSTOM_OUTLINE_RADIUS_MM" if rotor.mode == "custom"
+                          else "OUTER_EDGE_RADIUS_MM"), f"the rotor board (radius {r_rot:g} mm at {rotor.cx:g}, "
+                         f"{rotor.cy:g}) comes within {margin:g} mm of the top or left edge of the KiCad page (the "
+                         f"drawing frame); in normal mode it is still written, but it crosses the frame (in strict mode "
+                         f"nothing is written). Raise the centre to at least {math.ceil(r_rot + ew / 2 + margin):g}",
+                         level="warning")
         # a solder-mask opening that reaches the bore or the outline is cut off by the board edge
         e_mask = getattr(rotor, "mask_expansion", None)
         if e_mask:
@@ -401,17 +419,20 @@ def check_design(P, stator, rotor=None):
                              f"an overhang of {cut[0]:g} mm does not fit: the rotor copper must stay "
                              f"{P.ROTOR_AUTO_EDGE_CLEARANCE_MM:g} mm inside the board outline, so it ends {cut[1]:+.2f} mm "
                              f"past the outermost TX turn", level="warning")
-            # an edge that was asked for with ROTOR_AUTO_EXTENSION_INNER_MM / _OUTER_MM but had to be cut back
-            for side, name, other, cut, why in (
-                    ("inner", "ROTOR_AUTO_EXTENSION_INNER_MM", "ROTOR_AUTO_EDGE_CLEARANCE_MM", getattr(rotor, "cut_in", None),
-                     f"{P.ROTOR_AUTO_EDGE_CLEARANCE_MM:g} mm from the bore"),
-                    ("outer", "ROTOR_AUTO_EXTENSION_OUTER_MM", "ROTOR_AUTO_TX_CLEARANCE_MM", getattr(rotor, "cut_out", None),
-                     f"{getattr(P, 'ROTOR_AUTO_TX_CLEARANCE_MM', '?')} mm inside the TX ring")):
+            # an edge that was asked for (ROTOR_AUTO_EXTENSION_INNER_MM / _OUTER_MM, or ROTOR_AUTO_EXTENSION_MM) but had
+            # to be cut back
+            for side, other, cut, why, name in (
+                    ("inner", "ROTOR_AUTO_EDGE_CLEARANCE_MM", getattr(rotor, "cut_in", None),
+                     f"{P.ROTOR_AUTO_EDGE_CLEARANCE_MM:g} mm from the bore", getattr(rotor, "cut_in_name", None)),
+                    ("outer", "ROTOR_AUTO_TX_CLEARANCE_MM", getattr(rotor, "cut_out", None),
+                     f"{getattr(P, 'ROTOR_AUTO_TX_CLEARANCE_MM', '?')} mm inside the TX ring",
+                     getattr(rotor, "cut_out_name", None))):
                 if cut is not None and cut[0] - cut[1] > 0.01:             # (less than 10 um is not worth a warning)
                     asked, allowed = cut
                     rep.conflict((name, other), f"an extension of {asked:g} mm does not fit: the copper must stay {why}, "
-                                 f"so at the {side} edge it reaches {allowed:+.2f} mm past the RX band and the rotor is "
-                                 f"made with that", level="warning")
+                                 f"so at the {side} edge it reaches {allowed:+.2f} mm past the RX band and the rotor "
+                                 f"copper is cut back to that (in normal mode the boards are still written)",
+                                 level="warning")
             # copper that stops far short of the RX band leaves part of the receiver uncovered
             gap = float(P.AIR_GAP_MM)
             for side, ext in (("inner", rotor.ext_in), ("outer", rotor.ext_out)):

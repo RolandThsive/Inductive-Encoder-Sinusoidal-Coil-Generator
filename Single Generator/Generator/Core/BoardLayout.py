@@ -62,7 +62,8 @@ def resolve(get, room):
     Returns dict(ri, ro, hole, outer_edge, mode, inner_from, outer_from):
       ri, ro       the RX band (mm)
       hole         the centre-hole radius (mm)
-      outer_edge   OUTER_EDGE_RADIUS_MM, or None = calculated later from the finished stator (as before)
+      outer_edge   OUTER_EDGE_RADIUS_MM, or None = calculated later from the finished stator (StatorAssembly.Stator:
+                   the largest of the OUTER_EDGE_OFFSET_MM, tail and finger rules)
       mode         "radii" | "centre" | "board"
       inner_from / outer_from   "band" (the edge follows the band), "both" (both given) or "edge" (the band follows
                                 the edge)
@@ -119,8 +120,8 @@ def resolve(get, room):
             raise ParameterConflict(EDGES, f"the board is too small for an RX band: from the board edges it would run "
                                     f"from r = {ri:g} (inner edge {e_in:g} + INNER_EDGE_INSET_MM {inset:g}) to r = {ro:g} "
                                     f"(outer edge {e_out:g} - {e_out - ro:g} mm for the TX turns, the TX tail, the "
-                                    f"fingers and the margins). Enlarge the board, or lower INNER_EDGE_INSET_MM, "
-                                    f"TX_TURNS, TX_PITCH_MM, TX_TAIL_EXTRA_MM or OUTER_EDGE_OFFSET_MM")
+                                    f"fingers and the margins). Enlarge the board, or lower INNER_EDGE_INSET_MM, or "
+                                    f"{_room_names(get)}")
 
     band_txt = {"radii": "INSIDE_RADIUS_MM / OUTSIDE_RADIUS_MM", "centre": "RX_R_BASE_MM / RX_A_MM"}.get(mode)
     # ---- inner side
@@ -154,8 +155,7 @@ def resolve(get, room):
                                     f"the outer board edge ({e_out:g} mm) is too small for the RX band ending at r = "
                                     f"{ro:g} mm: the TX turns, the TX tail, the fingers and the margins need the edge "
                                     f"at r = {need:g} mm or more. Set {band_txt} to None to fit the band to the board, "
-                                    f"raise OUTER_EDGE_RADIUS_MM, move the RX band in, or lower OUTER_EDGE_OFFSET_MM / "
-                                    f"OUTER_EDGE_TAIL_MARGIN_MM")
+                                    f"raise OUTER_EDGE_RADIUS_MM, move the RX band in, or lower {_room_names(get)}")
     return dict(ri=float(ri), ro=float(ro), hole=float(hole), outer_edge=outer_edge, mode=mode,
                 inner_from=inner_from, outer_from=outer_from)
 
@@ -207,6 +207,24 @@ def goaround_dims(P):
     tip_off = bracket_off[-1] + tw / 2.0 + rw / 2.0 + clr + 0.2
     return dict(T=T, g=g, dg=dg, g0=g0, via_off=via_off, bracket_off=bracket_off, reach=reach, tip_off=tip_off,
                 vr=vr, tw=tw, clr=clr, s=s)
+
+
+def _room_names(get):
+    """The parameters of the term that decides outer_edge_room (the largest one), for the advice in a message."""
+    every = ("OUTER_EDGE_OFFSET_MM, OUTER_EDGE_TAIL_MARGIN_MM, RX_TAB_LENGTH_MM, TX_OFFSET_MM, TX_TURNS, TX_PITCH_MM "
+             "or TX_TAIL_EXTRA_MM")
+    try:
+        margin = float(get("OUTER_EDGE_TAIL_MARGIN_MM"))
+        terms = [(float(get("OUTER_EDGE_OFFSET_MM")), "OUTER_EDGE_OFFSET_MM"),
+                 (float(get("TX_OFFSET_MM")) + float(get("TX_TURNS")) * float(get("TX_PITCH_MM"))
+                  + float(get("TX_TAIL_EXTRA_MM")) + margin,
+                  "TX_OFFSET_MM, TX_TURNS, TX_PITCH_MM, TX_TAIL_EXTRA_MM or OUTER_EDGE_TAIL_MARGIN_MM (the TX tail)")]
+        if str(get("RX_TABS")).lower() in ("all", "single"):
+            terms.append((float(get("RX_TAB_LENGTH_MM")) + float(get("RX_TRACE_WIDTH_MM")) / 2.0 + margin,
+                          "RX_TAB_LENGTH_MM or OUTER_EDGE_TAIL_MARGIN_MM (the fingers)"))
+    except (TypeError, ValueError):
+        return every
+    return max(terms)[1]
 
 
 def outer_edge_room(P):

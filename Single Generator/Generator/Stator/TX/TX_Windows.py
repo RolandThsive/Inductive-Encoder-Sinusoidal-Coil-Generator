@@ -43,10 +43,14 @@ def tx_geometry(tx, check=True):
     back = plan["span"] / r0 if plan is not None else 0.0          # the steps, behind the terminal
     tail_lo = -back - (tw / 2.0 + clr) / r0
     tail_hi = 0.15 * step + (vr + clr) / r0
-    if plan is not None:
-        # the terminal via moved inwards (TX_INSIDE_VIA_DISTANCE_MM) and its run down from the first turn
-        dv = abs(float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM", 0.0)))
-        tail_hi = max(tail_hi, (vr + dv / math.tan(plan["theta"]) + tw / 2.0 + clr) / r0)
+    if tx.tx_shape != "arc":
+        # the terminal via moved inwards (TX_INSIDE_VIA_DISTANCE_MM) and its run down from the first turn, at the
+        # slope TX_Terminal.shift_terminal_via uses (every shape but "stepped_arc", which keeps the via on the turn)
+        dv = abs(float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM", TX_Shapes.DEFAULT_INSIDE_VIA_DISTANCE_MM)))
+        ext = (vr + dv / math.tan(TX_Shapes.ramp_angle(tx)) + tw / 2.0 + clr) / r0
+        tail_hi = max(tail_hi, ext)
+        if tx.tx_mode == "series":                     # the mirrored layer ramps the other way
+            tail_lo = min(tail_lo, -ext)
     if tx.tx_mode == "series" and plan is not None:
         # two mirrored spirals: steps on both sides of the terminal
         span = plan["span"] / r0
@@ -74,23 +78,6 @@ def go_geometry(tx):
     rmin = tx.tx_first_radius - float(P.TX_TRACE_WIDTH_MM) / 2.0
     d["reach_ang"] = math.asin(min(1.0, d["reach"] / rmin))
     return d
-
-
-def window_clear_of_tail(tx, leg_angles):
-    """True when a go-around window around a finger with these leg azimuths (rad, absolute) stays clear of the
-    TX terminal (tail, steps, terminal via)."""
-    g = tx_geometry(tx, check=False)
-    rot = math.radians(tx.start())
-    rel = [((a - rot + math.pi) % (2.0 * math.pi)) - math.pi for a in leg_angles]
-    lo, hi = min(rel), max(rel)
-    if hi - lo > math.pi:                                     # (the two legs straddle the +-pi line)
-        lo, hi = hi, lo + 2.0 * math.pi
-    R = go_geometry(tx)["reach_ang"] if tx.tx_goaround else g["reach"] / g["r0"]
-    t_lo, t_hi = g["tail"]
-    for shift in (-2.0 * math.pi, 0.0, 2.0 * math.pi):
-        if lo - R + shift < t_hi and hi + R + shift > t_lo:
-            return False
-    return True
 
 
 def no_room(tx):

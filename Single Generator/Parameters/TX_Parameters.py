@@ -55,7 +55,8 @@ TX_STEPPED_ANGLE_DEG = 45
 #   to the first turn, or the two spirals of a series TX).  0 = on the trace ends - only one pitch from the
 #   next turn, which with a 0.8 mm via and a 0.6 mm pitch is closer than MIN_CLEARANCE_MM.  A positive value moves it that far towards the centre (a negative one: away from
 #   it); every turn that starts at the terminal then leaves its circle a little earlier and runs down to
-#   the via at the slope of the TX's own steps, with a short flat piece into the via.  Keep it below
+#   the via at the slope of the TX's own steps (TX_STEPPED_ANGLE_DEG for "stepped_diagonal"; 45 deg for "spiral"),
+#   with a short flat piece into the via.  Keep it below
 #   TX_OFFSET_MM - via radius - half an RX trace - MIN_CLEARANCE_MM (0.4 mm with the defaults), or the
 #   via comes too close to the RX coils.  The generator measures it and warns.
 #   Not used by "stepped_arc" (its via always sits on the first turn, at the centre of the arcs).
@@ -78,7 +79,8 @@ TX_INSIDE_VIA_DISTANCE_MM = 0.3
 #                is the spiral that runs inwards from the terminal, TX_LAYER_B the one that runs back out.
 #   "parallel" : the same turns on TX_LAYER_A and TX_LAYER_B in parallel, stitched together through
 #                vias around the TX terminal: about 6 % more receiver signal than the Top layer alone
-#                and twice the Q in the model.  Put TX_LAYER_A on the Top layer.
+#                and about 1.2 - 1.4x the Q in the model (half the resistance, but also a lower inductance;
+#                the exact ratio depends on the board thickness).  Put TX_LAYER_A on the Top layer.
 # TX_LAYER_A / TX_LAYER_B : 1 = Top, 2 = Inner 1, 3 = Inner 2, 4 = Bottom (a 2-layer board has 1
 #   and 4); they must differ.  Examples:
 #     TX_WIRING = "single", TX_LAYER_A = 4                  : on the Bottom layer, the inner tail on the
@@ -97,7 +99,8 @@ TX_INSIDE_VIA_DISTANCE_MM = 0.3
 #        away than the inner ones, a staircase - and runs straight out, parallel to the finger, to a
 #        via just outside the TX ring.  On another layer a bracket (the innermost turn on the innermost
 #        bracket) carries it around the end of the finger to the matching via on the other side.  The
-#        finger runs out past the outermost bracket, so the board grows by about 2 mm.
+#        fingers must reach past the outermost bracket (about 2 mm longer with the defaults; the checker
+#        gives the minimum RX_TAB_LENGTH_MM), which can push the outer board edge out.
 #   "stitched" (parallel TX only): the turns on the finger's layer stop at a via on each side
 #        of the finger and the turns of the other layer carry the current past it.
 # All TX turns are one net, so KiCad's DRC cannot see a via touching another turn: the

@@ -1,1 +1,0 @@
-python3: can't open file '/tmp/claude-0/-home-claude/7a5d8bfd-82dd-5b70-8847-c87e925b4716/scratchpad/v18/Sinusoidal_Coil_Generator/Single Generator/Generator/harness18.py': [Errno 2] No such file or directory
