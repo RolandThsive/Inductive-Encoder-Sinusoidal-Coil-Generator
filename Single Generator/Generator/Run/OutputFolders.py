@@ -15,7 +15,7 @@ Every generation gets its own folder inside OUTPUT_DIR (Board_Parameters.py; "Ou
     TX wiring             Single, Series or Parallel (TX_WIRING)
     TX shape              SteppedDiagonal, SteppedArc or Spiral (TX_SHAPE)
 
-for example  Coil_36.8_56.6_8_1_3_Single_SteppedDiagonal.  If that folder already exists, the next free one of
+for example  Coil_15_27_1_1_3_Single_SteppedDiagonal.  If that folder already exists, the next free one of
 Coil_..._SteppedDiagonal__1, Coil_..._SteppedDiagonal__2, ... is used, so nothing is ever overwritten.
 
 A relative OUTPUT_DIR is taken from the "Single Generator" folder (the one that holds Parameters, Generator, ...), not
@@ -74,21 +74,17 @@ def folder_name(stator, P):
 
 
 def project_folder():
-    """The "Single Generator" folder (it holds Parameters, Generator and Output), or None when every
-    file sits in one folder."""
-    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    return root if os.path.isdir(os.path.join(root, "Parameters")) and os.path.isdir(os.path.join(root, "Generator")) \
-        else None
+    """The "Single Generator" folder (it holds Parameters, Generator and Output).  This module is always
+    Generator/Run/OutputFolders.py inside it."""
+    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def output_dir(P):
-    """OUTPUT_DIR as a usable path: an absolute one as it is, a relative one from "Single Generator" (from the
-    current folder when every file sits in one folder)."""
+    """OUTPUT_DIR as a usable path: an absolute one as it is, a relative one from "Single Generator"."""
     d = os.path.expanduser(str(P.OUTPUT_DIR))
     if os.path.isabs(d):
         return d
-    root = project_folder()
-    return os.path.normpath(os.path.join(root, d)) if root else d
+    return os.path.normpath(os.path.join(project_folder(), d))
 
 
 def create_output_folder(stator, P):
@@ -119,8 +115,7 @@ def remove_if_empty(folder):
 
 def _parameter_dir(P):
     """Folder of the parameter files (next to Parameters.py)."""
-    f = getattr(P, "__file__", None)
-    return os.path.dirname(os.path.abspath(f)) if f else os.getcwd()
+    return os.path.dirname(os.path.abspath(P.__file__))
 
 
 def _values_by_file(P, stator=None):

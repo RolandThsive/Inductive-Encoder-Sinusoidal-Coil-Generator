@@ -33,23 +33,27 @@ from Generator.Core.Geometry import point_segments_distance, chord_tolerance
 RISING, FALLING = 0, 1          # edge classes (radius grows / shrinks with angle)
 
 
-def pick_steps(rx):
-    P = rx.P
-    if P.STEPS_PER_LOOP != "auto":
-        return int(P.STEPS_PER_LOOP)
-
-    def point(t, S):
+def chord_error(rx, S):
+    """Largest distance (mm) between an RX curve and its chords with S chords per loop: rx needs radius(s) (the radius
+    law, RX_Profiles.radius_law) and L (one loop, rad).  Used by pick_steps and by ConflictRules."""
+    def point(t):
         xi = 2.0 * math.pi * t / S
         r = rx.radius(np.sin(xi))
         phi = rx.L * t / S
         return np.stack([r * np.cos(phi), r * np.sin(phi)], axis=-1)
+    i = np.arange(S, dtype=float)
+    p0, p1, pm = point(i), point(i + 1), point(i + 0.5)
+    return float(np.max(np.hypot(*(pm - 0.5 * (p0 + p1)).T)))
 
+
+def pick_steps(rx):
+    P = rx.P
+    if P.STEPS_PER_LOOP != "auto":
+        return int(P.STEPS_PER_LOOP)
     err = None
     tol = chord_tolerance(P, "RX")
     for S in range(48, 1025, 8):
-        i = np.arange(S, dtype=float)
-        p0, p1, pm = point(i, S), point(i + 1, S), point(i + 0.5, S)
-        err = float(np.max(np.hypot(*(pm - 0.5 * (p0 + p1)).T)))
+        err = chord_error(rx, S)
         if err <= tol:
             return S
     # the limit of 1024 chords per loop was reached without meeting the tolerance
@@ -127,8 +131,9 @@ def assign_layers(rx):
     rx._jvias = []                  # (x, y) of every junction via placed so far
     rx._windows = [[] for _ in range(rx.ncurves)]   # reserved node ranges per curve
     # 1) inside every sub-coil: the antiphase pair (phase 0/2 or 1/3) at mid radius.
-    #    The two coils get their junction on opposite sides of the board so the
-    #    junction vias of different nets can never meet.
+    #    Coil B's junction is placed about half a turn from coil A's (LOOPS // 2 loops on, plus the quarter period
+    #    between the coils), so the junction vias of different nets stay apart; for LOOPS = 1 they are only a
+    #    quarter turn apart, for LOOPS = 2 about 135 deg.
     for sub in range(rx.n_sub):
         for kp, km, loop_pref in ((0, 2, 0), (1, 3, N // 2)):
             plus, minus = curve_index(rx, sub, kp), curve_index(rx, sub, km)
@@ -143,11 +148,13 @@ def assign_layers(rx):
                     done = True
                     break
             if not done:
-                raise ParameterConflict(("LOOPS", "RX_SUBCOILS", "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM"),
+                raise ParameterConflict(("LOOPS", "RX_SUBCOILS", "RX_TRACE_WIDTH_MM", "VIA_DIAMETER_MM",
+                                         "MIN_CLEARANCE_MM"),
                                         "the junction vias that join the two strands of a coil do not fit between "
-                                        "the curves with the required clearance (VIA_DIAMETER_MM + MIN_CLEARANCE_MM): "
-                                        "fewer loops or sub-coils, a wider RX band, smaller vias or a smaller "
-                                        "clearance give them room")
+                                        "the curves with the required clearance (half a via + half an RX trace + "
+                                        "MIN_CLEARANCE_MM from the other strand, and MIN_CLEARANCE_MM between the two "
+                                        "vias): fewer loops or sub-coils, a wider RX band, smaller vias, narrower RX "
+                                        "traces or a smaller clearance give them room")
     # 2) between neighbouring sub-coils of one coil: join "plus" of sub-coil s
     #    with "minus" of sub-coil s+1 (an antiphase partner, so the signals ADD)
     for sub in range(rx.n_sub - 1):
@@ -162,9 +169,16 @@ def assign_layers(rx):
                     placed = True
                     break
             if not placed:
-                raise ParameterConflict(("RX_SUBCOILS", "RX_SUBCOIL_SPLIT_ELEC_DEG", "LOOPS"),
+                raise ParameterConflict(("RX_SUBCOILS", "RX_SUBCOIL_SPLIT_ELEC_DEG", "RX_VIA_ELECTRICAL_DEG", "LOOPS"),
                                         "no crossing of neighbouring sub-coils is clear enough for the via that joins "
-                                        "them: raise the split, use fewer loops or sub-coils, or a wider RX band")
+                                        "them.  The junction stub must end before the tip via of its lobe and keep "
+                                        "clear of the other phases, so it fits only when RX_VIA_ELECTRICAL_DEG is "
+                                        "near 90 (with 2 sub-coils about 45 + split / 2 ... 135 - split / 2, less a "
+                                        "few degrees for the stub).  Bring RX_VIA_ELECTRICAL_DEG closer to 90 or "
+                                        "lower the split (a wider RX band does not widen that range).  A large split "
+                                        "can fail at every angle: with the default band, 0.8 mm vias and 0.2 mm "
+                                        "traces and clearance it fits up to a split of about 47; a wider RX band, "
+                                        "smaller vias, narrower RX traces or a smaller clearance give room for more")
 
 # -- helpers for junctions ------------------------------------------------
 
