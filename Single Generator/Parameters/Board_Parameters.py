@@ -91,5 +91,5 @@ EXCITATION_FREQ_HZ   = 3.5e6        # TX oscillator frequency aimed for, with th
 # =============================================================================
 RECEIVER_IC          = "IPS2550"    # the IC the coil is checked against: "IPS2550", "IPS2200", or None
                                     # (no checks).  Its oscillator range and minimum tank resistance are
-                                    # taken from the Renesas datasheets.
+                                    # taken from the IC datasheets.
 COPPER_THICKNESS_UM  = 35           # stator copper thickness in micrometres (35 = 1 oz): TX resistance and Q
