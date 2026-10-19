@@ -2,7 +2,8 @@
 
 - A **stator loop** is one full electrical period: one sine wave of the RX coils around the board.
 - A **rotor lobe** is one copper sector on the rotor. The rotor must have as many lobes as the
-  stator has loops (a custom rotor with another count gets a warning).
+  stator has loops (a custom rotor with another count gets a warning). Lobe can also mean half an
+  RX period (see the [Glossary](Glossary.md)).
 - The receiver IC reports the angle within one electrical period. With N loops, that period covers
   360°/N of mechanical rotation.
 

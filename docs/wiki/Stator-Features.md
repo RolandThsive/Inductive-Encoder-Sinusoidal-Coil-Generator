@@ -70,7 +70,7 @@ Q of the oscillator tank; fewer turns leave more room for the RX band.
 
 With two TX layers the turns can be wired in **series** (two spirals joined by a via at the inner
 end, carrying current in the same direction) or in **parallel** (the same turns on both layers,
-joined through vias). In the analyser's model a parallel TX gives about 6 % more signal than a TX on Top alone. In the
+joined through vias). A parallel TX gives about 6 % more signal than a TX on Top alone (Analyser figure, to be verified). In the
 electrical estimate its Q is only about 1.3 times higher: the resistance halves, but the inductance drops too.
 
 ![Stator 5: TX Series vs Parallel](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_5_tx_series_parallel.png)
