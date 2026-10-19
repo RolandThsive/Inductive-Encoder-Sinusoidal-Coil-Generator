@@ -1,0 +1,172 @@
+"""
+Dual_Board_Parameters.py  -  the one stator board and the one rotor disc that both coil sets share.
+
+Units: millimetres, degrees, hertz unless a name says otherwise.
+Nothing in this file is computed - edit values only.
+
+The names are the Single Generator's own (Board_Parameters.py, Rotor_Parameters.py) wherever the meaning is the
+same, so the wiki's Parameter Reference applies.  What a dual board fixes is not here at all: PCB_LAYERS (always 4),
+the RX fingers (none), the TX tails (none) and the TX wiring (always series).  What each coil set has for itself
+(its IC, its excitation frequency, its RX band, its TX ring, its rotor ring) is in the Dual_RX1 / RX2, TX1 / TX2 and
+Rotor1 / Rotor2 files.
+"""
+
+# =============================================================================
+# OUTPUT
+# =============================================================================
+# Dual_RunCoilGenerator.py makes a NEW folder inside OUTPUT_DIR for every run:
+#     DualCoil_<bore radius>_<outline radius>_<set 1 loops>x<set 2 loops>_<set 1 TX turns>x<set 2 TX turns>
+# e.g. DualCoil_8.5_29.5_1x16_2x3; if it exists already: ..._2x3__1, __2, ...
+# It holds the two boards below and Parameters.txt (every value used for that run).
+# "Output" = the Output folder in "Dual Generator" (next to Parameters and Dual_Generator), whatever folder
+# you run the program from.  A relative path is always taken from "Dual Generator"; a full path
+# (e.g. "C:/Boards") is used as it is.
+OUTPUT_DIR   = "Output"             # folder in which the DualCoil_... folders are made
+STATOR_FILE  = "Stator.kicad_pcb"   # file names inside each DualCoil_... folder
+ROTOR_FILE   = "Rotor.kicad_pcb"
+# GENERATOR_MODE = what a clearance warning on the finished boards does (any letter case):
+#   "normal" : a gap smaller than MIN_CLEARANCE_MM is a warning; the boards are written.
+#   "strict" : every such warning is an error; nothing is written.
+# Copper that overlaps copper of another net (a short) is always an error, and so is copper of one
+# set inside the other set's ring.  Warnings about the parameters themselves stay warnings in both modes.
+GENERATOR_MODE = "normal"
+
+CENTER_X_MM  = 100.0                # sensor axis position on the KiCad page
+CENTER_Y_MM  = 100.0
+PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
+
+
+# =============================================================================
+# STATOR BOARD  (always 4 copper layers: 1 = Top, 2 = Inner 1, 3 = Inner 2, 4 = Bottom)
+# =============================================================================
+# Via / copper-to-copper rules the generator must respect when it places vias.  Through vias go
+# through every layer, so a via of one set is checked against the copper of the other set on every layer.
+VIA_DIAMETER_MM   = 0.6             # (the Single Generator's example uses 0.8 / 0.4; the Renesas dual boards use
+VIA_DRILL_MM      = 0.3             #  0.6 / 0.3, which leaves room in the inner set's tight TX ring)
+MIN_CLEARANCE_MM  = 0.2
+
+# ---- board edges (Edge.Cuts circles) and the gap between the sets ----------
+# From the centre out, the stator is:
+#     bore | RX1 band | TX1 ring | TRACK_GAP_MM | RX2 band | TX2 ring | outline
+# Which of these you give and which the generator computes is one of FOUR MODES, detected from what is set:
+#
+#   Mode 1  TRACK_GAP_MM and both edges set, both RX bands None (Dual_RX1 / RX2: all four radii None)
+#           -> both bands are fitted between the edges; BAND_SPLIT shares the free width between them
+#   Mode 2  both RX bands set, TRACK_GAP_MM and both edges None
+#           -> bore and outline come from the bands; the gap is measured and reported
+#   Mode 3  ONE RX band set and TRACK_GAP_MM set, the other band and both edges None
+#           -> the other band is placed across the gap with the same half width (RX_A_MM); then as mode 2
+#   Mode 4  both RX bands and both edges set, TRACK_GAP_MM None
+#           -> everything as given; each edge is checked for room; the gap is measured and reported
+#
+# Anything else is an error that names the four modes.  Both edges go together: one set and the other None
+# is an error in every mode.
+INNER_EDGE_RADIUS_MM  = 8.5         # the centre hole.  Must sit INNER_EDGE_INSET_MM inside the RX1 band.
+OUTER_EDGE_RADIUS_MM  = 29.5        # the board edge.  Must leave OUTER_EDGE_OFFSET_MM past the RX2 band, and
+                                    # OUTER_EDGE_TAIL_MARGIN_MM past the TX2 ring.
+INNER_EDGE_INSET_MM   = 1.2         # bore = RX1 band start - this (the RX1 inner-tip vias sit on the band start)
+OUTER_EDGE_OFFSET_MM  = 2.0         # outline = RX2 band end + this, at least
+OUTER_EDGE_TAIL_MARGIN_MM = 0.7     # outline = TX2 ring end + this, at least (there is no tail: the ring ends one
+                                    # pitch outside the last turn, where the two TX ends sit)
+EDGE_LINE_WIDTH_MM    = 0.05
+
+# TRACK_GAP_MM = the copper-free ring between the two sets: from the outermost copper of set 1 (the ends of its
+# TX1 ring, half a trace past one pitch outside the last turn) to the innermost copper of set 2 (the RX2 band
+# start minus half an RX trace or a via radius, whichever is larger).  The TX rooms come from the Single
+# Generator's own TX ring formula and are verified on the built copper.
+#   Modes 1 and 3: the gap to leave.  Modes 2 and 4: must be None; the measured gap must be at least
+#   MIN_CLEARANCE_MM.
+#   What the gap does NOT do: it is not what isolates the two sets.  A balanced RX band sees no net flux from a
+#   round TX ring, however close; the residual TX1 -> RX2 coupling comes from asymmetry (the exits, the vias,
+#   layer misregistration) and falls only slowly with distance (no published measurement of coupling against
+#   track gap exists; the Renesas dual boards leave 1.1 ... 1.4 mm between the two RX bands, all of it TX
+#   turns).  Keep the gap for the copper clearance and the solder mask; what keeps the fine track clean is the
+#   distance from ring 1 of the rotor to the RX2 band (ROTOR_1_TO_RX2_MM below).
+TRACK_GAP_MM = 0.5
+
+# BAND_SPLIT (mode 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths.  The Renesas
+# 1x/16x boards are near 0.5 (6.1 and 6.4 mm); their 1x/32x board is near 0.35 (5.4 and 10 mm).
+BAND_SPLIT = 0.5
+
+
+# =============================================================================
+# TX TERMINALS
+# =============================================================================
+# Each set is turned on its own so that its TX ends (there is no tail: the two ends of the series TX sit one
+# pitch outside the last turn, on TX_LAYER_A and TX_LAYER_B) end up at this angle.  Different angles keep the
+# two sets' breakouts apart.  The RX pattern's zero of each set lands wherever the turn puts it; the record
+# file prints both.
+TERMINAL_1_DEG = 180.0              # set 1 (inner)
+TERMINAL_2_DEG = 0.0                # set 2 (outer)
+
+# The two TX oscillators run free at their own EXCITATION_FREQ_HZ (Dual_TX1 / TX2).  Nobody publishes a dual
+# board with two free-running carriers over one coil area: Renesas' own 1x + 16x board (CN317) drives ONE tank
+# and sets the second IC's TX current to zero; onsemi (AND90299) couples two tanks so that they lock to one
+# frequency and phase.  If the two tanks here are driven separately, the IC's switching demodulator mixes the
+# other carrier down to |f2 - n*f1|, and the AGC sees both carriers, so:
+#   - the two frequencies must differ by at least this fraction of the lower one (0.2 = 20 %, the figure TI
+#     gives for neighbouring LDC sensors; closer is a warning), and
+#   - they must not sit on a small integer ratio (3.0 / 4.5 MHz = 2:3 puts the 2nd harmonic of TX2 onto the
+#     3rd harmonic of IC1's demodulator; 3.0 / 4.3 MHz does not): a ratio within 2 % of p:q with p, q <= 4
+#     is a warning.
+# Pulling the two tanks onto each other (injection locking) is not the risk: the lock range is about
+# f0 * k / (2 Q), a few tens of kHz for coupling k < 0.3, nowhere near 1 MHz.
+TX_FREQ_SEPARATION_MIN = 0.2
+
+
+# =============================================================================
+# STACK-UP AND AIR GAP  (the rotor, the electrical estimate)
+# =============================================================================
+AIR_GAP_MM           = 1.0          # stator top copper -> rotor copper (one rotor, one air gap)
+PCB_THICKNESS_MM     = 1.6          # stator board thickness
+COPPER_THICKNESS_UM  = 35           # stator copper thickness in micrometres (35 = 1 oz): TX resistance and Q
+
+
+# =============================================================================
+# ROTOR DISC  (one disc, two rings of metal sectors; the rings are set in Dual_Rotor1 / Rotor2)
+# =============================================================================
+# ROTOR_MODE, once for the disc:
+#   "according_to_stator" : each ring follows its own set: LOOPS sectors, radial extent from the set's RX band
+#                           and TX ring (the ROTOR_AUTO_* values in Dual_Rotor1 / Rotor2); the disc's bore and
+#                           outline are the stator's
+#   "custom"              : each ring from its ROTOR_CUSTOM_* values; the disc's edges from the two lines below
+ROTOR_MODE = "according_to_stator"
+ROTOR_AUTO_EDGE_CLEARANCE_MM = 0.5  # according_to_stator: ring copper stays this far from the bore and the outline
+ROTOR_CUSTOM_OUTLINE_RADIUS_MM  = 29.5   # custom: outer edge of the disc (None = no outline)
+ROTOR_CUSTOM_BORE_RADIUS_MM     = 8.5    # custom: centre hole (None = no hole)
+
+# ROTOR_TRACK_GAP_MM = the bare ring that must stay between ring 1's outer radius and ring 2's inner radius
+# (an error when smaller, naming the extension to change).  The Renesas dual boards keep 2.3 ... 3.0 mm.  It is
+# a proxy: the quantity that matters is how far each ring's metal stays from the OTHER set's RX band, below.
+ROTOR_TRACK_GAP_MM = 2.0
+
+# ROTOR_1_TO_RX2_MM = the least distance from ring 1's outer radius to the innermost RX2 copper (a warning
+# when smaller).  Ring 1 is the dangerous one: a 1x target is a half moon, so any of its field reaching the
+# RX2 band modulates the fine signal once per turn, a first-harmonic error that no fine-track calibration
+# removes (Melexis: nearby metal "causes a first-order harmonic on the measured angle").  Renesas' layout
+# rule for any copper near a coil is 3 mm, 5 mm if the design allows; its shielded-design note measures 12 %
+# of the RX voltage left with copper 0.9 mm from a coil and 45 % at 2.6 mm.  The reference 1x/16x boards sit
+# at about 3 mm.  Use 5.0 when the radius allows it.
+ROTOR_1_TO_RX2_MM = 3.0
+
+# ROTOR_2_TO_RX1_MM = the least distance from ring 2's inner radius to the outermost RX1 copper (a warning
+# when smaller).  Ring 2 near the coarse band only adds a ripple at LOOPS of set 2 per turn, which a 1x RX
+# rejects by symmetry and the coarse decision averages out, so it may come closer than ring 1 may.
+ROTOR_2_TO_RX1_MM = 2.0
+
+ROTOR_PCB_THICKNESS_MM = None   # thickness of the rotor disc written into the KiCad file (mm); None = the
+                                # stator's PCB_THICKNESS_MM.  It changes nothing in the copper.
+
+# Points on every circular arc of a rotor sector:
+#   ROTOR_ARC_STEPS_PER_SECTOR = "auto" : as many as ROTOR_CHORD_TOLERANCE_MM needs (at least 8)
+#   ROTOR_ARC_STEPS_PER_SECTOR = number : that many (8 ... 5000).
+# ROTOR_CHORD_TOLERANCE_MM = how far the polygon may lie outside the true circle: 0.001 mm = 1 micron, also the
+#   smallest value allowed.
+ROTOR_ARC_STEPS_PER_SECTOR = "auto"
+ROTOR_CHORD_TOLERANCE_MM   = 0.001
+
+# Solder mask expansion over the rotor copper, the same for every ring and layer:
+#   0.05  the opening is 0.05 mm wider than the copper on every side
+#   0     the opening is exactly the copper outline
+#   -1    no opening: the solder mask stays over the copper
+ROTOR_SOLDER_MASK_EXPANSION_MM = 0.05

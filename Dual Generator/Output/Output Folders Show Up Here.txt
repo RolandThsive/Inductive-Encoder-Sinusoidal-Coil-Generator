@@ -1,0 +1,1 @@
+Every run of Dual_RunCoilGenerator.py makes a new DualCoil_... folder here.
