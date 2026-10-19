@@ -114,8 +114,9 @@ PAGE_GAP_MM = 3.0                   # free space between the board and the frame
 def page_size(P, cx, cy, radius):
     """KiCad page size (width, height, mm) for a round board of `radius` (its outer edge) centred at (cx, cy) on the
     page: at least PAGE_SIZE_MM, grown (right and down, so the board keeps its position) until the board stays
-    PAGE_GAP_MM clear of the drawing frame and of the title block.  Of the sizes that do that, the one with the
-    smallest area."""
+    PAGE_GAP_MM clear of the right and bottom side of the drawing frame and of the title block.  Of the sizes that do
+    that, the one with the smallest area.  Only the right and bottom sides are handled: the top and left side
+    depend on CENTER_X_MM / CENTER_Y_MM, which DesignChecks.check_design checks (for the stator and the rotor)."""
     w0, h0 = (float(v) for v in P.PAGE_SIZE_MM)
     R = float(radius) + float(P.EDGE_LINE_WIDTH_MM) / 2.0 + PAGE_GAP_MM
     fr = SHEET_FRAME_MM

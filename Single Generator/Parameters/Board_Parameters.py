@@ -12,7 +12,7 @@ Nothing in this file is computed - edit values only.
 #     Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_<TX wiring>_<TX shape>
 #     TX wiring = Single (one TX layer), Series or Parallel (two TX layers);
 #     TX shape  = SteppedDiagonal, SteppedArc or Spiral (TX_SHAPE)
-# e.g. Coil_36.8_56.6_8_1_3_Single_SteppedDiagonal; if it exists already: ..._SteppedDiagonal__1, __2, ...
+# e.g. Coil_15_27_1_1_3_Single_SteppedDiagonal; if it exists already: ..._SteppedDiagonal__1, __2, ...
 # It holds the two boards below and Parameters.txt (every value used for that run).
 # "Output" = the Output folder in "Single Generator" (next to Parameters and Generator), whatever
 # folder you run the program from.  A relative path is always taken from "Single Generator"; a full path
@@ -20,8 +20,9 @@ Nothing in this file is computed - edit values only.
 OUTPUT_DIR   = "Output"             # folder in which the Coil_... folders are made
 STATOR_FILE  = "Stator.kicad_pcb"   # file names inside each Coil_... folder
 ROTOR_FILE   = "Rotor.kicad_pcb"
-# GENERATOR_MODE = what a clearance warning on the finished boards does (any letter case):
-#   "normal" : a gap smaller than MIN_CLEARANCE_MM is a warning; the boards are written.
+# GENERATOR_MODE = what a warning about the finished boards (clearances, outline, page, rotor) does
+# (any letter case):
+#   "normal" : it stays a warning; the boards are written.
 #   "strict" : every such warning is an error; nothing is written.
 # Copper that overlaps copper of another net (a short) is always an error.  Warnings about the
 # parameters themselves (ranges, estimates) stay warnings in both modes.
@@ -29,7 +30,9 @@ GENERATOR_MODE = "normal"
 
 CENTER_X_MM  = 100.0                # sensor axis position on the KiCad page
 CENTER_Y_MM  = 100.0
-PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
+PAGE_SIZE_MM = (200, 200)           # smallest KiCad "User" page (width, height); grown to the right and down
+                                    # when the board or the title block needs more room.  A board too close to
+                                    # the top or left edge is only warned about (raise CENTER_X_MM / CENTER_Y_MM)
 
 
 # =============================================================================
@@ -38,7 +41,9 @@ PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
 # PCB_LAYERS = number of copper layers of the STATOR board.  Only 2 or 4.
 #   2 : the RX coils use Top and Bottom (the proven layout).
 #   4 : the RX coils use the layers named by RX_LAYER_A / RX_LAYER_B
-#       (see RX_Parameters.py); the TX coil can use two layers (TX_Parameters.py).
+#       (see RX_Parameters.py).
+# With either layer count the TX can use one or two layers (TX_Parameters.py; a 2-layer board
+# offers 1 and 4).
 # All vias are ordinary through-hole vias (no blind / buried vias needed).
 # Keep the layers that carry no coil free of copper pours under the coil area -
 # a plane there acts like an extra target and weakens the signal.

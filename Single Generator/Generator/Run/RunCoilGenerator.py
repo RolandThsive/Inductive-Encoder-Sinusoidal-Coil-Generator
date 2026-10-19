@@ -2,11 +2,14 @@
 RunCoilGenerator.py  -  checks the parameters, then writes the stator and the rotor.
 This is the only program that writes boards.
 
-    python RunCoilGenerator.py              check, then write Stator + Rotor
-    python RunCoilGenerator.py --check      check only, write nothing
-    python RunCoilGenerator.py --stator     only the stator
-    python RunCoilGenerator.py --rotor      only the rotor (needs the stator geometry, but does not write it)
-    python RunCoilGenerator.py --no-color   plain text
+    python Generator/Run/RunCoilGenerator.py              check, then write Stator + Rotor
+    python Generator/Run/RunCoilGenerator.py --check      check only, write nothing (with --stator: as the
+                                                          --stator run, the rotor is not checked)
+    python Generator/Run/RunCoilGenerator.py --stator     only the stator
+    python Generator/Run/RunCoilGenerator.py --rotor      only the rotor (needs the stator geometry, but does not
+                                                          write it)
+    python Generator/Run/RunCoilGenerator.py --no-color   plain text
+(from the "Single Generator" folder)
 
 Colours: red = error (nothing is written), yellow = warning, green = success.
 
@@ -25,7 +28,7 @@ Steps (the chain: every step reads only what the steps before it made)
   6. write the files - only if no step reported an error.  OutputFolders.py makes a new
      folder for every run inside OUTPUT_DIR (the Output folder in "Single Generator"),
          Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_<TX wiring>_<TX shape>
-     e.g. Coil_36.8_56.6_8_1_3_Single_SteppedDiagonal (TX wiring: Single, Series or Parallel; TX shape:
+     e.g. Coil_15_27_1_1_3_Single_SteppedDiagonal (TX wiring: Single, Series or Parallel; TX shape:
      SteppedDiagonal, SteppedArc or Spiral), with __1, __2, ... added when that name exists already, and writes Stator.kicad_pcb,
      Rotor.kicad_pcb and Parameters.txt (every value used, the summaries, the electrical estimate
      and copies of the parameter files) into it.  Nothing is ever overwritten.
@@ -33,7 +36,8 @@ Steps (the chain: every step reads only what the steps before it made)
 All settings are in Board_Parameters.py, RX_Parameters.py, TX_Parameters.py and
 Rotor_Parameters.py (the Parameters folder).  Run it from any folder, e.g. from the "Single Generator" folder:
     python Generator/Run/RunCoilGenerator.py
-(project layout: README.txt in the top folder).
+(project layout: wiki page "Project Output Organization", docs/wiki/Project-Output-Organization.md;
+overview in README.md in the top folder).
 """
 
 import argparse
@@ -158,7 +162,9 @@ def main(argv=None):
     # ---------------------------------------------------------------- 3. rotor
     step(3, total, "Building the rotor")
     try:
-        rotor = RB.RotorDesign(P, stator=stator) if want_rotor or args.check else None
+        # (--stator --check follows the --stator run: the rotor is not built or checked; the estimate in step 4
+        # still builds one for itself)
+        rotor = RB.RotorDesign(P, stator=stator) if want_rotor else None
     except (ValueError, RuntimeError) as e:
         failed = Report()
         failed.add_exception(e)
@@ -212,7 +218,8 @@ def main(argv=None):
             print("  " + Colour.green(f"rotor   -> {path}"))
         path = OF.write_record(folder, P, written, stator=stator, rotor=rotor if want_rotor else None,
                                 electrical_lines=el_record, warnings=warn_texts + list(el_warn),
-                                command="python RunCoilGenerator.py " + " ".join(sys.argv[1:] if argv is None else argv))
+                                command="python Generator/Run/RunCoilGenerator.py "
+                                        + " ".join(sys.argv[1:] if argv is None else argv))
         print("  " + Colour.green(f"record  -> {path}"))
     except OSError as e:
         print("  " + Colour.red(f"ERROR   cannot write: {e}"))

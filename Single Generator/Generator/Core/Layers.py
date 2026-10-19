@@ -1,7 +1,7 @@
 """
 Layers.py  -  the copper layers: their KiCad names, their depth in the board, and which layer carries what
 (the RX coils, the RX fingers, the TX turns, the TX underpass).  Used by the RX and TX builders, the stator
-assembly, the rotor and the checks, so all of them agree.  Nothing to edit here.
+assembly, the TX electrical estimate, the output folders and the checks, so all of them agree.  Nothing to edit here.
 
 It reads the layer settings of the parameter files:
 

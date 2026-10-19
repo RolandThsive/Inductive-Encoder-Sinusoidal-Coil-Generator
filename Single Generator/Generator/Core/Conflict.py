@@ -6,8 +6,10 @@ console colours.  A conflict is printed as
     ERROR   INNER_EDGE_RADIUS_MM conflicts with OUTER_EDGE_RADIUS_MM
             the board's inner radius (15 mm) cannot be larger than its outer radius (12 mm)
 
-Raised by the checks (ParameterRules.py, ConflictRules.py, DesignChecks.py) and by the builders when something
-cannot be fitted while building.  Nothing to edit here.
+ParameterConflict is raised by the geometry modules (BoardLayout.py, Layers.py) and by the builders when something
+cannot be fitted while building; the checks (ParameterRules.py, ConflictRules.py, DesignChecks.py) report the same
+kind of finding with Report.conflict (ConflictRules.py also catches the ones BoardLayout and Layers raise and reports
+them through Report.add_exception).  Nothing to edit here.
 """
 
 import os
@@ -24,7 +26,7 @@ class ParameterConflict(ValueError):
 
 
 def conflict_title(names):
-    """'A conflicts with B' / 'A conflicts with B and C' / 'A, B and C conflict with each other'."""
+    """'A' (one name) / 'A conflicts with B' / 'A conflicts with B and C' / 'A conflicts with B, C and D'."""
     names = list(names)
     if len(names) == 1:
         return names[0]
