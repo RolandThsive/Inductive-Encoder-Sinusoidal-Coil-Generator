@@ -79,6 +79,10 @@ _add(_B, "PCB_THICKNESS_MM", "num", lo=0, lo_ex=True)
 _add(_B, "EXCITATION_FREQ_HZ", "num", lo=0, lo_ex=True)
 # electrical estimate (TX_Electrics.py); default = what it uses when the line is missing
 _add(_B, "COPPER_THICKNESS_UM", "num", optional=True, default=35.0, lo=0, lo_ex=True, hi=500)
+_add(_B, "COPPER_CONDUCTIVITY_S_M", "num", optional=True, default=5.8e7, lo=1e6, hi=1e8)
+_add(_B, "TX_AC_RESISTANCE_FACTOR", "num", optional=True, default=2.0, lo=1.0, hi=20.0)
+_add(_B, "STACKUP_PREPREG_MM", "num", optional=True, default=0.2, lo=0, lo_ex=True, hi=5.0, active=_pcb4)
+_add(_B, "TANK_CAP_SERIES", "choice", values=("e6", "e12", "e24"), ci=True, optional=True, default="e12")
 _add(_B, "GENERATOR_MODE", "choice", values=("normal", "strict"), ci=True, optional=True, default="normal")
 
 # ---- RX_Parameters.py
@@ -162,6 +166,7 @@ _add(_IC, "IC_NAME", "str_or_none", optional=True, default="IPS2550")
 _add(_IC, "IC_OSC_MIN_MHZ", "num_or_none", optional=True, default=2.0, lo=0, lo_ex=True, hi=100.0)
 _add(_IC, "IC_OSC_MAX_MHZ", "num_or_none", optional=True, default=5.6, lo=0, lo_ex=True, hi=100.0)
 _add(_IC, "IC_MIN_RP_OHM", "num_or_none", optional=True, default=250.0, lo=0, hi=1e6)
+_add(_IC, "IC_SPLIT_TANK_CAPS", "bool", optional=True, default=True)
 
 KNOWN_NAMES = {s[1] for s in SPEC}
 

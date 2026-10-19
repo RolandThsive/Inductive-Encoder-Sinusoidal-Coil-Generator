@@ -17,13 +17,17 @@ How the numbers are made  (read this before trusting them)
     stack-up).  L = the turn self-inductances (a ring of a w x t trace) + the mutual inductances of every
     pair of turns (Maxwell's formula for coaxial circles).  The steps between the turns, the spiral pitch and
     the terminal tails are left out; against the full TX polyline (Neumann integral) that is within 2 %.
-  * Resistance: DC resistance of all the TX copper.  At the TX frequency skin and proximity effects raise
-    it; the checks allow for up to AC_FACTOR x the DC value.
+  * Resistance: DC resistance of all the TX copper (COPPER_THICKNESS_UM, COPPER_CONDUCTIVITY_S_M).  At the TX
+    frequency skin and proximity effects raise it; the checks allow for up to TX_AC_RESISTANCE_FACTOR x the DC
+    value.
   * Rotor: rotor_inductance_drop() below takes the rotor copper as an ideal screen of the TX field.  That is
     an upper estimate of the drop (a real rotor with gaps pushes the field through them instead of removing
     it), so the true frequency with the rotor lies between "rotor away" and the predicted one.
   * Not included: parasitic capacitance (IC pins, coil, wiring; typically some 10 pF - it lowers the
-    frequency a little), the temperature (copper: +0.39 % resistance per K).
+    frequency a little).  The temperature only through COPPER_CONDUCTIVITY_S_M (copper: +0.39 % resistance
+    per K).
+  * Every setting it uses is a parameter: Board_Parameters.py (ELECTRICAL ESTIMATE and the stack-up) and
+    IC_Parameters.py; the numbers below are only the defaults for a line that is missing.
   * None of it has been checked against a measured board: keep a margin to every limit of the IC.
 
 Needs only Python 3 and numpy.  Imported by RunCoilGenerator.py (step 4); not a script.  (Project layout: wiki
@@ -41,18 +45,25 @@ from Generator.Core.Layers import layer_depth, STACKUP_PREPREG_MM
 from Generator.Core.Geometry import loop_bz, ellipk_ellipe
 
 MU0 = 4.0e-7 * math.pi
-RHO_CU = 1.0 / 5.8e7                 # copper resistivity at 20 C (ohm m)
-AC_FACTOR = 2.0                      # at the TX frequency R can be up to this x the DC value (checks use it)
 MODEL_TO_HENRY = MU0 / (2.0 * math.pi) * 1e-3   # flux per ampere (field in mu0 / 2 pi per mm, area in mm2) -> H
-E12 = (1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2)   # C0G capacitor values per decade
+CAP_SERIES = {                       # standard capacitor values per decade (TANK_CAP_SERIES)
+    "e6": (1.0, 1.5, 2.2, 3.3, 4.7, 6.8),
+    "e12": (1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2),
+    "e24": (1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0, 3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2,
+            6.8, 7.5, 8.2, 9.1),
+}
 
 # the receiver IC used when IC_Parameters.py has no such lines (as ParameterRules.py): the IPS2550
 DEFAULT_IC = dict(name="IPS2550", f_min=2.0e6, f_max=5.6e6, rp_min=250.0)
-DEFAULT_COPPER_THICKNESS_UM = 35.0   # ... no COPPER_THICKNESS_UM line
+# ... and when Board_Parameters.py has no such line (as ParameterRules.py)
+DEFAULT_COPPER_THICKNESS_UM = 35.0         # COPPER_THICKNESS_UM
+DEFAULT_COPPER_CONDUCTIVITY_S_M = 5.8e7    # COPPER_CONDUCTIVITY_S_M
+DEFAULT_TX_AC_RESISTANCE_FACTOR = 2.0      # TX_AC_RESISTANCE_FACTOR
+DEFAULT_TANK_CAP_SERIES = "e12"            # TANK_CAP_SERIES
 
 # The IC limits come from its datasheet: f_min ... f_max = the LC oscillator range, rp_min = the smallest
-# parallel (loss) resistance of the tank that its oscillator can drive.  These ICs take the tank capacitance in
-# two halves: 2 C from TX1 and 2 C from TX2 to ground.
+# parallel (loss) resistance of the tank that its oscillator can drive.  IC_SPLIT_TANK_CAPS: the tank capacitance
+# in two halves, 2 C from TX1 and 2 C from TX2 to ground.
 
 
 # =============================================================================
@@ -102,7 +113,7 @@ def tx_inductance(loops, width_mm, thickness_um):
     return total
 
 
-def tx_resistance_dc(stator, P, thickness_um):
+def tx_resistance_dc(stator, P, thickness_um, conductivity=DEFAULT_COPPER_CONDUCTIVITY_S_M):
     """(DC resistance in ohm, equivalent length in m, copper length in m) of the whole TX trace.  The equivalent
     length is the length of one trace with that resistance: for a parallel TX it is shorter than the copper."""
     copper_mm = sum(math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]) for s in stator.tx_segments)
@@ -115,7 +126,7 @@ def tx_resistance_dc(stator, P, thickness_um):
         saving = 1.5 * float(getattr(stator, "tx_parallel_length_mm", 0.0) or 0.0)
     length_mm = copper_mm - float(saving)
     area = float(P.TX_TRACE_WIDTH_MM) * 1e-3 * float(thickness_um) * 1e-6
-    return RHO_CU * length_mm * 1e-3 / area, length_mm * 1e-3, copper_mm * 1e-3
+    return length_mm * 1e-3 / (float(conductivity) * area), length_mm * 1e-3, copper_mm * 1e-3
 
 
 def rotor_inductance_drop(loops, r_in, r_out, duty, gap_mm, n=4001):
@@ -139,12 +150,12 @@ def rotor_inductance_drop(loops, r_in, r_out, duty, gap_mm, n=4001):
     return MODEL_TO_HENRY * float(duty) * 2.0 * math.pi * flux
 
 
-def standard_caps(c_needed, n=2):
-    """The E12 values just below and just above c_needed (F)."""
+def standard_caps(c_needed, n=2, series=DEFAULT_TANK_CAP_SERIES):
+    """The values of the series (TANK_CAP_SERIES: "e6", "e12", "e24") just below and just above c_needed (F)."""
     if not c_needed > 0:
         return []
     dec = math.floor(math.log10(c_needed))
-    vals = sorted(v * 10.0 ** d for d in (dec - 1, dec, dec + 1) for v in E12)
+    vals = sorted(v * 10.0 ** d for d in (dec - 1, dec, dec + 1) for v in CAP_SERIES[str(series).lower()])
     lo = [v for v in vals if v <= c_needed * (1 + 1e-9)][-n // 2:] if n > 1 else []
     hi = [v for v in vals if v > c_needed * (1 + 1e-9)][:n - len(lo)]
     return lo + hi
@@ -179,13 +190,19 @@ class Electrics:
 
     def __init__(self, stator, rotor, P, prepreg=None):
         self.P = P
-        self.prepreg = STACKUP_PREPREG_MM if prepreg is None else float(prepreg)
+        if prepreg is None:
+            prepreg = getattr(P, "STACKUP_PREPREG_MM", STACKUP_PREPREG_MM)
+        self.prepreg = float(prepreg)
         self.thickness_um = float(getattr(P, "COPPER_THICKNESS_UM", DEFAULT_COPPER_THICKNESS_UM))
+        self.conductivity = float(getattr(P, "COPPER_CONDUCTIVITY_S_M", DEFAULT_COPPER_CONDUCTIVITY_S_M))
+        self.ac_factor = float(getattr(P, "TX_AC_RESISTANCE_FACTOR", DEFAULT_TX_AC_RESISTANCE_FACTOR))
+        self.cap_series = str(getattr(P, "TANK_CAP_SERIES", DEFAULT_TANK_CAP_SERIES)).lower()
+        self.split = getattr(P, "IC_SPLIT_TANK_CAPS", True) is not False
         self.width_mm = float(P.TX_TRACE_WIDTH_MM)
         self.loops = tx_loops(stator, P, self.prepreg)
         self.n_turns = int(round(sum(w for _r, _d, w in self.loops)))     # turns in series
         self.L_free = tx_inductance(self.loops, self.width_mm, self.thickness_um)
-        self.R_dc, self.length_m, self.copper_m = tx_resistance_dc(stator, P, self.thickness_um)
+        self.R_dc, self.length_m, self.copper_m = tx_resistance_dc(stator, P, self.thickness_um, self.conductivity)
         self.gap = float(P.AIR_GAP_MM)
         self.has_rotor = rotor is not None
         if self.has_rotor:
@@ -214,19 +231,19 @@ class Electrics:
         return 1.0 / (2.0 * math.pi * math.sqrt(L * self.C))
 
     def q_range(self, L, f):
-        """Q of the coil: (with AC_FACTOR x R_dc, with R_dc)."""
+        """Q of the coil: (with TX_AC_RESISTANCE_FACTOR x R_dc, with R_dc)."""
         w = 2.0 * math.pi * f
-        return w * L / (AC_FACTOR * self.R_dc), w * L / self.R_dc
+        return w * L / (self.ac_factor * self.R_dc), w * L / self.R_dc
 
     def rp_range(self, L, f):
-        """Tank parallel resistance (ohm): (with AC_FACTOR x R_dc, with R_dc)."""
+        """Tank parallel resistance (ohm): (with TX_AC_RESISTANCE_FACTOR x R_dc, with R_dc)."""
         w = 2.0 * math.pi * f
-        return (w * L) ** 2 / (AC_FACTOR * self.R_dc), (w * L) ** 2 / self.R_dc
+        return (w * L) ** 2 / (self.ac_factor * self.R_dc), (w * L) ** 2 / self.R_dc
 
     def rp_lowest(self):
         """(lowest tank parallel resistance with the rotor as estimated, the same with the rotor's effect left out)
-        in ohm, both with AC_FACTOR x R_dc.  The tank capacitance is fixed, so R_P = L / (C R) grows with L: the
-        true value lies between the two (the estimate overstates the rotor's effect)."""
+        in ohm, both with TX_AC_RESISTANCE_FACTOR x R_dc.  The tank capacitance is fixed, so R_P = L / (C R) grows
+        with L: the true value lies between the two (the estimate overstates the rotor's effect)."""
         return (self.rp_range(self.L_nom, self.f_target)[0],
                 self.rp_range(self.L_free, self.f_at(self.L_free))[0])
 
@@ -236,7 +253,7 @@ class Electrics:
         return not self.lim or self.lim["f_min"] is None or self.lim["f_min"] <= f <= self.lim["f_max"]
 
     def _check(self):
-        add, lim, ic = self.findings.append, self.lim, self.ic
+        add, lim, ic, acf = self.findings.append, self.lim, self.ic, self.ac_factor
         if not lim:
             return
         f = self.f_at(self.L_nom)
@@ -250,12 +267,12 @@ class Electrics:
         elif rp_best < lim["rp_min"]:
             add(("warning", "rp_low",
                  f"the tank's parallel resistance at the nominal air gap may be as low as {rp:.0f} ohm (if the AC "
-                 f"resistance is {AC_FACTOR:g} x the DC value); the {ic} needs at least {lim['rp_min']:g} ohm.  More "
+                 f"resistance is {acf:g} x the DC value); the {ic} needs at least {lim['rp_min']:g} ohm.  More "
                  f"TX turns, wider TX traces, thicker copper or a higher EXCITATION_FREQ_HZ raise it"))
         elif rp < lim["rp_min"]:
             add(("info", "rp_maybe",
                  f"the tank's parallel resistance with the rotor lies between {rp:.0f} and {rp_best:.0f} ohm (if the AC "
-                 f"resistance is {AC_FACTOR:g} x the DC value): the lower value comes from the upper estimate of the "
+                 f"resistance is {acf:g} x the DC value): the lower value comes from the upper estimate of the "
                  f"rotor's effect and is below the {ic}'s {lim['rp_min']:g} ohm.  Measure it on the board, or raise it "
                  f"with more TX turns, wider TX traces, thicker copper or a higher EXCITATION_FREQ_HZ"))
         if self.has_rotor and lim["f_min"] is not None and self._in_range(self.f_target):
@@ -295,24 +312,25 @@ class Electrics:
             copper = (f"{self.copper_m:.2f} m of {self.width_mm:g} mm x {self.thickness_um:g} um copper, "
                       f"{self.length_m:.2f} m equivalent for the two layers in parallel")
         out.append(f"              R = {self.R_dc:.2f} ohm DC ({self.n_turns} turn(s), {copper}), up to about "
-                   f"{AC_FACTOR:g}x that at {f / 1e6:g} MHz")
+                   f"{self.ac_factor:g}x that at {f / 1e6:g} MHz")
         where = "with the rotor in place" if self.has_rotor else "(no rotor)"
-        if self.lim:
+        if self.split:
             out.append(f"  tank        for {f / 1e6:g} MHz {where}: 2 x {_cap(2 * self.C)}, from TX1 and from TX2 "
                        f"to ground (= {_cap(self.C)} across the coil)")
         else:
             out.append(f"  tank        for {f / 1e6:g} MHz {where}: {_cap(self.C)} across the coil (or 2 x "
                        f"{_cap(2 * self.C)}, from each coil end to ground)")
         parts = []
-        for c2 in standard_caps(2.0 * self.C):
-            c_eq = c2 / 2.0
+        k = 2.0 if self.split else 1.0                  # each capacitor is k x the tank capacitance
+        for ck in standard_caps(k * self.C, series=self.cap_series):
+            c_eq = ck / k
             f_rot = 1.0 / (2.0 * math.pi * math.sqrt(self.L_nom * c_eq))
-            txt = f"2 x {_cap(c2)} -> {f_rot / 1e6:.2f} MHz"
+            txt = f"{'2 x ' if self.split else ''}{_cap(ck)} -> {f_rot / 1e6:.2f} MHz"
             if self.has_rotor:
                 txt += f" ({1.0 / (2.0 * math.pi * math.sqrt(self.L_free * c_eq)) / 1e6:.2f} rotor away)"
             parts.append(txt)
         if parts:
-            out.append("              nearest standard C0G: " + ";  ".join(parts))
+            out.append(f"              nearest standard C0G ({self.cap_series.upper()}): " + ";  ".join(parts))
         f_free = self.f_at(self.L_free)
         osc = (f"              oscillator with the exact capacitors: {f_free / 1e6:.2f} MHz with the rotor away, "
                f"{f / 1e6:.2f} MHz with it" if self.has_rotor else
@@ -340,7 +358,8 @@ class Electrics:
         txt = f"TX L {self.L_free * 1e6:.2f} uH"
         if self.has_rotor:
             txt += f" ({self.L_nom * 1e6:.2f} with the rotor)"
-        txt += f", R {self.R_dc:.2f} ohm DC, tank 2 x {_cap(2 * self.C)} for {self.f_target / 1e6:g} MHz"
+        tank = f"2 x {_cap(2 * self.C)}" if self.split else _cap(self.C)
+        txt += f", R {self.R_dc:.2f} ohm DC, tank {tank} for {self.f_target / 1e6:g} MHz"
         if self.lim:
             n = len(self.warnings)
             txt += f"; {self.ic}: " + ("OK" if not n else f"{n} warning(s)")
