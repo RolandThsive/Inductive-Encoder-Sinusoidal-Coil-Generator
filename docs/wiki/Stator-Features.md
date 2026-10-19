@@ -24,7 +24,7 @@ true absolute 0–360° sensor. More loops divide the turn into finer periods fo
 
 ### 11.1.2 Sub-Coils
 
-Each RX coil can be split into 2 or 3 sub-coils, spread a few electrical degrees apart and wired in
+Each RX coil can be split into 2 or 3 sub-coils, spread `RX_SUBCOIL_SPLIT_ELEC_DEG` electrical degrees apart (45° by default) and wired in
 series, as in the Renesas IPS2200 reference design. The split cancels chosen harmonics of the
 signal (45° lowers the 3rd and 5th harmonics by about 59 %) and nearly doubles the signal. Sub-coils
 are mainly useful on **miniature 1-loop coils**, where the RX band is small and harmonics matter
@@ -32,7 +32,7 @@ most.
 
 ![Stator 2: RX Sub-Coils](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_2_subcoils.png)
 
-*Stator 2. A miniature 1-loop stator with 1 sub-coil and with 2 sub-coils split by 45° (RX only, the TX is not drawn).*
+*Stator 2. A miniature 1-loop stator (bore radius 16.8 mm, outer radius 34 mm) with 1 sub-coil and with 2 sub-coils split by 45° (RX only, the TX is not drawn).*
 
 ### 11.1.3 Finger Styles
 
@@ -70,8 +70,8 @@ Q of the oscillator tank; fewer turns leave more room for the RX band.
 
 With two TX layers the turns can be wired in **series** (two spirals joined by a via at the inner
 end, carrying current in the same direction) or in **parallel** (the same turns on both layers,
-joined through vias). In the models a parallel TX gives about 6 % more signal and twice the Q of a
-TX on Top alone.
+joined through vias). A parallel TX gives about 6 % more signal than a TX on Top alone (Analyser figure, to be verified). In the
+electrical estimate its Q is only about 1.3 times higher: the resistance halves, but the inductance drops too.
 
 ![Stator 5: TX Series vs Parallel](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_5_tx_series_parallel.png)
 
@@ -124,9 +124,9 @@ A series TX always uses the go-around. For a parallel TX, `TX_PARALLEL_BREAK_STY
 All TX turns are one net, so KiCad's DRC cannot see a TX turn touching another TX turn. The
 generator measures these gaps itself and warns.
 
-`TX_INSIDE_VIA_DISTANCE_MM` (used by `stepped_diagonal` and `spiral`, not by `stepped_arc`) moves the terminal via towards the centre, away from the next turn. At
-0 mm (the original layout) the via comes too close to the neighbouring turn, and the generator
-warns.
+`TX_INSIDE_VIA_DISTANCE_MM` (used by `stepped_diagonal` and `spiral`, not by `stepped_arc`) moves the terminal via towards the centre, away from the next turn. With the
+default 0.6 mm pitch and 0.8 mm via, at 0 mm (the original layout) the via comes too close to the neighbouring turn, and the generator
+warns. With the 1.2 mm pitch of these pictures it does not.
 
 ![Stator 9: TX Terminal Via Placement](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_9_tx_terminal_via.png)
 

@@ -7,7 +7,7 @@
 | Contents | Tracks, vias, board outline (`Edge.Cuts`), rotor copper polygons and solder mask openings |
 | Libraries | None needed: no footprints, symbols or 3D models are referenced |
 | Nets | `TX`, SIN (`2`) and COS (`1`), so KiCad's ratsnest and DRC understand the coils |
-| Layers | `F.Cu`, `In1.Cu`, `In2.Cu`, `B.Cu` (Top, Inner-1, Inner-2, Bottom) |
+| Layers | `F.Cu` and `B.Cu` (Top, Bottom); a 4-layer stator also has `In1.Cu` and `In2.Cu` (Inner-1, Inner-2) |
 | Title Block | Filled in automatically on every board |
 | DRC | Clean apart from two expected `track_dangling` reports (the coils have no terminals yet) |
 

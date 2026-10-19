@@ -6,13 +6,13 @@ custom values.
 
 ## 12.1 Lobes
 
-The rotor always has one copper lobe for every stator loop.
+In the default mode (`according_to_stator`) the rotor has one copper lobe for every stator loop. In `custom` mode `ROTOR_CUSTOM_SECTORS` sets the number of lobes, and the checker warns when it differs from `LOOPS`.
 
 ![Rotor 1: Rotor Lobes](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rotor_1_lobes.png)
 
 *Rotor 1. Rotors with 1, 2, 3, 4, 6, 8, 12 and 16 lobes.*
 
-A 1-lobe rotor is a half disc and is mechanically unbalanced; at high speed it needs a non-metal
+A 1-lobe rotor (a half disc at the default metal fraction of 0.5) is mechanically unbalanced; at high speed it needs a non-metal
 counterweight.
 
 ## 12.2 Edges And Metal Fraction

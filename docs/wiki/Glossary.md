@@ -8,8 +8,8 @@
 | **RX coil** | A receiver coil. There are two: SIN and COS. Each is one closed series loop. |
 | **Phase** | One of the four RX curves. Phases 0 and 2 (antiphase) make the SIN coil, phases 1 and 3 make the COS coil. |
 | **Loop** | One electrical period: one full sine wave of the RX coils around the board. `LOOPS` periods per mechanical turn. |
-| **Lobe** | One half of a loop's curve (positive or negative); a loop has two lobes. Not to be confused with a rotor sector. |
-| **Sector** | One copper sector on the rotor. The rotor has as many sectors as the stator has loops. |
+| **Lobe** | One copper sector on the rotor, the same as a sector. It can also mean half an RX period: one half of a loop's curve (positive or negative), so a loop has two lobes. |
+| **Sector** | One copper sector on the rotor, also called a lobe. By default the rotor has as many sectors as the stator has loops. |
 | **Electrical period / degrees** | One loop is 360 electrical degrees, which is 360 / `LOOPS` mechanical degrees. |
 | **Unique range** | The angle over which the output is unambiguous: 360° / `LOOPS`. |
 | **RX band** | The ring the RX coils swing across, between `INSIDE_RADIUS_MM` and `OUTSIDE_RADIUS_MM`. |

@@ -13,7 +13,7 @@ give the same boards.
 
 ## 4.1 Screenshots
 
-The tool adapts to both landscape and portrait monitors. Both pictures show the default design, already generated.
+The tool adapts to both landscape and portrait monitors. Both pictures show a generated 2-layer design: a board from 15 to 27 mm, 4 loops and 3 TX turns on Bottom.
 
 ![Web Tool 1: Landscape](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/webui_landscape.png)
 
@@ -25,10 +25,10 @@ The tool adapts to both landscape and portrait monitors. Both pictures show the 
 
 ## 4.2 Features
 
-- **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter. Both use the same
+- **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter except the output settings and the two that only feed the electrical estimate. Both use the same
   four tabs: Board, RX, TX and Rotor, and a change in one mode shows in the other.
 - **Live board preview** of the stator, the rotor, or both together, with each copper layer in its own colour
-  (Top red, Bottom dark blue, Inner-1 green, Inner-2 dark yellow), the same colours as the pictures in this wiki.
+  (Top red, Bottom blue, Inner-1 green, Inner-2 dark yellow), the same colours as the pictures in this wiki except a lighter blue for Bottom.
 - **Design checks** before every board is made: errors and warnings that say what is wrong, why it matters and
   which settings to change.
 - **KiCad downloads:** the stator and rotor `.kicad_pcb` files, or one zip with both boards and all the settings.
@@ -56,14 +56,14 @@ The tool needs a computer with a mouse or trackpad. Phones and tablets see a sho
 | --- | --- |
 | Board | Board inner and outer radius, 2 or 4 copper layers, air gap to the rotor |
 | RX | Loops (sine periods per turn), RX sub-coils, and the RX band |
-| TX | TX turns per layer, and the TX layout (wiring and shape), picked from picture cards |
+| TX | TX turns per layer, and the TX layout (wiring and layers), picked from picture cards |
 | Rotor | Automatic (sized from the stator) or Custom, with the metal fraction and sectors |
 
 Every Basic setting is also in Advanced, under the same name.
 
 ### 4.4.2 Advanced
 
-Every parameter of the generator, grouped as in the parameter files. Each one shows its parameter name, and the
+Every parameter of the generator, grouped as in the parameter files, with two exceptions. The Output block of `Board_Parameters.py` (folder, file names, board centre, page size and `GENERATOR_MODE`, which is the **Strict** switch) is not shown. Neither are `RECEIVER_IC` and `COPPER_THICKNESS_UM`, which only feed the electrical estimate. Each one shows its parameter name, and the
 **↺** button puts it back to its starting value. Settings the current design does not use are greyed out and
 marked "not used now". A changed setting gets a dot before its name.
 
