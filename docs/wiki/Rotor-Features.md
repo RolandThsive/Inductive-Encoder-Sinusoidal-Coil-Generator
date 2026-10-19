@@ -19,7 +19,7 @@ counterweight.
 
 | Parameter | Effect |
 |---|---|
-| `ROTOR_AUTO_COVER_TX` | The copper runs over the TX turns, as in the Renesas reference designs (5–8 % more signal in the model) |
+| `ROTOR_AUTO_COVER_TX` | The copper runs over the TX turns, as in the receiver makers' reference designs (5–8 % more signal in the model) |
 | `ROTOR_AUTO_TX_OVERHANG_MM` | How far the copper reaches past the outermost TX turn |
 | `ROTOR_AUTO_EXTENSION_INNER_MM` | Where the copper ends on the inside, relative to the RX band |
 | `ROTOR_AUTO_DUTY` | The metal fraction of each period (0.5 = half copper, half gap) |

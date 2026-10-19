@@ -33,7 +33,7 @@ When settings cannot hold together, the message names them and explains why on t
 
 ```text
 ERROR   RX_TAB_LENGTH_MM conflicts with TX_OFFSET_MM, TX_TURNS and TX_PITCH_MM
-        the fingers end at r = 24.40 mm, too close to the outermost TX turn ... Set RX_TAB_LENGTH_MM to at least 4.35, ...
+        the fingers end at r = 24.40 mm, too close to the outermost TX copper ... Set RX_TAB_LENGTH_MM to at least 4.35, ...
 ```
 
 The explanation says which value to change and, where it can be worked out, the value that is needed.
@@ -56,23 +56,24 @@ DRC cannot see a TX turn touching another TX turn.
 | RX band | Band narrower than one via (error) or very narrow for the vias (warning); a quarter loop with too little arc at the inner radius for the RX traces (warning); a board edge and the band set at once (info: each is used as given). |
 | Fab limits | Trace widths below about 0.1 mm, `MIN_CLEARANCE_MM` tighter than typical, a via annular ring below about 0.1 mm; `VIA_DRILL_MM` not smaller than `VIA_DIAMETER_MM` (error). |
 | RX layers | `RX_LAYER_A` and `RX_LAYER_B` equal (error); on a 4-layer board, RX on any layer pair other than Top + Inner-1 (warning). |
-| Sub-coils | A split so large that curves overlap, or that puts two curves on top of each other (errors); crowded tip vias with 3 sub-coils, or 2 sub-coils with too little arc per curve for the vias that join them, from 5 loops at the default radii (warnings). |
-| Fingers | Finger legs closer than the clearance (error); `RX_TAB_WIDTH_MM` below about 0.6 mm (warning); a finger length that does not clear the outermost TX turn, or the outermost go-around bracket (error: `RX_TAB_LENGTH_MM` is the exact length and is never changed for you, and the message states the length it needs). |
-| TX turns | Turns closer than the clearance (error) or practically equal to it (warning); the first TX turn too close to the RX copper on the same layer (error); the terminal via too near the RX band or the next turns (warnings). The TX terminal itself has no setting: the generator searches the ring for the place with the largest gap to the RX copper (with `RX_TABS = "single"`, the place nearest the middle of the two fingers that keeps the clearance) and turns the board so that it ends up at 0°. With `RX_TABS = "single"`, if no place keeps the clearance, a note says so and the terminal goes where the gap is largest. |
-| Resolution | A fixed `STEPS_PER_LOOP` or `TX_STEPS` giving a chord error above 0.01 mm, or a fixed `ROTOR_ARC_STEPS_PER_SECTOR` giving one above 0.05 mm (warning; the chord tolerances are not used for these). With "auto" the count is chosen from the chord tolerance instead; for the RX coils a warning appears if more than 1024 chords per loop would be needed (the count then stops at 1024). |
+| Sub-coils | A split so large that curves overlap, or that puts two curves on top of each other (errors); crowded tip vias with 3 sub-coils, or with 2 sub-coils and a split outside about 35 to 55; 2 sub-coils with too little arc per curve for the vias that join them, from 5 loops at the default radii; with 2 sub-coils, `RX_VIA_ELECTRICAL_DEG` outside about 57 + split / 2 to 123 − split / 2 (79.5 to 100.5 for a split of 45), where the via that joins the sub-coils does not fit and the build will probably stop (warnings). |
+| Fingers | Finger legs closer than the clearance (error); `RX_TAB_WIDTH_MM` below about 0.6 mm (warning), or too wide for the loop count or the finger length (warning: the legs are moved closer, and the message gives the spacing used); a finger length that does not clear the outermost TX turn, or the outermost go-around bracket (error: `RX_TAB_LENGTH_MM` is the exact length and is never changed for you, and the message states the length it needs). |
+| TX turns | Turns closer than the clearance (error) or practically equal to it (warning), also with one turn, because the outer tail runs one pitch outside the last turn; the first TX turn too close to the RX copper on the same layer (error); the terminal via too near the RX band or the next turns (warnings). The TX terminal itself has no setting: the generator searches the ring for the place with the largest gap to the RX copper (with `RX_TABS = "single"`, the place nearest the middle of the two fingers that keeps the clearance) and turns the board so that it ends up at 0°. With `RX_TABS = "single"`, if no place keeps the clearance, a note says so and the terminal goes where the gap is largest. |
+| Resolution | A fixed `STEPS_PER_LOOP` or `TX_STEPS` giving a chord error above 0.01 mm, or a fixed `ROTOR_ARC_STEPS_PER_SECTOR` giving one above 0.05 mm (warning; the chord tolerances are not used for these). With "auto" the count is chosen from the chord tolerance instead; for the RX coils a warning appears if more than 1024 chords per loop would be needed (the count then stops at 1024). With S chords per loop the tip vias can only sit at about 45 + 720 / S to 135 − 720 / S electrical degrees. If `RX_VIA_ELECTRICAL_DEG` is outside that, the vias move to the nearest end, with a warning (with `GENERATOR_MODE = "strict"` the board is refused). |
 | Board edge | `OUTER_EDGE_RADIUS_MM` cutting through the outermost TX turn, the fingers or the TX tail (errors); inner-tip vias running over the centre hole; a via touching copper of another net (error). |
-| Rotor | Rotor metal fraction giving a weak fundamental (warning) or removing a harmonic (info); rotor copper with no width; custom rotor sector count different from `LOOPS`; custom radii out of order, copper too near the bore or the outline; solder-mask opening reaching the bore or outline; `ROTOR_ARC_STEPS_PER_SECTOR` giving a coarse arc. |
-| Files | Stator and rotor file names equal (error); names not ending in `.kicad_pcb`; `OUTPUT_DIR` not a writable folder. |
+| Rotor | Rotor metal fraction giving a weak fundamental (warning) or removing a harmonic (info); rotor copper with no width; custom rotor sector count different from `LOOPS`; custom radii out of order, copper too near the bore or the outline; solder-mask opening reaching the bore or outline; `ROTOR_ARC_STEPS_PER_SECTOR` giving a coarse arc (warning), or so few chords that the corners of the rotor copper cross the outline (error). |
+| Files | Stator and rotor file names equal (error); names not ending in `.kicad_pcb`; `OUTPUT_DIR` not a writable folder, or a missing folder that cannot be created (errors). |
 | Chord tolerances | Each of `RX_CHORD_TOLERANCE_MM`, `TX_CHORD_TOLERANCE_MM` and `ROTOR_CHORD_TOLERANCE_MM` must be at least 0.001 mm (error below that). |
-| Page | The board comes close to the top or left of the KiCad page (the page grows right and down automatically). |
+| IC limits | `IC_OSC_MIN_MHZ` not below `IC_OSC_MAX_MHZ` (error); a `RECEIVER_IC` line from an older version (warning: it is ignored, the receiver IC is now set in `IC_Parameters.py`). |
+| Page | The stator board, or a rotor board that reaches farther out than the stator, comes close to the top or left of its KiCad page (warning; the page grows right and down automatically). |
 
 Each message names the setting, its value and the limit it broke, and many also say what to change. The Web Tool shows the same messages; see
 [Web Tool](Web-Tool.md#46-errors-and-warnings).
 
 ## 16.4 Electrical Checks
 
-The [electrical estimate](Electrical-Estimate.md) adds its own findings, checked against the receiver IC's datasheet
-limits: oscillator frequency out of range and tank resistance too low. When only the lower end of the tank resistance
+The [electrical estimate](Electrical-Estimate.md) adds its own findings, checked against the receiver IC limits in
+`IC_Parameters.py`: oscillator frequency out of range and tank resistance too low. When only the lower end of the tank resistance
 range is below the limit, you get an info line that gives the range, not a warning.
 
 ### 16.4.1 TX Shape Checks

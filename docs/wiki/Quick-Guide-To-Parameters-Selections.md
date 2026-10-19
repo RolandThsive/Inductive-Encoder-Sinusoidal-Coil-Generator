@@ -88,7 +88,7 @@ The two wirings and the two styles combine like this:
 | | Staggered (go-around) | Stitched |
 |---|---|---|
 | **Series** (`TX_WIRING = "series"`) | ✅ The only style a series TX can use. Two spirals joined by a via, 2 × `TX_TURNS` turns, both terminals leave radially at the TX terminal | ❌ Not available |
-| **Parallel** (`TX_WIRING = "parallel"`) | ✅ `TX_PARALLEL_BREAK_STYLE = "staggered"`. The same turns on both layers; the finger's layer goes around the finger, brackets on the other layer. Both layers stay complete; the board grows by about 2 mm | ✅ `TX_PARALLEL_BREAK_STYLE = "stitched"` (the default). The same turns on both layers; the finger's layer stops at a via on each side of the finger and the other layer carries the current past it. No copper outside the TX ring |
+| **Parallel** (`TX_WIRING = "parallel"`) | ✅ `TX_PARALLEL_BREAK_STYLE = "staggered"`. The same turns on both layers; the finger's layer goes around the finger, brackets on the other layer. Both layers stay complete; the fingers are about 2 mm longer, but the board edge grows only about 0.1 mm with the defaults | ✅ `TX_PARALLEL_BREAK_STYLE = "stitched"` (the default). The same turns on both layers; the finger's layer stops at a via on each side of the finger and the other layer carries the current past it. No copper outside the TX ring |
 
 `TX_PARALLEL_BREAK_STYLE` applies only to a parallel TX; a series TX always goes around the fingers. The TX terminal has no setting: the generator puts it where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, next to the two fingers) and turns the whole board so that it sits at 0°.
 
@@ -109,7 +109,7 @@ The best combination is a **4-layer board** with the RX fingers (if you choose t
 | `RX_TAB_LAYER` | `2` (Inner 1) |
 | `TX_WIRING` | `"series"` |
 | `TX_LAYER_A`, `TX_LAYER_B` | `1` (Top) and `3` (Inner 2) |
-| `TX_SHAPE` | `"stepped_diagonal"` (or `"stepped_arc"` for the Renesas-style arcs) |
+| `TX_SHAPE` | `"stepped_diagonal"` (or `"stepped_arc"` for arcs as on the receiver makers' reference boards) |
 
 The fingers then sit on a layer that carries no TX turns, so no turn has to go around them. The
 generator builds this setup without errors.
