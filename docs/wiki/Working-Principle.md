@@ -14,7 +14,7 @@ two signals.*
    wound so that it picks up no voltage from a uniform field. As the rotor turns, the uncovered
    area under each coil changes, so the induced voltage follows a sine (SIN coil) and a cosine
    (COS coil) of the rotor angle.
-4. **Decoding.** The receiver IC (for example the Renesas IPS2550 or IPS2200) demodulates both
+4. **Decoding.** The receiver IC demodulates both
    signals. The angle within one electrical period is `atan2(SIN, COS)`.
 
 The generator works with **four phases only: two SIN/COS pairs, each with a positive and a negative

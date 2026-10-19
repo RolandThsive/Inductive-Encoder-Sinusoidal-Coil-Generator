@@ -8,11 +8,12 @@ per run.*
 ```text
 Single Generator/
 ├── Parameters/                 Every setting: the only files you edit
-│   ├── Board_Parameters.py       Output, generator mode, PCB layers, vias, clearance, board outline, air gap, receiver IC
+│   ├── Board_Parameters.py       Output, generator mode, PCB layers, vias, clearance, board outline, air gap, electrical estimate
 │   ├── RX_Parameters.py          Loops, radii, profile, sub-coils, layers, fingers
 │   ├── TX_Parameters.py          Turns, pitch, shape, wiring, layers, break style
 │   ├── Rotor_Parameters.py       The rotor (metal target)
-│   └── Parameters.py             Gathers the four parameter files (do not edit)
+│   ├── IC_Parameters.py          The receiver IC limits for the electrical estimate
+│   └── Parameters.py             Gathers the five parameter files (do not edit)
 ├── Generator/
 │   ├── Run/                      RunCoilGenerator.py (the program to run; the only one that writes files),
 │   │                             CheckParameters.py, OutputFolders.py
@@ -22,7 +23,7 @@ Single Generator/
 │   │   ├── TX/                   TX_Builder, TX_Shapes, TX_Wiring, TX_Windows, TX_Terminal, TX_Electrics
 │   │   └── StatorAssembly.py     The finished stator, turned so the TX terminal sits at 0°
 │   ├── Rotor/                    RotorBuilder.py
-│   └── Core/                     Geometry, layers, copper, KiCad writer, conflict messages
+│   └── Core/                     Geometry, board layout, layers, copper, KiCad writer, conflict messages
 └── Output/
     └── Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>/
         ├── Stator.kicad_pcb
@@ -44,7 +45,7 @@ python Generator/Run/RunCoilGenerator.py              # Check, then write Stator
 python Generator/Run/RunCoilGenerator.py --check      # Check only, write nothing
 ```
 
-The generator runs from any folder; it finds the other folders itself. To treat clearance warnings as errors, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`.
+The generator runs from any folder; it finds the other folders itself. To treat every warning about the finished boards (clearances, the board edge, the page, the rotor) as an error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`.
 
 | Previous | Next |
 |:---|---:|

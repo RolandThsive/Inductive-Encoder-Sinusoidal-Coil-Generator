@@ -25,13 +25,13 @@
 | **Chord tolerance** | The largest gap, in mm, allowed between the true curve and its chord. RX, TX and rotor each have their own setting (`RX_`, `TX_`, `ROTOR_CHORD_TOLERANCE_MM`, default and minimum 0.001 mm). |
 | **Auto steps** | The "auto" setting of `STEPS_PER_LOOP`, `TX_STEPS` and `ROTOR_ARC_STEPS_PER_SECTOR`: the generator picks the number of chords or points from the chord tolerance. A whole number is used exactly. |
 | **Stepped diagonal** | TX turn shape: concentric circles joined by straight steps (the default). |
-| **Stepped arc** | TX turn shape: concentric circles joined by arcs centred on the terminal via, as on the Renesas reference boards. |
+| **Stepped arc** | TX turn shape: concentric circles joined by arcs centred on the terminal via, as on the receiver makers' reference boards. |
 | **Spiral** | TX turn shape: one smooth Archimedean spiral. |
 | **Step angle** | The angle of the steps of a `stepped_diagonal` TX turn, measured from the turn. |
 | **Arc radius** | The radius of the innermost arc of a `stepped_arc` TX (`TX_STEPPED_ARC_RADIUS_MM`). |
 | **Terminal via** | The via at the TX terminal that joins the inner tail to the first turn (or the two spirals of a series TX). |
 | **TX wiring** | `TX_WIRING`: `single` (one TX layer), `series` (two TX layers wired end to end) or `parallel` (the same turns on both layers stitched together). |
-| **TX terminal** | The tail, via, steps or arcs and windows where the TX leaves the board. It has no setting: the generator puts it where it keeps the largest gap from the RX copper and turns the board so that it sits at 0° (to the right). |
+| **TX terminal** | The tail, via, steps or arcs and windows where the TX leaves the board. It has no setting: the generator puts it where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, as close to the two fingers as the clearance allows) and turns the board so that it sits at 0° (to the right). |
 | **Generator mode** | `GENERATOR_MODE`: `normal` writes the boards when only warnings are found, `strict` treats every warning about the finished boards as an error. |
 | **Named conflict** | An error or warning that names the settings that cannot hold together ("A conflicts with B") and explains why on the next line. |
 | **Underpass** | The layer carrying the TX inner tail or the go-around brackets. |
@@ -40,7 +40,7 @@
 | **Tolerance window** | The range of air gap, rotor eccentricity, tilt and etching over which the analyser judges a design. |
 | **Ideal-screen model** | The rotor copper is taken as a perfect screen of the TX flux; this gives an upper estimate of the drop in TX inductance. |
 | **Tank** | The TX coil plus its capacitors; the oscillator runs at the tank's resonant frequency. |
-| **Receiver IC** | The chip that drives the TX and reads the RX coils, for example the Renesas IPS2550 or IPS2200. |
+| **Receiver IC** | The chip that drives the TX and reads the RX coils. Its limits for the electrical estimate are set in `IC_Parameters.py`. |
 | **KiCad net** | A named electrical connection in the board. The coils use nets `TX`, SIN (`2`) and COS (`1`). |
 | **DRC** | KiCad's design-rule check. It cannot see TX-to-TX shorts because all TX turns are one net. |
 

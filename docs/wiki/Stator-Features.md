@@ -25,7 +25,7 @@ true absolute 0–360° sensor. More loops divide the turn into finer periods fo
 ### 11.1.2 Sub-Coils
 
 Each RX coil can be split into 2 or 3 sub-coils, spread `RX_SUBCOIL_SPLIT_ELEC_DEG` electrical degrees apart (45° by default) and wired in
-series, as in the Renesas IPS2200 reference design. The split cancels chosen harmonics of the
+series, as in the receiver makers' reference designs. The split cancels chosen harmonics of the
 signal (45° lowers the 3rd and 5th harmonics by about 59 %) and nearly doubles the signal. Sub-coils
 are mainly useful on **miniature 1-loop coils**, where the RX band is small and harmonics matter
 most.
@@ -39,7 +39,7 @@ most.
 The RX coils lie inside the TX ring. Bridging fingers carry each coil out across the TX ring so it
 can be broken out to the receiver IC. No terminals or pads are created; the coils are broken out by
 hand where the user wants them. `RX_TAB_LENGTH_MM` is the exact finger length: when it is too short to clear
-the outermost TX turn (a longer TX pitch needs longer fingers) the generator stops and says which length it needs.
+the outermost TX turn (a longer TX pitch needs longer fingers) the generator stops and says which length it needs. A `spiral` TX needs fingers one pitch longer, because its last turn ends one pitch farther out. With the default values that is at least 3.5 mm.
 
 | `RX_TABS` | Description |
 |---|---|
@@ -71,7 +71,7 @@ Q of the oscillator tank; fewer turns leave more room for the RX band.
 With two TX layers the turns can be wired in **series** (two spirals joined by a via at the inner
 end, carrying current in the same direction) or in **parallel** (the same turns on both layers,
 joined through vias). A parallel TX gives about 6 % more signal than a TX on Top alone (Analyser figure, to be verified). In the
-electrical estimate its Q is only about 1.3 times higher: the resistance halves, but the inductance drops too.
+electrical estimate its Q is only about 1.3 to 1.8 times higher: the resistance drops to about 0.6 times, but the inductance drops too. It is about 1.3 times with the default `stitched` break style (11.2.5) on a 1.6 mm 2-layer board, and more with the go-around (`staggered`) style, on a thinner board or on a 4-layer board.
 
 ![Stator 5: TX Series vs Parallel](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_5_tx_series_parallel.png)
 
@@ -84,7 +84,7 @@ electrical estimate its Q is only about 1.3 times higher: the resistance halves,
 | Value | Turns |
 |---|---|
 | `stepped_diagonal` (default) | Concentric circles joined by straight steps near the terminal. |
-| `stepped_arc` | Concentric circles joined by arcs centred on the terminal via, as on the Renesas reference boards. See [11.2.7](#1127-stepped-arc-radius) and the picture in [TX Profiles](TX-Profiles.md#95-turn-shapes). |
+| `stepped_arc` | Concentric circles joined by arcs centred on the terminal via, as on the receiver makers' reference boards. See [11.2.7](#1127-stepped-arc-radius) and the picture in [TX Profiles](TX-Profiles.md#95-turn-shapes). |
 | `spiral` | One smooth Archimedean spiral with a constant gap, useful when the pitch is tight. |
 
 The pictures below show all three.
