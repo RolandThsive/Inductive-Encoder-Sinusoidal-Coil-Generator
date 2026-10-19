@@ -20,7 +20,7 @@ EXCITATION_FREQ_HZ  = 3.0e6         # TX oscillator frequency aimed for, with th
                                     # the two sets different frequencies (TX_FREQ_SEPARATION_MIN,
                                     # Dual_Board_Parameters.py).  The generator draws two TX rings; whether both
                                     # ICs drive their own, or one IC drives both tanks in parallel and the other
-                                    # has its TX current set to 0 (the Renesas CN317 way, one carrier), is decided
+                                    # has its TX current set to 0 (the CN317 reference way, one carrier), is decided
                                     # on the schematic, not here
 
 # =============================================================================

@@ -157,7 +157,7 @@ def dual_rules(P, v, rep):
                      f"Dual_TX1_Parameters.py, {f2 / 1e6:g} MHz in Dual_TX2_Parameters.py), less than "
                      f"TX_FREQ_SEPARATION_MIN ({100 * sep:g} %): each IC's demodulator passes the other carrier at "
                      f"|f2 - f1| = {(hi - lo) / 1e3:g} kHz, and the tank tolerances can close the rest. Move one "
-                     f"frequency, or drive both tanks from one IC (the Renesas CN317 way) so that there is one carrier")
+                     f"frequency, or drive both tanks from one IC (the CN317 reference way) so that there is one carrier")
         else:
             best = min(((abs(ratio / (p / q) - 1.0), p, q) for p in range(1, 5) for q in range(1, 5) if p > q
                         and p / q > 1.0 and math.gcd(p, q) == 1), default=None)
@@ -168,7 +168,7 @@ def dual_rules(P, v, rep):
                          f"one frequency off every p:q with p, q <= 4 (for example 3.0 and 4.3 MHz)")
         if ratio - 1.0 >= sep - 1e-12:
             rep.info(f"the two TX frequencies, {lo / 1e6:g} and {hi / 1e6:g} MHz, differ by {100 * (ratio - 1):.0f} %. "
-                     f"Published dual boards drive one tank only (Renesas CN317: the second IC's TX current set to 0, "
+                     f"Published dual boards drive one tank only (the CN317 reference board: the second IC's TX current set to 0, "
                      f"its TX pins on the same tank); two free-running tanks have not been shown to work and must be "
                      f"proven on the first board: read each IC's AGC gain with the other TX on and off")
     # one layer free of set 2's copper, for set 1's leads to cross it by hand (radially, as tight pairs, at one

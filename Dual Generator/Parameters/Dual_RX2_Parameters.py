@@ -36,7 +36,7 @@ RX_TRACE_WIDTH_MM = 0.2
 RX_NET_PHASE_0_2 = "SIN_2"      # phases 0 and 2 (sine, +/-)
 RX_NET_PHASE_1_3 = "COS_2"      # phases 1 and 3 (cosine, +/-)
 
-# "equal_area" (the default) or "cosine_r" (the Renesas law): see the wiki, RX Profiles.
+# "equal_area" (the default) or "cosine_r" (the IPS2200 law): see the wiki, RX Profiles.
 RX_PROFILE = "equal_area"
 
 # Polyline resolution of one electrical period: "auto" or a multiple of 8 (48 ... 4096).

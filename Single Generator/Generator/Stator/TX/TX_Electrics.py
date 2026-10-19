@@ -49,7 +49,7 @@ E12 = (1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2)   # C0G capac
 DEFAULT_RECEIVER_IC = "IPS2550"      # used when Board_Parameters.py has no RECEIVER_IC line (as ParameterRules.py)
 DEFAULT_COPPER_THICKNESS_UM = 35.0   # ... no COPPER_THICKNESS_UM line
 
-# Datasheet limits of the receiver ICs that RECEIVER_IC can name (Renesas datasheets - check your revision).
+# Datasheet limits of the receiver ICs that RECEIVER_IC can name (from the IC datasheets - check your revision).
 # Both reference designs put the tank capacitance in two halves: 2 C from TX1 and 2 C from TX2 to ground.
 IC_LIMITS = {
     "IPS2550": dict(

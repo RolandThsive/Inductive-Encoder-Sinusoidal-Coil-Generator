@@ -2,7 +2,7 @@
 RX_Profiles.py  -  the radius law of the RX curves (RX_PROFILE): how the radius of every receiver curve swings
 between the inside and the outside of the RX band with the electrical angle.
     equal_area   r^2 swings as a sine: the flux weight is a pure sine of the angle (equal-area radius law)
-    cosine_r     r itself swings as a sine (a limacon; the law the Renesas IPS2200 reference design follows)
+    cosine_r     r itself swings as a sine (a limacon; the law the IPS2200 reference design follows)
 The function takes the RX builder (`rx`, RX_Builder.py) and sets rx.radius(s), s = sin(electrical angle).
 Nothing to edit here.
 """

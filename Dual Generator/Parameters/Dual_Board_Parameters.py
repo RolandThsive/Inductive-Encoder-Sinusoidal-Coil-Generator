@@ -41,7 +41,7 @@ PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
 # =============================================================================
 # Via / copper-to-copper rules the generator must respect when it places vias.  Through vias go
 # through every layer, so a via of one set is checked against the copper of the other set on every layer.
-VIA_DIAMETER_MM   = 0.6             # (the Single Generator's example uses 0.8 / 0.4; the Renesas dual boards use
+VIA_DIAMETER_MM   = 0.6             # (the Single Generator's example uses 0.8 / 0.4; the reference dual boards use
 VIA_DRILL_MM      = 0.3             #  0.6 / 0.3, which leaves room in the inner set's tight TX ring)
 MIN_CLEARANCE_MM  = 0.2
 
@@ -79,12 +79,12 @@ EDGE_LINE_WIDTH_MM    = 0.05
 #   What the gap does NOT do: it is not what isolates the two sets.  A balanced RX band sees no net flux from a
 #   round TX ring, however close; the residual TX1 -> RX2 coupling comes from asymmetry (the exits, the vias,
 #   layer misregistration) and falls only slowly with distance (no published measurement of coupling against
-#   track gap exists; the Renesas dual boards leave 1.1 ... 1.4 mm between the two RX bands, all of it TX
+#   track gap exists; the reference dual boards leave 1.1 ... 1.4 mm between the two RX bands, all of it TX
 #   turns).  Keep the gap for the copper clearance and the solder mask; what keeps the fine track clean is the
 #   distance from ring 1 of the rotor to the RX2 band (ROTOR_1_TO_RX2_MM below).
 TRACK_GAP_MM = 0.5
 
-# BAND_SPLIT (mode 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths.  The Renesas
+# BAND_SPLIT (mode 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths.  The reference
 # 1x/16x boards are near 0.5 (6.1 and 6.4 mm); their 1x/32x board is near 0.35 (5.4 and 10 mm).
 BAND_SPLIT = 0.5
 
@@ -100,7 +100,7 @@ TERMINAL_1_DEG = 180.0              # set 1 (inner)
 TERMINAL_2_DEG = 0.0                # set 2 (outer)
 
 # The two TX oscillators run free at their own EXCITATION_FREQ_HZ (Dual_TX1 / TX2).  Nobody publishes a dual
-# board with two free-running carriers over one coil area: Renesas' own 1x + 16x board (CN317) drives ONE tank
+# board with two free-running carriers over one coil area: the CN317 reference 1x + 16x board drives ONE tank
 # and sets the second IC's TX current to zero; onsemi (AND90299) couples two tanks so that they lock to one
 # frequency and phase.  If the two tanks here are driven separately, the IC's switching demodulator mixes the
 # other carrier down to |f2 - n*f1|, and the AGC sees both carriers, so:
@@ -136,14 +136,14 @@ ROTOR_CUSTOM_OUTLINE_RADIUS_MM  = 29.5   # custom: outer edge of the disc (None 
 ROTOR_CUSTOM_BORE_RADIUS_MM     = 8.5    # custom: centre hole (None = no hole)
 
 # ROTOR_TRACK_GAP_MM = the bare ring that must stay between ring 1's outer radius and ring 2's inner radius
-# (an error when smaller, naming the extension to change).  The Renesas dual boards keep 2.3 ... 3.0 mm.  It is
+# (an error when smaller, naming the extension to change).  The reference dual boards keep 2.3 ... 3.0 mm.  It is
 # a proxy: the quantity that matters is how far each ring's metal stays from the OTHER set's RX band, below.
 ROTOR_TRACK_GAP_MM = 2.0
 
 # ROTOR_1_TO_RX2_MM = the least distance from ring 1's outer radius to the innermost RX2 copper (a warning
 # when smaller).  Ring 1 is the dangerous one: a 1x target is a half moon, so any of its field reaching the
 # RX2 band modulates the fine signal once per turn, a first-harmonic error that no fine-track calibration
-# removes (Melexis: nearby metal "causes a first-order harmonic on the measured angle").  Renesas' layout
+# removes (Melexis: nearby metal "causes a first-order harmonic on the measured angle").  The IC vendor's layout
 # rule for any copper near a coil is 3 mm, 5 mm if the design allows; its shielded-design note measures 12 %
 # of the RX voltage left with copper 0.9 mm from a coil and 45 % at 2.6 mm.  The reference 1x/16x boards sit
 # at about 3 mm.  Use 5.0 when the radius allows it.
