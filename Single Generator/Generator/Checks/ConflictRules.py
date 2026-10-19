@@ -501,12 +501,26 @@ def check(P, v, rep):
                                  f"design-rule check asks for {KICAD_EDGE_CLEARANCE_MM:g} mm between copper and the board "
                                  f"edge by default. Raise the inner copper radius to {bore + KICAD_EDGE_CLEARANCE_MM:g} or "
                                  f"lower the bore", level="warning")
-                if outline is not None and 0 < outline - ro_ < KICAD_EDGE_CLEARANCE_MM:
-                    rep.conflict(("ROTOR_CUSTOM_OUTER_RADIUS_MM", "ROTOR_CUSTOM_OUTLINE_RADIUS_MM"), f"the rotor copper "
-                                 f"ends only {outline - ro_:.2f} mm inside the outline ({ro_:g} against {outline:g} mm): "
-                                 f"KiCad's design-rule check asks for {KICAD_EDGE_CLEARANCE_MM:g} mm between copper and "
-                                 f"the board edge by default. Lower the outer copper radius to "
-                                 f"{outline - KICAD_EDGE_CLEARANCE_MM:g} or raise the outline", level="warning")
+                # the outer polygon vertices sit at r / cos(half a chord) (RotorBuilder.sector_polygon); with "auto"
+                # chords that is within ROTOR_CHORD_TOLERANCE_MM, with a fixed number it can be much farther out
+                steps, ro_v = v.get("ROTOR_ARC_STEPS_PER_SECTOR"), ro_
+                if isinstance(steps, (int, float)) and not isinstance(steps, bool) and steps > 0:
+                    n_sec = v.get("ROTOR_CUSTOM_SECTORS") or 1
+                    ro_v = ro_ / math.cos((duty or 0.5) * math.pi / n_sec / max(8, int(steps)))
+                if outline is not None and ro_ < outline <= ro_v:
+                    rep.conflict(("ROTOR_ARC_STEPS_PER_SECTOR", "ROTOR_CUSTOM_OUTER_RADIUS_MM",
+                                  "ROTOR_CUSTOM_OUTLINE_RADIUS_MM"), f"with {steps} chords per arc the corners of the "
+                                 f"rotor copper reach r = {ro_v:.3f} mm, past the rotor outline ({outline:g} mm): the "
+                                 f"copper crosses the board edge. Raise ROTOR_ARC_STEPS_PER_SECTOR (or use \"auto\") or "
+                                 f"lower the outer copper radius")
+                elif outline is not None and 0 < outline - ro_v < KICAD_EDGE_CLEARANCE_MM:
+                    corners = f" (the polygon corners, at r = {ro_v:.3f} mm)" if ro_v - ro_ > 0.0005 else ""
+                    rep.conflict(("ROTOR_CUSTOM_OUTER_RADIUS_MM", "ROTOR_CUSTOM_OUTLINE_RADIUS_MM"), f"the rotor copper"
+                                 f"{corners} ends only {outline - ro_v:.2f} mm inside the outline ({ro_:g} against "
+                                 f"{outline:g} mm): KiCad's design-rule check asks for {KICAD_EDGE_CLEARANCE_MM:g} mm "
+                                 f"between copper and the board edge by default. Lower the outer copper radius to "
+                                 f"{(outline - KICAD_EDGE_CLEARANCE_MM) * ro_ / ro_v:.3f} or raise the outline",
+                                 level="warning")
                 if has("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM"):
                     if ri_ > v["INSIDE_RADIUS_MM"] or ro_ < v["OUTSIDE_RADIUS_MM"]:
                         rep.conflict(("ROTOR_CUSTOM_INNER_RADIUS_MM", "ROTOR_CUSTOM_OUTER_RADIUS_MM", "INSIDE_RADIUS_MM",

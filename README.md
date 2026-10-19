@@ -133,7 +133,7 @@ Full details, board sizes and every parameter are in the wiki:
 ## Quick Start
 
 ```bash
-pip install numpy        # the generator needs only Python 3 and numpy
+pip install numpy
 
 cd "Single Generator"
 python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor
@@ -142,8 +142,8 @@ python Generator/Run/RunCoilGenerator.py --stator     # Only the stator
 python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor
 ```
 
-Edit only the files in `Single Generator/Parameters/`. To treat clearance warnings as errors, set
-`GENERATOR_MODE = "strict"` in `Board_Parameters.py`. Each run writes a new folder in
+Edit only the files in `Single Generator/Parameters/`. To treat every warning about the finished boards as an
+error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`. Each run writes a new folder in
 `Single Generator/Output/`
 (`Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>`)
 with `Stator.kicad_pcb`, `Rotor.kicad_pcb` and `Parameters.txt`, and never overwrites an earlier one.

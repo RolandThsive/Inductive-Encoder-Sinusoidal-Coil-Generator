@@ -31,7 +31,9 @@ TX_TAIL_EXTRA_MM   = 2.0            # radial tail that carries the TX terminal
 #                        TX_INSIDE_VIA_DISTANCE_MM are not used.
 #   "spiral"           : one smooth Archimedean spiral, the gap between turns equals the pitch
 #                        everywhere.  Use it when TX_PITCH_MM is tight (pitch - trace width close
-#                        to the clearance), e.g. the 0.4 mm pitch of the Renesas reference.
+#                        to the clearance), e.g. the 0.4 mm pitch of the Renesas reference.  Its last turn
+#                        ends one pitch farther out, and the fingers must reach past it (RX_TAB_LENGTH_MM
+#                        at least 3.5 with the values in these files).
 TX_SHAPE           = "stepped_diagonal"
 # TX_STEPPED_ARC_RADIUS_MM = radius of the innermost arc of a "stepped_arc" TX (mm, measured from the centre of the
 #   terminal via); the other arcs follow at TX_PITCH_MM.
@@ -79,8 +81,9 @@ TX_INSIDE_VIA_DISTANCE_MM = 0.3
 #                is the spiral that runs inwards from the terminal, TX_LAYER_B the one that runs back out.
 #   "parallel" : the same turns on TX_LAYER_A and TX_LAYER_B in parallel, stitched together through
 #                vias around the TX terminal: about 6 % more receiver signal than the Top layer alone
-#                and about 1.2 - 1.4x the Q in the model (half the resistance, but also a lower inductance;
-#                the exact ratio depends on the board thickness).  Put TX_LAYER_A on the Top layer.
+#                and about 1.2 - 1.6x the Q in the model (about 0.6x the resistance, but also a lower
+#                inductance; more on thin boards and with the staggered break style).  Put TX_LAYER_A on
+#                the Top layer.
 # TX_LAYER_A / TX_LAYER_B : 1 = Top, 2 = Inner 1, 3 = Inner 2, 4 = Bottom (a 2-layer board has 1
 #   and 4); they must differ.  Examples:
 #     TX_WIRING = "single", TX_LAYER_A = 4                  : on the Bottom layer, the inner tail on the

@@ -117,11 +117,15 @@ RX_RISING_EDGE_LAYER  = "F.Cu"      # 2-layer boards only: "F.Cu" or "B.Cu"
 # exposure for sine and cosine, no layer-induced gain/harmonic mismatch).
 # The layer swap (via) happens near the outer and inner tip of every lobe:
 # RX_VIA_ELECTRICAL_DEG is the electrical angle of the outer-tip via
-# (90 = exactly on the tip, allowed range about 50 ... 130).  The vias are kept
-# clear of the crossings: the usable range is about 45 + 720 / STEPS_PER_LOOP ...
-# 135 - 720 / STEPS_PER_LOOP (a value outside it is moved, with a warning).
-# With RX_SUBCOILS = 2 the via that joins the sub-coils needs it near 90: about
-# 57 + split / 2 ... 123 - split / 2 (80 ... 100 for a split of 45).
+# (90 = exactly on the tip; the check accepts 50 ... 130).  Away from 90 the vias come
+# close to the neighbouring curves: with the example band about 58 ... 122 builds
+# cleanly for LOOPS 1 ... 4, less with more loops (LOOPS 16: about 80 ... 100).  A
+# value outside 45 + 720 / STEPS_PER_LOOP ... 135 - 720 / STEPS_PER_LOOP is moved
+# inside it, with a warning.
+# With RX_SUBCOILS = 2 the via that joins the sub-coils needs it near 90: at most about
+# 57 + split / 2 ... 123 - split / 2 (80 ... 100 for a split of 45).  A large split may fit
+# at no angle at all: with the example band, 0.8 mm vias and 0.2 mm traces and clearance
+# the limit is a split of about 47 (a wider band or smaller vias allow more).
 RX_VIA_ELECTRICAL_DEG = 90.0
 
 

@@ -175,7 +175,10 @@ def assign_layers(rx):
                                         "clear of the other phases, so it fits only when RX_VIA_ELECTRICAL_DEG is "
                                         "near 90 (with 2 sub-coils about 45 + split / 2 ... 135 - split / 2, less a "
                                         "few degrees for the stub).  Bring RX_VIA_ELECTRICAL_DEG closer to 90 or "
-                                        "lower the split (a wider RX band does not help here)")
+                                        "lower the split (a wider RX band does not widen that range).  A large split "
+                                        "can fail at every angle: with the default band, 0.8 mm vias and 0.2 mm "
+                                        "traces and clearance it fits up to a split of about 47; a wider RX band, "
+                                        "smaller vias, narrower RX traces or a smaller clearance give room for more")
 
 # -- helpers for junctions ------------------------------------------------
 

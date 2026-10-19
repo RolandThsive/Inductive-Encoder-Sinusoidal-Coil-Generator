@@ -204,7 +204,7 @@ def summary(tx):
     if hasattr(tx, "min_tx_self_clearance"):
         gap, via_rx = tx.min_tx_self_clearance, getattr(tx, "min_tx_via_rx_clearance", None)
         parts = [f"smallest gap between different turns {gap:.3f} mm" if gap is not None else
-                 f"gap between different turns not measured (no TX via near a turn; the nominal pitch gives "
+                 f"gap between different turns not measured (no window or stitching via; the nominal pitch gives "
                  f"{float(P.TX_PITCH_MM) - float(P.TX_TRACE_WIDTH_MM):.3f} mm)"]
         if via_rx is not None:
             parts.append(f"TX via to RX copper {via_rx:.3f} mm")

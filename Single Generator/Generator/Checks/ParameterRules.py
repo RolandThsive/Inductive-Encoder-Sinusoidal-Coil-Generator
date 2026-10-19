@@ -362,14 +362,16 @@ def single_value_warnings(v, rep):
     if has("OUTPUT_DIR"):
         from Generator.Run import OutputFolders
         d = OutputFolders.output_dir(types.SimpleNamespace(OUTPUT_DIR=v["OUTPUT_DIR"]))
-        if os.path.exists(d) and not os.path.isdir(d):
+        if os.path.islink(d) and not os.path.exists(d):
+            rep.error(f"OUTPUT_DIR {d!r} is a link to something that does not exist")
+        elif os.path.exists(d) and not os.path.isdir(d):
             rep.error(f"OUTPUT_DIR {d!r} exists but is not a folder")
         elif os.path.isdir(d) and not os.access(d, os.W_OK):
             rep.error(f"OUTPUT_DIR {d!r} is not writable")
         elif not os.path.exists(d):
             # it is created in step 6: the nearest folder above it that exists must be a writable folder
             up = os.path.dirname(os.path.abspath(d))
-            while up and not os.path.exists(up) and os.path.dirname(up) != up:
+            while up and not os.path.lexists(up) and os.path.dirname(up) != up:
                 up = os.path.dirname(up)
             if not os.path.isdir(up):
                 rep.error(f"OUTPUT_DIR {d!r} cannot be created: {up!r} is not a folder")

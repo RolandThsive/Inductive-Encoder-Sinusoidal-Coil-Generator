@@ -65,8 +65,8 @@ class RXBuilder:
         self.via_deg = self._tip * 360.0 / self.S
         if abs(self.via_deg - float(P.RX_VIA_ELECTRICAL_DEG)) > 180.0 / self.S + 1e-9:
             print(f"WARNING: RX_VIA_ELECTRICAL_DEG = {P.RX_VIA_ELECTRICAL_DEG:g} is too close to the crossings for "
-                  f"{self.S} segments per period; the vias sit at {self.via_deg:.1f} electrical degrees (the usable "
-                  f"range is about {45 + 720.0 / self.S:.1f} ... {135 - 720.0 / self.S:.1f}: raise STEPS_PER_LOOP or "
+                  f"{self.S} segments per period; the vias sit at {self.via_deg:.1f} electrical degrees (at this resolution "
+                  f"they can only sit at about {45 + 720.0 / self.S:.1f} ... {135 - 720.0 / self.S:.1f}: raise STEPS_PER_LOOP or "
                   f"use \"auto\")", file=sys.stderr)
         # the fingers: every outer tip, one neighbouring pair of tips (RX_TABS = "single"), or none
         self.single_tabs = []
