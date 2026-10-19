@@ -1,7 +1,7 @@
 """
 Dual_ParameterRules.py  -  the rules the Single Generator cannot know: which name belongs in which dual file, the
-values that only a dual board has (the gap between the sets, the band split, the terminal angles, the gap between
-the rotor rings, the frequency warning), and the rules between the two sets (distinct nets, frequencies apart,
+values that only a dual board has (the layout mode, the gap between the sets, the band split, the terminal angles,
+the gap between the rotor rings, the frequency warning), and the rules between the two sets (distinct nets, frequencies apart,
 a TX shape that needs a tail, a layer left free for set 1's leads).  Every rule about one set on its own is the
 Single Generator's (ParameterRules.py, ConflictRules.py), run by Dual_CheckParameters.py on each set.
 Nothing to edit here.
@@ -19,6 +19,7 @@ BOARD_FILE = "Dual_Board_Parameters.py"
 
 # the dual-only values: (name, kind, options) for ParameterRules._check_value
 DUAL_SPEC = (
+    ("DUAL_MODE", "int", dict(lo=1, hi=4)),
     ("TRACK_GAP_MM", "num_or_none", dict(lo=0, lo_ex=True)),
     ("BAND_SPLIT", "num", dict(lo=0, hi=1, lo_ex=True, hi_ex=True)),
     ("LAYOUT_TOLERANCE_MM", "num", dict(lo=0, hi=1)),

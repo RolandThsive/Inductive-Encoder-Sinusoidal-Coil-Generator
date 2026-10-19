@@ -1,12 +1,16 @@
 """
 Dual_TrackLayout.py  -  where the two coil sets sit: the RX band of each set, the bore and the outline, and the
-gap between the sets, from the dual parameters, in one of FOUR MODES detected from what is set
-(Dual_Board_Parameters.py, Dual_RX1 / RX2_Parameters.py):
+gap between the sets, from the dual parameters, in one of FOUR MODES chosen with DUAL_MODE
+(Dual_Board_Parameters.py; the bands in Dual_RX1 / RX2_Parameters.py):
 
-    Mode 1   TRACK_GAP_MM + both edges set; both bands None  -> both bands fitted between the edges (BAND_SPLIT)
-    Mode 2   both bands set; TRACK_GAP_MM and both edges None -> edges from the bands; the gap is measured
-    Mode 3   one band + TRACK_GAP_MM set; the rest None        -> the other band placed across the gap, same RX_A_MM
-    Mode 4   both bands + both edges set; TRACK_GAP_MM None    -> all as given; edges checked; the gap is measured
+    DUAL_MODE 1   TRACK_GAP_MM + both edges set; both bands None  -> both bands fitted between the edges (BAND_SPLIT)
+    DUAL_MODE 2   both bands set; TRACK_GAP_MM and both edges None -> edges from the bands; the gap is measured
+    DUAL_MODE 3   one band + TRACK_GAP_MM set; the rest None        -> the other band placed across the gap, same RX_A_MM
+    DUAL_MODE 4   both bands + both edges set; TRACK_GAP_MM None    -> all as given; edges checked; the gap is measured
+
+What is set is held against the chosen mode (needs(mode) below): every value the mode needs that is None, and
+every value the mode wants None that is set, is reported by name, with the mode that matches what is set when
+there is one.
 
 From the centre out:   bore | RX1 band | TX1 ring | gap | RX2 band | TX2 ring | outline
 
@@ -33,17 +37,21 @@ from Generator.Core.Conflict import ParameterConflict
 from Dual_Generator.Core import Dual_SetParameters as SP
 
 MODE_TEXT = {
-    1: "mode 1: TRACK_GAP_MM and both board edges set, both RX bands None - the bands are fitted between the edges",
-    2: "mode 2: both RX bands set, TRACK_GAP_MM and both board edges None - the edges come from the bands",
-    3: "mode 3: one RX band and TRACK_GAP_MM set, the other band and both edges None - the other band is placed "
+    1: "DUAL_MODE = 1: TRACK_GAP_MM and both board edges set, both RX bands None - the bands are fitted between the edges",
+    2: "DUAL_MODE = 2: both RX bands set, TRACK_GAP_MM and both board edges None - the edges come from the bands",
+    3: "DUAL_MODE = 3: one RX band and TRACK_GAP_MM set, the other band and both edges None - the other band is placed "
        "across the gap",
-    4: "mode 4: both RX bands and both board edges set, TRACK_GAP_MM None - everything as given",
+    4: "DUAL_MODE = 4: both RX bands and both board edges set, TRACK_GAP_MM None - everything as given",
 }
-MODE_LIST = ("the four modes are:\n"
+MODE_LIST = ("the four modes (DUAL_MODE in Dual_Board_Parameters.py) are:\n"
              "  1: TRACK_GAP_MM + INNER_EDGE_RADIUS_MM + OUTER_EDGE_RADIUS_MM set, both RX bands None\n"
              "  2: both RX bands set, TRACK_GAP_MM and both edges None\n"
              "  3: one RX band + TRACK_GAP_MM set, the other band and both edges None\n"
              "  4: both RX bands + both edges set, TRACK_GAP_MM None")
+# what each mode needs: (TRACK_GAP_MM set, both edges set, how many RX bands set)
+MODE_NEEDS = {1: (True, True, 0), 2: (False, False, 2), 3: (True, False, 1), 4: (False, True, 2)}
+MODE_SHORT = {1: "the bands fitted between the edges", 2: "the edges from the bands",
+              3: "the other band placed across the gap", 4: "everything as given"}
 RX_FILES = {1: "Dual_RX1_Parameters.py", 2: "Dual_RX2_Parameters.py"}
 BOARD_FILE = "Dual_Board_Parameters.py"
 
@@ -162,15 +170,76 @@ def inner_margin(rx, board):
     return max(float(rx.RX_TRACE_WIDTH_MM) / 2.0, float(board.VIA_DIAMETER_MM) / 2.0)
 
 
+def mode_of(P):
+    """DUAL_MODE as an int 1 ... 4, or ParameterConflict."""
+    m = getattr(P.BOARD, "DUAL_MODE", None)
+    if isinstance(m, bool) or not isinstance(m, (int, float)) or m not in (1, 2, 3, 4):
+        raise ParameterConflict(("DUAL_MODE",), f"DUAL_MODE = {m!r} ({BOARD_FILE}): must be 1, 2, 3 or 4. {MODE_LIST}")
+    return int(m)
+
+
+def mode_matching(gap_set, edges_set, bands_set):
+    """The mode whose needs are exactly what is set, or None."""
+    for m, needs in MODE_NEEDS.items():
+        if needs == (gap_set, edges_set, bands_set):
+            return m
+    return None
+
+
+def check_mode(P, mode, gap, e_in, e_out, b1, b2):
+    """What is set against what DUAL_MODE needs: ParameterConflict naming every value to set or to clear."""
+    need_gap, need_edges, need_bands = MODE_NEEDS[mode]
+    bands = (b1, b2)
+    wrong, names = [], []
+    if need_gap and gap is None:
+        wrong.append(f"TRACK_GAP_MM is None ({BOARD_FILE}) but the mode needs it")
+        names.append("TRACK_GAP_MM")
+    if not need_gap and gap is not None:
+        wrong.append(f"TRACK_GAP_MM = {gap!r} ({BOARD_FILE}) but the mode measures the gap: set it to None")
+        names.append("TRACK_GAP_MM")
+    for n, v in (("INNER_EDGE_RADIUS_MM", e_in), ("OUTER_EDGE_RADIUS_MM", e_out)):
+        if need_edges and v is None:
+            wrong.append(f"{n} is None ({BOARD_FILE}) but the mode needs both edges")
+            names.append(n)
+        if not need_edges and v is not None:
+            wrong.append(f"{n} = {v!r} ({BOARD_FILE}) but the mode takes the edges from the bands: set it to None")
+            names.append(n)
+    n_set = sum(b is not None for b in bands)
+    if n_set != need_bands:
+        names += list(SP.BAND_NAMES)
+        if need_bands == 1 and n_set == 0:
+            wrong.append("no RX band is given (all four values None in Dual_RX1 and Dual_RX2) but the mode needs one "
+                         "band: give INSIDE_RADIUS_MM / OUTSIDE_RADIUS_MM or RX_R_BASE_MM / RX_A_MM in one of them")
+        elif need_bands == 1 and n_set == 2:
+            wrong.append("both RX bands are given (Dual_RX1 and Dual_RX2) but the mode places the other band: set "
+                         "one band's four values to None")
+        else:
+            for k, b in ((1, b1), (2, b2)):
+                if b is None and need_bands == 2:
+                    wrong.append(f"the RX{k} band is None ({RX_FILES[k]}: INSIDE_RADIUS_MM / OUTSIDE_RADIUS_MM or "
+                                 f"RX_R_BASE_MM / RX_A_MM) but the mode needs both bands")
+                if b is not None and need_bands == 0:
+                    given = ", ".join(f"{n} = {v:g}" for n, v in b["names"].items())
+                    wrong.append(f"the RX{k} band is given ({RX_FILES[k]}: {given}) but the mode places both bands: "
+                                 f"set its four values to None")
+    if not wrong:
+        return
+    match = mode_matching(gap is not None, e_in is not None and e_out is not None, n_set)
+    hint = (f" What is set matches DUAL_MODE = {match} ({MODE_SHORT[match]}); choose that mode, or change the values."
+            if match is not None and match != mode else " Change the values, or choose another DUAL_MODE.")
+    raise ParameterConflict(("DUAL_MODE",) + tuple(dict.fromkeys(names)),
+                            f"DUAL_MODE = {mode} ({MODE_SHORT[mode]}) does not match what is set: "
+                            + "; ".join(wrong) + "." + hint + " " + MODE_LIST)
+
+
 def resolve(P):
     """The Layout for these parameters, or ParameterConflict."""
     B = P.BOARD
+    mode = mode_of(P)
     e_in, e_out = getattr(B, "INNER_EDGE_RADIUS_MM", None), getattr(B, "OUTER_EDGE_RADIUS_MM", None)
     gap = getattr(B, "TRACK_GAP_MM", None)
-    if (e_in is None) != (e_out is None):
-        unset = "INNER_EDGE_RADIUS_MM" if e_in is None else "OUTER_EDGE_RADIUS_MM"
-        raise ParameterConflict(SP.EDGE_NAMES, f"the two board edges go together, but {unset} is None ({BOARD_FILE}). "
-                                f"Set both (modes 1 and 4) or both to None (modes 2 and 3)")
+    b1, b2 = band_of(P.RX1, 1), band_of(P.RX2, 2)
+    check_mode(P, mode, gap, e_in, e_out, b1, b2)
     edges_set = e_in is not None
     if edges_set:
         e_in, e_out = _num("INNER_EDGE_RADIUS_MM", e_in, BOARD_FILE), _num("OUTER_EDGE_RADIUS_MM", e_out, BOARD_FILE)
@@ -179,45 +248,13 @@ def resolve(P):
                                     f"larger than its outer radius ({e_out:g} mm)")
     if gap is not None:
         gap = _num("TRACK_GAP_MM", gap, BOARD_FILE)
-    b1, b2 = band_of(P.RX1, 1), band_of(P.RX2, 2)
     inset = float(B.INNER_EDGE_INSET_MM)
     clearance = float(B.MIN_CLEARANCE_MM)
     room1 = tx_room(P.TX1, B)                    # TX1 reach past the RX1 band end
     margin2 = inner_margin(P.RX2, B)             # set 2's copper inside its RX band start
     room2 = outer_room(P.TX2, B, P.ROTOR2)       # from the RX2 band end to the outline (ring 2's overhang included)
-    names_all = ("TRACK_GAP_MM",) + SP.EDGE_NAMES + SP.BAND_NAMES
 
-    # ---- the mode
-    if b1 is None and b2 is None:
-        if gap is None or not edges_set:
-            missing = [n for n, v in (("TRACK_GAP_MM", gap), ("INNER_EDGE_RADIUS_MM", e_in),
-                                      ("OUTER_EDGE_RADIUS_MM", e_out)) if v is None]
-            raise ParameterConflict(names_all, f"no RX band is given (all four radii are None in Dual_RX1 and Dual_RX2), "
-                                    f"so the bands have to be fitted between the board edges with TRACK_GAP_MM "
-                                    f"(mode 1), but {' and '.join(missing)} {'is' if len(missing) == 1 else 'are'} "
-                                    f"None ({BOARD_FILE}). {MODE_LIST}")
-        mode = 1
-    elif b1 is not None and b2 is not None:
-        if gap is not None:
-            raise ParameterConflict(("TRACK_GAP_MM",) + SP.BAND_NAMES, f"both RX bands are given, so the gap between "
-                                    f"the sets follows from them and is measured; set TRACK_GAP_MM to None "
-                                    f"({BOARD_FILE}: mode 2 without edges, mode 4 with edges), or set one band to "
-                                    f"None to have it placed TRACK_GAP_MM across (mode 3). {MODE_LIST}")
-        mode = 4 if edges_set else 2
-    else:
-        given = 1 if b1 is not None else 2
-        if gap is None:
-            raise ParameterConflict(("TRACK_GAP_MM",) + SP.BAND_NAMES, f"only the RX{given} band is given, so the RX"
-                                    f"{3 - given} band is placed across the gap (mode 3), but TRACK_GAP_MM is None "
-                                    f"({BOARD_FILE}). Set it, or give both bands. {MODE_LIST}")
-        if edges_set:
-            raise ParameterConflict(SP.EDGE_NAMES + SP.BAND_NAMES, f"only the RX{given} band is given, so the RX"
-                                    f"{3 - given} band is placed across TRACK_GAP_MM and the board edges follow from "
-                                    f"the bands (mode 3); set INNER_EDGE_RADIUS_MM and OUTER_EDGE_RADIUS_MM to None "
-                                    f"({BOARD_FILE}), or give both bands (mode 4). {MODE_LIST}")
-        mode = 3
-
-    # ---- the bands
+    # ---- the bands (the mode is DUAL_MODE, checked above against what is set)
     if mode == 1:
         fixed = inset + room1 + gap + margin2 + room2
         free = e_out - e_in - fixed
@@ -277,7 +314,7 @@ def resolve(P):
     required = gap if gap is not None else clearance
     if expected < required - 1e-9:
         if mode == 1:
-            raise AssertionError("mode 1 placed the bands without the gap")      # (cannot happen: the bands are placed)
+            raise AssertionError("DUAL_MODE 1 placed the bands without the gap")  # (cannot happen: the bands are placed)
         need = b1["ro"] + room1 + required + margin2
         raise ParameterConflict(SP.BAND_NAMES, f"the two sets run into each other: the TX1 ring reaches r = {reach1:.2f} "
                                 f"mm (RX1 band end {b1['ro']:g} + TX1 offset, turns and pitch) and set 2's copper starts "

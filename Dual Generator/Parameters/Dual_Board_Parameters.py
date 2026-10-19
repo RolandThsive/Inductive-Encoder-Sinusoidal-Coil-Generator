@@ -48,19 +48,24 @@ MIN_CLEARANCE_MM  = 0.2
 # ---- board edges (Edge.Cuts circles) and the gap between the sets ----------
 # From the centre out, the stator is:
 #     bore | RX1 band | TX1 ring | TRACK_GAP_MM | RX2 band | TX2 ring | outline
-# Which of these you give and which the generator computes is one of FOUR MODES, detected from what is set:
+# Which of these you give and which the generator computes is DUAL_MODE, one of FOUR MODES:
 #
-#   Mode 1  TRACK_GAP_MM and both edges set, both RX bands None (Dual_RX1 / RX2: all four radii None)
-#           -> both bands are fitted between the edges; BAND_SPLIT shares the free width between them
-#   Mode 2  both RX bands set, TRACK_GAP_MM and both edges None
-#           -> bore and outline come from the bands; the gap is measured and reported
-#   Mode 3  ONE RX band set and TRACK_GAP_MM set, the other band and both edges None
-#           -> the other band is placed across the gap with the same half width (RX_A_MM); then as mode 2
-#   Mode 4  both RX bands and both edges set, TRACK_GAP_MM None
-#           -> everything as given; each edge is checked for room; the gap is measured and reported
+#   DUAL_MODE = 1  you give TRACK_GAP_MM, INNER_EDGE_RADIUS_MM, OUTER_EDGE_RADIUS_MM and BAND_SPLIT; both RX bands
+#                  stay None (Dual_RX1 / RX2: all four radii None)
+#                  -> both bands are fitted between the edges; BAND_SPLIT shares the free width between them
+#   DUAL_MODE = 2  you give both RX bands (Dual_RX1 and Dual_RX2); TRACK_GAP_MM and both edges stay None
+#                  -> bore and outline come from the bands; the gap is measured and reported
+#   DUAL_MODE = 3  you give ONE RX band (Dual_RX1 or Dual_RX2) and TRACK_GAP_MM; the other band and both edges
+#                  stay None
+#                  -> the other band is placed across the gap with the same half width (RX_A_MM); then as mode 2
+#   DUAL_MODE = 4  you give both RX bands and both edges; TRACK_GAP_MM stays None
+#                  -> everything as given; each edge is checked for room; the gap is measured and reported
 #
-# Anything else is an error that names the four modes.  Both edges go together: one set and the other None
-# is an error in every mode.
+# The checker holds what is set against the chosen mode: a value the mode needs that is None, or a value that
+# must be None for the mode and is set, is an error that names it (and names the mode that matches what is set,
+# when one does).  Change the values, or change DUAL_MODE.
+DUAL_MODE = 1
+
 INNER_EDGE_RADIUS_MM  = 8.5         # the centre hole.  Must sit INNER_EDGE_INSET_MM inside the RX1 band.
 OUTER_EDGE_RADIUS_MM  = 29.5        # the board edge.  Must leave OUTER_EDGE_OFFSET_MM past the RX2 band, and
                                     # OUTER_EDGE_TAIL_MARGIN_MM past the TX2 ring.
@@ -74,7 +79,7 @@ EDGE_LINE_WIDTH_MM    = 0.05
 # TX1 ring, half a trace past one pitch outside the last turn) to the innermost copper of set 2 (the RX2 band
 # start minus half an RX trace or a via radius, whichever is larger).  The TX rooms come from the Single
 # Generator's own TX ring formula and are verified on the built copper.
-#   Modes 1 and 3: the gap to leave.  Modes 2 and 4: must be None; the measured gap must be at least
+#   DUAL_MODE 1 and 3: the gap to leave.  DUAL_MODE 2 and 4: must be None; the measured gap must be at least
 #   MIN_CLEARANCE_MM.
 #   What the gap does NOT do: it is not what isolates the two sets.  A balanced RX band sees no net flux from a
 #   round TX ring, however close; the residual TX1 -> RX2 coupling comes from asymmetry (the exits, the vias,
@@ -89,7 +94,7 @@ TRACK_GAP_MM = 0.5
 # short).  0.05 is enough for every board tried; 0 = no allowance.
 LAYOUT_TOLERANCE_MM = 0.05
 
-# BAND_SPLIT (mode 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths (a 1x/16x board
+# BAND_SPLIT (DUAL_MODE = 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths (a 1x/16x board
 # is usually near 0.5, a 1x/32x board near 0.35: the fine track gets the width).
 BAND_SPLIT = 0.5
 

@@ -67,13 +67,13 @@ def stop(why):
 
 
 def narrow_band_hint(layout):
-    """Mode 1 fits the bands into whatever is left between the edges; when a set cannot be built, the usual
+    """DUAL_MODE 1 fits the bands into whatever is left between the edges; when a set cannot be built, the usual
     reason is that the leftover was too little for its vias."""
     if layout.mode != 1:
         return
     w1 = layout.band1["ro"] - layout.band1["ri"]
     w2 = layout.band2["ro"] - layout.band2["ri"]
-    print("  " + Colour.yellow(f"hint    mode 1 fitted the RX bands into the room between the board edges: RX1 came out "
+    print("  " + Colour.yellow(f"hint    DUAL_MODE 1 fitted the RX bands into the room between the board edges: RX1 came out "
                                f"{w1:.2f} mm wide, RX2 {w2:.2f} mm. If the errors above are vias touching copper, the "
                                f"bands are too narrow: raise OUTER_EDGE_RADIUS_MM, lower INNER_EDGE_RADIUS_MM, or move "
                                f"BAND_SPLIT towards the set that failed"))
