@@ -21,9 +21,13 @@ BOARD_FILE = "Dual_Board_Parameters.py"
 DUAL_SPEC = (
     ("TRACK_GAP_MM", "num_or_none", dict(lo=0, lo_ex=True)),
     ("BAND_SPLIT", "num", dict(lo=0, hi=1, lo_ex=True, hi_ex=True)),
+    ("LAYOUT_TOLERANCE_MM", "num", dict(lo=0, hi=1)),
     ("TERMINAL_1_DEG", "num", dict()),
     ("TERMINAL_2_DEG", "num", dict()),
     ("TX_FREQ_SEPARATION_MIN", "num", dict(lo=0, hi=1, hi_ex=True)),
+    ("TX_FREQ_RATIO_MAX_ORDER", "int", dict(lo=1, hi=100)),
+    ("TX_FREQ_RATIO_TOLERANCE", "num", dict(lo=0, hi=1, hi_ex=True)),
+    ("ROTOR_START_ANGLE_ZERO", "choice", dict(values=("rx_zero", "board"), ci=True)),
     ("ROTOR_TRACK_GAP_MM", "num", dict(lo=0)),
     ("ROTOR_1_TO_RX2_MM", "num", dict(lo=0)),
     ("ROTOR_2_TO_RX1_MM", "num", dict(lo=0)),
@@ -59,14 +63,13 @@ def check_fixed(P, rep):
     mod = getattr(P, "FIXED", None)
     if mod is None:
         return
-    for table, who in ((SP.FIXED_REQUIRED, ""), (SP.RING_1_FIXED_REQUIRED, " for ring 1 of the rotor")):
-        for name, (req, why) in table.items():
-            if not hasattr(mod, name):
-                continue                                   # check_files reports it as missing
-            val = getattr(mod, name)
-            if not _same(val, req):
-                rep.error(f"{name} = {val!r} in {SP.FIXED_FILE} is FIXED at {req!r}{who} for every dual board ({why}). "
-                          f"Put it back; a board with another value is a Single Generator board")
+    for name, (req, why) in SP.FIXED_REQUIRED.items():
+        if not hasattr(mod, name):
+            continue                                   # check_files reports it as missing
+        val = getattr(mod, name)
+        if not _same(val, req):
+            rep.error(f"{name} = {val!r} in {SP.FIXED_FILE} is FIXED at {req!r} for every dual board ({why}). "
+                      f"Put it back; a board with another value is a Single Generator board")
 
 
 def check_files(P, rep):
@@ -97,9 +100,6 @@ def check_files(P, rep):
             elif name in SP.FIXED_REQUIRED:
                 rep.warn(f"{name} in {file} is ignored: a dual board fixes it at {SP.FIXED_REQUIRED[name][0]!r} "
                          f"({SP.FIXED_FILE})")
-            elif name in SP.RING_1_FIXED_REQUIRED and attr == "ROTOR1":
-                rep.warn(f"{name} in {file} is ignored: ring 1 never covers its TX turns "
-                         f"({name} = {SP.RING_1_FIXED_REQUIRED[name][0]!r} in {SP.FIXED_FILE})")
             elif _where(name):
                 rep.warn(f"{name} in {file} is ignored: it belongs in {' / '.join(_where(name))}")
             else:
@@ -163,13 +163,17 @@ def dual_rules(P, v, rep):
                      f"|f2 - f1| = {(hi - lo) / 1e3:g} kHz, and the tank tolerances can close the rest. Move one "
                      f"frequency, or drive both tanks from one IC so that there is one carrier")
         else:
-            best = min(((abs(ratio / (p / q) - 1.0), p, q) for p in range(1, 5) for q in range(1, 5) if p > q
-                        and p / q > 1.0 and math.gcd(p, q) == 1), default=None)
-            if best is not None and best[0] < 0.02:
+            order, tol = v.get("TX_FREQ_RATIO_MAX_ORDER"), v.get("TX_FREQ_RATIO_TOLERANCE")
+            best = None
+            if order is not None and tol is not None:
+                best = min(((abs(ratio / (p / q) - 1.0), p, q) for p in range(2, order + 1) for q in range(1, p)
+                            if math.gcd(p, q) == 1), default=None)
+            if best is not None and best[0] < tol:
                 rep.warn(f"the two TX frequencies sit on the ratio {best[1]}:{best[2]} (EXCITATION_FREQ_HZ {lo / 1e6:g} and "
-                         f"{hi / 1e6:g} MHz, ratio {ratio:.3f}): harmonic {best[2]} of the higher carrier lands on "
-                         f"harmonic {best[1]} of the lower one, which a switching demodulator mixes down to DC. Move "
-                         f"one frequency off every p:q with p, q <= 4 (for example 3.0 and 4.3 MHz)")
+                         f"{hi / 1e6:g} MHz, ratio {ratio:.3f}, within TX_FREQ_RATIO_TOLERANCE = {100 * tol:g} %): "
+                         f"harmonic {best[2]} of the higher carrier lands on harmonic {best[1]} of the lower one, which "
+                         f"a switching demodulator mixes down to DC. Move one frequency off every p:q with p, q <= "
+                         f"TX_FREQ_RATIO_MAX_ORDER = {order}")
         if ratio - 1.0 >= sep - 1e-12:
             rep.info(f"the two TX frequencies, {lo / 1e6:g} and {hi / 1e6:g} MHz, differ by {100 * (ratio - 1):.0f} %. "
                      f"Two-IC dual boards usually drive one tank only (the second IC's TX current set to 0, its TX pins on the "
@@ -185,6 +189,17 @@ def dual_rules(P, v, rep):
                  "Dual_TX2_Parameters.py), so no layer is free for set 1's six leads to cross set 2 on their way "
                  "to its IC. The recommended layers leave Bottom (the layer farthest from the rotor) free: RX on "
                  "1 + 2, TX on 1 + 3")
+    # ring 1 over its TX turns: allowed, but it puts the coarse target next to set 2's RX band
+    _rx1, _tx1, ro1 = SP.modules(P, 1)
+    if str(getattr(B, "ROTOR_MODE", "")).lower() == "according_to_stator" \
+            and getattr(ro1, "ROTOR_AUTO_COVER_TX", False) is True:
+        over = getattr(ro1, "ROTOR_AUTO_TX_OVERHANG_MM", None)
+        rep.warn(f"ROTOR_AUTO_COVER_TX = True in Dual_Rotor1_Parameters.py: ring 1 of the rotor reaches over the TX1 "
+                 f"turns, ROTOR_AUTO_TX_OVERHANG_MM = {over!r} mm past the outermost one, into the gap next to set 2's "
+                 f"RX band. The {getattr(_rx1, 'LOOPS', '?')}-sector coarse target that close to the fine band "
+                 f"modulates the fine signal once per turn; the built rotor is checked against ROTOR_1_TO_RX2_MM "
+                 f"({getattr(B, 'ROTOR_1_TO_RX2_MM', '?')!r} mm). Usual: False, the ring stops "
+                 f"ROTOR_AUTO_TX_CLEARANCE_MM inside the TX1 ring")
     # the rotor ring gap against the extensions is checked on the built rotor (Dual_DesignChecks)
     # the output folder
     if hasattr(B, "OUTPUT_DIR") and isinstance(B.OUTPUT_DIR, str) and B.OUTPUT_DIR.strip():

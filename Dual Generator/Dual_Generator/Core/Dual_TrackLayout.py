@@ -141,15 +141,17 @@ def tx_room(tx, board):
 def outer_room(tx, board, rotor=None):
     """From the RX2 band end to the outline (mm): the Single Generator's own rule (BoardLayout.outer_edge_room),
     and, when ring 2 of the rotor covers the TX2 turns (ROTOR_AUTO_COVER_TX, according_to_stator), also room for
-    its overhang past the outermost turn plus ROTOR_AUTO_EDGE_CLEARANCE_MM: the disc has the stator's outline."""
+    its overhang past the outermost turn plus ROTOR_AUTO_EDGE_CLEARANCE_MM and LAYOUT_TOLERANCE_MM (the disc has
+    the stator's outline)."""
     room = BoardLayout.outer_edge_room(_tx_namespace(tx, board))
     if rotor is not None and str(getattr(board, "ROTOR_MODE", "")).lower() == "according_to_stator" \
             and bool(getattr(rotor, "ROTOR_AUTO_COVER_TX", False)):
         ring = BoardLayout.tx_ring(_tx_namespace(tx, board), 0.0)
         overhang = getattr(rotor, "ROTOR_AUTO_TX_OVERHANG_MM", 0.0) or 0.0
         clearance = getattr(board, "ROTOR_AUTO_EDGE_CLEARANCE_MM", 0.0) or 0.0
+        tol = getattr(board, "LAYOUT_TOLERANCE_MM", 0.0) or 0.0
         try:
-            room = max(room, ring["outer_copper_edge"] + float(overhang) + float(clearance) + 0.05)   # + rounding room
+            room = max(room, ring["outer_copper_edge"] + float(overhang) + float(clearance) + float(tol))
         except (TypeError, ValueError):
             pass                                   # a bad value: the Single Generator's checks report it
     return room

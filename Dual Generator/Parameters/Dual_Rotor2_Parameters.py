@@ -4,8 +4,9 @@ Dual_Rotor1_Parameters.py has the same names for ring 1.  The disc itself (ROTOR
 thickness, arc resolution, solder mask) is set once in Dual_Board_Parameters.py.
 
 The names are the Single Generator's own (Rotor_Parameters.py).  Ring 2 may cover its TX turns like a single
-board's rotor does (ROTOR_AUTO_COVER_TX); its inner edge must stay ROTOR_TRACK_GAP_MM (Dual_Board_Parameters.py)
-outside ring 1 and ROTOR_2_TO_RX1_MM outside set 1's RX copper (the generator warns when it does not).
+board's rotor does (ROTOR_AUTO_COVER_TX = True: the outline has room for it; ring 1 has the same setting and
+keeps it False); its inner edge must stay ROTOR_TRACK_GAP_MM (Dual_Board_Parameters.py) outside ring 1 and
+ROTOR_2_TO_RX1_MM outside set 1's RX copper (the generator warns when it does not).
 
 Units: millimetres, degrees.  Nothing in this file is computed - edit values only.
 """

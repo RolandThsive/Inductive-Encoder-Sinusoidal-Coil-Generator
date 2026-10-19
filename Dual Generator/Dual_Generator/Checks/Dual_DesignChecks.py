@@ -66,10 +66,12 @@ def check_sets(P, layout, stator1, stator2):
     else:
         rep.info(f"gap between the sets on the built copper: set 1 reaches r = {reach1:.3f} mm, set 2 starts at "
                  f"r = {inner2:.3f} mm, {gap:.3f} mm free (at least {required:g} needed)")
-    if abs(gap - layout.gap_expected) > 0.05:
-        rep.warn(f"the built copper differs from the layout formulas: the gap measures {gap:.3f} mm, the formulas "
-                 f"expected {layout.gap_expected:.3f} mm (set 1 reach {layout.reach1:.3f} -> {reach1:.3f}, set 2 start "
-                 f"{layout.inner2:.3f} -> {inner2:.3f}). The boards are as built; report this difference")
+    tol = float(getattr(P.BOARD, "LAYOUT_TOLERANCE_MM", 0.0) or 0.0)
+    if abs(gap - layout.gap_expected) > tol + 1e-9:
+        rep.warn(f"the built copper differs from the layout formulas by more than LAYOUT_TOLERANCE_MM ({tol:g} mm): "
+                 f"the gap measures {gap:.3f} mm, the formulas expected {layout.gap_expected:.3f} mm (set 1 reach "
+                 f"{layout.reach1:.3f} -> {reach1:.3f}, set 2 start {layout.inner2:.3f} -> {inner2:.3f}). The boards "
+                 f"are as built; report this difference")
     return rep, gap
 
 

@@ -83,6 +83,12 @@ EDGE_LINE_WIDTH_MM    = 0.05
 #   distance from ring 1 of the rotor to the RX2 band (ROTOR_1_TO_RX2_MM below).
 TRACK_GAP_MM = 0.5
 
+# LAYOUT_TOLERANCE_MM = the generator's rounding allowance: the built copper may differ from the layout formulas
+# above by this much before the run warns (the Single Generator rounds its radii), and the outline gets this
+# much extra room when ring 2 of the rotor covers the TX2 turns (so the disc's edge clearance is never a hair
+# short).  0.05 is enough for every board tried; 0 = no allowance.
+LAYOUT_TOLERANCE_MM = 0.05
+
 # BAND_SPLIT (mode 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths (a 1x/16x board
 # is usually near 0.5, a 1x/32x board near 0.35: the fine track gets the width).
 BAND_SPLIT = 0.5
@@ -103,14 +109,17 @@ TERMINAL_2_DEG = 0.0                # set 2 (outer)
 # to zero, or couple the two tanks so that they lock to one frequency and phase.  If the two tanks here are
 # driven separately, the IC's switching demodulator mixes the other carrier down to |f2 - n*f1|, and the AGC
 # sees both carriers, so:
-#   - the two frequencies must differ by at least this fraction of the lower one (0.2 = 20 %, the usual rule
-#     for neighbouring LC sensors; closer is a warning), and
+#   - the two frequencies must differ by at least TX_FREQ_SEPARATION_MIN of the lower one (0.2 = 20 %, the
+#     usual rule for neighbouring LC sensors; closer is a warning), and
 #   - they must not sit on a small integer ratio (3.0 / 4.5 MHz = 2:3 puts the 2nd harmonic of TX2 onto the
-#     3rd harmonic of IC1's demodulator; 3.0 / 4.3 MHz does not): a ratio within 2 % of p:q with p, q <= 4
-#     is a warning.
+#     3rd harmonic of IC1's demodulator; 3.0 / 4.3 MHz does not): a ratio within TX_FREQ_RATIO_TOLERANCE of
+#     any p:q with p, q <= TX_FREQ_RATIO_MAX_ORDER is a warning (0.02 = 2 %; the order 4 covers 2:1, 3:1, 4:1,
+#     3:2, 4:3).  TX_FREQ_RATIO_MAX_ORDER = 1 turns the ratio warning off.
 # Pulling the two tanks onto each other (injection locking) is not the risk: the lock range is about
 # f0 * k / (2 Q), a few tens of kHz for coupling k < 0.3, nowhere near 1 MHz.
-TX_FREQ_SEPARATION_MIN = 0.2
+TX_FREQ_SEPARATION_MIN   = 0.2
+TX_FREQ_RATIO_MAX_ORDER  = 4
+TX_FREQ_RATIO_TOLERANCE  = 0.02
 
 
 # =============================================================================
@@ -149,6 +158,16 @@ TANK_CAP_SERIES      = "E12"        # standard capacitor values the estimate sug
 #   "custom"              : each ring from its ROTOR_CUSTOM_* values; the disc's edges from the two lines below
 ROTOR_MODE = "according_to_stator"
 ROTOR_AUTO_EDGE_CLEARANCE_MM = 0.5  # according_to_stator: ring copper stays this far from the bore and the outline
+
+# ROTOR_START_ANGLE_ZERO = where each ring's start angle (ROTOR_AUTO_START_ANGLE_DEG / ROTOR_CUSTOM_START_ANGLE_DEG
+# in Dual_Rotor1 / Rotor2) is measured from (any letter case):
+#   "rx_zero" : from its own set's RX pattern zero.  Each set is turned by its own angle (TERMINAL_1 / 2_DEG
+#               above), and the generator adds that turn to the ring's start angle, so that both rings start at
+#               their own set's zero and the coarse and the fine track read 0 at the same shaft angle (what the
+#               coarse-to-fine decision needs; the firmware calibrates the residual).
+#   "board"   : from the board's +x axis, as the Single Generator measures it; the turn of each set is not added.
+#               The record file prints each set's zero, so you can add it by hand.
+ROTOR_START_ANGLE_ZERO = "rx_zero"
 ROTOR_CUSTOM_OUTLINE_RADIUS_MM  = 29.5   # custom: outer edge of the disc (None = no outline)
 ROTOR_CUSTOM_BORE_RADIUS_MM     = 8.5    # custom: centre hole (None = no hole)
 

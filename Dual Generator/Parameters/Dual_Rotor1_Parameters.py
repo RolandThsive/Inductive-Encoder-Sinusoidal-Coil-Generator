@@ -3,14 +3,14 @@ Dual_Rotor1_Parameters.py  -  ring 1 of the rotor disc: the metal sectors that f
 Dual_Rotor2_Parameters.py has the same names for ring 2.  The disc itself (ROTOR_MODE, bore, outline,
 thickness, arc resolution, solder mask) is set once in Dual_Board_Parameters.py.
 
-The names are the Single Generator's own (Rotor_Parameters.py).  Left out on purpose: ROTOR_AUTO_COVER_TX and
-ROTOR_AUTO_TX_OVERHANG_MM - ring 1 never covers its TX turns, because metal over TX1 would sit right next to
-set 2's RX band; it stops ROTOR_AUTO_TX_CLEARANCE_MM inside the TX1 ring (dual boards in practice stop their
-1x target about 1.4 mm inside its own RX band).  Ring 1 is a half moon when LOOPS of set 1 is 1: any of its
-field that reaches the RX2 band modulates the fine signal once per turn, so its outer radius must stay
-ROTOR_1_TO_RX2_MM (Dual_Board_Parameters.py) inside set 2's RX copper; the generator warns when it does not.
-Covering TX1 would gain a few percent of coarse signal (the IC's AGC does not need it) and put that half
-moon about half a millimetre from the fine band.
+The names are the Single Generator's own (Rotor_Parameters.py).  Ring 1 is a half moon when LOOPS of set 1 is 1:
+any of its field that reaches the RX2 band modulates the fine signal once per turn, so its outer radius must
+stay ROTOR_1_TO_RX2_MM (Dual_Board_Parameters.py) inside set 2's RX copper; the generator warns when it does
+not.  That is why ROTOR_AUTO_COVER_TX is False here: ring 1 stops ROTOR_AUTO_TX_CLEARANCE_MM inside the TX1
+ring (dual boards in practice stop their 1x target about 1.4 mm inside its own RX band).  Covering TX1 (True)
+would gain a few percent of coarse signal (the IC's AGC does not need it) and put that half moon about half a
+millimetre from the fine band; the generator warns, and then warns again on the built rotor when the ring
+comes closer than ROTOR_1_TO_RX2_MM.
 
 Units: millimetres, degrees.  Nothing in this file is computed - edit values only.
 """
@@ -23,11 +23,17 @@ ROTOR_AUTO_START_ANGLE_DEG  = 0.0   # angle of the first sector edge, measured f
                                     # and ring 2's value equal: both tracks then read 0 at the same shaft angle
                                     # (no nominal shift between coarse and fine), which is what the coarse-to-
                                     # fine decision needs; the firmware calibrates the residual.
+# The outer edge of this ring: inside the TX1 ring (False, ROTOR_AUTO_EXTENSION_OUTER_MM past the RX band, at
+# most ROTOR_AUTO_TX_CLEARANCE_MM inside the TX ring) or over the TX1 turns (True, ending ROTOR_AUTO_TX_OVERHANG_MM
+# past the outermost one, next to set 2's RX band: a warning, see above).
+ROTOR_AUTO_COVER_TX         = False
+ROTOR_AUTO_TX_OVERHANG_MM   = 0.5   # ROTOR_AUTO_COVER_TX = True only
 ROTOR_AUTO_EXTENSION_MM       = None  # past the RX band, both edges.  None = AIR_GAP_MM
 ROTOR_AUTO_EXTENSION_INNER_MM = None  # inner edge only.  None = ROTOR_AUTO_EXTENSION_MM
-ROTOR_AUTO_EXTENSION_OUTER_MM = 0.0   # outer edge only.  None = ROTOR_AUTO_EXTENSION_MM.  0 = the ring ends at
-                                      # the RX1 band end; it never goes past ROTOR_AUTO_TX_CLEARANCE_MM inside TX1
-ROTOR_AUTO_TX_CLEARANCE_MM  = 0.1   # copper stays this far inside the TX1 ring
+ROTOR_AUTO_EXTENSION_OUTER_MM = 0.0   # outer edge only (ROTOR_AUTO_COVER_TX = False).  None = ROTOR_AUTO_EXTENSION_MM.
+                                      # 0 = the ring ends at the RX1 band end; it never goes past
+                                      # ROTOR_AUTO_TX_CLEARANCE_MM inside TX1
+ROTOR_AUTO_TX_CLEARANCE_MM  = 0.1   # ROTOR_AUTO_COVER_TX = False only: copper stays this far inside the TX1 ring
 ROTOR_AUTO_COPPER_LAYERS    = ["F.Cu"]   # layer(s) carrying this ring's sectors; mount the copper side towards
                                          # the stator
 

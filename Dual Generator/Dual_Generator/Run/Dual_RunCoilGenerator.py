@@ -180,7 +180,7 @@ def main(argv=None):
         rot_rep = Report()
         for k in (1, 2):
             try:
-                rings[k] = DRB.build_ring(sets[k], stators[k])
+                rings[k] = DRB.build_ring(sets[k], stators[k], getattr(P.BOARD, "ROTOR_START_ANGLE_ZERO", "rx_zero"))
             except (ValueError, RuntimeError) as e:
                 failed = Report()
                 failed.add_exception(e)

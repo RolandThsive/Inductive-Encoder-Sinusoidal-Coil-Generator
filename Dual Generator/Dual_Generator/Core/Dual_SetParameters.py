@@ -8,9 +8,9 @@ dual generator puts together exactly that:
     board names        from Dual_Board_Parameters.py (the same for both sets)
     RX, TX, rotor, IC  from Dual_RX<k>, Dual_TX<k>, Dual_Rotor<k>, Dual_IC<k>
     the band, the edges   as Dual_TrackLayout decided them (the mode)
-    what a dual board fixes   from Dual_Fixed_Parameters.py: 4 layers, no fingers, stepped TX, no TX tail, and
-                              (ring 1 only) never over TX1.  FIXED_REQUIRED below says the value each name must
-                              have and why; the dual checker refuses any other value in that file.
+    what a dual board fixes   from Dual_Fixed_Parameters.py: 4 layers, no fingers, stepped TX, no TX tail.
+                              FIXED_REQUIRED below says the value each name must have and why; the dual
+                              checker refuses any other value in that file.
 
 NAMES_BY_FILE says which Single Generator name lives in which dual file; the dual checker uses it to spot a name
 in the wrong file.  Nothing to edit here.
@@ -35,28 +35,15 @@ FIXED_REQUIRED = {
     "TX_PARALLEL_BREAK_STYLE": ("stitched", "parallel with fingers only, unused"),
     "TX_STEPPED_ARC_RADIUS_MM": ("auto", "stepped_arc only, which a dual board cannot use"),
 }
-RING_1_FIXED_REQUIRED = {
-    "ROTOR_AUTO_COVER_TX": (False, "ring 1 never covers TX1: that metal would sit next to the RX2 band"),
-    "ROTOR_AUTO_TX_OVERHANG_MM": (0.5, "cover only, unused for ring 1"),
-}
-FIXED_NAMES = tuple(FIXED_REQUIRED) + tuple(RING_1_FIXED_REQUIRED)
-
-
-def _fixed_values(P, table):
-    """{name: value} from Dual_Fixed_Parameters.py; a name missing there gets the required value (the checker
-    reports the gap)."""
-    mod = getattr(P, "FIXED", None)
-    return {n: (getattr(mod, n) if mod is not None and hasattr(mod, n) else req) for n, (req, _why) in table.items()}
+FIXED_NAMES = tuple(FIXED_REQUIRED)
 
 
 def fixed_values(P):
-    """The fixed values for both sets, as the file has them."""
-    return _fixed_values(P, FIXED_REQUIRED)
-
-
-def ring_1_fixed_values(P):
-    """The fixed values for ring 1 of the rotor, as the file has them."""
-    return _fixed_values(P, RING_1_FIXED_REQUIRED)
+    """{name: value} from Dual_Fixed_Parameters.py, for both sets; a name missing there gets the required value
+    (the checker reports the gap)."""
+    mod = getattr(P, "FIXED", None)
+    return {n: (getattr(mod, n) if mod is not None and hasattr(mod, n) else req)
+            for n, (req, _why) in FIXED_REQUIRED.items()}
 
 # the Single Generator's names, by the dual file that holds them
 BOARD_SHARED = (
@@ -69,8 +56,9 @@ BOARD_SHARED = (
     "ROTOR_PCB_THICKNESS_MM", "ROTOR_ARC_STEPS_PER_SECTOR", "ROTOR_CHORD_TOLERANCE_MM",
     "ROTOR_SOLDER_MASK_EXPANSION_MM",
 )
-BOARD_DUAL = ("TRACK_GAP_MM", "BAND_SPLIT", "TERMINAL_1_DEG", "TERMINAL_2_DEG", "TX_FREQ_SEPARATION_MIN",
-              "ROTOR_TRACK_GAP_MM", "ROTOR_1_TO_RX2_MM", "ROTOR_2_TO_RX1_MM")
+BOARD_DUAL = ("TRACK_GAP_MM", "BAND_SPLIT", "LAYOUT_TOLERANCE_MM", "TERMINAL_1_DEG", "TERMINAL_2_DEG",
+              "TX_FREQ_SEPARATION_MIN", "TX_FREQ_RATIO_MAX_ORDER", "TX_FREQ_RATIO_TOLERANCE",
+              "ROTOR_START_ANGLE_ZERO", "ROTOR_TRACK_GAP_MM", "ROTOR_1_TO_RX2_MM", "ROTOR_2_TO_RX1_MM")
 RX_NAMES = (
     "LOOPS", "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM", "RX_TRACE_WIDTH_MM",
     "RX_NET_PHASE_0_2", "RX_NET_PHASE_1_3", "RX_PROFILE", "STEPS_PER_LOOP", "RX_CHORD_TOLERANCE_MM",
@@ -83,12 +71,12 @@ TX_NAMES = (
 )
 IC_NAMES = ("IC_NAME", "IC_OSC_MIN_MHZ", "IC_OSC_MAX_MHZ", "IC_MIN_RP_OHM", "IC_SPLIT_TANK_CAPS")
 ROTOR_NAMES = (
-    "ROTOR_AUTO_DUTY", "ROTOR_AUTO_START_ANGLE_DEG", "ROTOR_AUTO_EXTENSION_MM", "ROTOR_AUTO_EXTENSION_INNER_MM",
+    "ROTOR_AUTO_DUTY", "ROTOR_AUTO_START_ANGLE_DEG", "ROTOR_AUTO_COVER_TX", "ROTOR_AUTO_TX_OVERHANG_MM",
+    "ROTOR_AUTO_EXTENSION_MM", "ROTOR_AUTO_EXTENSION_INNER_MM",
     "ROTOR_AUTO_EXTENSION_OUTER_MM", "ROTOR_AUTO_TX_CLEARANCE_MM", "ROTOR_AUTO_COPPER_LAYERS",
     "ROTOR_CUSTOM_SECTORS", "ROTOR_CUSTOM_DUTY", "ROTOR_CUSTOM_START_ANGLE_DEG", "ROTOR_CUSTOM_INNER_RADIUS_MM",
     "ROTOR_CUSTOM_OUTER_RADIUS_MM", "ROTOR_CUSTOM_COPPER_LAYERS",
 )
-ROTOR_2_NAMES = ("ROTOR_AUTO_COVER_TX", "ROTOR_AUTO_TX_OVERHANG_MM")
 
 BAND_NAMES = ("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM")
 EDGE_NAMES = ("INNER_EDGE_RADIUS_MM", "OUTER_EDGE_RADIUS_MM")
@@ -100,7 +88,7 @@ NAMES_BY_FILE = {
     "Dual_TX1_Parameters.py": TX_NAMES,
     "Dual_TX2_Parameters.py": TX_NAMES,
     "Dual_Rotor1_Parameters.py": ROTOR_NAMES,
-    "Dual_Rotor2_Parameters.py": ROTOR_NAMES + ROTOR_2_NAMES,
+    "Dual_Rotor2_Parameters.py": ROTOR_NAMES,
     "Dual_IC1_Parameters.py": IC_NAMES,
     "Dual_IC2_Parameters.py": IC_NAMES,
     FIXED_FILE: FIXED_NAMES,
@@ -134,8 +122,7 @@ def ic_module(P, k):
 
 def supplied_names():
     """Every Single Generator name the dual generator supplies to a set (from a file or fixed)."""
-    out = set(FIXED_NAMES) | set(BOARD_SHARED) | set(RX_NAMES) | set(TX_NAMES) | set(ROTOR_NAMES) \
-        | set(ROTOR_2_NAMES) | set(IC_NAMES)
+    out = set(FIXED_NAMES) | set(BOARD_SHARED) | set(RX_NAMES) | set(TX_NAMES) | set(ROTOR_NAMES) | set(IC_NAMES)
     return out
 
 
@@ -156,13 +143,10 @@ def build(P, k, band=None, edges=None):
     for n in BOARD_SHARED:
         if hasattr(P.BOARD, n):
             d[n] = getattr(P.BOARD, n)
-    for src, names in ((rx, RX_NAMES), (tx, TX_NAMES), (ro, ROTOR_NAMES + (ROTOR_2_NAMES if k == 2 else ())),
-                       (ic_module(P, k), IC_NAMES)):
+    for src, names in ((rx, RX_NAMES), (tx, TX_NAMES), (ro, ROTOR_NAMES), (ic_module(P, k), IC_NAMES)):
         for n in names:
             if src is not None and hasattr(src, n):
                 d[n] = getattr(src, n)
-    if k == 1:
-        d.update(ring_1_fixed_values(P))
     d.update(fixed_values(P))
     if band is not None:
         for n in BAND_NAMES:

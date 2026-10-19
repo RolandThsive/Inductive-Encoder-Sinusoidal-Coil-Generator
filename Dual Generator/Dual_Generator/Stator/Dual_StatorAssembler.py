@@ -119,15 +119,16 @@ class DualStator:
             Pk = st.P
             lines.append(f"Set {k}: Loops: {st.N}, RX Band: {f(st.ri)} ... {f(st.ro)} mm, SIN: Net {Pk.RX_NET_PHASE_0_2}, "
                          f"COS: Net {Pk.RX_NET_PHASE_1_3}, Rising: {w(st.rising_layer)}, Falling: {w(st.falling_layer)}, "
-                         f"TX: Net {Pk.TX_NET}, Series, Turns: {int(Pk.TX_TURNS)} {w(st.tx_layer_p)} "
-                         f"{int(Pk.TX_TURNS)} {w(st.tx_layer_q)}, Ends at {f(st.terminal_deg)} deg")
+                         f"TX: Net {Pk.TX_NET}, {str(Pk.TX_WIRING).strip().capitalize()}, Turns: {int(Pk.TX_TURNS)} "
+                         f"{w(st.tx_layer_p)} {int(Pk.TX_TURNS)} {w(st.tx_layer_q)}, Ends at {f(st.terminal_deg)} deg")
         comments = [
             lines[0],                                                                          # Comment1 (bottom)
             lines[1],
             f"Radius-Outer: {f(self.outline)} mm, Radius-Inner: {f(self.bore)} mm, Gap between the sets: "
             f"{f(self.gap)} mm (r = {f(self.extent1[1])} ... {f(self.extent2[0])} mm)",
             f"Width-TX: {f(float(s1.P.TX_TRACE_WIDTH_MM))} / {f(float(s2.P.TX_TRACE_WIDTH_MM))} mm, Width-RX: "
-            f"{f(float(s1.P.RX_TRACE_WIDTH_MM))} / {f(float(s2.P.RX_TRACE_WIDTH_MM))} mm, Layers: 4",      # Comment4
+            f"{f(float(s1.P.RX_TRACE_WIDTH_MM))} / {f(float(s2.P.RX_TRACE_WIDTH_MM))} mm, "
+            f"Layers: {int(s1.P.PCB_LAYERS)}",                                                     # Comment4
             "Generator: Dual_StatorAssembler.py (each set built by the Single Generator)",
         ]
         return title, comments
