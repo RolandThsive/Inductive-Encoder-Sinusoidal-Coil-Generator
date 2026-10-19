@@ -21,7 +21,7 @@ Steps (the chain: every step reads only what the steps before it made)
      DesignChecks                        the clearances of the finished copper, the outline, the page
   3. build the rotor, check again
   4. TX_Electrics.estimate              TX inductance, tank capacitors and oscillator frequency,
-                                         checked against RECEIVER_IC (an estimate: it never changes
+                                         checked against IC_Parameters.py (an estimate: it never changes
                                          the boards, its warnings count like the others)
   5. decide (GENERATOR_MODE, --check): in "strict" mode every warning about the finished boards (steps 2
      and 3) counts as an error and nothing is written
@@ -33,8 +33,8 @@ Steps (the chain: every step reads only what the steps before it made)
      Rotor.kicad_pcb and Parameters.txt (every value used, the summaries, the electrical estimate
      and copies of the parameter files) into it.  Nothing is ever overwritten.
 
-All settings are in Board_Parameters.py, RX_Parameters.py, TX_Parameters.py and
-Rotor_Parameters.py (the Parameters folder).  Run it from any folder, e.g. from the "Single Generator" folder:
+All settings are in Board_Parameters.py, RX_Parameters.py, TX_Parameters.py, Rotor_Parameters.py and
+IC_Parameters.py (the Parameters folder).  Run it from any folder, e.g. from the "Single Generator" folder:
     python Generator/Run/RunCoilGenerator.py
 (project layout: wiki page "Project Output Organization", docs/wiki/Project-Output-Organization.md;
 overview in README.md in the top folder).

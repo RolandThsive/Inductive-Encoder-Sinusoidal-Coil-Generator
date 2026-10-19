@@ -93,7 +93,7 @@ TX_INSIDE_VIA_DISTANCE_MM = 0.3
 #                                                             more receiver signal per TX volt in the model
 #     TX_WIRING = "series", TX_LAYER_A = 1, TX_LAYER_B = 4  : the fingers run on the Top layer and the
 #                                                             Top turns go around them
-#     TX_WIRING = "series", TX_LAYER_A = 1, TX_LAYER_B = 3  : the IPS2200 reference design (4-layer
+#     TX_WIRING = "series", TX_LAYER_A = 1, TX_LAYER_B = 3  : as in the receiver makers' reference designs (4-layer
 #                                                             board, RX on 1 and 2)
 #
 # Where an RX bridging finger (RX_TAB_LAYER, RX_Parameters.py) runs on a layer that carries

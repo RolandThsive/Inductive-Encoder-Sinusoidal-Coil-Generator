@@ -87,9 +87,18 @@ EXCITATION_FREQ_HZ   = 3.5e6        # TX oscillator frequency aimed for, with th
 
 # =============================================================================
 # ELECTRICAL ESTIMATE  (TX_Electrics.py, printed by RunCoilGenerator.py: TX inductance, tank
-# capacitors, oscillator frequency.  These values never change a board.)
+# capacitors, oscillator frequency.  These values never change a board.  The receiver IC the coil is
+# checked against: IC_Parameters.py.)
 # =============================================================================
-RECEIVER_IC          = "IPS2550"    # the IC the coil is checked against: "IPS2550", "IPS2200", or None
-                                    # (no checks).  Its oscillator range and minimum tank resistance are
-                                    # taken from the IC datasheets.
 COPPER_THICKNESS_UM  = 35           # stator copper thickness in micrometres (35 = 1 oz): TX resistance and Q
+COPPER_CONDUCTIVITY_S_M = 5.8e7     # copper conductivity in S/m (5.8e7 = annealed copper at 20 C; it drops
+                                    # about 0.39 % per K above that): TX resistance, and the rotor's skin
+                                    # depth and screening in the rotor summary
+TX_AC_RESISTANCE_FACTOR = 2.0       # at the TX frequency skin and proximity effects raise the TX resistance
+                                    # above the DC value: the estimate allows for up to this x the DC value
+                                    # (Q, tank resistance and the IC check use the worst case)
+STACKUP_PREPREG_MM   = 0.2          # 4-layer stator: distance from an outer copper layer to its inner
+                                    # neighbour (the inner layers' depth for the TX inductance; on a board
+                                    # thinner than twice this, a third of PCB_THICKNESS_MM is used)
+TANK_CAP_SERIES      = "E12"        # standard capacitor values the estimate suggests for the tank: "E6",
+                                    # "E12" or "E24" (any letter case)

@@ -139,6 +139,12 @@ def check(P, v, rep):
     has = lambda *names: all(n in v and v[n] is not None for n in names)
     lay = _tx_layout(P, v, rep)                     # TX layers and the finger layer (Layers.py)
 
+    # the IC's oscillator range (IC_Parameters.py; the electrical estimate checks the TX tank against it)
+    if has("IC_OSC_MIN_MHZ", "IC_OSC_MAX_MHZ") and v["IC_OSC_MIN_MHZ"] >= v["IC_OSC_MAX_MHZ"]:
+        rep.conflict(("IC_OSC_MIN_MHZ", "IC_OSC_MAX_MHZ"), f"the IC's oscillator range "
+                     f"{v['IC_OSC_MIN_MHZ']:g} ... {v['IC_OSC_MAX_MHZ']:g} MHz is empty: the minimum must "
+                     f"be below the maximum")
+
     # the RX band and the board edges (BoardLayout.py): the band from INSIDE_RADIUS_MM / OUTSIDE_RADIUS_MM, from
     # RX_R_BASE_MM / RX_A_MM, or (both pairs None) from the board edges; an edge that is set is used as given
     inner_derived = outer_derived = False

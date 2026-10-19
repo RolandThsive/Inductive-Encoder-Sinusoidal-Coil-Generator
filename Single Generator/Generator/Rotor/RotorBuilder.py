@@ -68,7 +68,7 @@ from Generator.Core.Geometry import chord_tolerance
 from Generator.Core.KiCadWriter import KiCadBoard, page_size
 from Generator.Core.Conflict import ParameterConflict
 
-COPPER_CONDUCTIVITY = 5.8e7          # S/m
+DEFAULT_COPPER_CONDUCTIVITY = 5.8e7  # S/m, used when Board_Parameters.py has no COPPER_CONDUCTIVITY_S_M line
 MU0 = 4.0e-7 * math.pi
 
 # used when Rotor_Parameters.py has no such line (ParameterRules.py holds the same numbers)
@@ -342,9 +342,13 @@ class RotorDesign:
         return [] if self.mask_expansion is None else [MASK_LAYER[l] for l in self.layers]
 
     # ---------------------------------------------------------------- reporting
+    def conductivity(self):
+        """Copper conductivity (S/m): COPPER_CONDUCTIVITY_S_M (Board_Parameters.py)."""
+        return float(getattr(self.P, "COPPER_CONDUCTIVITY_S_M", DEFAULT_COPPER_CONDUCTIVITY))
+
     def skin_depth_um(self):
         f = float(self.P.EXCITATION_FREQ_HZ)
-        return 1e6 * math.sqrt(1.0 / (math.pi * f * MU0 * COPPER_CONDUCTIVITY))
+        return 1e6 * math.sqrt(1.0 / (math.pi * f * MU0 * self.conductivity()))
 
     def screening_percent(self, thickness_um):
         """Thin-sheet estimate of the share of the TX field that a copper sheet of this thickness keeps
@@ -353,7 +357,7 @@ class RotorDesign:
         distance to the field source, which is somewhere between the air gap and the air gap plus the
         board thickness.  Returns (low, high) in percent."""
         w = 2.0 * math.pi * float(self.P.EXCITATION_FREQ_HZ)
-        q = MU0 * COPPER_CONDUCTIVITY * thickness_um * 1e-6 * w
+        q = MU0 * self.conductivity() * thickness_um * 1e-6 * w
         out = []
         for dist_mm in (float(self.P.AIR_GAP_MM), float(self.P.AIR_GAP_MM) + float(self.P.PCB_THICKNESS_MM)):
             r = q * dist_mm * 1e-3 / 2.0

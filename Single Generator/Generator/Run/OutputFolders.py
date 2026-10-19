@@ -35,7 +35,8 @@ import os
 
 from Generator.Core import BoardLayout, Layers
 
-PARAMETER_FILES = ("Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py")
+PARAMETER_FILES = ("Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py",
+                   "IC_Parameters.py")
 RECORD_FILE = "Parameters.txt"
 FOLDER_PREFIX = "Coil"
 INCREMENT_SEPARATOR = "__"
