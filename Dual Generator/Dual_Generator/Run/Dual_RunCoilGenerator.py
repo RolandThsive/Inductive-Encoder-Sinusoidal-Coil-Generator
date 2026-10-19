@@ -24,7 +24,8 @@ Steps (the same six as the Single Generator's RunCoilGenerator.py, each done twi
   6. write the files - only if no step reported an error.  Dual_OutputFolders.py makes a new folder for every
      run inside OUTPUT_DIR and writes Stator.kicad_pcb, Rotor.kicad_pcb and Parameters.txt into it.
 
-All settings are in the seven Dual_..._Parameters.py files (the Parameters folder).  Run it from any folder, e.g.
+All settings are in the Dual_..._Parameters.py files (the Parameters folder; Dual_Parameters.py lists them).  Run
+it from any folder, e.g.
 from the "Dual Generator" folder:
     python Dual_Generator/Run/Dual_RunCoilGenerator.py
 The Single Generator's code does every piece of geometry; nothing in it is changed.

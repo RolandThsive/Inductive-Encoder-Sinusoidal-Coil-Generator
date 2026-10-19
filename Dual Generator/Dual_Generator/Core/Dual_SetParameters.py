@@ -6,7 +6,7 @@ and checks take one namespace with its own names (LOOPS, TX_TURNS, INNER_EDGE_RA
 dual generator puts together exactly that:
 
     board names        from Dual_Board_Parameters.py (the same for both sets)
-    RX, TX, rotor      from Dual_RX<k>, Dual_TX<k>, Dual_Rotor<k>
+    RX, TX, rotor, IC  from Dual_RX<k>, Dual_TX<k>, Dual_Rotor<k>, Dual_IC<k>
     the band, the edges   as Dual_TrackLayout decided them (the mode)
     what a dual board fixes   from Dual_Fixed_Parameters.py: 4 layers, no fingers, stepped TX, no TX tail, and
                               (ring 1 only) never over TX1.  FIXED_REQUIRED below says the value each name must
@@ -64,6 +64,7 @@ BOARD_SHARED = (
     "VIA_DIAMETER_MM", "VIA_DRILL_MM", "MIN_CLEARANCE_MM",
     "INNER_EDGE_INSET_MM", "INNER_EDGE_RADIUS_MM", "OUTER_EDGE_OFFSET_MM", "OUTER_EDGE_RADIUS_MM",
     "OUTER_EDGE_TAIL_MARGIN_MM", "EDGE_LINE_WIDTH_MM", "AIR_GAP_MM", "PCB_THICKNESS_MM", "COPPER_THICKNESS_UM",
+    "COPPER_CONDUCTIVITY_S_M", "TX_AC_RESISTANCE_FACTOR", "STACKUP_PREPREG_MM", "TANK_CAP_SERIES",
     "ROTOR_MODE", "ROTOR_AUTO_EDGE_CLEARANCE_MM", "ROTOR_CUSTOM_OUTLINE_RADIUS_MM", "ROTOR_CUSTOM_BORE_RADIUS_MM",
     "ROTOR_PCB_THICKNESS_MM", "ROTOR_ARC_STEPS_PER_SECTOR", "ROTOR_CHORD_TOLERANCE_MM",
     "ROTOR_SOLDER_MASK_EXPANSION_MM",
@@ -76,10 +77,11 @@ RX_NAMES = (
     "RX_SUBCOILS", "RX_SUBCOIL_SPLIT_ELEC_DEG", "RX_LAYER_A", "RX_LAYER_B", "RX_VIA_ELECTRICAL_DEG",
 )
 TX_NAMES = (
-    "RECEIVER_IC", "EXCITATION_FREQ_HZ", "TX_NET", "TX_WIRING", "TX_TURNS", "TX_OFFSET_MM", "TX_PITCH_MM",
+    "EXCITATION_FREQ_HZ", "TX_NET", "TX_WIRING", "TX_TURNS", "TX_OFFSET_MM", "TX_PITCH_MM",
     "TX_TRACE_WIDTH_MM", "TX_STEPS", "TX_CHORD_TOLERANCE_MM", "TX_STEPPED_ANGLE_DEG", "TX_INSIDE_VIA_DISTANCE_MM",
     "TX_LAYER_A", "TX_LAYER_B",
 )
+IC_NAMES = ("IC_NAME", "IC_OSC_MIN_MHZ", "IC_OSC_MAX_MHZ", "IC_MIN_RP_OHM", "IC_SPLIT_TANK_CAPS")
 ROTOR_NAMES = (
     "ROTOR_AUTO_DUTY", "ROTOR_AUTO_START_ANGLE_DEG", "ROTOR_AUTO_EXTENSION_MM", "ROTOR_AUTO_EXTENSION_INNER_MM",
     "ROTOR_AUTO_EXTENSION_OUTER_MM", "ROTOR_AUTO_TX_CLEARANCE_MM", "ROTOR_AUTO_COPPER_LAYERS",
@@ -99,15 +101,19 @@ NAMES_BY_FILE = {
     "Dual_TX2_Parameters.py": TX_NAMES,
     "Dual_Rotor1_Parameters.py": ROTOR_NAMES,
     "Dual_Rotor2_Parameters.py": ROTOR_NAMES + ROTOR_2_NAMES,
+    "Dual_IC1_Parameters.py": IC_NAMES,
+    "Dual_IC2_Parameters.py": IC_NAMES,
     FIXED_FILE: FIXED_NAMES,
 }
 PARAMETER_FILES = tuple(NAMES_BY_FILE)
 
 # the Single Generator's file names in its messages -> the dual file of set k
 SINGLE_FILE_WORDS = {1: {"Board_Parameters.py": "Dual_Board_Parameters.py", "RX_Parameters.py": "Dual_RX1_Parameters.py",
-                         "TX_Parameters.py": "Dual_TX1_Parameters.py", "Rotor_Parameters.py": "Dual_Rotor1_Parameters.py"},
+                         "TX_Parameters.py": "Dual_TX1_Parameters.py", "Rotor_Parameters.py": "Dual_Rotor1_Parameters.py",
+                         "IC_Parameters.py": "Dual_IC1_Parameters.py"},
                      2: {"Board_Parameters.py": "Dual_Board_Parameters.py", "RX_Parameters.py": "Dual_RX2_Parameters.py",
-                         "TX_Parameters.py": "Dual_TX2_Parameters.py", "Rotor_Parameters.py": "Dual_Rotor2_Parameters.py"}}
+                         "TX_Parameters.py": "Dual_TX2_Parameters.py", "Rotor_Parameters.py": "Dual_Rotor2_Parameters.py",
+                         "IC_Parameters.py": "Dual_IC2_Parameters.py"}}
 
 
 def modules(P, k):
@@ -119,10 +125,17 @@ def modules(P, k):
     raise ValueError("a set is 1 (inner) or 2 (outer)")
 
 
+def ic_module(P, k):
+    """The IC parameter module of set k (Dual_IC<k>_Parameters.py), or None when it could not be loaded."""
+    if k not in (1, 2):
+        raise ValueError("a set is 1 (inner) or 2 (outer)")
+    return getattr(P, f"IC{k}", None)
+
+
 def supplied_names():
     """Every Single Generator name the dual generator supplies to a set (from a file or fixed)."""
     out = set(FIXED_NAMES) | set(BOARD_SHARED) | set(RX_NAMES) | set(TX_NAMES) | set(ROTOR_NAMES) \
-        | set(ROTOR_2_NAMES)
+        | set(ROTOR_2_NAMES) | set(IC_NAMES)
     return out
 
 
@@ -143,9 +156,10 @@ def build(P, k, band=None, edges=None):
     for n in BOARD_SHARED:
         if hasattr(P.BOARD, n):
             d[n] = getattr(P.BOARD, n)
-    for src, names in ((rx, RX_NAMES), (tx, TX_NAMES), (ro, ROTOR_NAMES + (ROTOR_2_NAMES if k == 2 else ()))):
+    for src, names in ((rx, RX_NAMES), (tx, TX_NAMES), (ro, ROTOR_NAMES + (ROTOR_2_NAMES if k == 2 else ())),
+                       (ic_module(P, k), IC_NAMES)):
         for n in names:
-            if hasattr(src, n):
+            if src is not None and hasattr(src, n):
                 d[n] = getattr(src, n)
     if k == 1:
         d.update(ring_1_fixed_values(P))

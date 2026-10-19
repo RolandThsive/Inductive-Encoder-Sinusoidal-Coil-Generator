@@ -32,7 +32,9 @@ _SINGLE_OPTIONAL = {name: opt for _file, name, _kind, opt, _active in SingleRule
 _FILE_ATTR = {"Dual_Board_Parameters.py": "BOARD", "Dual_RX1_Parameters.py": "RX1", "Dual_RX2_Parameters.py": "RX2",
               "Dual_TX1_Parameters.py": "TX1", "Dual_TX2_Parameters.py": "TX2",
               "Dual_Rotor1_Parameters.py": "ROTOR1", "Dual_Rotor2_Parameters.py": "ROTOR2",
+              "Dual_IC1_Parameters.py": "IC1", "Dual_IC2_Parameters.py": "IC2",
               SP.FIXED_FILE: "FIXED"}
+_RETIRED = getattr(SingleRules, "RETIRED", {})          # names of earlier versions that are no longer read
 
 
 def _where(name):
@@ -90,7 +92,9 @@ def check_files(P, rep):
             else:
                 rep.error(f"{name} is missing - add it to {file}")
         for name in sorted(present - set(expected)):
-            if name in SP.FIXED_REQUIRED:
+            if name in _RETIRED:
+                rep.warn(f"{name} in {file} is no longer used and is ignored: {SP.rename_single_files(_RETIRED[name], 1)}")
+            elif name in SP.FIXED_REQUIRED:
                 rep.warn(f"{name} in {file} is ignored: a dual board fixes it at {SP.FIXED_REQUIRED[name][0]!r} "
                          f"({SP.FIXED_FILE})")
             elif name in SP.RING_1_FIXED_REQUIRED and attr == "ROTOR1":

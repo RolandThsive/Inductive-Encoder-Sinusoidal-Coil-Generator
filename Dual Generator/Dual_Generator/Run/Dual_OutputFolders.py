@@ -16,7 +16,8 @@ Inside the folder:
     Parameters.txt                      what was generated, with which values: the mode and every value the
                                         generator computed (bands, edges, gap, zeros), the summaries and the
                                         electrical estimate of each set, the value of every parameter by dual
-                                        file, what the dual board fixes, and a verbatim copy of the seven files
+                                        file, what the dual board fixes, and a verbatim copy of every parameter
+                                        file
 """
 
 import datetime
@@ -91,6 +92,7 @@ def _values_by_file(P):
     attrs = {"Dual_Board_Parameters.py": P.BOARD, "Dual_RX1_Parameters.py": P.RX1, "Dual_RX2_Parameters.py": P.RX2,
              "Dual_TX1_Parameters.py": P.TX1, "Dual_TX2_Parameters.py": P.TX2,
              "Dual_Rotor1_Parameters.py": P.ROTOR1, "Dual_Rotor2_Parameters.py": P.ROTOR2,
+             "Dual_IC1_Parameters.py": getattr(P, "IC1", None), "Dual_IC2_Parameters.py": getattr(P, "IC2", None),
              SP.FIXED_FILE: getattr(P, "FIXED", None)}
     out = []
     for file, names in SP.NAMES_BY_FILE.items():

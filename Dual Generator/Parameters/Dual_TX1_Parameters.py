@@ -2,20 +2,20 @@
 Dual_TX1_Parameters.py  -  the transmitter (TX) ring of set 1, the inner set, and the IC that drives it and reads
 the set.  Dual_TX2_Parameters.py has the same names for set 2.
 
-The names are the Single Generator's own (TX_Parameters.py; RECEIVER_IC and EXCITATION_FREQ_HZ from its
-Board_Parameters.py, since a dual board has one IC per set).  Left out on purpose, because a dual board fixes
-them (Dual_Fixed_Parameters.py): the TX tail (TX_TAIL_EXTRA_MM = 0: nothing runs out past one pitch outside the
-last turn), the shape (TX_SHAPE = "stepped_diagonal": stepped turns only) and the finger settings
-(TX_SERIES_UNDERPASS_LAYER, TX_PARALLEL_BREAK_STYLE).  The wiring is chosen here: series or parallel.
+The names are the Single Generator's own (TX_Parameters.py; EXCITATION_FREQ_HZ from its Board_Parameters.py,
+since each set has its own oscillator).  The IC of this set is in Dual_IC1_Parameters.py.  Left out on
+purpose, because a dual board fixes them (Dual_Fixed_Parameters.py): the TX tail (TX_TAIL_EXTRA_MM = 0:
+nothing runs out past one pitch outside the last turn), the shape (TX_SHAPE = "stepped_diagonal": stepped
+turns only) and the finger settings (TX_SERIES_UNDERPASS_LAYER, TX_PARALLEL_BREAK_STYLE).  The wiring is
+chosen here: series or parallel.
 
 Units: millimetres, degrees, hertz.  Nothing in this file is computed - edit values only.
 Layers are numbered 1 = Top, 2 = Inner 1, 3 = Inner 2, 4 = Bottom.
 """
 
 # =============================================================================
-# THE IC OF THIS SET  (the electrical estimate)
+# THE OSCILLATOR OF THIS SET  (the electrical estimate; its IC's limits: Dual_IC1_Parameters.py)
 # =============================================================================
-RECEIVER_IC         = "IPS2550"     # the IC this set's coils are checked against: "IPS2550", "IPS2200", or None
 EXCITATION_FREQ_HZ  = 3.0e6         # TX oscillator frequency aimed for, with the rotor in place (hertz).  Give
                                     # the two sets different frequencies (TX_FREQ_SEPARATION_MIN,
                                     # Dual_Board_Parameters.py).  The generator draws two TX rings; whether both

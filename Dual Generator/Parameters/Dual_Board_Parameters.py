@@ -6,9 +6,9 @@ Nothing in this file is computed - edit values only.
 
 The names are the Single Generator's own (Board_Parameters.py, Rotor_Parameters.py) wherever the meaning is the
 same, so the wiki's Parameter Reference applies.  What a dual board fixes is not here at all: PCB_LAYERS (always 4),
-the RX fingers (none), the TX tails (none) and the TX wiring (always series).  What each coil set has for itself
-(its IC, its excitation frequency, its RX band, its TX ring, its rotor ring) is in the Dual_RX1 / RX2, TX1 / TX2 and
-Rotor1 / Rotor2 files.
+the RX fingers (none), the TX tails (none) and the TX shape (stepped).  What each coil set has for itself
+(its excitation frequency, its RX band, its TX ring, its rotor ring, its IC) is in the Dual_RX1 / RX2, TX1 / TX2,
+Rotor1 / Rotor2 and IC1 / IC2 files.
 """
 
 # =============================================================================
@@ -119,7 +119,25 @@ TX_FREQ_SEPARATION_MIN = 0.2
 # =============================================================================
 AIR_GAP_MM           = 1.0          # stator top copper -> rotor copper (one rotor, one air gap)
 PCB_THICKNESS_MM     = 1.6          # stator board thickness
+
+
+# =============================================================================
+# ELECTRICAL ESTIMATE  (TX_Electrics.py, printed by Dual_RunCoilGenerator.py for each set: TX inductance,
+# tank capacitors, oscillator frequency.  These values never change a board.  They are the one board's, so
+# they hold for both sets; the IC each set is checked against is in Dual_IC1 / IC2_Parameters.py.)
+# =============================================================================
 COPPER_THICKNESS_UM  = 35           # stator copper thickness in micrometres (35 = 1 oz): TX resistance and Q
+COPPER_CONDUCTIVITY_S_M = 5.8e7     # copper conductivity in S/m (5.8e7 = annealed copper at 20 C; it drops
+                                    # about 0.39 % per K above that): TX resistance, and the rotor's skin
+                                    # depth and screening in the rotor summary
+TX_AC_RESISTANCE_FACTOR = 2.0       # at the TX frequency skin and proximity effects raise the TX resistance
+                                    # above the DC value: the estimate allows for up to this x the DC value
+                                    # (Q, tank resistance and the IC check use the worst case)
+STACKUP_PREPREG_MM   = 0.2          # distance from an outer copper layer to its inner neighbour (the inner
+                                    # layers' depth for the TX inductance; on a board thinner than twice this,
+                                    # a third of PCB_THICKNESS_MM is used)
+TANK_CAP_SERIES      = "E12"        # standard capacitor values the estimate suggests for the tank: "E6",
+                                    # "E12" or "E24" (any letter case)
 
 
 # =============================================================================
