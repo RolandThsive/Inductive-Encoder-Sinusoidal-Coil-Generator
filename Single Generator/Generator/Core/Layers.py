@@ -20,7 +20,8 @@ LAYER_ORDER = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu"]
 LAYER_WORDS = {"F.Cu": "Top", "In1.Cu": "Inner-1", "In2.Cu": "Inner-2", "B.Cu": "Bottom"}   # in human text
 LAYER_SETTINGS = ("TX_WIRING", "TX_LAYER_A", "TX_LAYER_B", "TX_SERIES_UNDERPASS_LAYER", "TX_PARALLEL_BREAK_STYLE")
 TX_WIRING_VALUES = ("single", "series", "parallel")
-STACKUP_PREPREG_MM = 0.2       # 4-layer boards: distance from an outer copper layer to its inner neighbour (mm)
+STACKUP_PREPREG_MM = 0.2       # 4-layer boards: outer copper layer to its inner neighbour (mm); the default of the
+                               # STACKUP_PREPREG_MM parameter (Board_Parameters.py, as ParameterRules.py)
 
 
 def layer_depth(layer, P, prepreg=STACKUP_PREPREG_MM):
