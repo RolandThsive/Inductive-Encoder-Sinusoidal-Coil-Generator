@@ -16,18 +16,38 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 
 ---
 
+Inductive position sensors measure angle with nothing more than copper traces on printed circuit
+boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
+stray magnetic fields and wide temperature swings. The difficult part has always been the coil
+design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator
+and the rotor from a small set of parameter files, checks the design, and estimates how it will
+perform. It is written for **roboticists and mechatronics engineers** who want high-resolution
+motor and joint encoders without buying expensive sealed units or designing coils by hand.
+
+![Introduction 1: Working Principle](docs/images/intro_1_working_principle.png)
+
+*Introduction 1. A: Side view of the sensor. B: A generated 1-loop stator with its rotor. C: The
+receiver signals over one rotor turn, from the project's analyser. D: The angle recovered from the
+two signals.* More in the wiki: [Working Principle](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Working-Principle).
+
+> [!NOTE]
+> The coil sets how many electrical periods there are per turn and how clean the signals are. The
+> final number of bits also depends on the receiver electronics, the ADC or interpolator, noise and
+> calibration. See [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator).
+
+---
+
 ## Contents
 
 1. [Disclaimer](#disclaimer)
 2. [Goal](#goal)
-3. [Working Principle](#working-principle)
-4. [Immediate Next Steps](#immediate-next-steps)
-5. [Project Capabilities](#project-capabilities)
-6. [Examples](#examples)
-7. [Quick Start](#quick-start)
-8. [Where To Read More](#where-to-read-more)
-9. [Licensing](#licensing)
-10. [About Me](#about-me)
+3. [Immediate Next Steps](#immediate-next-steps)
+4. [Project Capabilities](#project-capabilities)
+5. [Examples](#examples)
+6. [Quick Start](#quick-start)
+7. [Where To Read More](#where-to-read-more)
+8. [Licensing](#licensing)
+9. [About Me](#about-me)
 
 ---
 
@@ -57,29 +77,6 @@ that anyone in the world can use to reach **20-bit and higher motor encoding** o
 nothing more than KiCad and a PCB order. Industrial absolute encoders with this kind of resolution
 and robustness cost hundreds to thousands of dollars each. This project aims to close that gap, and
 it is completely open to industry experts, researchers and hobbyists who want to add to it.
-
----
-
-## Working Principle
-
-Inductive position sensors measure angle with nothing more than copper traces on printed circuit
-boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
-stray magnetic fields and wide temperature swings. The difficult part has always been the coil
-design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator
-and the rotor from a small set of parameter files, checks the design, and estimates how it will
-perform. It is written for **roboticists and mechatronics engineers** who want high-resolution
-motor and joint encoders without buying expensive sealed units or designing coils by hand.
-
-![Introduction 1: Working Principle](docs/images/intro_1_working_principle.png)
-
-*Introduction 1. A: Side view of the sensor. B: A generated 1-loop stator with its rotor. C: The
-receiver signals over one rotor turn, from the project's analyser. D: The angle recovered from the
-two signals.* More in the wiki: [Working Principle](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Working-Principle).
-
-> [!NOTE]
-> The coil sets how many electrical periods there are per turn and how clean the signals are. The
-> final number of bits also depends on the receiver electronics, the ADC or interpolator, noise and
-> calibration. See [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator).
 
 ---
 
