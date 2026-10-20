@@ -10,7 +10,7 @@ Two profiles can be selected now; a third is research in progress:
 | Profile | Rule | Compensates for | Use it when |
 |---|---|---|---|
 | `equal_area` (default) | r² swings equally around r_base² | A uniform field | You want the default, well-behaved choice |
-| `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the receiver makers' reference designs, which follow this law |
+| `cosine_r` | r swings equally around the mean radius | A uniform field | You want the radius itself to follow a sine |
 | `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | Research underway (not selectable in V18) |
 
 `RX_PROFILE` in `RX_Parameters.py` accepts `equal_area` and `cosine_r`. As with the rest of the analysis,

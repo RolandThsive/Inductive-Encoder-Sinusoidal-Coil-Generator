@@ -13,6 +13,10 @@ ready-to-open KiCad boards for the stator and the rotor from a small set of para
 estimates how it will perform.
 
 > [!IMPORTANT]
+> No output of the tool (boards, KiCad and manufacturing files, pictures) may be used commercially without the
+> author's written permission. See [License](License.md#241-output-of-the-tool).
+
+> [!IMPORTANT]
 > Hardware validation is still pending. Every voltage, frequency, inductance and accuracy figure in this wiki is a
 > model estimate.
 

@@ -169,7 +169,19 @@ Two URL parameters let you self-host the parts: `?pyodide=<url>` sets where the 
 - **A message instead of the tool.** Touch-only devices (phones, tablets) are not supported; use a computer with a
   mouse or trackpad.
 
-## 4.13 License
+## 4.13 Privacy
+
+The tool runs in the browser and sends nothing you enter to any server. Loading it does contact three outside
+services, and each of them sees the visitor's IP address, as with any web page that loads files from them:
+
+- **Google Fonts** (`fonts.googleapis.com`, `fonts.gstatic.com`) for the page's fonts,
+- **jsDelivr** (`cdn.jsdelivr.net`) for the Python engine (Pyodide),
+- **GitHub Pages**, which hosts the tool and the generator's files, and the blog that embeds it.
+
+The fonts and the Python engine will be hosted on the tool's own site, so that Google and jsDelivr no longer see the
+visitors. Until then, this is the case for every visit.
+
+## 4.14 License
 
 The web tool is under the PolyForm Strict License 1.0.0, separate from the generator's license: see
 [WebGUI/LICENSE.md](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WebGUI/LICENSE.md). It may be used for noncommercial purposes only, and may not be changed or

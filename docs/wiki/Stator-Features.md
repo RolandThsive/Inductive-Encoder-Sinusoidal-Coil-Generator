@@ -25,7 +25,7 @@ true absolute 0–360° sensor. More loops divide the turn into finer periods fo
 ### 11.1.2 Sub-Coils
 
 Each RX coil can be split into 2 or 3 sub-coils, spread `RX_SUBCOIL_SPLIT_ELEC_DEG` electrical degrees apart (45° by default) and wired in
-series, as in the receiver makers' reference designs. The split cancels chosen harmonics of the
+series. The split cancels chosen harmonics of the
 signal (45° lowers the 3rd and 5th harmonics by about 59 %) and nearly doubles the signal. Sub-coils
 are mainly useful on **miniature 1-loop coils**, where the RX band is small and harmonics matter
 most.
@@ -84,7 +84,7 @@ electrical estimate its Q is only about 1.3 to 1.8 times higher: the resistance 
 | Value | Turns |
 |---|---|
 | `stepped_diagonal` (default) | Concentric circles joined by straight steps near the terminal. |
-| `stepped_arc` | Concentric circles joined by arcs centred on the terminal via, as on the receiver makers' reference boards. See [11.2.7](#1127-stepped-arc-radius) and the picture in [TX Profiles](TX-Profiles.md#95-turn-shapes). |
+| `stepped_arc` | Concentric circles joined by arcs centred on the terminal via. See [11.2.7](#1127-stepped-arc-radius) and the picture in [TX Profiles](TX-Profiles.md#95-turn-shapes). |
 | `spiral` | One smooth Archimedean spiral with a constant gap, useful when the pitch is tight. |
 
 The pictures below show all three.
@@ -110,7 +110,7 @@ Where an RX finger runs on a layer that also carries TX turns, the TX must make 
 
 | Style | Description |
 |---|---|
-| **Go-Around** (`staggered`) | Each turn stops before the finger in a staircase, runs out to a via, and a nested bracket on the other layer carries it around the finger (after Hoxha et al., *Sensors*, 2022). Used by every series TX. |
+| **Go-Around** (`staggered`) | Each turn stops before the finger in a staircase, runs out to a via, and a nested bracket on the other layer carries it around the finger. Used by every series TX. |
 | **Stitched** (parallel only) | The turns on the finger's layer stop at a via on each side of the finger, and the other layer carries the current past it. |
 
 A series TX always uses the go-around. For a parallel TX, `TX_PARALLEL_BREAK_STYLE` defaults to `stitched`; set it to `staggered` for the go-around.
