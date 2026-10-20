@@ -36,12 +36,12 @@
     <h1 class="marker">Inductive Encoder Sinusoidal Coil Generator</h1>
     <div class="segmented" id="mode-switch" role="tablist" aria-label="Mode">
       <button role="tab" data-mode="basic" class="on" data-tip="The main settings: board size, loops, sub-coils, TX turns, board layers, TX layout and air gap">Basic</button>
-      <button role="tab" data-mode="advanced" data-tip="Every parameter in the four parameter files, grouped as in the files">Advanced</button>
+      <button role="tab" data-mode="advanced" data-tip="Every parameter the web tool shows, grouped as in the parameter files">Advanced</button>
     </div>
     <div class="top-actions">
       <a class="glass-btn small" id="btn-help" href="https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections" target="_blank" rel="noopener" data-tip="Opens the Quick Guide To Parameters Selections on the project wiki: what each setting does and how to choose it">Help / Tutorial</a>
       <button class="glass-btn small" id="btn-import" data-tip="Load a design: a Parameters.txt from any run (web or desktop) or your own .py parameter files. Every control takes those values.">Import Parameters</button>
-      <button class="glass-btn small" id="btn-export" data-tip="Download the four parameter files (Board, RX, TX, Rotor) with these values, ready for RunCoilGenerator.py on a desktop">Export Parameters</button>
+      <button class="glass-btn small" id="btn-export" data-tip="Download the parameter files (Board, RX, TX, Rotor, IC) with these values, ready for RunCoilGenerator.py on a desktop">Export Parameters</button>
       <button class="glass-btn small" id="btn-share" data-tip="Copy a link that opens the tool with this design. Only the changed values go in the link; nothing is uploaded.">Share Link</button>
       <input type="file" id="import-file" accept=".txt,.py" multiple hidden>
     </div>
@@ -70,7 +70,7 @@
       <div id="results" class="results"></div>
       <div class="generate-row">
         <button id="btn-reset" class="reset-btn" data-tip="Go back to the default design: 2 layers, board 30 to 50 mm, 4 loops, 3 TX turns in series on Top and Bottom">Reset</button>
-        <label class="switch-row" data-tip="Generator Mode. Off (normal): a gap smaller than the minimum clearance is a warning and the boards are written. On (strict): every such warning is an error and nothing is written. Copper that overlaps another net is always an error.">
+        <label class="switch-row" data-tip="Generator Mode. Off (normal): a warning about the finished boards (a clearance, the board edge, the page, the rotor) is printed and the boards are written. On (strict): every such warning is an error and nothing is written. Warnings from the parameter check never stop the run. Copper that overlaps another net is always an error.">
           <span>Strict</span>
           <span class="switch"><input type="checkbox" id="strict"><span class="knob"></span></span>
         </label>
