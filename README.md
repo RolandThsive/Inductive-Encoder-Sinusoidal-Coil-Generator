@@ -182,7 +182,7 @@ The table below is for the source code (PolyForm Noncommercial).
 | Share your changes for non-commercial use | Share derived pictures and documents under the same terms | Remove or hide the attribution |
 
 **Commercial Use.** Companies and startups are welcome to use this project and its output. You pay 0.2% of the net sale
-price of every unit sold, to RolandThsive, reported by showing invoices against payments in the public
+price of every unit sold and every paid service, to RolandThsive, reported by showing invoices against payments in the public
 [LEDGER.md](LEDGER.md). The full terms are in [LICENSE.md](LICENSE.md#commercial-use). Please make contact through one of
 the channels below. Approved organisations will be listed here.
 
