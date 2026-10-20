@@ -76,7 +76,7 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
   desktop), so such a design is not generated.
 - **Checks** lists the errors and warnings. Turn on **Info** to also see the generator's notes.
 - **Summary** shows the generator's full report on the stator and the rotor.
-- **Download Zip** gives both boards, `Parameters.txt` and the four parameter files. **Download Stator** and
+- **Download Zip** gives both boards, `Parameters.txt` and the parameter files. **Download Stator** and
   **Download Rotor** give one `.kicad_pcb` each.
 
 ## Errors And Warnings
@@ -118,7 +118,7 @@ The preview tools only change what you see, never the boards.
 
 ## Saving, Sharing And Starting Over
 
-- **Export Parameters** downloads the four parameter files, ready for the desktop version.
+- **Export Parameters** downloads the parameter files (Board, RX, TX, Rotor and IC), ready for the desktop version.
 - **Help / Tutorial** opens the [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections) guide on the project wiki in a new tab.
 - **Import Parameters** loads a `Parameters.txt` from any run (web or desktop) or your own parameter files. Files of
   version 17 or older name settings this version no longer has (for example `TX_LAYERS`, `TX_SERIES`,
