@@ -72,7 +72,7 @@ The recommended combination is described in the
 
 ## 9.5 Turn Shapes
 
-Every combination above can use any of the three `TX_SHAPE` values: `stepped_diagonal` (the default), `stepped_arc` (arcs centred on the terminal via, as on the Renesas reference boards) and `spiral`. The stepped shapes change only the copper around the terminal. With `spiral` every turn is one smooth spiral that grows by one pitch per turn, so the TX ring ends one pitch farther out. No shape changes the layers or the wiring. `stepped_arc` takes one extra setting, `TX_STEPPED_ARC_RADIUS_MM`, described in [Stator Features](Stator-Features.md#1127-stepped-arc-radius).
+Every combination above can use any of the three `TX_SHAPE` values: `stepped_diagonal` (the default), `stepped_arc` (arcs centred on the terminal via, as on the receiver makers' reference boards) and `spiral`. The stepped shapes change only the copper around the terminal. With `spiral` every turn is one smooth spiral that grows by one pitch per turn, so the TX ring ends one pitch farther out. The RX fingers must then reach one pitch farther too. With the shipped values `RX_TAB_LENGTH_MM` must be at least 3.5 mm instead of 3.0 mm. When it is too short, the generator stops and says the length it needs. No shape changes the layers or the wiring. `stepped_arc` takes one extra setting, `TX_STEPPED_ARC_RADIUS_MM`, described in [Stator Features](Stator-Features.md#1127-stepped-arc-radius).
 
 ![TX Profiles 4: TX turn shapes](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/tx_profiles_4_turn_shapes.png)
 

@@ -11,8 +11,8 @@ pip install numpy
 
 ## 3.2 First Run
 
-1. Open `Single Generator/Parameters/` and look at the four files you can edit: `Board_Parameters.py`, `RX_Parameters.py`,
-   `TX_Parameters.py` and `Rotor_Parameters.py`. The [Parameter Reference](Parameter-Reference.md) explains every
+1. Open `Single Generator/Parameters/` and look at the five files you can edit: `Board_Parameters.py`, `RX_Parameters.py`,
+   `TX_Parameters.py`, `Rotor_Parameters.py` and `IC_Parameters.py`. The [Parameter Reference](Parameter-Reference.md) explains every
    setting. The defaults already build a board.
 2. Go to the `Single Generator` folder and check the parameters without writing anything:
 
@@ -40,7 +40,7 @@ python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor (the stat
 python Generator/Run/RunCoilGenerator.py --no-color   # Plain text, no colours
 ```
 
-Whether a clearance warning on the finished boards stops the run is not a command-line option any more: set
+Whether a warning about the finished boards (a clearance, the board edge, the page, the rotor) stops the run is not a command-line option any more: set
 `GENERATOR_MODE` to `"strict"` in `Board_Parameters.py` (the default `"normal"` writes the boards anyway).
 Colours: red = error (nothing is written), yellow = warning, green = success.
 
@@ -53,9 +53,9 @@ folder name already exists, `__1`, `__2` and so on are added. See
 ## 3.4 What Happens In A Run
 
 1. The parameters are checked ([Checks, Errors And Warnings](Checks-Errors-And-Warnings.md)).
-2. The RX coils and their fingers are built, then the TX coil with its terminal where it keeps the largest gap from the RX copper. The board is turned so that the terminal sits at 0° (to the right), and the finished copper is checked.
+2. The RX coils and their fingers are built, then the TX coil with its terminal where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, as close to the two fingers as the clearance allows). The board is turned so that the terminal sits at 0° (to the right), and the finished copper is checked.
 3. The rotor is built and checked.
-4. The [electrical estimate](Electrical-Estimate.md) is printed and checked against the receiver IC.
+4. The [electrical estimate](Electrical-Estimate.md) is printed and checked against the receiver IC limits in `IC_Parameters.py`.
 5. The run decides: any error stops it (nothing is written); with `GENERATOR_MODE = "strict"` every warning about the finished boards counts as an error, and `--check` stops here on purpose.
 6. The boards and `Parameters.txt` (the summaries, every value used, and copies of the parameter files) are written.
 

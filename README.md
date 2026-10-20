@@ -10,11 +10,17 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 
 **[Wiki](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)** has better organized information on this tool. 
 
+Inductive position sensors measure angle with nothing more than copper traces on printed circuit
+boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
+stray magnetic fields and wide temperature swings. The difficult part has always been the coil
+design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator
+and the rotor from a small set of parameter files, checks the design, and estimates how it will
+perform. It is written for **roboticists and mechatronics engineers** who want high-resolution
+motor and joint encoders without buying expensive sealed units or designing coils by hand.
+
 ![Stator on the left and rotor on the right: 4 loops, 3 TX turns, board radius 30 to 50 mm](docs/images/intro_2_stator_and_rotor.png)
 
 </div>
-
----
 
 ## Contents
 
@@ -59,17 +65,7 @@ and robustness cost hundreds to thousands of dollars each. This project aims to 
 it is completely open to industry experts, researchers and hobbyists who want to add to it.
 
 ---
-
 ## Working Principle
-
-Inductive position sensors measure angle with nothing more than copper traces on printed circuit
-boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
-stray magnetic fields and wide temperature swings. The difficult part has always been the coil
-design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator
-and the rotor from a small set of parameter files, checks the design, and estimates how it will
-perform. It is written for **roboticists and mechatronics engineers** who want high-resolution
-motor and joint encoders without buying expensive sealed units or designing coils by hand.
-
 ![Introduction 1: Working Principle](docs/images/intro_1_working_principle.png)
 
 *Introduction 1. A: Side view of the sensor. B: A generated 1-loop stator with its rotor. C: The
@@ -78,7 +74,7 @@ two signals.* More in the wiki: [Working Principle](https://github.com/RolandThs
 
 > [!NOTE]
 > The coil sets how many electrical periods there are per turn and how clean the signals are. The
-> final number of bits also depends on the receiver IC, the ADC or interpolator, noise and
+> final number of bits also depends on the receiver electronics, the ADC or interpolator, noise and
 > calibration. See [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator).
 
 ---
@@ -142,7 +138,9 @@ python Generator/Run/RunCoilGenerator.py --stator     # Only the stator
 python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor
 ```
 
-Edit only the files in `Single Generator/Parameters/`. To treat every warning about the finished boards as an
+Edit only the files in `Single Generator/Parameters/`: `RX_Parameters.py`, `TX_Parameters.py`, `Board_Parameters.py`,
+`Rotor_Parameters.py` and `IC_Parameters.py` (the limits of your receiver IC that the electrical estimate checks
+against). To treat every warning about the finished boards as an
 error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`. Each run writes a new folder in
 `Single Generator/Output/`
 (`Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>`)

@@ -16,7 +16,7 @@
 *KiCad 1. The title blocks of a generated stator and rotor, filled in `Keyword: Value` style.*
 
 Because every TX turn is on the same net, KiCad's DRC cannot detect a TX turn touching another TX
-turn. The generator runs this check itself and reports the smallest gap it found.
+turn. The generator runs this check itself near the vias of go-around and stitched windows, and reports the smallest gap it found between different turns. A TX without such vias (such as the default single-layer TX) has nothing to measure there: the summary says "not measured" and gives the gap of the nominal pitch (pitch minus trace width).
 
 A KiCad plugin built on the same code is planned (see [Future Upgrades](Future-Upgrades-And-Planning.md)).
 

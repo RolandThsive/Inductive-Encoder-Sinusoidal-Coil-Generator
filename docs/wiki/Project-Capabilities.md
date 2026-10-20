@@ -7,18 +7,18 @@
 | Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
 | RX Loops | 1 to 16 electrical periods per mechanical turn |
 | RX Phases | Four phases only: SIN and COS pairs, each with a positive and a negative half |
-| RX Profiles | `equal_area`, `cosine_r` (limaçon, as in the Renesas reference design); a field-compensated profile is research underway |
+| RX Profiles | `equal_area`, `cosine_r` (limaçon, as in the receiver makers' reference designs); a field-compensated profile is research underway |
 | RX Sub-Coils | 1 to 3 per coil, mainly for miniature 1-loop coils |
 | RX Fingers | Bridging fingers to break the coils out across the TX ring: all, single or none |
 | TX Layers | Any one layer, or any two layers (Top and Bottom on a 2-layer board) |
 | TX Wiring | Single (one layer), series or parallel (`TX_WIRING`) |
-| TX Shape | Stepped diagonal turns (adjustable step angle), stepped arc turns (adjustable arc radius, as on the Renesas reference boards) or spiral turns |
+| TX Shape | Stepped diagonal turns (adjustable step angle), stepped arc turns (adjustable arc radius, as on the receiver makers' reference boards) or spiral turns |
 | TX Break Style | Go-around (staggered) or stitched windows where a finger crosses the TX ring |
 | TX Terminal | Placed automatically where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, as close to the two fingers as the clearance allows); the board is turned so it sits at 0° |
 | Rotor | Generated from the stator, or fully custom |
 | Board | 2 or 4 copper layers, through vias only, fixed or automatic board edges |
 | Checks | Parameter rules, finished-geometry rules and the generator's own TX self-clearance check, with named conflicts; `GENERATOR_MODE` `normal` or `strict` |
-| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and tank resistance against the IC limits (no receiver voltage) |
+| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and tank resistance against the IC limits in `IC_Parameters.py` (no receiver voltage) |
 | Analysis | Under construction on the `analyser_and_optimizer` branch: angle error, signal, harmonics and a tolerance window (air gap, eccentricity, tilt, etching) |
 | Optimization | Under construction on the `analyser_and_optimizer` branch: searches profile, sub-coils, split, rotor metal fraction and rotor outer edge |
 
@@ -30,7 +30,7 @@ The table below gives the board sizes that build without any error or warning fo
 loops. It was found by running the generator's own checks (parameters, finished boards, rotor and
 electrical estimate) over a grid of board radii in 1 mm steps, up to an outer radius of 40 mm, with
 these settings: 4 layers, series TX on Top + Inner-1 with 3 turns per layer, 0.6 mm pitch, 0.2 mm
-traces, 0.8 / 0.4 mm vias, 0.2 mm clearance, IPS2550 limits, fixed board edges (the RX band is
+traces, 0.8 / 0.4 mm vias, 0.2 mm clearance, the default IC limits, fixed board edges (the RX band is
 fitted between them) and `RX_TAB_LENGTH_MM = 5` (this TX needs fingers of at least 4.94 mm).
 
 | Loops | Smallest Outer Radius, One Finger Per Coil (`RX_TABS = "single"`) | Bore Radius On That Board | Bore Radius Range On Larger Boards | Smallest Outer Radius, Fingers On Every Tip (`RX_TABS = "all"`, the default) | What Limits It |
