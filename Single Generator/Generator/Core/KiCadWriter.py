@@ -84,7 +84,7 @@ class KiCadBoard:
         self.body.append(f'  (gr_poly (pts {pts}) (layer "{layer}") (width 0) (fill solid))')
 
     def text(self):
-        out = ["(kicad_pcb (version 20221018) (generator pcbnew)", "",
+        out = ["(kicad_pcb (version 20221018) (generator coil_generator)", "",
                f"  (general (thickness {self._f(self.thickness)}))", "",
                f'  (paper "User" {self.page[0]} {self.page[1]})',
                "  (title_block (title \"" + self._q(self.title) + "\")"
