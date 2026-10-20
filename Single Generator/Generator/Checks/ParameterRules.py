@@ -158,7 +158,7 @@ _add(_RO, "ROTOR_PCB_THICKNESS_MM", "num_or_none", optional=True, default=None, 
 _add(_RO, "ROTOR_ARC_STEPS_PER_SECTOR", "auto_or_int", optional=True, default="auto", lo=8, hi=5000)
 _add(_RO, "ROTOR_CHORD_TOLERANCE_MM", "num", optional=True, default=0.001, lo=0.001)
 # default: what RotorBuilder.py uses (DEFAULT_SOLDER_MASK_EXPANSION_MM) when the line is missing
-_add(_RO, "ROTOR_SOLDER_MASK_EXPANSION_MM", "mask_expansion", optional=True, default=0.05, hi=5.0)
+_add(_RO, "ROTOR_SOLDER_MASK_EXPANSION_MM", "mask_expansion", optional=True, default=-1.0, hi=5.0)
 
 # ---- IC_Parameters.py  (electrical estimate, TX_Electrics.py; default = what it uses when the line is missing:
 #      the IPS2550)

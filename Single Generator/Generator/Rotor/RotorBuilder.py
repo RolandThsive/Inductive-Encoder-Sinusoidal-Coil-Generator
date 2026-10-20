@@ -49,7 +49,7 @@ expansion setting for a drawn shape, so the margin is built into the shape:
     0.05   the opening is the copper outline grown by 0.05 mm on every side
            (round corners)
     0      the opening is exactly the copper outline
-    -1     no opening: the solder mask stays over the copper
+    -1     no opening: the solder mask stays over the copper (the default)
 
 Mount the rotor with its copper side facing the stator, concentric with it.
 Seen from the stator side the pattern is mirrored relative to the KiCad
@@ -65,14 +65,14 @@ import math
 import Parameters as P_DEFAULT
 from Generator.Core.BoardLayout import tx_shape
 from Generator.Core.Geometry import chord_tolerance
-from Generator.Core.KiCadWriter import KiCadBoard, page_size
+from Generator.Core.PCBWriter import KiCadBoard, page_size
 from Generator.Core.Conflict import ParameterConflict
 
 DEFAULT_COPPER_CONDUCTIVITY = 5.8e7  # S/m, used when Board_Parameters.py has no COPPER_CONDUCTIVITY_S_M line
 MU0 = 4.0e-7 * math.pi
 
 # used when Rotor_Parameters.py has no such line (ParameterRules.py holds the same numbers)
-DEFAULT_SOLDER_MASK_EXPANSION_MM = 0.05
+DEFAULT_SOLDER_MASK_EXPANSION_MM = -1     # the mask stays over the copper
 DEFAULT_COVER_TX = True
 DEFAULT_TX_OVERHANG_MM = 0.5
 
@@ -420,7 +420,7 @@ class RotorDesign:
 
     # ------------------------------------------------------------------ output
     def page_size(self):
-        """The KiCad page (KiCadWriter.page_size) for everything on the rotor board: its outline, or its copper
+        """The KiCad page (PCBWriter.page_size) for everything on the rotor board: its outline, or its copper
         and solder-mask openings when it has no outline."""
         r = max(x for x in (self.outline_radius, self.r_out + max(0.0, self.mask_expansion or 0.0)) if x is not None)
         return page_size(self.P, self.cx, self.cy, r)
