@@ -22,3 +22,5 @@ stops when every milestone below is done.
 | 15 | Feeding the linear test results back into the generator | Every model error found in the measurements is corrected in the linear generator, and the correction is recorded. |
 | 16 | Making examples for the linear generator | Strictly working linear example boards (built and measured) are in the examples section, each with its parameters and results. |
 | 17 | Last step of research before leaving this repository and opening it under the GPL | All milestones above are done and the final stage is declared in a public release. |
+
+\* ~~Strike through~~ means accomplished.
