@@ -193,6 +193,22 @@ Please make contact through one of the channels below. Approved organisations wi
 
 **Approved Commercial Users:** *None yet.*
 
+## Our Pledge: Every Commercial Payment Goes Back Into The Project
+
+> [!IMPORTANT]
+> **100% ON RECORD. 100% INVESTED BACK. 100% DISCLOSED.**
+
+**Any money I accept from commercial users here will be invested back into this project in full, 100%, and all of it
+will be on record.** This is how the project works like a non-profit, in an extreme way: nothing is taken out as
+profit.
+
+- **100% invested back.** Boards, test equipment, measurements, research and development of this project.
+- **Leftovers are donated.** Whatever is left over goes to a fund that supports innovation worldwide, chosen
+  together by me and the paying company.
+- **100% on record.** Every payment, every expense and every donation is written in the public
+  [LEDGER.md](LEDGER.md) of this repository, with proof.
+- **Completely disclosed.** Everyone who can see this repository can see the ledger. Nothing is hidden.
+
 ---
 
 <div align="center">

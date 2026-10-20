@@ -39,6 +39,15 @@ project. It applies to anyone who uses the generator or the Web UI, and using th
 Companies and startups are welcome to use this project once terms are agreed. Please get in touch by email (above).
 Approved organizations will be listed in the [README](README.md#licensing).
 
+## Pledge On Commercial Money
+
+> **100% on record. 100% invested back. 100% disclosed.**
+
+Any money I accept from commercial users is invested back into this project in full, 100%, and is on record in the
+public [LEDGER.md](LEDGER.md), visible to everyone who can see this repository. Whatever is left over is donated to a
+fund that supports innovation worldwide, chosen together by me and the paying company. See the
+[README](README.md#our-pledge-every-commercial-payment-goes-back-into-the-project).
+
 ## Disclaimer
 
 This page is a plain-language summary to help you find your way. It is not legal advice. If it differs from the full
