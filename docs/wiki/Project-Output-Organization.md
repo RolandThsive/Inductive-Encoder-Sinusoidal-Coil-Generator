@@ -6,21 +6,24 @@
 per run.*
 
 ```text
-Sinusoidal Coil Generator/
+Single Generator/
 ├── Parameters/                 Every setting: the only files you edit
-│   ├── Board_Parameters.py       Output, PCB layers, vias, clearance, board outline, air gap, receiver IC
+│   ├── Board_Parameters.py       Output, generator mode, PCB layers, vias, clearance, board outline, air gap, electrical estimate
 │   ├── RX_Parameters.py          Loops, radii, profile, sub-coils, layers, fingers
-│   ├── TX_Parameters.py          Turns, pitch, shape, layers, series / parallel, break style
+│   ├── TX_Parameters.py          Turns, pitch, shape, wiring, layers, break style
 │   ├── Rotor_Parameters.py       The rotor (metal target)
-│   └── Parameters.py             Gathers the four board files (do not edit)
+│   ├── IC_Parameters.py          The receiver IC limits for the electrical estimate
+│   └── Parameters.py             Gathers the five parameter files (do not edit)
 ├── Generator/
-│   ├── RunCoilGenerator.py       The program to run; the only one that writes files
-│   ├── StatorGenerator.py        Stator geometry
-│   ├── RotorGenerator.py         Rotor geometry
-│   ├── TXLayout.py               Resolves the TX layout
-│   ├── ParameterChecker.py       Rules for parameters and finished geometry
-│   ├── OutputDirectoryManager.py Output folders and Parameters.txt
-│   └── CoilElectrics.py          Electrical estimate
+│   ├── Run/                      RunCoilGenerator.py (the program to run; the only one that writes files),
+│   │                             CheckParameters.py, OutputFolders.py
+│   ├── Checks/                   ParameterRules.py, ConflictRules.py, DesignChecks.py
+│   ├── Stator/
+│   │   ├── RX/                   RX_Builder, RX_Coils, RX_Profiles, RX_Fingers
+│   │   ├── TX/                   TX_Builder, TX_Shapes, TX_Wiring, TX_Windows, TX_Terminal, TX_Electrics
+│   │   └── StatorAssembly.py     The finished stator, turned so the TX terminal sits at 0°
+│   ├── Rotor/                    RotorBuilder.py
+│   └── Core/                     Geometry, board layout, layers, copper, KiCad writer, conflict messages
 └── Output/
     └── Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>/
         ├── Stator.kicad_pcb
@@ -28,21 +31,21 @@ Sinusoidal Coil Generator/
         └── Parameters.txt
 ```
 
-A run never overwrites anything: if a folder name already exists, `__1`, `__2` and so on are added.
+The folder name carries the board radii, the RX loops and sub-coils, the TX turns, the TX wiring and the TX shape, for example `Coil_15_27_1_1_3_Single_SteppedDiagonal`. A run never overwrites anything: if a folder name already exists, `__1`, `__2` and so on are added. `Parameters.txt` lists every value used, marks the parameters that this design does not use, and records the angle the board was turned by to put the TX terminal at 0°.
 
 The analyser and optimizer (`Analyser_And_Optimizer/` and `OptimizerParameters.py`) are not on main. They are under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
 ## 19.1 Quick Start
 
 ```bash
-pip install numpy matplotlib
+pip install numpy
 
-python Generator/RunCoilGenerator.py              # Check, then write Stator + Rotor
-python Generator/RunCoilGenerator.py --check      # Check only, write nothing
-python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
+cd "Single Generator"
+python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor
+python Generator/Run/RunCoilGenerator.py --check      # Check only, write nothing
 ```
 
-Every program runs from any folder; it finds the other folders itself.
+The generator runs from any folder; it finds the other folders itself. To treat every warning about the finished boards (clearances, the board edge, the page, the rotor) as an error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`.
 
 | Previous | Next |
 |:---|---:|

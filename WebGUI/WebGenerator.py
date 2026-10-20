@@ -2,7 +2,7 @@
 WebGenerator.py  -  the web GUI's entry point into the generator (runs inside the browser with Pyodide).
 
 It does what RunCoilGenerator.py does, without touching the generator itself:
-  1. the visitor's values are written into copies of the four parameter files (only the changed lines
+  1. the visitor's values are written into copies of the parameter files (only the changed lines
      change, so Parameters.txt keeps its verbatim copies),
   2. the chain of RunCoilGenerator.py: CheckParameters.check_parameters, RX_Builder.build_rx, TX_Builder.build_tx,
      StatorAssembly.assemble + DesignChecks, RotorBuilder.RotorDesign + DesignChecks,
@@ -35,11 +35,15 @@ import types
 import zipfile
 
 ROOT = "/coilgen"
-PARAMETER_FILES = ("Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py")
+PARAMETER_FILES = ("Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py",
+                   "IC_Parameters.py")
 PARAMETER_MODULES = ("Parameters",) + tuple(f[:-3] for f in PARAMETER_FILES)
 
-# Not shown in the web GUI: settings that only feed the electrical estimate.
-HIDDEN = {"RECEIVER_IC", "COPPER_THICKNESS_UM"}
+# Not shown in the web GUI: settings that only feed the electrical estimate (they never change a board).  Their
+# files stay in the zip and in Export with the published values.
+HIDDEN = {"RECEIVER_IC", "COPPER_THICKNESS_UM", "COPPER_CONDUCTIVITY_S_M", "TX_AC_RESISTANCE_FACTOR",
+          "STACKUP_PREPREG_MM", "TANK_CAP_SERIES",
+          "IC_NAME", "IC_OSC_MIN_MHZ", "IC_OSC_MAX_MHZ", "IC_MIN_RP_OHM", "IC_SPLIT_TANK_CAPS"}
 
 
 def _no_removed_features(text):
@@ -263,7 +267,8 @@ def describe():
                     "help": help_text,
                     "group": groups.get(name, "General"),
                     "readOnly": name in READ_ONLY})
-    return json.dumps({"parameters": out, "files": list(PARAMETER_FILES)})
+    shown = {p["file"] for p in out}
+    return json.dumps({"parameters": out, "files": [f for f in PARAMETER_FILES if f in shown]})
 
 
 def inactive(values_json):
@@ -414,7 +419,7 @@ def generate(values_json):
 
 
 def parameter_files(values_json):
-    """{file name: text} of the four parameter files with these values (Export)."""
+    """{file name: text} of the parameter files with these values (Export)."""
     _paths()
     _restore_default_files()
     _forget_modules()
@@ -427,7 +432,7 @@ def parameter_files(values_json):
 
 
 def export_zip(values_json):
-    """Zip of the four parameter files with these values (Export).  Returns the path of the zip."""
+    """Zip of the parameter files with these values (Export).  Returns the path of the zip."""
     files = json.loads(parameter_files(values_json))
     zpath = os.path.join(ROOT, "parameters.zip")
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:

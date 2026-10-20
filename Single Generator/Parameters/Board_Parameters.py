@@ -12,7 +12,7 @@ Nothing in this file is computed - edit values only.
 #     Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_<TX wiring>_<TX shape>
 #     TX wiring = Single (one TX layer), Series or Parallel (two TX layers);
 #     TX shape  = SteppedDiagonal, SteppedArc or Spiral (TX_SHAPE)
-# e.g. Coil_36.8_56.6_8_1_3_Single_SteppedDiagonal; if it exists already: ..._SteppedDiagonal__1, __2, ...
+# e.g. Coil_15_27_1_1_3_Single_SteppedDiagonal; if it exists already: ..._SteppedDiagonal__1, __2, ...
 # It holds the two boards below and Parameters.txt (every value used for that run).
 # "Output" = the Output folder in "Single Generator" (next to Parameters and Generator), whatever
 # folder you run the program from.  A relative path is always taken from "Single Generator"; a full path
@@ -20,8 +20,9 @@ Nothing in this file is computed - edit values only.
 OUTPUT_DIR   = "Output"             # folder in which the Coil_... folders are made
 STATOR_FILE  = "Stator.kicad_pcb"   # file names inside each Coil_... folder
 ROTOR_FILE   = "Rotor.kicad_pcb"
-# GENERATOR_MODE = what a clearance warning on the finished boards does (any letter case):
-#   "normal" : a gap smaller than MIN_CLEARANCE_MM is a warning; the boards are written.
+# GENERATOR_MODE = what a warning about the finished boards (clearances, outline, page, rotor) does
+# (any letter case):
+#   "normal" : it stays a warning; the boards are written.
 #   "strict" : every such warning is an error; nothing is written.
 # Copper that overlaps copper of another net (a short) is always an error.  Warnings about the
 # parameters themselves (ranges, estimates) stay warnings in both modes.
@@ -29,7 +30,9 @@ GENERATOR_MODE = "normal"
 
 CENTER_X_MM  = 100.0                # sensor axis position on the KiCad page
 CENTER_Y_MM  = 100.0
-PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
+PAGE_SIZE_MM = (200, 200)           # smallest KiCad "User" page (width, height); grown to the right and down
+                                    # when the board or the title block needs more room.  A board too close to
+                                    # the top or left edge is only warned about (raise CENTER_X_MM / CENTER_Y_MM)
 
 
 # =============================================================================
@@ -38,7 +41,9 @@ PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
 # PCB_LAYERS = number of copper layers of the STATOR board.  Only 2 or 4.
 #   2 : the RX coils use Top and Bottom (the proven layout).
 #   4 : the RX coils use the layers named by RX_LAYER_A / RX_LAYER_B
-#       (see RX_Parameters.py); the TX coil can use two layers (TX_Parameters.py).
+#       (see RX_Parameters.py).
+# With either layer count the TX can use one or two layers (TX_Parameters.py; a 2-layer board
+# offers 1 and 4).
 # All vias are ordinary through-hole vias (no blind / buried vias needed).
 # Keep the layers that carry no coil free of copper pours under the coil area -
 # a plane there acts like an extra target and weakens the signal.
@@ -82,9 +87,18 @@ EXCITATION_FREQ_HZ   = 3.5e6        # TX oscillator frequency aimed for, with th
 
 # =============================================================================
 # ELECTRICAL ESTIMATE  (TX_Electrics.py, printed by RunCoilGenerator.py: TX inductance, tank
-# capacitors, oscillator frequency.  These values never change a board.)
+# capacitors, oscillator frequency.  These values never change a board.  The receiver IC the coil is
+# checked against: IC_Parameters.py.)
 # =============================================================================
-RECEIVER_IC          = "IPS2550"    # the IC the coil is checked against: "IPS2550", "IPS2200", or None
-                                    # (no checks).  Its oscillator range and minimum tank resistance are
-                                    # taken from the Renesas datasheets.
 COPPER_THICKNESS_UM  = 35           # stator copper thickness in micrometres (35 = 1 oz): TX resistance and Q
+COPPER_CONDUCTIVITY_S_M = 5.8e7     # copper conductivity in S/m (5.8e7 = annealed copper at 20 C; it drops
+                                    # about 0.39 % per K above that): TX resistance, and the rotor's skin
+                                    # depth and screening in the rotor summary
+TX_AC_RESISTANCE_FACTOR = 2.0       # at the TX frequency skin and proximity effects raise the TX resistance
+                                    # above the DC value: the estimate allows for up to this x the DC value
+                                    # (Q, tank resistance and the IC check use the worst case)
+STACKUP_PREPREG_MM   = 0.2          # 4-layer stator: distance from an outer copper layer to its inner
+                                    # neighbour (the inner layers' depth for the TX inductance; on a board
+                                    # thinner than twice this, a third of PCB_THICKNESS_MM is used)
+TANK_CAP_SERIES      = "E12"        # standard capacitor values the estimate suggests for the tank: "E6",
+                                    # "E12" or "E24" (any letter case)

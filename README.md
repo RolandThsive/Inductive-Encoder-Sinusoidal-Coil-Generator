@@ -10,15 +10,23 @@ Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free
 
 **[Wiki](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)** has better organized information on this tool. 
 
-</div>
+Inductive position sensors measure angle with nothing more than copper traces on printed circuit
+boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
+stray magnetic fields and wide temperature swings. The difficult part has always been the coil
+design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator
+and the rotor from a small set of parameter files, checks the design, and estimates how it will
+perform. It is written for **roboticists and mechatronics engineers** who want high-resolution
+motor and joint encoders without buying expensive sealed units or designing coils by hand.
 
----
+![Stator on the left and rotor on the right: 4 loops, 3 TX turns, board radius 30 to 50 mm](docs/images/intro_2_stator_and_rotor.png)
+
+</div>
 
 ## Contents
 
 1. [Disclaimer](#disclaimer)
 2. [Goal](#goal)
-3. [Introduction](#introduction)
+3. [Working Principle](#working-principle)
 4. [Immediate Next Steps](#immediate-next-steps)
 5. [Project Capabilities](#project-capabilities)
 6. [Examples](#examples)
@@ -57,17 +65,7 @@ and robustness cost hundreds to thousands of dollars each. This project aims to 
 it is completely open to industry experts, researchers and hobbyists who want to add to it.
 
 ---
-
-## Introduction
-
-Inductive position sensors measure angle with nothing more than copper traces on printed circuit
-boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
-stray magnetic fields and wide temperature swings. The difficult part has always been the coil
-design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator
-and the rotor from a small set of parameter files, checks the design, and estimates how it will
-perform. It is written for **roboticists and mechatronics engineers** who want high-resolution
-motor and joint encoders without buying expensive sealed units or designing coils by hand.
-
+## Working Principle
 ![Introduction 1: Working Principle](docs/images/intro_1_working_principle.png)
 
 *Introduction 1. A: Side view of the sensor. B: A generated 1-loop stator with its rotor. C: The
@@ -76,10 +74,8 @@ two signals.* More in the wiki: [Working Principle](https://github.com/RolandThs
 
 > [!NOTE]
 > The coil sets how many electrical periods there are per turn and how clean the signals are. The
-> final number of bits also depends on the receiver IC, the ADC or interpolator, noise and
+> final number of bits also depends on the receiver electronics, the ADC or interpolator, noise and
 > calibration. See [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator).
-
----
 
 ---
 
@@ -94,7 +90,7 @@ two signals.* More in the wiki: [Working Principle](https://github.com/RolandThs
 
 See the wiki for [Immediate Next Steps](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Immediate-Next-Steps) and
 [Future Upgrades And Planning](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Future-Upgrades-And-Planning). If you can help with boards,
-equipment or measurements, please see [Licensing](#licensing) for contact details.
+equipment or measurements, please read [CONTRIBUTING.md](CONTRIBUTING.md) and see [Licensing](#licensing) for contact details.
 
 ---
 
@@ -103,11 +99,11 @@ equipment or measurements, please see [Licensing](#licensing) for contact detail
 | Area | Capability |
 |---|---|
 | Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
-| RX | 1 to 16 loops, three profiles, 1 to 3 sub-coils, bridging fingers |
-| TX | One or two layers, series or parallel, stepped-diagonal, stepped-arc or spiral turns |
+| RX | 1 to 16 loops, two profiles (`equal_area`, `cosine_r`; a field-compensated one is research underway), 1 to 3 sub-coils, bridging fingers |
+| TX | One or two layers, single, series or parallel wiring, stepped-diagonal, stepped-arc or spiral turns, terminal placed automatically |
 | Rotor | Generated from the stator, or fully custom |
 | Board | 2 or 4 copper layers, through vias only |
-| Checks And Estimate | Parameter and geometry checks, TX inductance, resistance, tank capacitors and oscillator frequency |
+| Checks And Estimate | Parameter and geometry checks with named conflicts (`GENERATOR_MODE` `normal` or `strict`), TX inductance, resistance, tank capacitors and oscillator frequency |
 | Analysis And Optimization | On the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer), under construction |
 
 Full details, board sizes and every parameter are in the wiki:
@@ -133,14 +129,20 @@ Full details, board sizes and every parameter are in the wiki:
 ## Quick Start
 
 ```bash
-pip install numpy matplotlib
+pip install numpy
 
-python Generator/RunCoilGenerator.py              # Check, then write Stator + Rotor
-python Generator/RunCoilGenerator.py --check      # Check only, write nothing
-python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
+cd "Single Generator"
+python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor
+python Generator/Run/RunCoilGenerator.py --check      # Check only, write nothing
+python Generator/Run/RunCoilGenerator.py --stator     # Only the stator
+python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor
 ```
 
-Edit only the files in `Parameters/`. Each run writes a new folder in `Output/`
+Edit only the files in `Single Generator/Parameters/`: `RX_Parameters.py`, `TX_Parameters.py`, `Board_Parameters.py`,
+`Rotor_Parameters.py` and `IC_Parameters.py` (the limits of your receiver IC that the electrical estimate checks
+against). To treat every warning about the finished boards as an
+error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`. Each run writes a new folder in
+`Single Generator/Output/`
 (`Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>`)
 with `Stator.kicad_pcb`, `Rotor.kicad_pcb` and `Parameters.txt`, and never overwrites an earlier one.
 See [Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started) and [Project Output Organization](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Project-Output-Organization).
@@ -163,9 +165,14 @@ The analyser and optimizer are on the [`analyser_and_optimizer` branch](https://
 
 ## Licensing
 
-**Licence:** [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/)
-for the source code, and [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) for
-the pictures and documentation. The full text and the required notices are in [LICENSE.md](LICENSE.md).
+**Licences:** [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/)
+for the source code, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) for
+the pictures and documentation, and [PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0/)
+for the Web UI. [LICENSE.md](LICENSE.md) says which one applies where. The full texts are in
+[PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and
+[PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
+
+The table below is for the source code (PolyForm Noncommercial).
 
 | You May | You Must | You May Not, Without Written Permission |
 |---|---|---|
@@ -198,9 +205,7 @@ cells and rocket electronics, designing PCBs in KiCad and firmware for STM32 and
 
 Without a job at the moment, I put my full time into building industrial-grade software and making
 well-researched but hard-to-find scientific knowledge free for everyone. I will keep maintaining
-this project until it becomes a highly capable rotary inductive sensor coil generator. Meanwhile I
-am gathering data on the encoders sold today at very high prices and collecting the research
-papers behind them.
+this project until it becomes a highly capable rotary inductive sensor coil generator.
 
 **[Website](https://ro-h-bots.blogspot.com/)** ·
 **[Instagram](https://www.instagram.com/ro_h_bots)** ·

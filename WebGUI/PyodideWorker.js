@@ -30,7 +30,8 @@ const GENERATOR_FILES = [
   "Stator/TX/__init__.py", "Stator/TX/TX_Builder.py", "Stator/TX/TX_Shapes.py", "Stator/TX/TX_Terminal.py",
   "Stator/TX/TX_Windows.py", "Stator/TX/TX_Wiring.py",
 ];
-const PARAMETER_FILES = ["Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py", "Parameters.py"];
+const PARAMETER_FILES = ["Board_Parameters.py", "RX_Parameters.py", "TX_Parameters.py", "Rotor_Parameters.py", "IC_Parameters.py",
+  "Parameters.py"];
 const SOURCE = "Single Generator/";            // the generator's folder in the repository
 // [file in the repository, file in the browser's in-memory file system]
 const FETCH = [
@@ -39,39 +40,53 @@ const FETCH = [
   ["WebGUI/WebGenerator.py", "WebGUI/WebGenerator.py"],
 ];
 
-function progress(text) { postMessage({ type: "progress", text }); }
+let step = "";                                   // what init is doing now, named in the message if it fails
+function progress(text) { step = text; postMessage({ type: "progress", text }); }
 
+// A dropped connection is tried again (twice) before it is reported, and the report names the file.
 async function fetchText(url) {
-  const r = await fetch(url, { cache: "no-cache" });
-  if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
-  return r.text();
+  for (let tries = 1; ; tries++) {
+    let r;
+    try { r = await fetch(url, { cache: "no-cache" }); }
+    catch (e) {
+      if (tries < 3) { await new Promise((done) => setTimeout(done, 400 * tries)); continue; }
+      throw new Error(`${url} could not be downloaded (${e.message})`);
+    }
+    if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+    return r.text();
+  }
 }
 
 async function init({ pyodideBase, codeBase }) {
   const t0 = performance.now();
-  progress("Loading Python (Pyodide)…");
-  const { loadPyodide } = await import(pyodideBase + "pyodide.mjs");   // Pyodide 314 runs in module workers only
-  pyodide = await loadPyodide({ indexURL: pyodideBase });
-  progress("Loading numpy…");
-  await pyodide.loadPackage("numpy");
-  progress("Fetching the generator from the repository…");
-  const jobs = [];
-  for (const [from, to] of FETCH) {
-    const dir = to.slice(0, to.lastIndexOf("/"));
-    pyodide.FS.mkdirTree(`${ROOT}/${dir}`);
-    const url = new URL(from, codeBase).href;
-    jobs.push(fetchText(url).then((t) => pyodide.FS.writeFile(`${ROOT}/${to}`, t)));
-  }
-  await Promise.all(jobs);
-  pyodide.runPython(`
+  try {
+    progress("Loading Python (Pyodide)…");
+    const { loadPyodide } = await import(pyodideBase + "pyodide.mjs");   // Pyodide 314 runs in module workers only
+    pyodide = await loadPyodide({ indexURL: pyodideBase });
+    progress("Loading numpy…");
+    await pyodide.loadPackage("numpy");
+    progress("Fetching the generator from the repository…");
+    const jobs = [];
+    for (const [from, to] of FETCH) {
+      const dir = to.slice(0, to.lastIndexOf("/"));
+      pyodide.FS.mkdirTree(`${ROOT}/${dir}`);
+      const url = new URL(from, codeBase).href;
+      jobs.push(fetchText(url).then((t) => pyodide.FS.writeFile(`${ROOT}/${to}`, t)));
+    }
+    await Promise.all(jobs);
+    pyodide.runPython(`
 import sys
 sys.path.insert(0, "${ROOT}/WebGUI")
 import WebGenerator as WG
 WG.ROOT = "${ROOT}"
 `);
-  progress("Reading the parameters…");
-  const description = JSON.parse(pyodide.runPython("WG.describe()"));
-  return { description, seconds: (performance.now() - t0) / 1000 };
+    progress("Reading the parameters…");
+    const description = JSON.parse(pyodide.runPython("WG.describe()"));
+    return { description, seconds: (performance.now() - t0) / 1000 };
+  } catch (e) {
+    const early = /^Loading/.test(step) ? ` from ${pyodideBase}` : "";
+    throw new Error(`${e && e.message || e} [${step.replace("…", "")}${early}]`);
+  }
 }
 
 // Reads a file of the in-memory file system as a copy of exactly its bytes, so it can be transferred to the page.

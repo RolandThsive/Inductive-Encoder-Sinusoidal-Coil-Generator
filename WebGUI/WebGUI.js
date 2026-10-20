@@ -336,7 +336,7 @@ function updateStale() {
     : ZIP_TIP;
 }
 // the zip's name follows OutputDirectoryManager.folder_name (the desktop's output folder)
-const ZIP_TIP = "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt and the four parameter files.\n" +
+const ZIP_TIP = "Download this run as one zip: Stator.kicad_pcb, Rotor.kicad_pcb, Parameters.txt and the parameter files.\n" +
   "Name: **Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<TX Wiring>_<TX Shape>**\n" +
   "Inner / Outer Radius: the stator board's centre hole and outer edge (mm)\n" +
   "Loops, Sub-Coils: the RX settings; TX Turns: turns per TX layer\n" +
@@ -397,11 +397,11 @@ function noneSwitch(name, on) {
     el("span", { class: "switch" }, cb, el("span", { class: "knob" })));
 }
 
-function numberField({ name, label, unit, min, max, step, slider, ticks, note, none }) {
+function numberField({ name, label, unit, min, max, step, sliderStep = step, slider, ticks, note, none }) {
   const v = state.values[name], isNone = v === null;
   const shown = isNone ? numberFor(name, state.values) : v;              // a None field keeps showing the number it would return to
   const input = el("input", { type: "text", inputmode: "decimal", value: isNone ? "None" : fmt(v), disabled: isNone, "aria-label": label });
-  const range = slider ? el("input", { type: "range", min: slider[0], max: slider[1], step, value: shown, disabled: isNone, "aria-label": label }) : null;
+  const range = slider ? el("input", { type: "range", min: slider[0], max: slider[1], step: sliderStep, value: shown, disabled: isNone, "aria-label": label }) : null;
   const clamp = (x) => Math.min(max, Math.max(min, x));
   const commit = (x, src) => {
     if (!Number.isFinite(x)) { input.value = fmt(state.values[name]); return; }
@@ -508,10 +508,10 @@ function updateBasicNotes() {
 /* Basic has the same four categories as Advanced (the parameter files); each page holds the main settings of one. */
 function basicBoardFields() {
   return [
-    numberField({ name: "INNER_EDGE_RADIUS_MM", label: "Board Inner Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 120], none: true }),
-    numberField({ name: "OUTER_EDGE_RADIUS_MM", label: "Board Outer Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [10, 150], none: true }),
+    numberField({ name: "INNER_EDGE_RADIUS_MM", label: "Board Inner Radius", unit: "mm", min: 0.1, max: 250, step: 0.001, sliderStep: 0.1, slider: [5, 120], none: true }),
+    numberField({ name: "OUTER_EDGE_RADIUS_MM", label: "Board Outer Radius", unit: "mm", min: 0.1, max: 250, step: 0.001, sliderStep: 0.1, slider: [10, 150], none: true }),
     segmentedField({ name: "PCB_LAYERS", label: "Board Layers", options: [[2, "2 Layers"], [4, "4 Layers"]] }),
-    numberField({ name: "AIR_GAP_MM", label: "Air Gap", unit: "mm", min: 0.1, max: 10, step: 0.1, slider: [0.2, 5] }),
+    numberField({ name: "AIR_GAP_MM", label: "Air Gap", unit: "mm", min: 0.1, max: 10, step: 0.001, sliderStep: 0.1, slider: [0.2, 5] }),
   ];
 }
 function basicRxFields() {
@@ -521,10 +521,10 @@ function basicRxFields() {
     segmentedField({ name: "RX_SUBCOILS", label: "RX Sub-Coils", options: [[1, "1 (None)"], [2, "2"], [3, "3"]],
       note: noteFor("RX_SUBCOILS") }),
     el("div", { class: "group-title with-note" }, "RX Band", el("span", { class: "field-note", "data-note": "RX_BAND" }, noteFor("RX_BAND"))),
-    numberField({ name: "INSIDE_RADIUS_MM", label: "RX Inside Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 150], none: true }),
-    numberField({ name: "OUTSIDE_RADIUS_MM", label: "RX Outside Radius", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 150], none: true }),
-    numberField({ name: "RX_R_BASE_MM", label: "RX R Base", unit: "mm", min: 0.1, max: 250, step: 0.1, slider: [5, 150], none: true }),
-    numberField({ name: "RX_A_MM", label: "RX Swing A", unit: "mm", min: 0.1, max: 125, step: 0.1, slider: [0.5, 40], none: true }),
+    numberField({ name: "INSIDE_RADIUS_MM", label: "RX Inside Radius", unit: "mm", min: 0.1, max: 250, step: 0.001, sliderStep: 0.1, slider: [5, 150], none: true }),
+    numberField({ name: "OUTSIDE_RADIUS_MM", label: "RX Outside Radius", unit: "mm", min: 0.1, max: 250, step: 0.001, sliderStep: 0.1, slider: [5, 150], none: true }),
+    numberField({ name: "RX_R_BASE_MM", label: "RX R Base", unit: "mm", min: 0.1, max: 250, step: 0.001, sliderStep: 0.1, slider: [5, 150], none: true }),
+    numberField({ name: "RX_A_MM", label: "RX Swing A", unit: "mm", min: 0.1, max: 125, step: 0.001, sliderStep: 0.1, slider: [0.5, 40], none: true }),
   ];
 }
 function txLayoutField() {
@@ -616,7 +616,7 @@ function dropdown(name, options, value, onPick) {
 }
 document.addEventListener("click", () => document.querySelectorAll(".dropdown.open").forEach((d) => d.classList.remove("open")));
 
-function advStepper(value, onCommit, { step = 0.1, integer = false, disabled = false, min = null } = {}) {
+function advStepper(value, onCommit, { step = 0.001, integer = false, disabled = false, min = null } = {}) {
   const input = el("input", { type: "text", inputmode: "decimal", value: value == null ? "" : fmt(value), disabled });
   const len = (value == null ? "" : fmt(value)).length;
   if (len > 5) input.style.width = `${len + 2}ch`;                      // 3500000 Hz fits
@@ -640,7 +640,7 @@ function stepOf(p) {
   if (/DEG$/.test(p.name)) return 1;
   if (typeof d === "number" && Math.abs(d) >= 100) return 1;
   if (typeof d === "number" && String(d).includes(".") && String(d).split(".")[1].length >= 2) return 0.05;
-  return 0.1;
+  return 0.001;
 }
 
 // the number a step setting shows when its Auto switch is turned off (the values before the chord tolerances)

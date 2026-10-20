@@ -1,55 +1,62 @@
 # 3. Getting Started
 
-The generator is pure Python 3 with numpy (matplotlib is optional, for plots). There is also a
+The generator is pure Python 3 and needs only numpy. There is also a
 [Web Tool](Web-Tool.md) that needs no installation.
 
 ## 3.1 Install
 
 ```bash
-pip install numpy matplotlib
+pip install numpy
 ```
 
 ## 3.2 First Run
 
-1. Open `Parameters/` and look at the four files you can edit: `Board_Parameters.py`, `RX_Parameters.py`,
-   `TX_Parameters.py` and `Rotor_Parameters.py`. The [Parameter Reference](Parameter-Reference.md) explains every
+1. Open `Single Generator/Parameters/` and look at the five files you can edit: `Board_Parameters.py`, `RX_Parameters.py`,
+   `TX_Parameters.py`, `Rotor_Parameters.py` and `IC_Parameters.py`. The [Parameter Reference](Parameter-Reference.md) explains every
    setting. The defaults already build a board.
-2. Check the parameters without writing anything:
+2. Go to the `Single Generator` folder and check the parameters without writing anything:
 
    ```bash
-   python Generator/RunCoilGenerator.py --check
+   cd "Single Generator"
+   python Generator/Run/RunCoilGenerator.py --check
    ```
 
 3. Generate the boards:
 
    ```bash
-   python Generator/RunCoilGenerator.py
+   python Generator/Run/RunCoilGenerator.py
    ```
 
-4. Open `Stator.kicad_pcb` and `Rotor.kicad_pcb` from the new folder in `Output/` with KiCad 7, 8, 9 or 10. See
+4. Open `Stator.kicad_pcb` and `Rotor.kicad_pcb` from the new folder in `Single Generator/Output/` with KiCad 7, 8, 9 or 10. See
    [KiCad Compatibility](KiCad-Compatibility.md).
 
 ## 3.3 All Commands
 
 ```bash
-python Generator/RunCoilGenerator.py              # Check, then write Stator + Rotor
-python Generator/RunCoilGenerator.py --check      # Check only, write nothing
-python Generator/RunCoilGenerator.py --strict     # Treat warnings as errors
+python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor
+python Generator/Run/RunCoilGenerator.py --check      # Check only, write nothing
+python Generator/Run/RunCoilGenerator.py --stator     # Only the stator
+python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor (the stator geometry is built but not written)
+python Generator/Run/RunCoilGenerator.py --no-color   # Plain text, no colours
 ```
 
-The analyser (`AnalyzeCoil.py`) and optimizer (`OptimizeCoil.py`) are not on main. They are under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
+Whether a warning about the finished boards (a clearance, the board edge, the page, the rotor) stops the run is not a command-line option any more: set
+`GENERATOR_MODE` to `"strict"` in `Board_Parameters.py` (the default `"normal"` writes the boards anyway).
+Colours: red = error (nothing is written), yellow = warning, green = success.
 
-Every program runs from any folder; it finds the other folders itself. A run never overwrites anything: if the output
+The analyser and optimizer are not on main. They are under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
+
+The generator runs from any folder; it finds the other folders itself. A run never overwrites anything: if the output
 folder name already exists, `__1`, `__2` and so on are added. See
 [Project Output Organization](Project-Output-Organization.md).
 
 ## 3.4 What Happens In A Run
 
 1. The parameters are checked ([Checks, Errors And Warnings](Checks-Errors-And-Warnings.md)).
-2. The stator is built and checked.
+2. The RX coils and their fingers are built, then the TX coil with its terminal where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, as close to the two fingers as the clearance allows). The board is turned so that the terminal sits at 0° (to the right), and the finished copper is checked.
 3. The rotor is built and checked.
-4. The [electrical estimate](Electrical-Estimate.md) is printed and checked against the receiver IC.
-5. With `--strict` or `--check`, the run stops or continues as requested.
+4. The [electrical estimate](Electrical-Estimate.md) is printed and checked against the receiver IC limits in `IC_Parameters.py`.
+5. The run decides: any error stops it (nothing is written); with `GENERATOR_MODE = "strict"` every warning about the finished boards counts as an error, and `--check` stops here on purpose.
 6. The boards and `Parameters.txt` (the summaries, every value used, and copies of the parameter files) are written.
 
 Every board carries a filled-in KiCad title block. There is no silkscreen and there are no terminals or pads: you
@@ -64,7 +71,7 @@ break the coils out where you like.
 - Pick the loop count for your use: [Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md).
 - Understand the features: [Stator Features](Stator-Features.md), [Rotor Features](Rotor-Features.md),
   [Board Features](Board-Features.md).
-- Check and improve a design: [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md).
+- Check and improve a design (analysis and optimization are under construction): [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md).
 
 | Previous | Next |
 |:---|---:|

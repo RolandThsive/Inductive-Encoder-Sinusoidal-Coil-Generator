@@ -1,25 +1,25 @@
 # 8. RX Profiles
 
-Each RX coil is a pair of curves that weave around a centre radius `r_base` inside the RX band,
+Each RX coil is a pair of curves (with `RX_SUBCOILS` > 1, several pairs in series) that weave around a centre radius `r_base` inside the RX band,
 crossing it every half period. The two curves of a pair mirror each other (the `+` and the `−`
 curve below), and the coil is the loop they form together. The shape of the weave is chosen by
 `RX_PROFILE`.
 
-The three profiles at a glance:
+Two profiles can be selected now; a third is research in progress:
 
 | Profile | Rule | Compensates for | Use it when |
 |---|---|---|---|
 | `equal_area` (default) | r² swings equally around r_base² | A uniform field | You want the default, well-behaved choice |
-| `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the Renesas reference design, which follows this law |
-| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | Research underway |
+| `cosine_r` | r swings equally around the mean radius | A uniform field | You want to match the receiver makers' reference designs, which follow this law |
+| `field_compensated` | `equal_area`, bent by the modelled TX field | The non-uniform TX field | Research underway (not selectable in V18) |
 
-All three are selected with `RX_PROFILE` in `RX_Parameters.py`. As with the rest of the analysis,
+`RX_PROFILE` in `RX_Parameters.py` accepts `equal_area` and `cosine_r`. As with the rest of the analysis,
 the differences shown here come from the generator and its models. They have not yet been checked
 on hardware.
 
 ## 8.1 Profile `cosine_r` (Limaçon)
 
-This is the law the Renesas IPS2200 reference design follows. The radius itself swings
+This is the law the receiver makers' reference designs follow. The radius itself swings
 as a sine:
 
 $$
@@ -70,15 +70,13 @@ grey line in the right panel is the middle of the band, 44.5 mm, for comparison.
 
 ## 8.3 Profile `field_compensated`
 
-**Research underway.**
+**Research underway.** It was removed from the generator in V18 and returns when the field model does.
 
-## 8.4 Comparing The Three Profiles
+## 8.4 Comparing The Profiles
 
-![RX Profile 3: The three profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
+![RX Profile 3: The two profiles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/rx_profile_3_comparison.png)
 
-*RX Profile 3. The same 4-loop board built with each profile, and the radius of one curve pair
-over one electrical period (90°). `equal_area` and `cosine_r` lie almost on top of each other;
-`field_compensated` departs from them by up to about 1.5 mm in radius at some angles.*
+*RX Profile 3. The same 4-loop board (board edges 30 / 50 mm, RX only, the TX is not drawn) built with each of the two profiles, and the radius of the SIN curves over one electrical period (90°). The two profiles lie almost on top of each other.*
 
 | Previous | Next |
 |:---|---:|

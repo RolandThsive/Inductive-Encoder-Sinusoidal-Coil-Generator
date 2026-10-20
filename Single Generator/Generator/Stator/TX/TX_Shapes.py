@@ -13,6 +13,7 @@ from Generator.Core.Conflict import ParameterConflict
 from Generator.Core.Geometry import chord_tolerance
 
 ARC_MARGIN_MM = 0.02           # added to the smallest arc radius on "auto" (and the chord sag of the turns)
+DEFAULT_INSIDE_VIA_DISTANCE_MM = 0.3   # used when TX_Parameters.py has no TX_INSIDE_VIA_DISTANCE_MM line (as shipped)
 
 
 def arc_radius_limits(P):
@@ -77,7 +78,7 @@ def step_plan(tx):
     # TX_INSIDE_VIA_DISTANCE_MM inside the first turn.  Local coordinates: x along the turn (mm, 0 = terminal),
     # y outwards from the first turn; the step runs from (e - run, 0) to (e, pitch).
     vr = float(P.VIA_DIAMETER_MM) / 2.0
-    dv = float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM", 0.0))
+    dv = float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM", DEFAULT_INSIDE_VIA_DISTANCE_MM))
     keep = vr + tw / 2.0 + clr + 0.02 + sag
     vx, vy = 0.0, -dv
     dx, dy = run, p
@@ -205,5 +206,3 @@ def emit_step(tx, n, layer, sigma):
         ths = [e] + [-k * tx.step for k in range(int(math.floor(-e / tx.step - 1e-9)), 0, -1)] + [0.0]
         pts += [tx.pt(sigma * th, r0 + T * pitch) for th in ths[1:]]
     tx.add_poly(pts, layer, -1, "step")
-
-# ------------------------------------------------------------ the layouts
