@@ -4,7 +4,7 @@ RotorBuilder.py
 =================
 Generates the ROTOR (the "target") for the inductive stator made by
 StatorAssembly.py: a PCB carrying N copper sectors, N = number of periods
-(LOOPS) of the stator.  Two modes, chosen with ROTOR_MODE in Parameters.py:
+(LOOPS) of the stator.  Two modes, chosen with ROTOR_MODE in Rotor_Parameters.py:
 
   "according_to_stator"  the matched rotor is derived from the stator settings
         * sectors            = LOOPS  (one metal sector per electrical period)
@@ -18,7 +18,7 @@ StatorAssembly.py: a PCB carrying N copper sectors, N = number of periods
         * outer edge         = by default (ROTOR_AUTO_COVER_TX = True) the copper
                                runs over the TX turns and ends
                                ROTOR_AUTO_TX_OVERHANG_MM past the outer edge of
-                               the outermost TX turn, as in the Renesas
+                               the outermost TX turn, as in the IC makers'
                                reference designs.  Every sector is a shorted
                                turn driven by the TX flux it encloses, and that
                                flux is densest right beside the TX conductors;
@@ -26,7 +26,9 @@ StatorAssembly.py: a PCB carrying N copper sectors, N = number of periods
                                receiver signal than ending the copper inside the
                                TX ring.  It never comes
                                closer than ROTOR_AUTO_EDGE_CLEARANCE_MM to the
-                               board outline.
+                               board outline (measured to the outermost polygon
+                               vertex, which lies slightly outside the nominal
+                               radius).
                                With ROTOR_AUTO_COVER_TX = False:
                                the RX band widened by ROTOR_AUTO_EXTENSION_MM /
                                ROTOR_AUTO_EXTENSION_OUTER_MM, at most up to
@@ -66,7 +68,7 @@ from Generator.Core.Geometry import chord_tolerance
 from Generator.Core.KiCadWriter import KiCadBoard, page_size
 from Generator.Core.Conflict import ParameterConflict
 
-COPPER_CONDUCTIVITY = 5.8e7          # S/m
+DEFAULT_COPPER_CONDUCTIVITY = 5.8e7  # S/m, used when Board_Parameters.py has no COPPER_CONDUCTIVITY_S_M line
 MU0 = 4.0e-7 * math.pi
 
 # used when Rotor_Parameters.py has no such line (ParameterRules.py holds the same numbers)
@@ -173,8 +175,16 @@ class RotorDesign:
         self.outline_radius = st.outer_edge_radius
         r_in_limit = self.bore_radius + P.EDGE_LINE_WIDTH_MM / 2.0 + P.ROTOR_AUTO_EDGE_CLEARANCE_MM
         self.r_in = max(st.ri - want_in, r_in_limit)
-        # an edge that was asked for explicitly and had to be cut back (DesignChecks reports it)
-        self.cut_in = None if given_in is None or st.ri - want_in >= r_in_limit - 1e-9 else (want_in, st.ri - r_in_limit)
+        # an edge that was asked for explicitly (ROTOR_AUTO_EXTENSION_INNER_MM / _OUTER_MM, or ROTOR_AUTO_EXTENSION_MM
+        # when it is set) and had to be cut back (DesignChecks reports it, naming the parameter it came from).
+        # The default, ROTOR_AUTO_EXTENSION_MM = None (one air gap), is cut back silently.
+        all_set = P.ROTOR_AUTO_EXTENSION_MM is not None
+        self.cut_in_name = "ROTOR_AUTO_EXTENSION_INNER_MM" if given_in is not None else "ROTOR_AUTO_EXTENSION_MM"
+        self.cut_out_name = "ROTOR_AUTO_EXTENSION_OUTER_MM" if given_out is not None else "ROTOR_AUTO_EXTENSION_MM"
+        explicit_in = given_in is not None or all_set
+        explicit_out = given_out is not None or all_set
+        self.cut_in = (None if not explicit_in or st.ri - want_in >= r_in_limit - 1e-9
+                       else (want_in, st.ri - r_in_limit))
         self.cover_tx = bool(getattr(P, "ROTOR_AUTO_COVER_TX", DEFAULT_COVER_TX))
         self.tx_outer_edge = tx_outer_edge(st, P)
         self.cut_out = self.cut_overhang = None
@@ -182,19 +192,32 @@ class RotorDesign:
             # over the TX turns, ending ROTOR_AUTO_TX_OVERHANG_MM past the outermost one, inside the outline
             over = float(getattr(P, "ROTOR_AUTO_TX_OVERHANG_MM", DEFAULT_TX_OVERHANG_MM))
             r_out_limit = self.outline_radius - P.EDGE_LINE_WIDTH_MM / 2.0 - P.ROTOR_AUTO_EDGE_CLEARANCE_MM
-            self.r_out = min(self.tx_outer_edge + over, r_out_limit)
-            if self.tx_outer_edge + over > r_out_limit + 1e-9:
-                self.cut_overhang = (over, r_out_limit - self.tx_outer_edge)
+            want_out_edge = self.tx_outer_edge + over
+            self.r_out = self._fit_outer_vertices(min(want_out_edge, r_out_limit), r_out_limit)
+            if want_out_edge > self.r_out + 1e-9:
+                self.cut_overhang = (over, self.r_out - self.tx_outer_edge)
         else:
             # (ROTOR_AUTO_EXTENSION_OUTER_MM and ROTOR_AUTO_TX_CLEARANCE_MM are read only here: with the
             # TX covered they are not used, so a leftover value there cannot stop the generator)
             want_out = ext if given_out is None else float(given_out)
             r_out_limit = st.tx_inner_edge - P.ROTOR_AUTO_TX_CLEARANCE_MM
-            self.r_out = min(st.ro + want_out, r_out_limit)
-            if given_out is not None and st.ro + want_out > r_out_limit + 1e-9:
-                self.cut_out = (want_out, r_out_limit - st.ro)
+            self.r_out = self._fit_outer_vertices(min(st.ro + want_out, r_out_limit), r_out_limit)
+            if explicit_out and st.ro + want_out > self.r_out + 1e-9:
+                self.cut_out = (want_out, self.r_out - st.ro)
         self.layers = list(P.ROTOR_AUTO_COPPER_LAYERS)
         self.cx, self.cy = st.cx, st.cy
+
+    def _fit_outer_vertices(self, r_out, limit):
+        """The nominal outer radius to use: `r_out`, or less when the outermost polygon vertices (sector_polygon puts
+        them at r_out / cos(half a step), farther out than r_out) would pass `limit`.  The number of steps may depend
+        on r_out ("auto"), so it is repeated until the vertices fit."""
+        self.r_out = r_out
+        for _ in range(20):
+            fitted = limit * math.cos(self._half_step())
+            if self.r_out <= fitted + 1e-12:
+                break
+            self.r_out = fitted
+        return self.r_out
 
     def _from_custom(self):
         P = self.P
@@ -207,6 +230,7 @@ class RotorDesign:
         self.outline_radius = P.ROTOR_CUSTOM_OUTLINE_RADIUS_MM
         self.bore_radius = P.ROTOR_CUSTOM_BORE_RADIUS_MM
         self.cut_in = self.cut_out = self.cut_overhang = None
+        self.cut_in_name = self.cut_out_name = None
         self.cover_tx = None
         self.tx_outer_edge = tx_outer_edge(self.stator, P) if self.stator is not None else None
         self.cx, self.cy = float(P.CENTER_X_MM), float(P.CENTER_Y_MM)
@@ -266,15 +290,20 @@ class RotorDesign:
 
     # ---------------------------------------------------------------- geometry
     def arc_steps(self):
-        """Points on every arc of a sector: ROTOR_ARC_STEPS_PER_SECTOR, or (auto) the fewest (at least 8) whose
-        polygon stays within ROTOR_CHORD_TOLERANCE_MM of the circle (the vertices sit outside it)."""
+        """Chords (straight pieces) on every arc of a sector, n; an arc has n + 1 vertices.  ROTOR_ARC_STEPS_PER_SECTOR,
+        or (auto) the fewest (at least 8) whose polygon stays within ROTOR_CHORD_TOLERANCE_MM of the circle (the
+        outer vertices sit outside it)."""
         s = getattr(self.P, "ROTOR_ARC_STEPS_PER_SECTOR", "auto")
         if not (isinstance(s, str) and s.lower() == "auto"):
-            return max(4, int(s))
+            return max(8, int(s))
         tol = chord_tolerance(self.P, "ROTOR")
         delta = self.duty * 2.0 * math.pi / self.sectors
         half_max = math.acos(self.r_out / (self.r_out + tol))
         return max(8, int(math.ceil(delta / (2.0 * half_max))))
+
+    def _half_step(self):
+        """Half the angle of one chord of a sector arc (radians)."""
+        return self.duty * 2.0 * math.pi / self.sectors / self.arc_steps() / 2.0
 
     def sector_polygon(self, k):
         """Closed polygon (list of (x, y)) of sector k."""
@@ -282,9 +311,11 @@ class RotorDesign:
         n = self.arc_steps()
         a0 = self.start_angle + k * period
         a1 = a0 + self.duty * period
-        # vertices sit on a slightly larger circle (r / cos(half step)) so that the
-        # straight chords are tangent to the nominal radii: the copper never ends
-        # up smaller than the requested annulus.
+        # vertices sit on a slightly larger circle (r / cos(half step)), so that the straight chords are tangent
+        # to the nominal radii.  On the outer arc this keeps the copper from being smaller than requested (its
+        # vertices reach up to r_out * (1 / cos(half) - 1) past r_out).  On the inner arc the same shift moves
+        # the chords outward, so the inner copper edge lies between r_in and r_in / cos(half): the copper may be
+        # narrower than requested there by up to the chord sag.
         half = (a1 - a0) / n / 2.0
         r_out = self.r_out / math.cos(half)
         r_in = self.r_in / math.cos(half)
@@ -311,9 +342,13 @@ class RotorDesign:
         return [] if self.mask_expansion is None else [MASK_LAYER[l] for l in self.layers]
 
     # ---------------------------------------------------------------- reporting
+    def conductivity(self):
+        """Copper conductivity (S/m): COPPER_CONDUCTIVITY_S_M (Board_Parameters.py)."""
+        return float(getattr(self.P, "COPPER_CONDUCTIVITY_S_M", DEFAULT_COPPER_CONDUCTIVITY))
+
     def skin_depth_um(self):
         f = float(self.P.EXCITATION_FREQ_HZ)
-        return 1e6 * math.sqrt(1.0 / (math.pi * f * MU0 * COPPER_CONDUCTIVITY))
+        return 1e6 * math.sqrt(1.0 / (math.pi * f * MU0 * self.conductivity()))
 
     def screening_percent(self, thickness_um):
         """Thin-sheet estimate of the share of the TX field that a copper sheet of this thickness keeps
@@ -322,7 +357,7 @@ class RotorDesign:
         distance to the field source, which is somewhere between the air gap and the air gap plus the
         board thickness.  Returns (low, high) in percent."""
         w = 2.0 * math.pi * float(self.P.EXCITATION_FREQ_HZ)
-        q = MU0 * COPPER_CONDUCTIVITY * thickness_um * 1e-6 * w
+        q = MU0 * self.conductivity() * thickness_um * 1e-6 * w
         out = []
         for dist_mm in (float(self.P.AIR_GAP_MM), float(self.P.AIR_GAP_MM) + float(self.P.PCB_THICKNESS_MM)):
             r = q * dist_mm * 1e-3 / 2.0
@@ -359,7 +394,7 @@ class RotorDesign:
         lines = [f"Rotor ({self.mode}): {self.sectors} sector(s), metal fraction {self.duty:g} "
                  f"({self.duty * 360.0 / self.sectors:.2f} deg mechanical each)",
                  f"  copper r = {self.r_in:.2f} ... {self.r_out:.2f} mm on {', '.join(self.layers)}, "
-                 f"{self.arc_steps()} points per arc"]
+                 f"{self.arc_steps()} chords per arc"]
         if self.stator is not None:
             lines.append(f"  RX band r = {self.stator.ri:g} ... {self.stator.ro:g} mm: the copper reaches "
                          f"{self._reach_text(self.ext_in)} at the inner edge and "

@@ -22,7 +22,7 @@ ROTOR_AUTO_START_ANGLE_DEG  = 0.0   # mechanical angle of the first sector edge
 
 # ---- outer edge of the copper: over the TX turns (default) -----------------
 # True: the copper runs over the TX turns and ends ROTOR_AUTO_TX_OVERHANG_MM past the outer edge
-# of the outermost TX turn, as in the Renesas reference designs.  Every sector is a shorted turn
+# of the outermost TX turn, as in the IC makers' reference designs.  Every sector is a shorted turn
 # driven by the TX flux it encloses, and that flux is densest right beside the TX conductors: in
 # an eddy-current model that gave 5-8 % more receiver signal than ending the copper inside the
 # TX ring; most of the gain is reached 0.5 mm past the outer turn.  Whether it also lowers the
@@ -64,12 +64,13 @@ ROTOR_CUSTOM_BORE_RADIUS_MM     = 15.0   # centre hole (None = no hole)
 ROTOR_PCB_THICKNESS_MM = None   # thickness of the rotor board written into the KiCad file (mm); None = the
                                 # stator's PCB_THICKNESS_MM.  It changes nothing in the copper.
 
-# Points on every circular arc of a rotor sector:
+# Chords (straight pieces) on every circular arc of a rotor sector (an arc with n chords has n + 1 points):
 #   ROTOR_ARC_STEPS_PER_SECTOR = "auto" : as many as ROTOR_CHORD_TOLERANCE_MM needs (at least 8)
 #   ROTOR_ARC_STEPS_PER_SECTOR = number : that many (8 ... 5000).
 # ROTOR_CHORD_TOLERANCE_MM = how far the polygon may lie outside the true circle: 0.001 mm = 1 micron, also the
-#   smallest value allowed.  (The polygon vertices sit slightly outside the nominal radius so the copper is never
-#   smaller than requested; this is the largest overshoot.)
+#   smallest value allowed.  (The polygon vertices sit slightly outside the nominal radius, so the OUTER edge of the
+#   copper is never smaller than requested; this is the largest overshoot.  The inner edge may lie up to the same
+#   chord sag outside the nominal inner radius.  The outer vertices are kept inside the board outline limit.)
 ROTOR_ARC_STEPS_PER_SECTOR = "auto"
 ROTOR_CHORD_TOLERANCE_MM   = 0.001
 

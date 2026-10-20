@@ -37,7 +37,11 @@ def check_parameters(P):
 
 def main():
     Colour.setup()
-    import Parameters as P
+    try:
+        import Parameters as P
+    except Exception as e:                                             # syntax error, missing file ... (as RunCoilGenerator)
+        print("  " + Colour.red(f"ERROR   the parameter files cannot be loaded: {type(e).__name__}: {e}"))
+        return 1
     r = check_parameters(P)
     r.print()
     if r.errors:

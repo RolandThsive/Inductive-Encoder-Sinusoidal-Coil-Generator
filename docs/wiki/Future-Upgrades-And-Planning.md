@@ -3,7 +3,8 @@
 | Upgrade | Description |
 |---|---|
 | **Desktop GUI** | A graphical interface in its own folder, built on top of the existing code without changing it. It will preview the coils as the parameters change and generate the KiCad boards. |
-| ~~**Web Tool**~~ | ~~A browser version on my website that generates and downloads KiCad boards and footprints.~~ |
+| ~~**Web Tool**~~ | ~~A browser version on my website that generates and downloads KiCad boards.~~ |
+| **Field-Compensated RX Profile** | An RX shape bent by the modelled TX field. Research underway; the profile was removed from the generator in V18 and returns with the field model. |
 | **Better Models From Real Hardware** | Measured boards will be used to correct the field, eddy-current and electrical models. Contributors with test equipment are very welcome. |
 | **Custom IC Section** | A more robust analyser with a configurable IC section, so that any receiver IC can be described and the generated coils checked against it. |
 | **Dual-IC Version** | Coils for two receiver ICs, giving redundancy and higher resolution (for example a 1-loop and a multi-loop track). |

@@ -49,8 +49,8 @@ RX_NET_PHASE_1_3 = "COS_Signal"
 #                        The flux weight of a single curve is an exact sine for a
 #                        uniform field.
 #   "cosine_r"           r = mean(r) + amp * sin(...)       (a limacon; the law the
-#                        Renesas IPS2200 reference design follows, measured from its
-#                        layout).  For an antiphase pair (which is what every coil
+#                        receiver makers' reference designs follow, measured from
+#                        their layouts).  For an antiphase pair (which is what every coil
 #                        here is) the flux weight is also an exact sine for a
 #                        uniform field.
 RX_PROFILE = "equal_area"
@@ -67,7 +67,7 @@ RX_CHORD_TOLERANCE_MM  = 0.001
 
 
 # =============================================================================
-# SUB-COILS  (distributed winding, as in the Renesas IPS2200 reference design)
+# SUB-COILS  (distributed winding, as in the receiver makers' reference designs)
 # =============================================================================
 # Every RX coil (SIN and COS) is built from RX_SUBCOILS sub-coils.  A sub-coil is
 # one antiphase pair of curves - exactly what a single coil is today.  The
@@ -76,7 +76,7 @@ RX_CHORD_TOLERANCE_MM  = 0.001
 # series loop that you break out where you like.
 #
 #   RX_SUBCOILS = 1 : today's layout (the split is ignored)
-#   RX_SUBCOILS = 2 : Renesas-style, 2 sub-coils per coil (use split = 45)
+#   RX_SUBCOILS = 2 : as in the reference designs, 2 sub-coils per coil (use split = 45)
 #   RX_SUBCOILS = 3 : three sub-coils, centred on the coil axis (use split = 30, which spaces the curves
 #                     evenly; 45 puts two curves on top of each other.  Crowded: needs a wide RX band
 #                     or small vias; watch the clearance warnings)
@@ -117,7 +117,15 @@ RX_RISING_EDGE_LAYER  = "F.Cu"      # 2-layer boards only: "F.Cu" or "B.Cu"
 # exposure for sine and cosine, no layer-induced gain/harmonic mismatch).
 # The layer swap (via) happens near the outer and inner tip of every lobe:
 # RX_VIA_ELECTRICAL_DEG is the electrical angle of the outer-tip via
-# (90 = exactly on the tip, allowed range about 50 ... 130).
+# (90 = exactly on the tip; the check accepts 50 ... 130).  Away from 90 the vias come
+# close to the neighbouring curves: with the example band about 58 ... 122 builds
+# cleanly for LOOPS 1 ... 4, less with more loops (LOOPS 16: about 80 ... 100).  A
+# value outside 45 + 720 / STEPS_PER_LOOP ... 135 - 720 / STEPS_PER_LOOP is moved
+# inside it, with a warning.
+# With RX_SUBCOILS = 2 the via that joins the sub-coils needs it near 90: at most about
+# 57 + split / 2 ... 123 - split / 2 (80 ... 100 for a split of 45).  A large split may fit
+# at no angle at all: with the example band, 0.8 mm vias and 0.2 mm traces and clearance
+# the limit is a split of about 47 (a wider band or smaller vias allow more).
 RX_VIA_ELECTRICAL_DEG = 90.0
 
 

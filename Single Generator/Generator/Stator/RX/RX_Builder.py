@@ -9,6 +9,7 @@ rx.tab_segments (the finger pieces).  The RX reads only the parameters: nothing 
 """
 
 import math
+import sys
 
 from Generator.Core import BoardLayout, Layers
 from Generator.Core.Conflict import ParameterConflict
@@ -35,7 +36,8 @@ class RXBuilder:
         self.band = BoardLayout.rx_band(P)
         self.ri, self.ro, self.inner_edge_radius = self.band["ri"], self.band["ro"], self.band["hole"]
         self.L = 2.0 * math.pi / self.N                       # one loop (rad)
-        # the fingers reach exactly RX_TAB_LENGTH_MM past the band (the checks make sure that clears the TX)
+        # the finger legs reach exactly RX_TAB_LENGTH_MM past the band (the checks make sure that clears the TX); the
+        # straight middle piece between the legs dips a little inside that radius (RX_Fingers.finger_starts caps it)
         self.tab_end_radius = self.ro + float(P.RX_TAB_LENGTH_MM) if RX_Fingers.fingers_on(self) else None
 
         RX_Profiles.radius_law(self)
@@ -59,6 +61,13 @@ class RXBuilder:
             except ParameterConflict:                    # the junction vias do not fit at this resolution
                 if attempt == len(tries) - 1:
                     raise
+        # the tip vias are kept clear of the crossings (RX_Coils.assign_layers): say so when that moved them
+        self.via_deg = self._tip * 360.0 / self.S
+        if abs(self.via_deg - float(P.RX_VIA_ELECTRICAL_DEG)) > 180.0 / self.S + 1e-9:
+            print(f"WARNING: RX_VIA_ELECTRICAL_DEG = {P.RX_VIA_ELECTRICAL_DEG:g} is too close to the crossings for "
+                  f"{self.S} segments per period; the vias sit at {self.via_deg:.1f} electrical degrees (at this resolution "
+                  f"they can only sit at about {45 + 720.0 / self.S:.1f} ... {135 - 720.0 / self.S:.1f}: raise STEPS_PER_LOOP or "
+                  f"use \"auto\")", file=sys.stderr)
         # the fingers: every outer tip, one neighbouring pair of tips (RX_TABS = "single"), or none
         self.single_tabs = []
         tab_starts, self.tab_q = RX_Fingers.finger_starts(self)

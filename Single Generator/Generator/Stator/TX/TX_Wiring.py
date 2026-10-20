@@ -63,10 +63,21 @@ def emit_parallel_arcs(tx, n):
         if not gos:
             pts = TX_Windows.sample(tx, n, a, b, other)
             tx.add_poly(pts, other, n, "arc")
-            tx.parallel_len += TX_Windows.plen(pts)
+            length = TX_Windows.plen(pts)
+            tx.parallel_len += length
+            # the arc and the base turn over the same span are about equally long: the pair counts as half the length
+            # of one, so 1.5 x the arc comes off the summed copper length (TX_Electrics.tx_resistance_dc)
+            tx.parallel_saving += 1.5 * length
             tx.add_via(pts[0], n)
             tx.add_via(pts[-1], n)
         else:
+            first = len(tx.segs)
             tx.parallel_len += TX_Windows.emit_turn(tx, n, n, other, +1, a, b, gos, "arc")
+            # go-around ("staggered"): the path between the two vias - arc pieces, run-outs and brackets - runs in
+            # parallel with the base turn over the same span: L_a || L_b = L_a * L_b / (L_a + L_b)
+            L_a = sum(math.hypot(s.b[0] - s.a[0], s.b[1] - s.a[1]) for s in tx.segs[first:])
+            L_b = TX_Windows.plen(TX_Windows.sample(tx, n, a, b, tx.base))
+            if L_a > 0.0 and L_b > 0.0:
+                tx.parallel_saving += L_a + L_b - L_a * L_b / (L_a + L_b)
             tx.add_via(tx.pt(a, tx.r_nom(n, a)), n)
             tx.add_via(tx.pt(b, tx.r_nom(n, b)), n)
