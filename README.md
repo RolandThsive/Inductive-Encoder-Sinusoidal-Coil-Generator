@@ -224,7 +224,7 @@ absolutely none.** **0.2%** is the maximum allowable transaction per unit sale, 
 
 There is **no restriction on anything here** unless you are **not contributing back** appropriately. Especially no
 restriction just to profit from it. Again: **profit bad, investment for making this project good.** That will stop
-when this generator reaches its final stage, and a new license will apply, **the same as the GPL**.
+when this generator reaches its final stage, and a new license will apply, **the same as the GPL** - **truly open source**.
 
 ---
 
