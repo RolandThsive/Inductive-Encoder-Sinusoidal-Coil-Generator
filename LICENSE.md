@@ -29,17 +29,56 @@ Everything the generator, the analyser or the Web UI produces is covered by this
 layouts, Gerber and drill files, parameter records, reports, pictures and any other file made from them, whole or in
 part, and any board manufactured from them. **No output may be used commercially**: not sold, not offered for sale,
 not built into a product or service, not used inside a company or startup for its business, and not manufactured for
-a customer, in each case without written permission from the author. Output may be used and shared for
+a customer, in each case unless you are a commercial user who has accepted the commercial terms below or has written
+permission from the author. Output may be used and shared for
 non-commercial research, study, education and personal use. When you share output, keep the attribution and say that it
 was made with the Sinusoidal Coil Generator, with a link to this repository. This is an additional term of this
 project. It applies to anyone who uses the generator or the Web UI, and using them means accepting it.
 
 ## Commercial Use
 
-Companies and startups are welcome to use this project once terms are agreed. Please get in touch by email (above).
-Approved organizations will be listed in the [README](README.md#licensing).
+Commercial users may use this project, including its output, under these terms. They apply in addition to the
+licenses above, and using the project commercially means accepting them. The terms in this section are the
+author's written permission under those licenses, for everyone who accepts and follows them.
+
+1. **The fee.** You pay **0.2% of the net sale price** of every unit you sell, and of every paid service you provide,
+   that contains, or was made with, anything from this project (the code, the boards, the files or any other output),
+   for example selling design work made with the tool. It is paid in the currency of the sale. This is the maximum. It
+   can never be raised.
+2. **Who gets it.** The fee is paid to RolandThsive (the author).
+3. **How it is reported.** You show your invoices against your payments to the project, so that anyone can check that
+   the balance is right. Both are recorded in the public [LEDGER.md](LEDGER.md), with proof.
+4. **Where it goes.** All of it goes back into this project, and whatever is left over is donated, as described in the
+   pledge below.
+5. **When it stops.** The fee stops after all the milestones in [MILESTONES.md](MILESTONES.md) are done. After that, a
+   new license applies, the same as the GPL.
+6. **Contributing back.** The permission above holds only while you contribute back appropriately: you credit this
+   project, report what breaks and share what you improve. If you do not, you need written permission from the
+   author.
+
+This fee is asked in good faith. It is the condition for commercial use, and commercial use without it is not
+permitted. Paying companies are thanked by name in the README.
+
+Please get in touch by email (above) before you start. Approved organizations will be listed in the
+[README](README.md#licensing).
+
+## Pledge On Commercial Money
+
+> **100% on record. 100% invested back. 100% disclosed.**
+
+Any money I accept from commercial users is invested back into this project in full, 100%, and is on record in the
+public [LEDGER.md](LEDGER.md), visible to everyone who can see this repository. Whatever is left over is donated to a
+fund that supports innovation worldwide, chosen together by me and the paying company. See the
+[README](README.md#every-commercial-payment-goes-back-into-the-project).
+
+This project is non-profit, exclusively. Every fee, investment and contribution is used only for the equipment and
+services used to build this project, and no profit is taken from any of it. The transparency is absolute and has no opaque portions: every
+payment in and every payment out is in the ledger, with proof, and money that is not in the ledger is not accepted, even a single cent. A contributor's name may be struck out to protect
+confidentiality, but never the receipt or the transaction details.
 
 ## Disclaimer
+
+The author knows of no patent that this project infringes. This is not a guarantee.
 
 This page is a plain-language summary to help you find your way. It is not legal advice. If it differs from the full
 license texts, the full texts and the notices at the top of this file apply.
