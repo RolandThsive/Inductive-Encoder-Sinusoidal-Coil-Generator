@@ -177,12 +177,14 @@ The table below is for the source code (PolyForm Noncommercial).
 
 | You May | You Must | You May Not, Without Written Permission |
 |---|---|---|
-| Use, study and modify the code | Keep the licence and copyright notice in every copy | Use the project, or anything it outputs (KiCad files, Gerbers, boards), in a commercial product or service. This is an explicit term, see [LICENSE.md](LICENSE.md#output-of-the-generator) |
+| Use, study and modify the code | Keep the licence and copyright notice in every copy | Use the project, or anything it outputs (KiCad files, Gerbers, boards), commercially without accepting the [commercial terms](LICENSE.md#commercial-use) (0.2% of the net sale price) |
 | Generate boards for personal, educational, research and hobby use | State clearly that your version is forked from or derived from this project, with a link to this repository | Use it inside a company or startup for its business |
 | Share your changes for non-commercial use | Share derived pictures and documents under the same terms | Remove or hide the attribution |
 
-**Commercial Use.** Companies and startups are welcome to use this project once terms are agreed.
-Please make contact through one of the channels below. Approved organisations will be listed here.
+**Commercial Use.** Companies and startups are welcome to use this project and its output. You pay 0.2% of the net sale
+price of every unit sold, to RolandThsive, reported by showing invoices against payments in the public
+[LEDGER.md](LEDGER.md). The full terms are in [LICENSE.md](LICENSE.md#commercial-use). Please make contact through one of
+the channels below. Approved organisations will be listed here.
 
 **Contact (Only Through These Channels):**
 
