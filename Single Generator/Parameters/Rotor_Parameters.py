@@ -76,10 +76,12 @@ ROTOR_CHORD_TOLERANCE_MM   = 0.001
 
 # Solder mask expansion ("SolderMaskExpansion") over the rotor copper; the same for every copper
 # layer of the rotor, in both modes:
+#   -1    no opening: the solder mask stays over the copper (the default, recommended: the copper
+#         stays pristine and protected against oxidation; some signal may be lost)
 #   0.05  the solder mask is removed over the copper: the opening is 0.05 mm wider than the copper
 #         on every side (any value above 0 works the same way, with that margin)
 #   0     the opening is exactly the copper outline
-#   -1    no opening: the solder mask stays over the copper
 # No other negative value is accepted.  The openings are drawn on F.Mask / B.Mask (a shape on a
 # mask layer is an opening in KiCad), so they are part of the rotor file.
-ROTOR_SOLDER_MASK_EXPANSION_MM = 0.05
+ROTOR_SOLDER_MASK_EXPANSION_MM = -1    # recommended: keeps the copper pristine and protected against oxidation;
+                                        # some signal may be lost
