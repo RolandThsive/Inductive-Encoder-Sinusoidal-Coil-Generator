@@ -22,8 +22,8 @@ TX_TAIL_EXTRA_MM   = 2.0            # radial tail that carries the TX terminal
 # TX_SHAPE = shape of the turns (any letter case):
 #   "stepped_diagonal" : concentric circles joined by short straight steps just before the TX terminal, at
 #                        TX_STEPPED_ANGLE_DEG.
-#   "stepped_arc"      : concentric circles joined by arcs centred on the TX terminal via (as on the IC makers'
-#                        reference boards).  The via sits on the first turn; arc n (radius
+#   "stepped_arc"      : concentric circles joined by arcs centred on the TX terminal via.  The via sits on
+#                        the first turn; arc n (radius
 #                        TX_STEPPED_ARC_RADIUS_MM + n x TX_PITCH_MM) leaves turn n on one side of the via, runs
 #                        round it and lands on turn n + 1 on the other side, with sharp corners.  The arcs are one
 #                        pitch apart, so the copper gap between them is the same as between the turns, and the
@@ -31,7 +31,7 @@ TX_TAIL_EXTRA_MM   = 2.0            # radial tail that carries the TX terminal
 #                        TX_INSIDE_VIA_DISTANCE_MM are not used.
 #   "spiral"           : one smooth Archimedean spiral, the gap between turns equals the pitch
 #                        everywhere.  Use it when TX_PITCH_MM is tight (pitch - trace width close
-#                        to the clearance), e.g. the 0.4 mm pitch of the IC reference boards.  Its last turn
+#                        to the clearance), e.g. a 0.4 mm pitch.  Its last turn
 #                        ends one pitch farther out, and the fingers must reach past it (RX_TAB_LENGTH_MM
 #                        at least 3.5 with the values in these files).
 TX_SHAPE           = "stepped_diagonal"
@@ -93,8 +93,8 @@ TX_INSIDE_VIA_DISTANCE_MM = 0.3
 #                                                             more receiver signal per TX volt in the model
 #     TX_WIRING = "series", TX_LAYER_A = 1, TX_LAYER_B = 4  : the fingers run on the Top layer and the
 #                                                             Top turns go around them
-#     TX_WIRING = "series", TX_LAYER_A = 1, TX_LAYER_B = 3  : as in the receiver makers' reference designs (4-layer
-#                                                             board, RX on 1 and 2)
+#     TX_WIRING = "series", TX_LAYER_A = 1, TX_LAYER_B = 3  : a 4-layer board with the RX on layers 1
+#                                                             and 2
 #
 # Where an RX bridging finger (RX_TAB_LAYER, RX_Parameters.py) runs on a layer that carries
 # TX turns, the TX makes way for it:
