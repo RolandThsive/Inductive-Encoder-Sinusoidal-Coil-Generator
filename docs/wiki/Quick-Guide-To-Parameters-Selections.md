@@ -3,7 +3,7 @@
 This page shows, with pictures made by the generator itself, the choices you make before a board is
 built: how the RX band is defined, how many TX turns and how long a TX tail, how the TX is wired and
 how it makes way for the RX fingers, and how much of the rotor is metal. Every picture is one run of
-the generator with only the named setting changed. Each parameter is described in full in the
+the generator with only the named setting changed, and colour shows the copper layer, not the net (Top red, Inner-1 green, Inner-2 dark yellow, Bottom dark blue). Each parameter is described in full in the
 [Parameter Reference](Parameter-Reference.md).
 
 ## 14.1 Defining The RX Band
@@ -42,10 +42,7 @@ Rules behind the table:
 
 ![Parameters 1: Defining The RX Band](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_1_rx_band.png)
 
-*Parameters 1. The same 1-loop stator defined five ways. 1: board edges only (band fitted, 16.2 to
-22.4 mm). 2: edges plus the pair INSIDE 17 / OUTSIDE 22. 3: edges plus the pair R_BASE 19.5 / A 2.5
-(the same band as 2). 4 and 5: the same two pairs without board edges, so the edges are computed
-(15.8 and 26.6 mm).*
+*Parameters 1. The same 1-loop stator (single TX on Bottom, pitch 1.2 mm, trace width 0.4 mm) defined five ways. 1: board edges 30 / 50 mm only (band fitted, 31.2 to 42.6 mm). 2: the same edges plus the pair INSIDE 32 / OUTSIDE 41. 3: the same edges plus the pair R_BASE 36.5 / A 4.5 (the same band as 2). 4 and 5: the same two pairs without board edges, so the edges are computed (30.8 and 48.4 mm).*
 
 Use edges only when the board outline is fixed and you want the largest band that fits. Use a pair when
 the band radii matter (for example to match a reference design); add the edges when the outline is also
@@ -59,29 +56,30 @@ signal, and need a wider board edge.
 
 ![Parameters 2: TX Turns](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_2_tx_turns.png)
 
-*Parameters 2. TX_TURNS = 1, 2, 3 and 5 on one layer (pitch 0.6 mm), close-up beside the TX terminal.
+*Parameters 2. TX_TURNS = 1, 2, 3 and 5 on one layer (pitch 1.2 mm), close-up beside the TX terminal.
 Everything else is unchanged; only the outer edge moves out.*
 
 ## 14.3 TX Tail
 
 The tail is the short radial piece that carries the TX terminal out past the outermost turn.
-`TX_TAIL_EXTRA_MM` sets how far it reaches beyond the outermost turn; the default is 1 mm.
+`TX_TAIL_EXTRA_MM` sets how far it reaches beyond the circle one `TX_PITCH_MM` outside the outermost turn; the default is 2 mm.
 
 ![Parameters 3: TX Tail](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_3_tx_tail.png)
 
-*Parameters 3. TX_TAIL_EXTRA_MM = 0, 2 and 4 mm. A longer tail makes it easier to solder or connect, and
+*Parameters 3. TX_TAIL_EXTRA_MM = 0, 2 and 4 mm (pitch 1.2 mm). A longer tail makes it easier to solder or connect, and
 moves the outer board edge out with it.*
 
 ## 14.4 TX Styles
 
-With two TX layers (`TX_LAYERS = 2`) the turns are wired in **series** (`TX_SERIES = True`, two spirals
-joined by a via, twice the turns) or in **parallel** (`TX_SERIES = False`, the same turns on both layers,
-stitched together by vias). Wherever an RX finger crosses the TX, the turns on the finger's layer must
+`TX_WIRING` sets how the TX uses its layers: `"single"` (all turns on `TX_LAYER_A`), `"series"` (two spirals on
+`TX_LAYER_A` and `TX_LAYER_B` joined by a via, twice the turns) or `"parallel"` (the same turns on both layers,
+stitched together by vias). Wherever an RX finger crosses the TX on a layer that carries TX turns, the turns on that layer must
 make way for it:
 
 - **Staggered (go-around).** Each turn ends before the finger, runs out to a via, and a bracket on the
   other layer carries it around the end of the finger. Both layers stay complete. The finger sticks out
-  past the brackets, so the board grows by about 2 mm.
+  past the brackets, so it is about 2 mm longer. The board edge grows much less (about 0.1 mm with the
+  defaults), because the TX tail already reaches almost as far.
 - **Stitched.** The turns on the finger's layer stop at a via on each side of the finger and the turns of
   the other layer carry the current past it. There is no copper outside the TX ring. **Parallel TX only.**
 
@@ -89,10 +87,16 @@ The two wirings and the two styles combine like this:
 
 | | Staggered (go-around) | Stitched |
 |---|---|---|
-| **Series** (`TX_SERIES = True`) | ✅ The only style a series TX can use. Two spirals joined by a via, 2 × `TX_TURNS` turns, both terminals leave at `TX_START_ANGLE_DEG` | ❌ Not available |
-| **Parallel** (`TX_SERIES = False`) | ✅ `TX_PARALLEL_BREAK_STYLE = "staggered"` (the default). The same turns on both layers; the finger's layer goes around the finger, brackets on the other layer. Both layers stay complete; the board grows by about 2 mm | ✅ `TX_PARALLEL_BREAK_STYLE = "stitched"`. The same turns on both layers; the finger's layer stops at a via on each side of the finger and the other layer carries the current past it. No copper outside the TX ring |
+| **Series** (`TX_WIRING = "series"`) | ✅ The only style a series TX can use. Two spirals joined by a via, 2 × `TX_TURNS` turns, both terminals leave radially at the TX terminal | ❌ Not available |
+| **Parallel** (`TX_WIRING = "parallel"`) | ✅ `TX_PARALLEL_BREAK_STYLE = "staggered"`. The same turns on both layers; the finger's layer goes around the finger, brackets on the other layer. Both layers stay complete; the fingers are about 2 mm longer, but the board edge grows only about 0.1 mm with the defaults | ✅ `TX_PARALLEL_BREAK_STYLE = "stitched"` (the default). The same turns on both layers; the finger's layer stops at a via on each side of the finger and the other layer carries the current past it. No copper outside the TX ring |
 
-`TX_PARALLEL_BREAK_STYLE` applies only to a parallel TX; a series TX always goes around the fingers.
+`TX_PARALLEL_BREAK_STYLE` applies only to a parallel TX; a series TX always goes around the fingers. The TX terminal has no setting: the generator puts it where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, next to the two fingers) and turns the whole board so that it sits at 0°.
+
+A longer `TX_PITCH_MM` puts the outermost turn farther out and needs longer fingers. `RX_TAB_LENGTH_MM` is the exact finger length; when it is too short the generator stops and says "Set RX_TAB_LENGTH_MM to at least ...".
+
+![Parameters 4: TX Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_4_tx_styles.png)
+
+*Parameters 4. A single TX on Top (fingers on Inner-1), a series TX on Top + Inner-1 and a parallel stitched TX on Top + Inner-1, each shown as a to-scale close-up of one finger crossing the TX ring (4 loops, 3 turns per layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm).*
 
 ### 14.4.1 Recommended Combination
 
@@ -103,33 +107,26 @@ The best combination is a **4-layer board** with the RX fingers (if you choose t
 |---|---|
 | `PCB_LAYERS` | `4` |
 | `RX_TAB_LAYER` | `2` (Inner 1) |
-| `TX_LAYERS` | `2` |
+| `TX_WIRING` | `"series"` |
 | `TX_LAYER_A`, `TX_LAYER_B` | `1` (Top) and `3` (Inner 2) |
-| `TX_SERIES` | `True` |
-| `TX_TURN_SHAPE` | `"stepped_diagonal"` (or `"stepped_arc"` for the Renesas-style arcs) |
+| `TX_SHAPE` | `"stepped_diagonal"` (or `"stepped_arc"` for arcs as on the receiver makers' reference boards) |
 
 The fingers then sit on a layer that carries no TX turns, so no turn has to go around them. The
 generator builds this setup without errors.
 
-![Parameters 6: Recommended Combination](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_6_recommended.png)
+![Parameters 5: Recommended Combination](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_6_recommended.png)
 
-*Parameters 6. The recommended combination, generated with exactly the settings in the table above (3 turns per TX layer, RX band 17 to 22 mm, 1 loop). The TX turns on Inner 2 run directly below the Top turns at the same radii, so they are hidden by them in this view. The fingers are on Inner 1.*
-
-![Parameters 4: TX Styles](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_4_tx_styles.png)
-
-*Parameters 4. Series staggered, parallel staggered and parallel stitched on the same 1-loop stator (TX
-on Top and Bottom, 3 turns per layer, fingers on Top). Top row: the whole board. Bottom row: one finger
-close up.*
+*Parameters 5. The recommended combination, generated with the settings in the table above (4 loops, one finger per coil with `RX_TABS = "single"`, 3 turns per TX layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm). The TX turns on Inner-2 run directly below the Top turns at the same radii, so they are hidden by them in this view; only the steps beside the TX terminal show. The fingers are on Inner-1, away from every TX turn. Right: one finger.*
 
 ## 14.5 Rotor Metal Fraction
 
 `ROTOR_AUTO_DUTY` is the share of each period that is metal: 0.5 is half metal and half gap (180°
-electrical). With a 1-loop stator there is one metal sector, so the duty is simply the angle it covers.
-The rotor's metal also covers the TX ring by `ROTOR_AUTO_TX_OVERHANG_MM`.
+electrical). With a 1-loop stator there is one metal sector, so the duty is simply the share of the full turn it covers (0.25 = 90°).
+By default the rotor's metal also covers the TX ring and ends `ROTOR_AUTO_TX_OVERHANG_MM` past the outer edge of the outermost TX turn.
 
-![Parameters 5: Rotor Metal Fraction](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_5_rotor_duty.png)
+![Parameters 6: Rotor Metal Fraction](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/params_5_rotor_duty.png)
 
-*Parameters 5. ROTOR_AUTO_DUTY = 0.5, 0.25 and 0.75 over the same 1-loop stator. The rotor is drawn
+*Parameters 6. ROTOR_AUTO_DUTY = 0.5, 0.25 and 0.75 over the same 1-loop stator. The rotor is drawn
 semi-transparent over the stator, so the RX and TX stay visible.*
 
 0.5 is the default. A smaller or larger duty changes the signal shape and amplitude, and a single metal sector is mechanically unbalanced, so add a counterweight

@@ -20,7 +20,7 @@ The analyser and optimizer are optional. They never change a board or a paramete
 `OptimizeCoil.py` with `ECCENTRICITY_MM` and `TILT_DEG` set to 0 (air gap and metal fraction tolerances only, a much faster run). It suggested two sub-coils split by 50° and rotor copper that ends just
 over the outermost TX turn:
 
-| Design | Worst-Case Angle Error (Air Gap 1 ± 0.2 mm) | Relative Signal | RX Voltage (IPS2550, 6–11 Vpp TX) |
+| Design | Worst-Case Angle Error (Air Gap 1 ± 0.2 mm) | Relative Signal | RX Voltage (6–11 Vpp TX) |
 |---|---|---|---|
 | Start: 1 sub-coil, `equal_area` profile | 0.66° electrical | 1.00 | 106–194 mVpp |
 | Suggested: 2 sub-coils at 50°, copper overhang −0.25 mm | 0.18° electrical | 1.79 | 189–346 mVpp |

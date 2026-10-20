@@ -13,7 +13,7 @@ give the same boards.
 
 ## 4.1 Screenshots
 
-The tool adapts to both landscape and portrait monitors. Both pictures show the default design, already generated.
+The tool adapts to both landscape and portrait monitors. Both pictures show a generated 2-layer design: a board from 15 to 27 mm, 4 loops and 3 TX turns on Bottom.
 
 ![Web Tool 1: Landscape](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/webui_landscape.png)
 
@@ -25,10 +25,10 @@ The tool adapts to both landscape and portrait monitors. Both pictures show the 
 
 ## 4.2 Features
 
-- **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter. Both use the same
+- **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter except the output settings and the two that only feed the electrical estimate. Both use the same
   four tabs: Board, RX, TX and Rotor, and a change in one mode shows in the other.
 - **Live board preview** of the stator, the rotor, or both together, with each copper layer in its own colour
-  (Top red, Bottom blue, Inner-1 green, Inner-2 dark yellow).
+  (Top red, Bottom blue, Inner-1 green, Inner-2 dark yellow), the same colours as the pictures in this wiki except a lighter blue for Bottom.
 - **Design checks** before every board is made: errors and warnings that say what is wrong, why it matters and
   which settings to change.
 - **KiCad downloads:** the stator and rotor `.kicad_pcb` files, or one zip with both boards and all the settings.
@@ -56,14 +56,14 @@ The tool needs a computer with a mouse or trackpad. Phones and tablets see a sho
 | --- | --- |
 | Board | Board inner and outer radius, 2 or 4 copper layers, air gap to the rotor |
 | RX | Loops (sine periods per turn), RX sub-coils, and the RX band |
-| TX | TX turns per layer, and the TX layout, picked from picture cards |
+| TX | TX turns per layer, and the TX layout (wiring and layers), picked from picture cards |
 | Rotor | Automatic (sized from the stator) or Custom, with the metal fraction and sectors |
 
 Every Basic setting is also in Advanced, under the same name.
 
 ### 4.4.2 Advanced
 
-Every parameter of the generator, grouped as in the parameter files. Each one shows its parameter name, and the
+Every parameter of the generator, grouped as in the parameter files, with two exceptions. The Output block of `Board_Parameters.py` (folder, file names, board centre, page size and `GENERATOR_MODE`, which is the **Strict** switch) is not shown. Neither are `RECEIVER_IC` and `COPPER_THICKNESS_UM`, which only feed the electrical estimate. Each one shows its parameter name, and the
 **↺** button puts it back to its starting value. Settings the current design does not use are greyed out and
 marked "not used now". A changed setting gets a dot before its name.
 
@@ -88,7 +88,7 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
 
 - **Generate** makes the boards and runs the checks. After you change a setting, the preview is marked out of
   date until you generate again; the downloads always match the last generated board.
-- **Strict** turns every warning into an error, so a design with any warning is not generated.
+- **Strict** (`GENERATOR_MODE = "strict"`) turns every warning about the finished boards into an error, so such a design is not generated.
 - **Checks** lists the errors and warnings. Turn on **Info** to also see the generator's notes.
 - **Summary** shows the generator's full report on the stator and the rotor.
 - **Download Zip** gives both boards, `Parameters.txt` and the four parameter files. **Download Stator** and
@@ -110,8 +110,9 @@ The checks do more than say that something is wrong: each message tells you what
 
 **Errors** stop the run. No board is made, the preview keeps the last board marked out of date, and the downloads
 stay off until a run works. **Warnings** still make the boards but point at something to look at, often a
-manufacturing limit such as a very fine trace or a small via ring. Turn on **Strict** to treat every warning as an
-error.
+manufacturing limit such as a very fine trace or a small via ring. Turn on **Strict** to treat every warning about
+the finished boards as an error. Settings that cannot hold together are named in the message ("A conflicts with B")
+and the line below says why.
 
 Some mistakes are blocked before they can happen: the RX band pairs lock each other, settings the design does not
 use are greyed out, and a pair that must change together always does.
@@ -141,14 +142,13 @@ The preview tools only change what you see, never the boards.
 
 ## 4.9 What The Web Tool Does Not Include
 
-The web tool makes the boards only. The receiver IC support, the optimizer, the analyser and the electrical
-estimate of the desktop project are not part of it.
+The web tool makes the boards only. The receiver IC support, the electrical estimate, the optimizer and the analyser of the desktop project are not part of it.
 
 ## 4.10 How It Runs
 
 The Web Tool is a static site (`WebGUI/` on the `WebUI` branch): `index.html`, `WebGUI.js`, `WebGUI.css`,
 `BoardPreview.js`, `Tooltips.js`, `PyodideWorker.js` and `WebGenerator.py`. There is no server. The browser loads
-Pyodide (Python and numpy compiled to WebAssembly) from the jsDelivr CDN, fetches `Generator/` and `Parameters/`
+Pyodide (Python and numpy compiled to WebAssembly) from the jsDelivr CDN, fetches the generator (`Single Generator/Generator/` and `Single Generator/Parameters/`)
 from the same site, and runs them unchanged in a Web Worker. For the same settings the KiCad output is
 byte-identical to the desktop run. The generator is never modified for the web.
 
@@ -160,7 +160,7 @@ generator's `.py` files from Pages, so a new release updates the tool.
 Run `python3 -m http.server 8000` in the repository folder and open `http://localhost:8000/WebGUI/`.
 
 Two URL parameters let you self-host the parts: `?pyodide=<url>` sets where the Python engine is loaded from, and
-`?code=<url>` sets where `Generator/` and `Parameters/` are fetched from (default: the repository root).
+`?code=<url>` sets where the generator and its parameters are fetched from (default: the repository root).
 
 ## 4.12 Troubleshooting
 

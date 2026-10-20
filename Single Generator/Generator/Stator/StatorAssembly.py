@@ -17,27 +17,14 @@ Nothing to edit here.
 
 import math
 
-from Generator.Checks import DesignChecks
 from Generator.Core import BoardLayout, Layers
 from Generator.Core.BoardLayout import outer_edge_room
 from Generator.Core.Geometry import chord_tolerance
 from Generator.Core.KiCadWriter import KiCadBoard, page_size
-from Generator.Stator.RX import RX_Builder
 from Generator.Stator.TX import TX_Builder
 
 
 TERMINAL_DEG = 0.0             # where the TX terminal ends up on the finished board (the right, horizontal axis)
-
-
-def build_stator(P):
-    """The whole chain in one call (RunCoilGenerator.py spells it out step by step): RX coils -> TX coil, its
-    terminal where it fits best -> the board, turned so the terminal is at 0 deg (the right) -> the clearance checks."""
-    rx = RX_Builder.build_rx(P)
-    tx = TX_Builder.build_tx(rx)
-    DesignChecks.check_tx_terminal(tx)
-    stator = assemble(P, rx, tx)
-    DesignChecks.check_stator_clearances(stator)
-    return stator
 
 
 def assemble(P, rx, tx):
@@ -58,7 +45,7 @@ def rotate_copper(segments, vias, cx, cy, deg):
 class Stator:
     """The finished stator: everything of the RX builder and the TX builder on one object, plus the board edges."""
 
-    TX_RESULTS = ("tx_segments", "tx_vias", "tx_parallel_length_mm", "tx_base_layer",
+    TX_RESULTS = ("tx_segments", "tx_vias", "tx_parallel_length_mm", "tx_parallel_saving_mm", "tx_base_layer",
                   "tx_other_layer", "tx_tail_layer", "tx_window_list", "terminal_via_shift", "terminal_via_clearance",
                   "tx_arc_gap", "tx_arc_gap_pieces", "angle_deg", "tx_steps", "tx_first_radius", "tx_radii",
                   "tx_outer_radius", "tx_tail_end_radius", "tx_shape", "tx_mode", "tx_lay", "tx_goaround",
@@ -167,7 +154,8 @@ class Stator:
             f"  RX band r = {self.ri:g} ... {self.ro:g} mm, profile = {P.RX_PROFILE}, "
             f"{self.S} segments per period (RX chord tolerance {chord_tolerance(P, 'RX'):g} mm); "
             f"TX {self.tx_steps} points per turn",
-            f"  PCB layers {P.PCB_LAYERS}: RX rising edges on {self.rising_layer}, falling edges on {self.falling_layer}",
+            f"  PCB layers {P.PCB_LAYERS}: RX rising edges on {self.rising_layer}, falling edges on {self.falling_layer}, "
+            f"layer-swap vias at {self.rx.via_deg:.1f} electrical deg (RX_VIA_ELECTRICAL_DEG {P.RX_VIA_ELECTRICAL_DEG:g})",
             (f"  RX sub-coils per coil: {self.n_sub}, split {self.split_deg:g} electrical deg "
              f"(requested {P.RX_SUBCOIL_SPLIT_ELEC_DEG:g}), {len(self.junction)} junctions"
              if self.n_sub > 1 else "  RX sub-coils per coil: 1"),

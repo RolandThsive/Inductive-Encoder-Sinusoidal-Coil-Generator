@@ -41,7 +41,8 @@ def place_terminal_via(tx):
     DesignChecks.measure_terminal_via).  A "stepped_arc" TX keeps the via on the first turn: its arcs are
     centred on it."""
     P = tx.P
-    D = 0.0 if tx.tx_shape == "arc" else float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM", 0.0))
+    D = 0.0 if tx.tx_shape == "arc" else float(getattr(P, "TX_INSIDE_VIA_DISTANCE_MM",
+                                                       TX_Shapes.DEFAULT_INSIDE_VIA_DISTANCE_MM))
     tx.terminal_via_shift = D
     tx.terminal_via_clearance = None
     if not tx.tx_vias:
@@ -124,6 +125,7 @@ SAMPLE_MM = 0.01               # spacing of the points the terminal copper is sa
 CHORD_MARGIN_MM = 0.02         # extra gap asked for in the search (the polyline chords and the sampling)
 ROUND_MM = 1e-3                # gaps are rounded to this before they are compared (ties are then real ties)
 GAP_CAP_MM = 10.0              # a gap is never reported larger than this (nothing nearby)
+BLOCKED = -math.inf            # the "gap" of an angle where a finger window would reach the terminal
 
 
 def terminal_footprint(probe):
@@ -222,8 +224,9 @@ class RXObstacles:
 
 def finger_windows_block(probe, rx, th):
     """True when, with the terminal at th (rad), a go-around or stitched window around a finger on a TX layer would
-    reach the terminal (the rule tx_windows applies when the TX is built)."""
-    if not probe.tx_windows_on or not rx.tab_segments:
+    reach the terminal: the rule TX_Windows.tx_windows applies (no_room) when a TX that is not parallel is built.  A
+    parallel TX takes such finger windows into its stitched tail window instead, so nothing blocks it."""
+    if not probe.tx_windows_on or not rx.tab_segments or probe.tx_mode == "parallel":
         return False
     g = probe.g
     R = probe.ga["reach_ang"] if probe.tx_goaround else g["reach"] / g["r0"]
@@ -259,11 +262,14 @@ def find_terminal_angle(rx, probe, single_target_deg=None):
         for a in angles_deg:
             th = math.radians(a)
             if finger_windows_block(probe, rx, th):
-                out.append(-1.0)
+                out.append(BLOCKED)
                 continue
-            obst = obstacles.near(th + fp["lo"] - margin, th + fp["hi"] + margin, fp["r_min"] - reach)
-            out.append(round(min(terminal_gap(fp, obst, th, P), GAP_CAP_MM) / ROUND_MM) * ROUND_MM)
+            out.append(round(min(real_gap(th), GAP_CAP_MM) / ROUND_MM) * ROUND_MM)
         return np.array(out)
+
+    def real_gap(th):
+        obst = obstacles.near(th + fp["lo"] - margin, th + fp["hi"] + margin, fp["r_min"] - reach)
+        return terminal_gap(fp, obst, th, P)
 
     def nearest(cand, ref):
         d = np.abs((cand - ref + 180.0) % 360.0 - 180.0)
@@ -283,8 +289,12 @@ def find_terminal_angle(rx, probe, single_target_deg=None):
     th0 = pick(coarse, g, single_target_deg)
     if th0 is None:                                          # single: nowhere near the fingers keeps the clearance
         th0 = pick(coarse, g, None)
-        note = (f"no place keeps the TX terminal MIN_CLEARANCE_MM ({P.MIN_CLEARANCE_MM:g} mm) from the RX copper; it "
-                f"went where the gap is largest ({max(g.max(), 0.0):.3f} mm)")
+        if np.isfinite(g).any():
+            note = (f"no place keeps the TX terminal MIN_CLEARANCE_MM ({P.MIN_CLEARANCE_MM:g} mm) from the RX copper; "
+                    f"it went where the gap is largest ({g[np.isfinite(g)].max():.3f} mm)")
+        else:
+            note = ("no place keeps the TX terminal clear of the RX fingers: every angle is blocked by the finger "
+                    "windows")
         single_target_deg = None
     fine = np.arange(th0 - SEARCH_STEP_DEG, th0 + SEARCH_STEP_DEG + 1e-9, REFINE_STEP_DEG)
     gf = gaps(fine)
@@ -292,6 +302,9 @@ def find_terminal_angle(rx, probe, single_target_deg=None):
     if th1 is None or single_target_deg is None:
         th1 = nearest(fine[gf >= gf.max() - 1e-12], th0)
     gap = float(gf[int(np.argmin(np.abs(fine - th1)))])
+    if not math.isfinite(gap):
+        # every angle here is blocked by a finger window: report the real gap at the chosen angle, never the marker
+        gap = real_gap(math.radians(th1))
     return th1 % 360.0, gap, note
 
 
