@@ -71,9 +71,10 @@ public [LEDGER.md](LEDGER.md), visible to everyone who can see this repository. 
 fund that supports innovation worldwide, chosen together by me and the paying company. See the
 [README](README.md#every-commercial-payment-goes-back-into-the-project).
 
-This project is non-profit, exclusively. Every fee, investment and contribution is used only for the development of
-this project, and no profit is taken from any of it. The transparency is absolute and has no opaque portions: every
-payment in and every payment out is in the ledger, with proof, and money that is not in the ledger is not accepted.
+This project is non-profit, exclusively. Every fee, investment and contribution is used only for the equipment and
+services used to build this project, and no profit is taken from any of it. The transparency is absolute and has no opaque portions: every
+payment in and every payment out is in the ledger, with proof, and money that is not in the ledger is not accepted, even a single cent. A contributor's name may be struck out to protect
+confidentiality, but never the receipt or the transaction details.
 
 ## Disclaimer
 
