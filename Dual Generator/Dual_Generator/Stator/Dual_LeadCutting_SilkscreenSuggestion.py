@@ -14,9 +14,9 @@ for each of those vias that has room on every layer (through vias) and inside th
 
 The names are drawn as strokes of the repository's own font (resources/SilkscreenFont.py at the root of the
 repository, loaded by its path), not as KiCad text, and each name is placed where it covers no other mark, no
-other name and no via, inside the board edges.  The marks go on F.SilkS and/or B.SilkS (bottom text mirrored).  The settings are in
-Parameters/Dual_SilkScreenSuggestion_Parameters.py.  No copper is changed and nothing else in the generator is
-touched: the step reads the written file, appends the drawings before the closing bracket and writes it back.  It
+other name and no via, inside the board edges.  The marks go on F.SilkS and/or B.SilkS (bottom text mirrored).
+The settings are in Parameters/Dual_SilkScreenSuggestion_Parameters.py.  No copper is changed and nothing else in
+the generator is touched: the step reads the written file, appends the drawings before the closing bracket and writes it back.  It
 never fails a generation: anything it cannot do is printed as a warning and the file stays as it was.
 
     result = add_to_file(path, P)       path: the written Stator.kicad_pcb;  P: Dual_Parameters
@@ -141,7 +141,9 @@ class Board:
         self.seg = np.array([[float(a), float(b), float(c), float(d), float(w)] for a, b, c, d, w, l, n in rows]).reshape(-1, 5)
         self.layer = np.array([l for *_, l, n in rows])
         self.net = np.array([int(n) for *_, n in rows])
-        self.vias = np.array([[float(x), float(y), float(s)] for x, y, s, _d, _n in _VIA.findall(text)]).reshape(-1, 3)
+        via_rows = _VIA.findall(text)
+        self.vias = np.array([[float(x), float(y), float(s)] for x, y, s, _d, _n in via_rows]).reshape(-1, 3)
+        self.via_net = np.array([int(n) for *_, n in via_rows])
         radii = sorted(math.hypot(float(ex) - float(x), float(ey) - float(y)) for x, y, ex, ey in _EDGE.findall(text))
         self.bore = radii[0] if len(radii) >= 2 else None
         self.outline = radii[-1] if radii else None
@@ -223,7 +225,9 @@ def find_rx_break(board, net_id, layers, centre_deg, span_deg, gap, edge_clear, 
 
 
 def find_tx_end(board, net_id):
-    """The stacked end of a series TX ring: the one point that is a free end of a segment on both TX layers.
+    """The stacked end of a TX coil: the point that is a free end of a segment on two layers and has no via of the
+    net on it (a via there joins the layers: the inner joint of a series ring, not the terminal).  When there
+    are several, the one furthest from the centre (the terminal at the end of a tail).
     Returns (point, [layers]) or None."""
     idx = np.where(board.net == net_id)[0]
     count = {}
@@ -234,9 +238,14 @@ def find_tx_end(board, net_id):
     for (p, l), c in count.items():
         if c == 1:
             free.setdefault(p, []).append(l)
-    stacked = [(p, ls) for p, ls in free.items() if len(ls) >= 2]
+    own = board.vias[board.via_net == net_id] if len(board.vias) else board.vias
+
+    def on_via(p):
+        return len(own) > 0 and bool((np.hypot(own[:, 0] - p[0], own[:, 1] - p[1]) < own[:, 2] / 2.0 + 1e-3).any())
+
+    stacked = [(p, ls) for p, ls in free.items() if len(ls) >= 2 and not on_via(p)]
     if stacked:
-        p, ls = stacked[0]
+        p, ls = max(stacked, key=lambda s: math.hypot(s[0][0] - board.cx, s[0][1] - board.cy))
         return np.array(p), sorted(ls, key=lambda l: ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu").index(l))
     return None
 
