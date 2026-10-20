@@ -1,5 +1,5 @@
 """
-KiCadWriter.py  -  writes a board as a KiCad 7 .kicad_pcb file (readable by KiCad 7, 8, 9 and 10): nets, track
+PCBWriter.py  -  writes a board as a KiCad 7 .kicad_pcb file (readable by KiCad 7, 8, 9 and 10): nets, track
 segments, vias, circles and filled polygons, the title block and the page.  Used by the stator and the rotor.
 Nothing to edit here.
 """
@@ -84,7 +84,7 @@ class KiCadBoard:
         self.body.append(f'  (gr_poly (pts {pts}) (layer "{layer}") (width 0) (fill solid))')
 
     def text(self):
-        out = ["(kicad_pcb (version 20221018) (generator pcbnew)", "",
+        out = ["(kicad_pcb (version 20221018) (generator coil_generator)", "",
                f"  (general (thickness {self._f(self.thickness)}))", "",
                f'  (paper "User" {self.page[0]} {self.page[1]})',
                "  (title_block (title \"" + self._q(self.title) + "\")"

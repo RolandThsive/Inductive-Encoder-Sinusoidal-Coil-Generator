@@ -65,7 +65,7 @@ import math
 import Parameters as P_DEFAULT
 from Generator.Core.BoardLayout import tx_shape
 from Generator.Core.Geometry import chord_tolerance
-from Generator.Core.KiCadWriter import KiCadBoard, page_size
+from Generator.Core.PCBWriter import KiCadBoard, page_size
 from Generator.Core.Conflict import ParameterConflict
 
 DEFAULT_COPPER_CONDUCTIVITY = 5.8e7  # S/m, used when Board_Parameters.py has no COPPER_CONDUCTIVITY_S_M line
@@ -420,7 +420,7 @@ class RotorDesign:
 
     # ------------------------------------------------------------------ output
     def page_size(self):
-        """The KiCad page (KiCadWriter.page_size) for everything on the rotor board: its outline, or its copper
+        """The KiCad page (PCBWriter.page_size) for everything on the rotor board: its outline, or its copper
         and solder-mask openings when it has no outline."""
         r = max(x for x in (self.outline_radius, self.r_out + max(0.0, self.mask_expansion or 0.0)) if x is not None)
         return page_size(self.P, self.cx, self.cy, r)
