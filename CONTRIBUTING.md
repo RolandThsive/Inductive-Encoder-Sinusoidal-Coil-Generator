@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in the Sinusoidal Coil Generator. This is a fully open, non-commercial project, and
+Thank you for your interest in the Sinusoidal Coil Generator. This is a research project, open to researchers, and
 contributions of every kind are welcome, from a measurement on a real board to a better field model.
 
 > [!IMPORTANT]
@@ -41,7 +41,7 @@ contributions of every kind are welcome, from a measurement on a real board to a
 - **Update the documentation with the code.** If a parameter, command or output changes, change the wiki and README to
   match.
 - **Do not include secrets or personal data** in issues, pull requests or measurement files.
-- **Be respectful.** Experts, researchers and hobbyists are all welcome.
+- **Be respectful.** Researchers and everyone who builds on this work with the same goal are welcome.
 
 ## License
 
@@ -50,6 +50,6 @@ and the pictures and documentation under [CC BY-NC-SA 4.0](https://creativecommo
 UI has its own license, [PolyForm Strict 1.0.0](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WebGUI/LICENSE.md).
 The full text and the required notices are in [LICENSE.md](LICENSE.md).
 
-By contributing you agree that your contribution is shared under these terms. Any copy, fork or derived work must state
-clearly that it is derived from the Sinusoidal Coil Generator and link to the original repository. **Commercial use
-requires written permission** from the author: contact [rolandthsive@yahoo.com](mailto:rolandthsive@yahoo.com).
+Any copy, fork or derived work must state clearly that it is derived from the Sinusoidal Coil Generator and link to the
+original repository. **Commercial use, including of any output, requires written permission** from the author: contact
+[rolandthsive@yahoo.com](mailto:rolandthsive@yahoo.com).

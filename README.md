@@ -4,7 +4,7 @@
 
 **An Open Generator For Rotary Inductive Encoder Coils, Built For KiCad**
 
-Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Free For Non-Commercial Use
+Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Open For Research Use
 
 **[WEBUI TOOL](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WEBUIReadme.md)** can be found at [Ro-H-Bots/Inductive Encoder Sinusoidal Coil Generator](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
 
@@ -48,8 +48,8 @@ motor and joint encoders without buying expensive sealed units or designing coil
 - This project is the result of three months of research and development, from July 2026 to
   October 2026. Claude and Gemini were used as coding assistants.
 - Development will speed up as more information, hardware and contributors join the project.
-- This is a fully open, non-commercial project. The source code is free to read, use, study and
-  improve for non-commercial purposes.
+- This is a research project, open to researchers. The source code is free to read, use, study and
+  improve for non-commercial research purposes.
 - **Commercial use requires written permission.** If you would like to use this project in a
   startup or a company, please get in touch (see [Licensing](#licensing)). Once terms are agreed,
   your organisation will be added to the list of approved commercial users.
@@ -62,7 +62,7 @@ The goal is an **all-in-one, openly available coil generator for rotary inductiv
 that anyone in the world can use to reach **20-bit and higher motor encoding** on demand, with
 nothing more than KiCad and a PCB order. Industrial absolute encoders with this kind of resolution
 and robustness cost hundreds to thousands of dollars each. This project aims to close that gap, and
-it is completely open to industry experts, researchers and hobbyists who want to add to it.
+it is open to researchers, and to industry experts who want to add to it as researchers.
 
 ---
 ## Working Principle
@@ -176,7 +176,7 @@ The table below is for the source code (PolyForm Noncommercial).
 
 | You May | You Must | You May Not, Without Written Permission |
 |---|---|---|
-| Use, study and modify the code | Keep the licence and copyright notice in every copy | Use the project, or boards made with it, in a commercial product or service |
+| Use, study and modify the code | Keep the licence and copyright notice in every copy | Use the project, or anything it outputs (KiCad files, Gerbers, boards), in a commercial product or service. This is an explicit term, see [LICENSE.md](LICENSE.md#output-of-the-generator) |
 | Generate boards for personal, educational, research and hobby use | State clearly that your version is forked from or derived from this project, with a link to this repository | Use it inside a company or startup for its business |
 | Share your changes for non-commercial use | Share derived pictures and documents under the same terms | Remove or hide the attribution |
 

@@ -1,6 +1,6 @@
 # Licenses Of This Repository
 
-This repository is **free for non-commercial use**. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and [PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
+This repository is **open for research use**, and free for non-commercial use. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and [PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
 
 > **Commercial use of anything in this repository requires written permission from the author.** Contact: [rolandthsive@yahoo.com](mailto:rolandthsive@yahoo.com).
 
@@ -22,6 +22,17 @@ licenses above, not under the Web UI's.
 | **PolyForm Noncommercial 1.0.0** | Use, study and modify the code for any non-commercial purpose: personal, educational, research and hobby use, and use by charities, schools, public research bodies and government institutions. Share your changes for non-commercial use. | Keep the license and copyright notices in every copy. State clearly that your version is forked from or derived from this project, with a link to this repository. | Use the code, or boards made with it, in a commercial product or service, or inside a company or startup for its business. |
 | **CC BY-NC-SA 4.0** | Copy, share and adapt the pictures and the documentation for non-commercial purposes. | Give credit (Ro-H-Bots, with a link to this repository), say if you made changes, and share your adaptations under the same license. | Use them commercially. |
 | **PolyForm Strict 1.0.0** | Use the Web UI for any non-commercial purpose (personal use, study, research, and non-commercial organizations). | Keep the required notices. | Distribute the Web UI, change it or make new works based on it, copy its design, or use it commercially. |
+
+## Output Of The Generator
+
+Everything the generator, the analyser or the Web UI produces is covered by this section: the KiCad files, board
+layouts, Gerber and drill files, parameter records, reports, pictures and any other file made from them, whole or in
+part, and any board manufactured from them. **No output may be used commercially**: not sold, not offered for sale,
+not built into a product or service, not used inside a company or startup for its business, and not manufactured for
+a customer, in each case without written permission from the author. Output may be used and shared for
+non-commercial research, study, education and personal use. When you share output, keep the attribution and say that it
+was made with the Sinusoidal Coil Generator, with a link to this repository. This is an additional term of this
+project. It applies to anyone who uses the generator or the Web UI, and using them means accepting it.
 
 ## Commercial Use
 
