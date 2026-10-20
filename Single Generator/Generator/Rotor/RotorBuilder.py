@@ -49,7 +49,7 @@ expansion setting for a drawn shape, so the margin is built into the shape:
     0.05   the opening is the copper outline grown by 0.05 mm on every side
            (round corners)
     0      the opening is exactly the copper outline
-    -1     no opening: the solder mask stays over the copper
+    -1     no opening: the solder mask stays over the copper (the default)
 
 Mount the rotor with its copper side facing the stator, concentric with it.
 Seen from the stator side the pattern is mirrored relative to the KiCad
@@ -72,7 +72,7 @@ DEFAULT_COPPER_CONDUCTIVITY = 5.8e7  # S/m, used when Board_Parameters.py has no
 MU0 = 4.0e-7 * math.pi
 
 # used when Rotor_Parameters.py has no such line (ParameterRules.py holds the same numbers)
-DEFAULT_SOLDER_MASK_EXPANSION_MM = 0.05
+DEFAULT_SOLDER_MASK_EXPANSION_MM = -1     # the mask stays over the copper
 DEFAULT_COVER_TX = True
 DEFAULT_TX_OVERHANG_MM = 0.5
 
