@@ -24,12 +24,12 @@ LOOPS = 1
 #   all four None                        : the generator places this band (DUAL_MODE = 1, or 3 when the other
 #                                          band is set); the record file prints the values it chose
 # Each pair goes together (both numbers or both None); both pairs set is an error (the band would be given twice).
-INSIDE_RADIUS_MM  = None
-OUTSIDE_RADIUS_MM = None
+INSIDE_RADIUS_MM  = 8.45
+OUTSIDE_RADIUS_MM = 11.7
 RX_R_BASE_MM      = None
 RX_A_MM           = None
 
-RX_TRACE_WIDTH_MM = 0.2
+RX_TRACE_WIDTH_MM = 0.15
 
 # Net names of this set.  They must differ from the other set's (KiCad would merge equal names).
 RX_NET_PHASE_0_2 = "SIN_1"      # phases 0 and 2 (sine, +/-)

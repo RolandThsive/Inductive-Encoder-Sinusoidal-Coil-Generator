@@ -6,8 +6,8 @@ Every generation gets its own folder inside OUTPUT_DIR (Dual_Board_Parameters.py
 
     DualCoil_<bore radius>_<outline radius>_<set 1 loops>x<set 2 loops>_<set 1 TX turns>x<set 2 TX turns>
 
-for example  DualCoil_8.5_29.5_1x16_2x3.  If that folder already exists, the next free one of
-DualCoil_..._2x3__1, __2, ... is used, so nothing is ever overwritten.
+for example  DualCoil_7.25_26.875_1x16_4x4.  If that folder already exists, the next free one of
+DualCoil_..._4x4__1, __2, ... is used, so nothing is ever overwritten.
 
 A relative OUTPUT_DIR is taken from the "Dual Generator" folder, not from the folder the program is run from.
 

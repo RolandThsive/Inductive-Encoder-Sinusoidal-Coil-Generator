@@ -33,7 +33,7 @@ GENERATOR_MODE = "normal"
 
 CENTER_X_MM  = 100.0                # sensor axis position on the KiCad page
 CENTER_Y_MM  = 100.0
-PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
+PAGE_SIZE_MM = (150, 150)           # KiCad "User" page size (width, height)
 
 
 # =============================================================================
@@ -43,7 +43,7 @@ PAGE_SIZE_MM = (200, 200)           # KiCad "User" page size (width, height)
 # through every layer, so a via of one set is checked against the copper of the other set on every layer.
 VIA_DIAMETER_MM   = 0.6             # (the Single Generator's example uses 0.8 / 0.4; 0.6 / 0.3 leaves room in
 VIA_DRILL_MM      = 0.3             #  the inner set's tight TX ring)
-MIN_CLEARANCE_MM  = 0.2
+MIN_CLEARANCE_MM  = 0.15
 
 # ---- board edges (Edge.Cuts circles) and the gap between the sets ----------
 # From the centre out, the stator is:
@@ -64,10 +64,10 @@ MIN_CLEARANCE_MM  = 0.2
 # The checker holds what is set against the chosen mode: a value the mode needs that is None, or a value that
 # must be None for the mode and is set, is an error that names it (and names the mode that matches what is set,
 # when one does).  Change the values, or change DUAL_MODE.
-DUAL_MODE = 1
+DUAL_MODE = 2
 
-INNER_EDGE_RADIUS_MM  = 8.5         # the centre hole.  Must sit INNER_EDGE_INSET_MM inside the RX1 band.
-OUTER_EDGE_RADIUS_MM  = 29.5        # the board edge.  Must leave OUTER_EDGE_OFFSET_MM past the RX2 band, and
+INNER_EDGE_RADIUS_MM  = None         # the centre hole.  Must sit INNER_EDGE_INSET_MM inside the RX1 band.
+OUTER_EDGE_RADIUS_MM  = None        # the board edge.  Must leave OUTER_EDGE_OFFSET_MM past the RX2 band, and
                                     # OUTER_EDGE_TAIL_MARGIN_MM past the TX2 ring.
 INNER_EDGE_INSET_MM   = 1.2         # bore = RX1 band start - this (the RX1 inner-tip vias sit on the band start)
 OUTER_EDGE_OFFSET_MM  = 2.0         # outline = RX2 band end + this, at least
@@ -86,7 +86,7 @@ EDGE_LINE_WIDTH_MM    = 0.05
 #   layer misregistration) and falls only slowly with distance (dual boards in practice leave 1.1 ... 1.4 mm
 #   between the two RX bands, all of it TX turns).  Keep the gap for the copper clearance and the solder mask; what keeps the fine track clean is the
 #   distance from ring 1 of the rotor to the RX2 band (ROTOR_1_TO_RX2_MM below).
-TRACK_GAP_MM = 0.5
+TRACK_GAP_MM = None
 
 # LAYOUT_TOLERANCE_MM = the generator's rounding allowance: the built copper may differ from the layout formulas
 # above by this much before the run warns (the Single Generator rounds its radii), and the outline gets this
@@ -131,7 +131,7 @@ TX_FREQ_RATIO_TOLERANCE  = 0.02
 # STACK-UP AND AIR GAP  (the rotor, the electrical estimate)
 # =============================================================================
 AIR_GAP_MM           = 1.0          # stator top copper -> rotor copper (one rotor, one air gap)
-PCB_THICKNESS_MM     = 1.6          # stator board thickness
+PCB_THICKNESS_MM     = 3.2          # stator board thickness
 
 
 # =============================================================================

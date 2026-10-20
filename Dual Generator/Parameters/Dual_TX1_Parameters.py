@@ -36,17 +36,17 @@ TX_NET             = "TX_1"
 #                comes out on an inner tail that ends one pitch outside the last turn (no further)
 TX_WIRING          = "series"
 
-TX_TURNS           = 3              # complete turns PER TX LAYER.  The inner ring sits between the sets: every turn and every mm of pitch pushes set 2 outwards
+TX_TURNS           = 4              # complete turns PER TX LAYER.  The inner ring sits between the sets: every turn and every mm of pitch pushes set 2 outwards
                                     # (2 turns at 3 MHz leave the tank below the IC's least parallel resistance: the estimate says so)
 TX_OFFSET_MM       = 0.8            # first turn radius = RX outside radius + this
-TX_PITCH_MM        = 0.6            # radial pitch between turns
-TX_TRACE_WIDTH_MM  = 0.2
+TX_PITCH_MM        = 0.35            # radial pitch between turns
+TX_TRACE_WIDTH_MM  = 0.15
 TX_STEPS           = "auto"
 TX_CHORD_TOLERANCE_MM = 0.001
 
 # The shape is fixed: "stepped_diagonal" (concentric turns joined by straight steps; Dual_Fixed_Parameters.py).
 TX_STEPPED_ANGLE_DEG = 45           # angle of the steps to the turns
-TX_INSIDE_VIA_DISTANCE_MM = 0.1    # the via that joins the two TX layers, moved this far inside the first turn
+TX_INSIDE_VIA_DISTANCE_MM = 0.2    # the via that joins the two TX layers, moved this far inside the first turn
                                     # (at most TX_OFFSET_MM - via radius - half an RX trace - MIN_CLEARANCE_MM)
 
 # The two TX layers (they must differ).  The wiki's Recommended Combination: TX on Top + Inner 2, RX on
