@@ -73,5 +73,7 @@ fund that supports innovation worldwide, chosen together by me and the paying co
 
 ## Disclaimer
 
+The author knows of no patent that this project infringes. This is not a guarantee.
+
 This page is a plain-language summary to help you find your way. It is not legal advice. If it differs from the full
 license texts, the full texts and the notices at the top of this file apply.
