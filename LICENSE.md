@@ -54,6 +54,9 @@ licenses above, and using the project commercially means accepting them.
    project, report what breaks and share what you improve. If you do not, you need written permission from the
    author.
 
+This fee is asked in good faith. It is the condition for commercial use, and commercial use without it is not
+permitted. Paying companies are thanked by name in the README.
+
 Please get in touch by email (above) before you start. Approved organizations will be listed in the
 [README](README.md#licensing).
 

@@ -193,7 +193,8 @@ the channels below. Approved organisations will be listed here.
 - MyAnimeList: [RolandThsive](https://myanimelist.net/profile/RolandThsive)
 - Instagram: [@ro_h_bots](https://www.instagram.com/ro_h_bots)
 
-**Approved Commercial Users:** *None yet.*
+**Thanks To Our Approved Commercial Users:** *None yet.* Every company that pays is thanked here by name, and
+appears in the public [LEDGER.md](LEDGER.md).
 
 ## Every Commercial Payment Goes Back Into The Project
 
