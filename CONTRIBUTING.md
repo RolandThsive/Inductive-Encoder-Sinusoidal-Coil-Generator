@@ -43,6 +43,36 @@ contributions of every kind are welcome, from a measurement on a real board to a
 - **Do not include secrets or personal data** in issues, pull requests or measurement files.
 - **Be respectful.** Researchers, students, hobbyists and curious engineers are all welcome.
 
+## Contributor Agreement
+
+By sending a pull request, patch, issue text, measurement, picture or any other contribution ("Contribution"), you
+agree to the following, and you confirm it by adding the line `Signed-off-by: Your Name <email>` to every commit and to
+the pull request description.
+
+1. **You own it, or you may share it.** The Contribution is your own work, or you have the right to submit it under
+   this agreement. It is not copied from a source whose terms forbid this (other projects, papers, datasheets,
+   manufacturer designs, fonts, icons or code of unknown origin). If part of it comes from elsewhere, you name the
+   source and its license in the pull request.
+2. **No employer or third-party claim.** Your employer, school, client or anyone else has no claim to it, or has
+   allowed you in writing to submit it.
+3. **License to the project.** You grant the author (Roland / Ro-H-Bots) a worldwide, perpetual, irrevocable,
+   royalty-free, non-exclusive license to use, copy, change, publish, distribute and sublicense the Contribution, in
+   whole or in part, under this project's licenses or any other license the author chooses later, including a
+   different or commercial license. You keep your own copyright.
+4. **Patents.** You grant the author and every user of the project a perpetual, irrevocable, royalty-free license under
+   any patent you own or control that the Contribution necessarily infringes. If you know of a patent that covers the
+   Contribution, you say so in the pull request.
+5. **Moral rights.** Where the law allows, you waive or will not enforce moral rights against the author and users of
+   the project, except the right to be named: contributors are credited in the history and may be listed in the
+   README.
+6. **Same terms for output.** Your Contribution and everything made from it follow the project's terms, including the
+   rule that no output may be used commercially without written permission ([LICENSE.md](LICENSE.md)).
+7. **No obligation.** The author may refuse, change or remove any Contribution. The Contribution is given as is, without
+   warranty.
+8. **Public record.** Your name and email are kept in the public history of the repository.
+
+Contributions that do not carry the sign-off are not merged.
+
 ## License
 
 The source code is licensed under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/),
