@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in the Sinusoidal Coil Generator. This is a research project, open to researchers, and
+Thank you for your interest in the Sinusoidal Coil Generator. This is a research project. Researchers, students, hobbyists and curious engineers are completely welcome to use this open tool, and
 contributions of every kind are welcome, from a measurement on a real board to a better field model.
 
 > [!IMPORTANT]
@@ -41,7 +41,7 @@ contributions of every kind are welcome, from a measurement on a real board to a
 - **Update the documentation with the code.** If a parameter, command or output changes, change the wiki and README to
   match.
 - **Do not include secrets or personal data** in issues, pull requests or measurement files.
-- **Be respectful.** Researchers and everyone who builds on this work with the same goal are welcome.
+- **Be respectful.** Researchers, students, hobbyists and curious engineers are all welcome.
 
 ## License
 

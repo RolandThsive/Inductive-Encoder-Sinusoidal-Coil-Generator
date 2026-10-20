@@ -1,6 +1,6 @@
 # Licenses Of This Repository
 
-This repository is **open for research use**, and free for non-commercial use. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and [PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
+This repository is **open for research use**, and free for non-commercial use. Researchers, students, hobbyists and curious engineers are completely welcome to use this open tool. It uses three licenses, each for a different part. The full text of each one is in its own file in the root of the repository: [PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and [PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
 
 > **Commercial use of anything in this repository requires written permission from the author.** Contact: [rolandthsive@yahoo.com](mailto:rolandthsive@yahoo.com).
 

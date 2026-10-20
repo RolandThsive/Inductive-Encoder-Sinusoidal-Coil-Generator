@@ -48,6 +48,7 @@ motor and joint encoders without buying expensive sealed units or designing coil
 - This project is the result of three months of research and development, from July 2026 to
   October 2026. Claude and Gemini were used as coding assistants.
 - Development will speed up as more information, hardware and contributors join the project.
+- Researchers, students, hobbyists and curious engineers are completely welcome to use this open tool.
 - This is a research project, open to researchers. The source code is free to read, use, study and
   improve for non-commercial research purposes.
 - **Commercial use requires written permission.** If you would like to use this project in a
@@ -62,7 +63,7 @@ The goal is an **all-in-one, openly available coil generator for rotary inductiv
 that anyone in the world can use to reach **20-bit and higher motor encoding** on demand, with
 nothing more than KiCad and a PCB order. Industrial absolute encoders with this kind of resolution
 and robustness cost hundreds to thousands of dollars each. This project aims to close that gap, and
-it is open to researchers, and to industry experts who want to add to it as researchers.
+it is open to researchers, students, hobbyists and curious engineers who want to use it or add to it.
 
 ---
 ## Working Principle
