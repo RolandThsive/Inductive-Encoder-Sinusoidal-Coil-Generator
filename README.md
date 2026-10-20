@@ -204,7 +204,7 @@ to the electronics and the firmware. Trained in mechanical design and robotics, 
 master's in mechatronics, I have built robotic hands, a humanoid torso, industrial bin-picking
 cells and rocket electronics, designing PCBs in KiCad and firmware for STM32 and Espressif chips.
 
-Without a job at the moment, I put my full time into building industrial-grade software and making
+I put my full time into building industrial-grade software and making
 well-researched but hard-to-find scientific knowledge free for everyone. I will keep maintaining
 this project until it becomes a highly capable rotary inductive sensor coil generator.
 
