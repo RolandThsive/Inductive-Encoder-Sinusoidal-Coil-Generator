@@ -173,8 +173,8 @@ ROTOR_AUTO_EDGE_CLEARANCE_MM = 0.5  # according_to_stator: ring copper stays thi
 #   "board"   : from the board's +x axis, as the Single Generator measures it; the turn of each set is not added.
 #               The record file prints each set's zero, so you can add it by hand.
 ROTOR_START_ANGLE_ZERO = "rx_zero"
-ROTOR_CUSTOM_OUTLINE_RADIUS_MM  = 29.5   # custom: outer edge of the disc (None = no outline)
-ROTOR_CUSTOM_BORE_RADIUS_MM     = 8.5    # custom: centre hole (None = no hole)
+ROTOR_CUSTOM_OUTLINE_RADIUS_MM  = 26.875 # custom: outer edge of the disc (None = no outline); the values here are what
+ROTOR_CUSTOM_BORE_RADIUS_MM     = 7.25   # custom: centre hole (None = no hole);  "according_to_stator" computes for the default board
 
 # ROTOR_TRACK_GAP_MM = the bare ring that must stay between ring 1's outer radius and ring 2's inner radius
 # (an error when smaller, naming the extension to change).  Dual boards in practice keep 2.3 ... 3.0 mm.  It is
@@ -210,4 +210,4 @@ ROTOR_CHORD_TOLERANCE_MM   = 0.001
 #   0.05  the opening is 0.05 mm wider than the copper on every side
 #   0     the opening is exactly the copper outline
 #   -1    no opening: the solder mask stays over the copper
-ROTOR_SOLDER_MASK_EXPANSION_MM = 0.05
+ROTOR_SOLDER_MASK_EXPANSION_MM = -1
