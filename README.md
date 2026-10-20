@@ -209,20 +209,22 @@ profit.
   [LEDGER.md](LEDGER.md) of this repository, with proof.
 - **Completely disclosed.** Everyone who can see this repository can see the ledger. Nothing is hidden.
 
-This is an open project, so I expect it to be open to the highest degree and completely functioning, with a stern
-warning. I went through a bunch of licenses and saw how things work in the "Open Source Stuff". That stuff is broken.
-And I see that there is very little goodwill in this world towards the people who are willing to free stuff.
+This is an open project, so I expect it to be **open to the highest degree** and **completely functioning**, with a
+**stern warning**. I went through a bunch of licenses and saw how things work in the "Open Source Stuff". **That stuff
+is broken.** And I see that there is **very little goodwill** in this world towards the people who are willing to free
+stuff.
 
 Here is what I came up with. So, in sassy boy Seth's freedom intonation:
 
-Here's the deal. This is completely free (as in freedom-units free), except if you are a commercial user. You have to
-pay to make this research even better. Yes, you. Pay up. That's called improving the stuff you used. Tax stuff.
-Everything has it. This too has it. It's completely non-profit. There is no "commercialization", absolutely none.
-0.2% is the maximum allowable transaction per unit sale, and it stops after the fulfillment of all the milestones.
+Here's the deal. This is **completely free** (as in freedom-units free), **except if you are a commercial user**. You
+have to **pay** to make this research even better. Yes, you. **Pay up.** That's called improving the stuff you used.
+Tax stuff. Everything has it. This too has it. It's **completely non-profit**. There is **no "commercialization",
+absolutely none.** **0.2%** is the maximum allowable transaction per unit sale, and it stops after the fulfillment of
+**all the milestones**.
 
-There is no restriction on anything here unless you are not contributing back appropriately. Especially no restriction
-just to profit from it. Again: profit bad, investment for making this project good. That will stop when this generator
-reaches its final stage, and a new license will apply, the same as the GPL.
+There is **no restriction on anything here** unless you are **not contributing back** appropriately. Especially no
+restriction just to profit from it. Again: **profit bad, investment for making this project good.** That will stop
+when this generator reaches its final stage, and a new license will apply, **the same as the GPL**.
 
 ---
 
