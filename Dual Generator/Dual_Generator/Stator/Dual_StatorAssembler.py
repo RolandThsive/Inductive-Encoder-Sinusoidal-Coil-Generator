@@ -22,7 +22,7 @@ import math
 
 from Generator.Checks import DesignChecks
 from Generator.Core import Layers
-from Generator.Core.KiCadWriter import KiCadBoard, page_size
+from Generator.Core.PCBWriter import KiCadBoard, page_size
 from Generator.Stator import StatorAssembly
 from Generator.Stator.RX import RX_Builder
 from Generator.Stator.TX import TX_Builder

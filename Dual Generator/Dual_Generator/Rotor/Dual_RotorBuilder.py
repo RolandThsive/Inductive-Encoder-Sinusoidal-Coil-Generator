@@ -17,7 +17,7 @@ rings' public geometry (sector_polygon, mask_polygon, layers, mask_layers), with
 RotorDesign.write uses.  Nothing to edit here.
 """
 
-from Generator.Core.KiCadWriter import KiCadBoard, page_size
+from Generator.Core.PCBWriter import KiCadBoard, page_size
 from Generator.Rotor import RotorBuilder as RB
 
 
