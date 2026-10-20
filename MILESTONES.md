@@ -1,6 +1,6 @@
 # Milestones
 
-The commercial fee described in the [README](README.md#our-pledge-every-commercial-payment-goes-back-into-the-project)
+The commercial fee described in the [README](README.md#every-commercial-payment-goes-back-into-the-project)
 stops when every milestone below is done.
 
 | Serial | Milestone | Success factor |

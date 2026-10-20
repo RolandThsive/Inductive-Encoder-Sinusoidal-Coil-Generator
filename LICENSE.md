@@ -46,7 +46,7 @@ Approved organizations will be listed in the [README](README.md#licensing).
 Any money I accept from commercial users is invested back into this project in full, 100%, and is on record in the
 public [LEDGER.md](LEDGER.md), visible to everyone who can see this repository. Whatever is left over is donated to a
 fund that supports innovation worldwide, chosen together by me and the paying company. See the
-[README](README.md#our-pledge-every-commercial-payment-goes-back-into-the-project).
+[README](README.md#every-commercial-payment-goes-back-into-the-project).
 
 ## Disclaimer
 

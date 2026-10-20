@@ -193,7 +193,7 @@ Please make contact through one of the channels below. Approved organisations wi
 
 **Approved Commercial Users:** *None yet.*
 
-## Our Pledge: Every Commercial Payment Goes Back Into The Project
+## Every Commercial Payment Goes Back Into The Project
 
 > [!IMPORTANT]
 > **100% ON RECORD. 100% INVESTED BACK. 100% DISCLOSED.**
