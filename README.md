@@ -214,7 +214,7 @@ This is an open project, so I expect it to be **open to the highest degree** and
 is broken.** And I see that there is **very little goodwill** in this world towards the people who are willing to free
 stuff.
 
-Here is what I came up with. So, in sassy boy Seth's freedom intonation:
+<h2 align="center">Here is what I came up with. So, in sassy boy Seth's freedom intonation:</h2>
 
 Here's the deal. This is **completely free** (as in freedom-units free), **except if you are a commercial user**. You
 have to **pay** to make this research even better. Yes, you. **Pay up.** That's called improving the stuff you used.
