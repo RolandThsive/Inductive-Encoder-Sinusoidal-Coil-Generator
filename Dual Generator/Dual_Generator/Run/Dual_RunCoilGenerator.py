@@ -23,6 +23,8 @@ Steps (the same six as the Single Generator's RunCoilGenerator.py, each done twi
   5. decide (GENERATOR_MODE, --check)
   6. write the files - only if no step reported an error.  Dual_OutputFolders.py makes a new folder for every
      run inside OUTPUT_DIR and writes Stator.kicad_pcb, Rotor.kicad_pcb and Parameters.txt into it.
+     Last, Dual_LeadCutting_SilkscreenSuggestion.py draws the lead-cutting suggestion (where to break each RX
+     coil, where the TX ends get their vias) on the silkscreen of the written stator file and adds it to the record.
 
 All settings are in the Dual_..._Parameters.py files (the Parameters folder; Dual_Parameters.py lists them).  Run
 it from any folder, e.g.
@@ -144,6 +146,7 @@ def main(argv=None):
     # ---------------------------------------------------------------- 2. stator
     from Generator.Rotor import RotorBuilder as RB
     from Dual_Generator.Stator import Dual_StatorAssembler as DSA
+    from Dual_Generator.Stator import Dual_LeadCutting_SilkscreenSuggestion as LCS
     from Dual_Generator.Rotor import Dual_RotorBuilder as DRB
     step(2, total, "Building the stator: the two sets, each by the Single Generator, then the board")
     stators, gen_rep = {}, Report()
@@ -228,7 +231,7 @@ def main(argv=None):
 
     # ---------------------------------------------------------------- 6. write
     step(6, total, "Writing the files")
-    written, folder = [], None
+    written, folder, silk = [], None, None
     try:
         folder = OF.create_output_folder(dual, P)
         print(f"  folder  {folder}")
@@ -236,6 +239,7 @@ def main(argv=None):
             path = dual.write(os.path.join(folder, P.BOARD.STATOR_FILE))
             written.append(path)
             print("  " + Colour.green(f"stator  -> {path}"))
+            silk = LCS.add_to_file(path, P)              # the lead-cutting silkscreen suggestion, drawn into the file
         if want_rotor:
             path = disc.write(os.path.join(folder, P.BOARD.ROTOR_FILE))
             written.append(path)
@@ -243,6 +247,8 @@ def main(argv=None):
         path = OF.write_record(folder, P, written, dual=dual, disc=disc if want_rotor else None, layout=layout,
                                sets=sets, electrical_lines=el_record, warnings=warn_texts + list(el_warn),
                                command="python Dual_RunCoilGenerator.py " + " ".join(sys.argv[1:] if argv is None else argv))
+        if silk is not None:
+            LCS.append_record(path, silk)
         print("  " + Colour.green(f"record  -> {path}"))
     except OSError as e:
         print("  " + Colour.red(f"ERROR   cannot write: {e}"))
