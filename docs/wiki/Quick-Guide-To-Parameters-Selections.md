@@ -45,7 +45,7 @@ Rules behind the table:
 *Parameters 1. The same 1-loop stator (single TX on Bottom, pitch 1.2 mm, trace width 0.4 mm) defined five ways. 1: board edges 30 / 50 mm only (band fitted, 31.2 to 42.6 mm). 2: the same edges plus the pair INSIDE 32 / OUTSIDE 41. 3: the same edges plus the pair R_BASE 36.5 / A 4.5 (the same band as 2). 4 and 5: the same two pairs without board edges, so the edges are computed (30.8 and 48.4 mm).*
 
 Use edges only when the board outline is fixed and you want the largest band that fits. Use a pair when
-the band radii matter (for example to match a reference design); add the edges when the outline is also
+the band radii matter (for example to match an existing housing); add the edges when the outline is also
 fixed. Use a pair alone when only the band matters and the board may grow to suit it.
 
 ## 14.2 TX Turns
@@ -109,7 +109,7 @@ The best combination is a **4-layer board** with the RX fingers (if you choose t
 | `RX_TAB_LAYER` | `2` (Inner 1) |
 | `TX_WIRING` | `"series"` |
 | `TX_LAYER_A`, `TX_LAYER_B` | `1` (Top) and `3` (Inner 2) |
-| `TX_SHAPE` | `"stepped_diagonal"` (or `"stepped_arc"` for arcs as on the receiver makers' reference boards) |
+| `TX_SHAPE` | `"stepped_diagonal"` (or `"stepped_arc"` for arcs centred on the terminal via) |
 
 The fingers then sit on a layer that carries no TX turns, so no turn has to go around them. The
 generator builds this setup without errors.

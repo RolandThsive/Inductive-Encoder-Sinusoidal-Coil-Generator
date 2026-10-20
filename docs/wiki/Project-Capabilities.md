@@ -7,12 +7,12 @@
 | Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
 | RX Loops | 1 to 16 electrical periods per mechanical turn |
 | RX Phases | Four phases only: SIN and COS pairs, each with a positive and a negative half |
-| RX Profiles | `equal_area`, `cosine_r` (limaçon, as in the receiver makers' reference designs); a field-compensated profile is research underway |
+| RX Profiles | `equal_area`, `cosine_r` (limaçon); a field-compensated profile is research underway |
 | RX Sub-Coils | 1 to 3 per coil, mainly for miniature 1-loop coils |
 | RX Fingers | Bridging fingers to break the coils out across the TX ring: all, single or none |
 | TX Layers | Any one layer, or any two layers (Top and Bottom on a 2-layer board) |
 | TX Wiring | Single (one layer), series or parallel (`TX_WIRING`) |
-| TX Shape | Stepped diagonal turns (adjustable step angle), stepped arc turns (adjustable arc radius, as on the receiver makers' reference boards) or spiral turns |
+| TX Shape | Stepped diagonal turns (adjustable step angle), stepped arc turns (adjustable arc radius) or spiral turns |
 | TX Break Style | Go-around (staggered) or stitched windows where a finger crosses the TX ring |
 | TX Terminal | Placed automatically where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, as close to the two fingers as the clearance allows); the board is turned so it sits at 0° |
 | Rotor | Generated from the stator, or fully custom |

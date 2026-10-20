@@ -25,7 +25,7 @@
 | **Chord tolerance** | The largest gap, in mm, allowed between the true curve and its chord. RX, TX and rotor each have their own setting (`RX_`, `TX_`, `ROTOR_CHORD_TOLERANCE_MM`, default and minimum 0.001 mm). |
 | **Auto steps** | The "auto" setting of `STEPS_PER_LOOP`, `TX_STEPS` and `ROTOR_ARC_STEPS_PER_SECTOR`: the generator picks the number of chords or points from the chord tolerance. A whole number is used exactly. |
 | **Stepped diagonal** | TX turn shape: concentric circles joined by straight steps (the default). |
-| **Stepped arc** | TX turn shape: concentric circles joined by arcs centred on the terminal via, as on the receiver makers' reference boards. |
+| **Stepped arc** | TX turn shape: concentric circles joined by arcs centred on the terminal via. |
 | **Spiral** | TX turn shape: one smooth Archimedean spiral. |
 | **Step angle** | The angle of the steps of a `stepped_diagonal` TX turn, measured from the turn. |
 | **Arc radius** | The radius of the innermost arc of a `stepped_arc` TX (`TX_STEPPED_ARC_RADIUS_MM`). |
