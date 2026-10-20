@@ -20,7 +20,7 @@ import math
 from Generator.Core import BoardLayout, Layers
 from Generator.Core.BoardLayout import outer_edge_room
 from Generator.Core.Geometry import chord_tolerance
-from Generator.Core.KiCadWriter import KiCadBoard, page_size
+from Generator.Core.PCBWriter import KiCadBoard, page_size
 from Generator.Stator.TX import TX_Builder
 
 

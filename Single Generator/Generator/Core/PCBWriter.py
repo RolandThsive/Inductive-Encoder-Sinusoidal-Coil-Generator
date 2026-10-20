@@ -1,5 +1,5 @@
 """
-KiCadWriter.py  -  writes a board as a KiCad 7 .kicad_pcb file (readable by KiCad 7, 8, 9 and 10): nets, track
+PCBWriter.py  -  writes a board as a KiCad 7 .kicad_pcb file (readable by KiCad 7, 8, 9 and 10): nets, track
 segments, vias, circles and filled polygons, the title block and the page.  Used by the stator and the rotor.
 Nothing to edit here.
 """

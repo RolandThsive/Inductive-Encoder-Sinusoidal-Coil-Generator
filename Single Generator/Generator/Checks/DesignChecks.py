@@ -15,7 +15,7 @@ import numpy as np
 from Generator.Core.Geometry import (point_segments_distance, points_segments_min_distance,
                                      near_points_segments_min_distance, segment_distance)
 from Generator.Core.Conflict import Report
-from Generator.Core.KiCadWriter import SHEET_FRAME_MM, PAGE_GAP_MM, page_size
+from Generator.Core.PCBWriter import SHEET_FRAME_MM, PAGE_GAP_MM, page_size
 from Generator.Stator.TX import TX_Shapes, TX_Terminal
 
 
