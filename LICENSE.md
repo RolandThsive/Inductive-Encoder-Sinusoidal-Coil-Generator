@@ -38,11 +38,13 @@ project. It applies to anyone who uses the generator or the Web UI, and using th
 ## Commercial Use
 
 Commercial users may use this project, including its output, under these terms. They apply in addition to the
-licenses above, and using the project commercially means accepting them.
+licenses above, and using the project commercially means accepting them. The terms in this section are the
+author's written permission under those licenses, for everyone who accepts and follows them.
 
 1. **The fee.** You pay **0.2% of the net sale price** of every unit you sell, and of every paid service you provide,
    that contains, or was made with, anything from this project (the code, the boards, the files or any other output),
-   for example selling design work made with the tool. This is the maximum. It can never be raised.
+   for example selling design work made with the tool. It is paid in the currency of the sale. This is the maximum. It
+   can never be raised.
 2. **Who gets it.** The fee is paid to RolandThsive (the author).
 3. **How it is reported.** You show your invoices against your payments to the project, so that anyone can check that
    the balance is right. Both are recorded in the public [LEDGER.md](LEDGER.md), with proof.
