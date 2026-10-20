@@ -211,6 +211,11 @@ profit.
 - **100% on record.** Every payment, every expense and every donation is written in the public
   [LEDGER.md](LEDGER.md) of this repository, with proof.
 - **Completely disclosed.** Everyone who can see this repository can see the ledger. Nothing is hidden.
+- **Non-profit, exclusively.** Every fee, investment and contribution is used only for the development of this
+  project, and for nothing else. No profit is taken from any of it.
+- **No opaque portions.** The transparency is absolute. Every cent that comes in and every cent that goes out is in
+  the ledger, with proof. Money that is not in the ledger does not exist for this project, and none is accepted outside
+  it.
 
 This is an open project, so I expect it to be **open to the highest degree** and **completely functioning**, with a
 **stern warning**. I went through a bunch of licenses and saw how things work in the "Open Source Stuff". **That stuff
