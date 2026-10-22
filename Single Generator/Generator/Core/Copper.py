@@ -19,9 +19,11 @@ class Segment(NamedTuple):
 
 
 class Via(NamedTuple):
-    """A through via at `at`."""
+    """A via at `at`.  `layers` names the two copper layers it joins (the layers of the traces that meet there),
+    top-most first; the writer uses the pair only for a blind via (VIA_TYPE), a through via always spans the board."""
     at: tuple                     # (x, y) mm
     net: Optional[str] = None     # RX: the coil's net name
     curve: Optional[int] = None   # RX: the receiver curve
     node: Optional[int] = None    # RX: the polyline node it sits on
     turn: Optional[int] = None    # TX: the turn it belongs to
+    layers: Optional[tuple] = None  # ("F.Cu", "In1.Cu") ... the two layers joined; None = not recorded

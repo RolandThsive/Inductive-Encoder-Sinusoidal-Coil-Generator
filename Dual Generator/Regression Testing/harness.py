@@ -249,6 +249,9 @@ BOARD_CASES = {
     "silkscreen_bottom_no_labels": {"SILK.SILKSCREEN_SIDES": "bottom", "SILK.SILKSCREEN_LABELS": False,
                                     "SILK.SILKSCREEN_DOT_ON_ALL_VIAS": True},
     "silkscreen_off": {"SILK.SILKSCREEN_SUGGESTION": False},
+    # the default layers (RX on 1 + 2, TX on 1 + 3): the RX vias come out as blind vias Top + Inner-1, each set's
+    # TX via as Top + Inner-2 (the run warns that it skips a layer)
+    "blind_vias": mode1(**{"BOARD.VIA_TYPE": "blind", "BOARD.VIA_DIAMETER_MM": 0.4, "BOARD.VIA_DRILL_MM": 0.15}),
 }
 
 _BOARDS = {}

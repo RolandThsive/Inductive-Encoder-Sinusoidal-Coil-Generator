@@ -60,6 +60,7 @@ PARAMETER VALUES USED
   PCB_LAYERS                = 2
   VIA_DIAMETER_MM           = 0.8
   VIA_DRILL_MM              = 0.4
+  VIA_TYPE                  = 'through'
   MIN_CLEARANCE_MM          = 0.2
   INNER_EDGE_INSET_MM       = 1.2
   INNER_EDGE_RADIUS_MM      = 15.0

@@ -133,6 +133,23 @@ CASES = [
     ("err_set2_drill_too_big", mode1(**{"BOARD.VIA_DRILL_MM": 0.8}), 1, [r"ERROR   VIA_DRILL_MM conflicts with VIA_DIAMETER_MM\n\s+set 1: the drill",
                                                                         r"ERROR   VIA_DRILL_MM conflicts with VIA_DIAMETER_MM\n\s+set 2: the drill"], []),
     ("set2_duty_low_warns", mode1(**{"ROTOR2.ROTOR_AUTO_DUTY": 0.2}), 0, [r"WARNING.*set 2: rotor metal fraction 0\.2", r"CHECK PASSED"], [r"ERROR"]),
+    # ------------------------------------------------------------------ VIA_TYPE (shared by both sets)
+    ("via_type_blind_default_layers", mode1(**{"BOARD.VIA_TYPE": "blind", "BOARD.VIA_DIAMETER_MM": 0.4, "BOARD.VIA_DRILL_MM": 0.15}), 0,
+     [r"info    VIA_TYPE conflicts with RX_LAYER_A and RX_LAYER_B\n\s+set 1: the RX tip vias are blind vias between Top and Inner-1",
+      r"info    VIA_TYPE conflicts with RX_LAYER_A and RX_LAYER_B\n\s+set 2: the RX tip vias are blind vias between Top and Inner-1",
+      r"WARNING VIA_TYPE conflicts with TX_LAYER_A and TX_LAYER_B\n\s+set 1: the TX vias join Top and Inner-2, skipping the layer between",
+      r"WARNING VIA_TYPE conflicts with TX_LAYER_A and TX_LAYER_B\n\s+set 2: the TX vias join Top and Inner-2, skipping the layer between",
+      r"CHECK PASSED"], [r"ERROR", r"VIA_TYPE conflicts with VIA_DRILL_MM"]),
+    ("via_type_blind_large_drill_warns", mode1(**{"BOARD.VIA_TYPE": "blind"}), 0,
+     [r"WARNING VIA_TYPE conflicts with VIA_DRILL_MM\n\s+set 1: blind vias are laser-drilled, at most about 0\.15 mm wide at "
+      r"common fabs; VIA_DRILL_MM = 0\.3 is a mechanical drill", r"CHECK PASSED"], [r"ERROR"]),
+    ("via_type_bad_value", mode1(**{"BOARD.VIA_TYPE": "micro"}), 1,
+     [r"ERROR   set 1: VIA_TYPE = 'micro': must be one of 'through', 'blind'   \(Dual_Board_Parameters\.py\)", r"FAILED: 2 parameter error"], []),
+    ("via_type_missing_uses_through", mode1(**{"BOARD.VIA_TYPE": DELETE}), 0,
+     [r"VIA_TYPE is not in Dual_Board_Parameters\.py: using the default 'through'", r"CHECK PASSED"], [r"ERROR", r"blind vias"]),
+    ("via_type_in_a_set_file_is_ignored", mode1(**{"RX1.VIA_TYPE": "blind"}), 0,
+     [r"WARNING VIA_TYPE in Dual_RX1_Parameters\.py is ignored: it belongs in Dual_Board_Parameters\.py", r"CHECK PASSED"],
+     [r"ERROR", r"blind vias between"]),
 ]
 
 

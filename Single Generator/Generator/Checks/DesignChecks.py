@@ -266,7 +266,7 @@ def check_stator_clearances(stator):
     txa = np.array([[s.a[0], s.a[1]] for s in stator.tx_segments])
     txb = np.array([[s.b[0], s.b[1]] for s in stator.tx_segments])
     worst = (1e9, None)
-    for p, _net, k, j, _turn in stator.rx_vias:
+    for p, _net, k, j, _turn, _layers in stator.rx_vias:
         other = owner != k
         d = point_segments_distance(np.asarray(p), a[other], b[other]).min() - P.RX_TRACE_WIDTH_MM / 2.0
         dtx = point_segments_distance(np.asarray(p), txa, txb).min() - P.TX_TRACE_WIDTH_MM / 2.0

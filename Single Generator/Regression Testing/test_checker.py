@@ -12,6 +12,10 @@ import unittest
 import harness as H
 
 D = H.DELETE
+# a 4-layer board whose via pairs are Top + Inner-1 (TX) and Inner-2 + Bottom (RX): one-step blind vias
+FOUR = {"PCB_LAYERS": 4, "TX_WIRING": "series", "TX_LAYER_A": 1, "TX_LAYER_B": 2, "RX_LAYER_A": 3, "RX_LAYER_B": 4,
+        "RX_TABS": "none"}
+FOUR_BLIND = dict(FOUR, VIA_TYPE="blind", VIA_DIAMETER_MM=0.4, VIA_DRILL_MM=0.15)
 CASES = [
     # ------------------------------------------------------------------ the defaults
     ("default_passes", {}, 0, [r"parameters OK", r"stator built", r"rotor built", r"no warnings", r"CHECK PASSED"],
@@ -105,6 +109,48 @@ CASES = [
      [r"WARNING.*FOO_BAR_MM", r"CHECK PASSED"], [r"ERROR"]),
     ("strict_ignores_electrical_warnings", {"GENERATOR_MODE": "strict", "EXCITATION_FREQ_HZ": 1.0e6}, 0,
      [r"WARNING", r"CHECK PASSED"], [r"ERROR"]),
+]
+
+
+CASES += [
+    # ------------------------------------------------------------------ VIA_TYPE (blind vias, 4 layers only)
+    ("via_type_missing_uses_through", {"VIA_TYPE": D}, 0,
+     [r"info\s+VIA_TYPE is not in Board_Parameters\.py: using the default 'through'", r"CHECK PASSED"], [r"ERROR", r"WARNING"]),
+    ("via_type_bad_value", {"VIA_TYPE": "buried"}, 1,
+     [r"ERROR   VIA_TYPE = 'buried': must be one of 'through', 'blind'", r"Board_Parameters\.py"], []),
+    ("via_type_blind_on_two_layers", {"VIA_TYPE": "blind"}, 1,
+     [r'ERROR   VIA_TYPE conflicts with PCB_LAYERS\n\s+VIA_TYPE = "blind" needs inner layers to stop at; a 2-layer board '
+      r'has only through vias - set PCB_LAYERS = 4, or VIA_TYPE = "through"', r"FAILED: 1 parameter error"], []),
+    ("via_type_blind_pairs_reported", dict(FOUR_BLIND, VIA_TYPE="Blind"), 0,
+     [r"info    VIA_TYPE conflicts with RX_LAYER_A and RX_LAYER_B\n\s+the RX tip vias are blind vias between Inner-2 and Bottom",
+      r"info    VIA_TYPE conflicts with TX_LAYER_A and TX_LAYER_B\n\s+the TX vias are blind vias between Top and Inner-1",
+      r"CHECK PASSED"], [r"ERROR", r"VIA_TYPE conflicts with VIA_DRILL_MM", r"changes nothing"]),
+    ("via_type_blind_large_drill_warns", dict(FOUR, VIA_TYPE="blind"), 0,
+     [r"WARNING VIA_TYPE conflicts with VIA_DRILL_MM\n\s+blind vias are laser-drilled, at most about 0\.15 mm wide at common "
+      r"fabs; VIA_DRILL_MM = 0\.4 is a mechanical drill - set VIA_DRILL_MM and VIA_DIAMETER_MM to blind via sizes, or use "
+      r"through vias", r"CHECK PASSED"], [r"ERROR"]),
+    ("via_type_blind_skipped_layer_warns", dict(FOUR_BLIND, RX_LAYER_A=1, RX_LAYER_B=3, TX_LAYER_A=2, TX_LAYER_B=4), 0,
+     [r"WARNING VIA_TYPE conflicts with RX_LAYER_A and RX_LAYER_B\n\s+the RX tip vias join Top and Inner-2, skipping the "
+      r"layer between: not a one-step blind via",
+      r"WARNING VIA_TYPE conflicts with TX_LAYER_A and TX_LAYER_B\n\s+the TX vias join Inner-1 and Bottom, skipping"],
+     [r"ERROR"]),
+    ("via_type_blind_buried_and_through_pairs", dict(FOUR_BLIND, RX_LAYER_A=2, RX_LAYER_B=3, TX_LAYER_A=1, TX_LAYER_B=4), 0,
+     [r"info    VIA_TYPE conflicts with RX_LAYER_A and RX_LAYER_B\n\s+the RX tip vias join Inner-1 and Inner-2: that is a "
+      r"buried via \(mechanically drilled inside the board\), written with KiCad's blind via token",
+      r"info    VIA_TYPE conflicts with TX_LAYER_A and TX_LAYER_B\n\s+the TX vias join Top and Bottom: they stay through vias"],
+     [r"ERROR", r"changes nothing"]),
+    ("via_type_blind_changes_nothing_warns", {"PCB_LAYERS": 4, "VIA_TYPE": "blind", "VIA_DIAMETER_MM": 0.4, "VIA_DRILL_MM": 0.15,
+                                              "RX_LAYER_A": 1, "RX_LAYER_B": 4, "TX_WIRING": "single", "TX_LAYER_A": 1,
+                                              "TX_SERIES_UNDERPASS_LAYER": 4, "RX_TABS": "none"}, 0,
+     [r'WARNING VIA_TYPE conflicts with PCB_LAYERS\n\s+VIA_TYPE = "blind" changes nothing: every via joins Top and Bottom',
+      r"the TX vias join Top and Bottom: they stay through vias"], [r"ERROR"]),
+    ("via_type_blind_single_wiring_tail_pair", {"PCB_LAYERS": 4, "VIA_TYPE": "blind", "VIA_DIAMETER_MM": 0.4,
+                                                "VIA_DRILL_MM": 0.15, "RX_LAYER_A": 2, "RX_LAYER_B": 3, "TX_WIRING": "single",
+                                                "TX_LAYER_A": 1, "RX_TABS": "none"}, 0,
+     [r"the TX vias are blind vias between Top and Inner-1", r"the RX tip vias join Inner-1 and Inner-2: that is a buried via"],
+     [r"ERROR"]),
+    ("via_type_through_on_four_layers_says_nothing", dict(FOUR, VIA_TYPE="through"), 0, [r"CHECK PASSED"],
+     [r"ERROR", r"VIA_TYPE"]),
 ]
 
 

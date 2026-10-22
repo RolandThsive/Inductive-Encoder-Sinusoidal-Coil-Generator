@@ -17,6 +17,7 @@ the generators: it only reads what they wrote.  Needs Python 3 and numpy, nothin
 """
 
 import gzip
+import io
 import math
 import os
 import re
@@ -27,8 +28,9 @@ import numpy as np
 _NUM = r"(-?\d+(?:\.\d+)?)"
 SEG_RE = re.compile(r'^\s*\(segment \(start ' + _NUM + " " + _NUM + r'\) \(end ' + _NUM + " " + _NUM +
                     r'\) \(width ' + _NUM + r'\) \(layer "([^"]+)"\) \(net (\d+)\)\)\s*$')
-VIA_RE = re.compile(r'^\s*\(via \(at ' + _NUM + " " + _NUM + r'\) \(size ' + _NUM + r'\) \(drill ' + _NUM +
+VIA_RE = re.compile(r'^\s*\(via (?:(blind) )?\(at ' + _NUM + " " + _NUM + r'\) \(size ' + _NUM + r'\) \(drill ' + _NUM +
                     r'\) \(layers "([^"]+)" "([^"]+)"\) \(net (\d+)\)\)\s*$')
+LAYER_INDEX = {"F.Cu": 0, "In1.Cu": 1, "In2.Cu": 2, "B.Cu": 3}      # top to bottom
 NET_RE = re.compile(r'^\s*\(net (\d+) "([^"]*)"\)\s*$')
 CIRCLE_RE = re.compile(r'^\s*\(gr_circle \(center ' + _NUM + " " + _NUM + r'\) \(end ' + _NUM + " " + _NUM +
                        r'\) (?:\(stroke \(width ' + _NUM + r'\) \(type (\w+)\) \(color (\d+) (\d+) (\d+) 1\)\) )?'
@@ -62,7 +64,7 @@ class Board:
         self.layers = []                     # (number, name, kind) from the layers block
         self.nets = {}                       # id -> name
         seg, seg_layer, seg_net = [], [], []
-        via, via_net, via_layers = [], [], []
+        via, via_net, via_layers, via_blind = [], [], [], []
         self.edges = []                      # (cx, cy, r) on Edge.Cuts
         self.circles = []                    # every other gr_circle: dict
         self.lines = []                      # gr_line: dict
@@ -81,9 +83,10 @@ class Board:
                 continue
             m = VIA_RE.match(line)
             if m:
-                via.append([float(v) for v in m.group(1, 2, 3, 4)])
-                via_layers.append((m.group(5), m.group(6)))
-                via_net.append(int(m.group(7)))
+                via_blind.append(m.group(1) == "blind")
+                via.append([float(v) for v in m.group(2, 3, 4, 5)])
+                via_layers.append((m.group(6), m.group(7)))
+                via_net.append(int(m.group(8)))
                 continue
             m = NET_RE.match(line)
             if m:
@@ -151,6 +154,7 @@ class Board:
         self.via = np.array(via, dtype=float).reshape(-1, 4)
         self.via_net = np.array(via_net, dtype=int)
         self.via_layers = via_layers
+        self.via_blind = np.array(via_blind, dtype=bool)   # True for a via written with the blind token
         self.net_id = {name: i for i, name in self.nets.items()}
         self.copper_layers = [name for _n, name, kind in self.layers if kind == "signal"]
 
@@ -506,7 +510,10 @@ def write_reference(path, text, compress=True):
     if compress:
         if os.path.isfile(path):
             os.remove(path)
-        with gzip.open(path + ".gz", "wt", encoding="utf-8", newline="\n", compresslevel=9) as fh:
+        # no time stamp and no name in the gzip header: the same text gives the same bytes (a clean git diff)
+        with open(path + ".gz", "wb") as raw, \
+                gzip.GzipFile(filename="", mode="wb", compresslevel=9, fileobj=raw, mtime=0) as gz, \
+                io.TextIOWrapper(gz, encoding="utf-8", newline="\n") as fh:
             fh.write(text)
     else:
         if os.path.isfile(path + ".gz"):

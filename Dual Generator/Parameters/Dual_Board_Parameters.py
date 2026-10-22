@@ -44,6 +44,12 @@ PAGE_SIZE_MM = (150, 150)           # KiCad "User" page size (width, height)
 VIA_DIAMETER_MM   = 0.6             # (the Single Generator's example uses 0.8 / 0.4; 0.6 / 0.3 leaves room in
 VIA_DRILL_MM      = 0.3             #  the inner set's tight TX ring)
 MIN_CLEARANCE_MM  = 0.15
+# VIA_TYPE, for both sets: "through" (plated holes through the board) or "blind" (every via written as a blind via
+# between the two layers it joins: the RX layers of its set, or the TX layers / the TX layer and the layer of the
+# inner tail).  Common fabs laser-drill blind vias only between an outer layer and its neighbour (Top + Inner 1,
+# Inner 2 + Bottom) and at most about 0.15 mm wide, so set the via sizes above to match; the checker warns about a
+# pair that skips a layer and about a drill wider than that.  The clearance checks treat every via as a through via.
+VIA_TYPE          = "through"
 
 # ---- board edges (Edge.Cuts circles) and the gap between the sets ----------
 # From the centre out, the stator is:

@@ -66,7 +66,7 @@ LABEL_WORD = {"F.Cu": "TOP", "In1.Cu": "IN1", "In2.Cu": "IN2", "B.Cu": "BOT"}   
 
 _SEG = re.compile(r'\(segment \(start ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\) \(width ([\d.]+)\) '
                   r'\(layer "([^"]+)"\) \(net (\d+)\)\)')
-_VIA = re.compile(r'\(via \(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\) \(drill ([\d.]+)\) \(layers "[^"]+" "[^"]+"\) '
+_VIA = re.compile(r'\(via (?:blind )?\(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\) \(drill ([\d.]+)\) \(layers "[^"]+" "[^"]+"\) '
                   r'\(net (\d+)\)\)')
 _NET = re.compile(r'\(net (\d+) "([^"]*)"\)')
 _EDGE = re.compile(r'\(gr_circle \(center ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\) \(layer "Edge.Cuts"\)')

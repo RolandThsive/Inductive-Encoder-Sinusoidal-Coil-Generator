@@ -228,14 +228,14 @@ def emit_turn(tx, n, tid, layer, sigma, ta, tb, gos, kind):
         va = tx.pt(sigma * side_angle(lo, -1, gn, rv), rv)
         vb = tx.pt(sigma * side_angle(hi, +1, gn, rv), rv)
         tx.add_poly([pts[-1], va], layer, tid, "stub")              # run-out to the via outside the ring
-        tx.add_via(va, tid)
+        tx.add_via(va, tid, (layer, tx.blayer))
         ba, bb = side_angle(lo, -1, gn, Rn), side_angle(hi, +1, gn, Rn)
         ths = [ba] + [k * step for k in range(math.ceil(ba / step + 1e-9), math.floor(bb / step - 1e-9) + 1)]
         br = [tx.pt(sigma * th, Rn) for th in ths + [bb]]
         if Rn > rv + 1e-9:
             br = [va] + br + [vb]
         tx.add_poly(br, tx.blayer, tid, "bracket")                # around the finger on the underpass layer
-        tx.add_via(vb, tid)
+        tx.add_via(vb, tid, (layer, tx.blayer))
         tx.add_poly([vb, tx.pt(sigma * b, tx.r_nom(n, b))], layer, tid, "stub")
         cur = b
     pts = sample(tx, n, cur, tb, layer, sigma)

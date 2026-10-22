@@ -3,7 +3,7 @@
 | Feature | Description |
 |---|---|
 | Copper Layers | 2 or 4. On 4 layers the RX and TX layers are chosen freely |
-| Vias | Through vias only, no blind or buried vias |
+| Vias | Through vias, or (`VIA_TYPE = "blind"`, 4 layers) blind vias between the two layers each via joins |
 | Board Edges | Fixed bore and outer radius, or derived from the RX band |
 | Clearance | On the finished board the vias, the fingers and the TX copper near the vias and the terminal are measured against `MIN_CLEARANCE_MM`; the spacing of the RX traces and of the TX turns is checked from the parameters |
 | TX Self-Clearance | Checked by the generator, since KiCad's DRC cannot see it |

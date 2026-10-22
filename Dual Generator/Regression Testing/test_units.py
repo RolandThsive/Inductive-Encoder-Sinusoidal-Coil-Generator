@@ -42,6 +42,7 @@ class SetParameters(unittest.TestCase):
             self.assertEqual(getattr(s1, name), value, name)
             self.assertEqual(getattr(s2, name), value, name)
         self.assertEqual(s1.VIA_DIAMETER_MM, H.P.BOARD.VIA_DIAMETER_MM, "board names are shared")
+        self.assertEqual((s1.VIA_TYPE, s2.VIA_TYPE), (H.P.BOARD.VIA_TYPE, H.P.BOARD.VIA_TYPE), "VIA_TYPE is shared")
         self.assertFalse(hasattr(s1, "DUAL_MODE"), "dual-only names are not handed to the Single Generator")
         self.assertFalse(hasattr(s1, "TRACK_GAP_MM"))
 

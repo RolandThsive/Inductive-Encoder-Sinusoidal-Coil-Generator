@@ -68,7 +68,8 @@ class FileFormat(unittest.TestCase):
                 self.assertEqual(set(b.nets.values()) - {""}, names)
                 self.assertEqual(b.nets_used(), set(b.nets) - {0}, "every declared net carries copper, no copper on net 0")
                 self.assertEqual(set(b.seg_layer), set(b.seg_layer) & set(b.copper_layers), "segments only on copper layers")
-                self.assertEqual(set(b.via_layers), {("F.Cu", "B.Cu")}, "every via goes through the board")
+                if str(res.params.get("VIA_TYPE", "through")).lower() != "blind":
+                    self.assertEqual(set(b.via_layers), {("F.Cu", "B.Cu")}, "every via goes through the board")
 
     def test_outline(self):
         for case in cases():
@@ -183,6 +184,42 @@ class Nets(unittest.TestCase):
                         limit = 2.0 if tabs else 0.25          # the fingers sit on one side and pull the centroid
                         self.assertLess(math.hypot(mx - cx, my - cy), limit, f"net {name!r} on {layer}: centroid off by "
                                         f"({mx - cx:.3f}, {my - cy:.3f})")
+
+
+class Vias(unittest.TestCase):
+    """VIA_TYPE.  A through via is written with the layers F.Cu and B.Cu whatever it joins; with VIA_TYPE = "blind" on a
+    4-layer board every via is written with KiCad's blind token and the two layers that carry its net's copper at that
+    point (top-most first), except a via between Top and Bottom, which stays a through via."""
+
+    def test_via_layers_follow_the_via_type(self):
+        for case in cases():
+            with self.subTest(case=case):
+                res, b = H.board(case), H.board(case).stator
+                blind = str(res.params.get("VIA_TYPE", "through")).lower() == "blind"
+                self.assertGreater(len(b.via), 0)
+                if not blind or res.params["PCB_LAYERS"] == 2:
+                    self.assertFalse(b.via_blind.any(), "a blind via on a board of through vias")
+                    self.assertEqual(set(b.via_layers), {("F.Cu", "B.Cu")})
+                    continue
+                radius = res.params["VIA_DIAMETER_MM"] / 2.0
+                copper = {name for _n, name, _kind in b.layers if name.endswith(".Cu")}
+                n_blind = 0
+                for i in range(len(b.via)):
+                    pair, centre = b.via_layers[i], b.via[i, :2]
+                    self.assertTrue(set(pair) <= copper, f"via {i}: {pair} not on the board's copper layers")
+                    self.assertLess(RT.LAYER_INDEX[pair[0]], RT.LAYER_INDEX[pair[1]], f"via {i}: {pair} not top-most first")
+                    m = b.seg_net == b.via_net[i]
+                    d = RT.point_segment_distance(np.repeat(centre[None, :], int(m.sum()), axis=0), b.seg[m, 0:2], b.seg[m, 2:4])
+                    touching = {b.seg_layer[j] for j, k in zip(np.flatnonzero(m), d <= radius + 1e-3) if k}
+                    self.assertEqual(set(pair), touching, f"via {i} at {centre.tolist()}: written as {pair}, the copper of "
+                                                          f"its net there is on {sorted(touching)}")
+                    if set(pair) == {"F.Cu", "B.Cu"}:
+                        self.assertFalse(b.via_blind[i], f"via {i}: Top + Bottom is a through via")
+                    else:
+                        self.assertTrue(b.via_blind[i], f"via {i}: {pair} must carry the blind token")
+                        n_blind += 1
+                self.assertEqual(n_blind, int(b.via_blind.sum()))
+                self.assertGreater(n_blind, 0, "a blind board with no blind via")
 
 
 class Rotor(unittest.TestCase):

@@ -93,6 +93,7 @@ class DualStator:
                            copper_layers=4)
         for net in self.nets():
             board.net(net)
+        blind = Layers.via_type(B) == "blind"      # VIA_TYPE (shared by both sets): blind vias join only their two layers
         for st in self.sets:                       # (the same lines as the Single Generator's Stator.write)
             Pk = st.P
             for s in st.rx_segments:
@@ -100,9 +101,9 @@ class DualStator:
             for s in st.tx_segments:
                 board.segment(s.a, s.b, Pk.TX_TRACE_WIDTH_MM, s.layer, Pk.TX_NET)
             for v in st.rx_vias:
-                board.via(v.at, Pk.VIA_DIAMETER_MM, Pk.VIA_DRILL_MM, v.net)
+                board.via(v.at, Pk.VIA_DIAMETER_MM, Pk.VIA_DRILL_MM, v.net, layers=v.layers, blind=blind)
             for v in st.tx_vias:
-                board.via(v.at, Pk.VIA_DIAMETER_MM, Pk.VIA_DRILL_MM, Pk.TX_NET)
+                board.via(v.at, Pk.VIA_DIAMETER_MM, Pk.VIA_DRILL_MM, Pk.TX_NET, layers=v.layers, blind=blind)
         board.circle((self.cx, self.cy), self.bore, "Edge.Cuts", B.EDGE_LINE_WIDTH_MM)
         board.circle((self.cx, self.cy), self.outline, "Edge.Cuts", B.EDGE_LINE_WIDTH_MM)
         board.save(path)

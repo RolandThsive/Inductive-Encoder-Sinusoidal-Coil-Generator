@@ -223,6 +223,12 @@ BOARD_CASES = {
     "silkscreen_top_dots_on_all": {"SILK.SILKSCREEN_SIDES": "top", "SILK.SILKSCREEN_DOT_ON_ALL_VIAS": True,
                                    "SILK.SILKSCREEN_COLOR": "#FFCC00"},
     "silkscreen_off": {"SILK.SILKSCREEN_SUGGESTION": False},
+    "four_layer_blind_vias": {"PCB_LAYERS": 4, "VIA_TYPE": "blind", "VIA_DIAMETER_MM": 0.4, "VIA_DRILL_MM": 0.15,
+                              "TX_WIRING": "series", "TX_LAYER_A": 1, "TX_LAYER_B": 2, "RX_LAYER_A": 3, "RX_LAYER_B": 4,
+                              "RX_TABS": "none"},
+    "four_layer_blind_parallel_fingers": {"PCB_LAYERS": 4, "VIA_TYPE": "blind", "VIA_DIAMETER_MM": 0.4,
+                                          "VIA_DRILL_MM": 0.15, "TX_WIRING": "parallel", "TX_LAYER_A": 3,
+                                          "TX_LAYER_B": 4, "RX_LAYER_A": 1, "RX_LAYER_B": 2},
 }
 
 _BOARDS = {}

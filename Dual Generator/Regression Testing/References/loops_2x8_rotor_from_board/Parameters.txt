@@ -111,6 +111,7 @@ PARAMETER VALUES USED
   PAGE_SIZE_MM                   = (150, 150)
   VIA_DIAMETER_MM                = 0.6
   VIA_DRILL_MM                   = 0.3
+  VIA_TYPE                       = 'through'
   MIN_CLEARANCE_MM               = 0.15
   INNER_EDGE_INSET_MM            = 1.2
   INNER_EDGE_RADIUS_MM           = None
@@ -286,6 +287,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   PCB_LAYERS                     = 4
   VIA_DIAMETER_MM                = 0.6
   VIA_DRILL_MM                   = 0.3
+  VIA_TYPE                       = 'through'
   MIN_CLEARANCE_MM               = 0.15
   INNER_EDGE_INSET_MM            = 1.2
   INNER_EDGE_RADIUS_MM           = 7.249999999999999
@@ -379,6 +381,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   PCB_LAYERS                     = 4
   VIA_DIAMETER_MM                = 0.6
   VIA_DRILL_MM                   = 0.3
+  VIA_TYPE                       = 'through'
   MIN_CLEARANCE_MM               = 0.15
   INNER_EDGE_INSET_MM            = 1.2
   INNER_EDGE_RADIUS_MM           = 7.249999999999999

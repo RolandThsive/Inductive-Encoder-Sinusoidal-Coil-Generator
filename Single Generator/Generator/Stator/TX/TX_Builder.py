@@ -13,6 +13,7 @@ edit here.
 import math
 
 from Generator.Core import BoardLayout, Layers
+from Generator.Core import Layers
 from Generator.Core.Copper import Segment, Via
 from Generator.Stator.TX import TX_Shapes, TX_Terminal, TX_Windows, TX_Wiring
 
@@ -86,8 +87,9 @@ class TXBuilder:
                 self.segs.append(Segment(a, b, layer, turn=turn, kind=kind))
 
 
-    def add_via(self, p, turn):
-        self.vias.append(Via(p, turn=turn))
+    def add_via(self, p, turn, layers):
+        """A via at p on turn `turn` joining the two layers `layers` (the traces that meet there)."""
+        self.vias.append(Via(p, turn=turn, layers=Layers.via_pair(*layers)))
 
 
 def build_placed(tx):

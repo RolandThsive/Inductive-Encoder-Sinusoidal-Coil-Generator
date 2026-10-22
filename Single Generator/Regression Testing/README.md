@@ -26,3 +26,13 @@ The shared parser and measuring code is `resources/RegressionTools.py` (used by 
 When a test in `test_boards.py` fails, the generator writes something different from what it wrote when the
 references were frozen.  Read the printed differences; if the change is intended, run `--update-references` and
 commit the new `References/` with the change.  The other tests do not depend on the references.
+
+When a change adds a feature, it brings its tests with it, in the same commit:
+  1. a case in `test_checker.py` for every new rule and every new error or warning text (one case that triggers it,
+     one that does not); a new parameter gets a case with it set and one with it missing (`DELETE`),
+  2. a case in `harness.BOARD_CASES` when the feature changes the copper, the rotor or the record, so that its
+     output is frozen in `References/` from then on,
+  3. an invariant in `test_invariants.py` when there is a rule the written files must always obey,
+  4. a unit test in `test_units.py` for a new helper,
+  5. `--update-references` last, after every printed difference has been read and found intended.
+The suite cannot notice a feature that arrived without a test: that part is the review's job.

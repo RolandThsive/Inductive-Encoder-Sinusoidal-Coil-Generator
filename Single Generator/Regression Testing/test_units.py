@@ -13,6 +13,7 @@ import unittest
 import numpy as np
 
 import harness as H
+import RegressionTools as RT
 from Generator.Checks import DesignChecks
 from Generator.Core import BoardLayout, Geometry, Layers
 from Generator.Core.Conflict import Colour, ParameterConflict, Report, conflict_title
@@ -112,6 +113,27 @@ class Writer(unittest.TestCase):
         self.assertTrue(text.endswith(")\n"))
         four = KiCadBoard(copper_layers=4).text()
         self.assertIn('(1 "In1.Cu" signal)\n    (2 "In2.Cu" signal)', four)
+
+    def test_blind_vias(self):
+        b = KiCadBoard(copper_layers=4)
+        b.via((1, 1), 0.4, 0.15, "TX")                                          # through: F.Cu B.Cu, no token
+        b.via((2, 2), 0.4, 0.15, "TX", layers=("In1.Cu", "F.Cu"))               # layers given but not blind: the same
+        b.via((3, 3), 0.4, 0.15, "TX", layers=("F.Cu", "In1.Cu"), blind=True)
+        b.via((4, 4), 0.4, 0.15, "TX", layers=("B.Cu", "F.Cu"), blind=True)    # Top + Bottom: a through via after all
+        b.via((5, 5), 0.4, 0.15, "TX", layers=None, blind=True)                 # no pair known: through
+        b.via((6, 6), 0.4, 0.15, "TX", layers=("In1.Cu", "In2.Cu"), blind=True)  # buried: the same token
+        vias = [l for l in b.text().splitlines() if "(via" in l]
+        self.assertEqual(vias, [
+            '  (via (at 1 1) (size 0.4) (drill 0.15) (layers "F.Cu" "B.Cu") (net 1))',
+            '  (via (at 2 2) (size 0.4) (drill 0.15) (layers "F.Cu" "B.Cu") (net 1))',
+            '  (via blind (at 3 3) (size 0.4) (drill 0.15) (layers "F.Cu" "In1.Cu") (net 1))',
+            '  (via (at 4 4) (size 0.4) (drill 0.15) (layers "F.Cu" "B.Cu") (net 1))',
+            '  (via (at 5 5) (size 0.4) (drill 0.15) (layers "F.Cu" "B.Cu") (net 1))',
+            '  (via blind (at 6 6) (size 0.4) (drill 0.15) (layers "In1.Cu" "In2.Cu") (net 1))'])
+        board = RT.Board(b.text())                                              # the regression parser reads both forms
+        self.assertEqual(board.via_blind.tolist(), [False, False, True, False, False, True])
+        self.assertEqual(board.via_layers[2], ("F.Cu", "In1.Cu"))
+        self.assertEqual(board.unknown, [])
 
     def test_save_uses_lf(self):
         b = KiCadBoard()
@@ -214,6 +236,17 @@ class ParameterHelpers(unittest.TestCase):
         self.assertEqual(Layers.rx_layer_names(H.P), ("F.Cu", "B.Cu"))
         H.apply({"PCB_LAYERS": 4, "RX_LAYER_A": 2, "RX_LAYER_B": 3})
         self.assertEqual(Layers.rx_layer_names(H.P), ("In1.Cu", "In2.Cu"))
+
+    def test_via_type_pair_and_kind(self):
+        self.assertEqual(Layers.via_type(types.SimpleNamespace()), "through", "a missing line means through")
+        self.assertEqual(Layers.via_type(types.SimpleNamespace(VIA_TYPE=" Blind ")), "blind")
+        with self.assertRaises(ValueError):
+            Layers.via_type(types.SimpleNamespace(VIA_TYPE="buried"))
+        self.assertEqual(Layers.via_pair("B.Cu", "F.Cu"), ("F.Cu", "B.Cu"))
+        self.assertEqual(Layers.via_pair("In2.Cu", "In1.Cu"), ("In1.Cu", "In2.Cu"))
+        self.assertEqual([Layers.via_kind(p) for p in (("F.Cu", "B.Cu"), ("F.Cu", "In1.Cu"), ("In2.Cu", "B.Cu"),
+                                                        ("In1.Cu", "In2.Cu"), ("F.Cu", "In2.Cu"), ("In1.Cu", "B.Cu"))],
+                         ["through", "blind", "blind", "buried", "skip", "skip"])
 
     def test_chord_tolerance(self):
         self.assertEqual(Geometry.chord_tolerance(H.P, "RX"), 0.001)

@@ -7,6 +7,7 @@ builder (`tx`, TX_Builder.py), turn by turn.  Nothing to edit here.
 
 import math
 
+from Generator.Core import Layers
 from Generator.Core.Copper import Via
 from Generator.Stator.TX import TX_Shapes, TX_Windows
 
@@ -24,7 +25,7 @@ def emit_series(tx):
             TX_Windows.emit_turn(tx, n, id0 + n, layer, sigma, *TX_Shapes.turn_span(tx, n), gos, "turn")
             TX_Shapes.emit_step(tx, n, layer, sigma)
         tx.add_poly([tx.pt(0.0, TX_Shapes.outer_tail_start(tx)), tx.tail_end], layer, -1, "tail")
-    tx.vias.insert(0, Via(tx.pt(0.0, tx.r0), turn=0))      # joins the two spirals inside
+    tx.vias.insert(0, Via(tx.pt(0.0, tx.r0), turn=0, layers=Layers.via_pair(p_layer, q_layer)))   # joins the spirals
 
 
 def emit_single_or_parallel(tx):
@@ -36,9 +37,9 @@ def emit_single_or_parallel(tx):
     tx.add_poly([tx.pt(0.0, r0), tx.tail_end], tx.tail_inner, -1, "tail")
     if tx.spiral:
         # a little way up the spiral, so that the via sits clear of the inner tail's own corner
-        tx.add_via(tx.pt(0.15 * tx.step, r0 + tx.pitch * 0.15 / tx.steps), 0)
+        tx.add_via(tx.pt(0.15 * tx.step, r0 + tx.pitch * 0.15 / tx.steps), 0, (tx.tail_inner, tx.base))
     else:
-        tx.add_via(tx.pt(0.0, r0), 0)                             # on the trace ends
+        tx.add_via(tx.pt(0.0, r0), 0, (tx.tail_inner, tx.base))   # on the trace ends
     for n in range(T):
         TX_Windows.emit_turn(tx, n, n, tx.base, +1, *TX_Shapes.turn_span(tx, n), [] if tx.parallel else tx.go_windows, "turn")
         TX_Shapes.emit_step(tx, n, tx.base, +1)
@@ -68,8 +69,8 @@ def emit_parallel_arcs(tx, n):
             # the arc and the base turn over the same span are about equally long: the pair counts as half the length
             # of one, so 1.5 x the arc comes off the summed copper length (TX_Electrics.tx_resistance_dc)
             tx.parallel_saving += 1.5 * length
-            tx.add_via(pts[0], n)
-            tx.add_via(pts[-1], n)
+            tx.add_via(pts[0], n, (other, tx.base))
+            tx.add_via(pts[-1], n, (other, tx.base))
         else:
             first = len(tx.segs)
             tx.parallel_len += TX_Windows.emit_turn(tx, n, n, other, +1, a, b, gos, "arc")
@@ -79,5 +80,5 @@ def emit_parallel_arcs(tx, n):
             L_b = TX_Windows.plen(TX_Windows.sample(tx, n, a, b, tx.base))
             if L_a > 0.0 and L_b > 0.0:
                 tx.parallel_saving += L_a + L_b - L_a * L_b / (L_a + L_b)
-            tx.add_via(tx.pt(a, tx.r_nom(n, a)), n)
-            tx.add_via(tx.pt(b, tx.r_nom(n, b)), n)
+            tx.add_via(tx.pt(a, tx.r_nom(n, a)), n, (other, tx.base))
+            tx.add_via(tx.pt(b, tx.r_nom(n, b)), n, (other, tx.base))

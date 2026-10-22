@@ -133,6 +133,58 @@ def _check_tx_layout(P, v, rep, has, lay):
 
 
 
+def _via_pairs(v, lay):
+    """[(what the vias are for, (layer, layer))] of every via the generator places, from the layer settings: the RX tip
+    vias join the two RX layers; the TX vias the two TX layers, or (one TX layer) the TX layer and the layer of the
+    inner tail and the go-around brackets."""
+    pairs = []
+    if v.get("PCB_LAYERS") == 4 and v.get("RX_LAYER_A") is not None and v.get("RX_LAYER_B") is not None \
+            and v["RX_LAYER_A"] != v["RX_LAYER_B"]:
+        pairs.append(("the RX tip vias", Layers.via_pair(LAYER_NAME[v["RX_LAYER_A"]], LAYER_NAME[v["RX_LAYER_B"]])))
+    if lay:
+        if lay["mode"] == "single":
+            pairs.append(("the TX vias", Layers.via_pair(lay["base_layer"], lay["tail_layer"])))
+        else:
+            pairs.append(("the TX vias", Layers.via_pair(*lay["layers"])))
+    return pairs
+
+
+def _check_blind_vias(v, rep, has, lay):
+    """VIA_TYPE = "blind": only on 4 layers; what each via pair comes out as (Board_Parameters.py)."""
+    if v.get("PCB_LAYERS") == 2:
+        rep.conflict(("VIA_TYPE", "PCB_LAYERS"), 'VIA_TYPE = "blind" needs inner layers to stop at; a 2-layer board '
+                     'has only through vias - set PCB_LAYERS = 4, or VIA_TYPE = "through"')
+        return
+    if v.get("PCB_LAYERS") != 4:
+        return
+    pairs = _via_pairs(v, lay)
+    for what, pair in pairs:
+        kind = Layers.via_kind(pair)
+        names = ("VIA_TYPE", "RX_LAYER_A", "RX_LAYER_B") if what.startswith("the RX") else \
+            ("VIA_TYPE",) + tuple(Layers.LAYER_SETTINGS[1:3])
+        a, b = (Layers.LAYER_WORDS[l] for l in pair)
+        if kind == "through":
+            rep.conflict(names, f"{what} join {a} and {b}: they stay through vias", level="info")
+        elif kind == "buried":
+            rep.conflict(names, f"{what} join {a} and {b}: that is a buried via (mechanically drilled inside the "
+                                f"board), written with KiCad's blind via token; ask the fab whether it makes them",
+                         level="info")
+        elif kind == "skip":
+            rep.conflict(names, f"{what} join {a} and {b}, skipping the layer between: not a one-step blind via "
+                                f"(an outer layer and its neighbour), which is what common fabs laser-drill; ask "
+                                f"the fab, or move the coils to Top + Inner-1 or Inner-2 + Bottom", level="warning")
+        else:
+            rep.conflict(names, f"{what} are blind vias between {a} and {b}", level="info")
+    if pairs and all(Layers.via_kind(p) == "through" for _w, p in pairs):
+        rep.conflict(("VIA_TYPE", "PCB_LAYERS"), 'VIA_TYPE = "blind" changes nothing: every via joins Top and '
+                     'Bottom', level="warning")
+    if has("VIA_DRILL_MM") and v["VIA_DRILL_MM"] > Layers.BLIND_VIA_MAX_DRILL_MM:
+        rep.conflict(("VIA_TYPE", "VIA_DRILL_MM"), f"blind vias are laser-drilled, at most about "
+                     f"{Layers.BLIND_VIA_MAX_DRILL_MM:g} mm wide at common fabs; VIA_DRILL_MM = {v['VIA_DRILL_MM']:g} "
+                     f"is a mechanical drill - set VIA_DRILL_MM and VIA_DIAMETER_MM to blind via sizes, or use "
+                     f"through vias", level="warning")
+
+
 def check(P, v, rep):
     """Every rule between two or more parameters, on the checked values `v` (ParameterRules.load_values); findings go
     to `rep`.  The values themselves are never changed."""
@@ -219,6 +271,10 @@ def check(P, v, rep):
             rep.conflict(("VIA_DRILL_MM", "VIA_DIAMETER_MM"), f"the via's annular ring is {(d - dr) / 2:.3f} mm; below "
                                                                f"about 0.1 mm many fabs cannot guarantee the pad around "
                                                                f"the drill", level="warning")
+
+    # ------------------------------------------------------------ via type (blind vias: 4 layers only)
+    if v.get("VIA_TYPE") == "blind":
+        _check_blind_vias(v, rep, has, lay)
 
     # ------------------------------------------------------------ layers
     rx_l, tx_l = _rx_layers(v), (lay["turn_layers"] if lay else None)
