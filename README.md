@@ -20,11 +20,14 @@ Set the parameters, get a stator and a rotor as KiCad boards, checked and with a
 ![Stars](https://img.shields.io/github/stars/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator?style=flat)
 ![Last commit](https://img.shields.io/github/last-commit/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator)
 
+Inductive position sensors measure angle with nothing more than copper traces on printed circuit boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration, stray magnetic fields and wide temperature swings. The difficult part has always been the coil design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator and the rotor from a small set of parameter files, checks the design, and estimates how it will perform. It is written for roboticists and mechatronics engineers who want high-resolution motor and joint encoders without buying expensive sealed units or designing coils by hand.
+
 ![Stator on the left and rotor on the right: 4 loops, 3 TX turns, board radius 30 to 50 mm](docs/images/intro_2_stator_and_rotor.png)
 
 *A generated stator (left) and rotor (right): 4 loops, 3 TX turns, board radius 30 to 50 mm.*
 
 </div>
+
 
 > [!IMPORTANT]
 > **Hardware validation is pending.** The first test boards have been ordered but have not yet been measured.
