@@ -22,6 +22,37 @@ LAYER_SETTINGS = ("TX_WIRING", "TX_LAYER_A", "TX_LAYER_B", "TX_SERIES_UNDERPASS_
 TX_WIRING_VALUES = ("single", "series", "parallel")
 STACKUP_PREPREG_MM = 0.2       # 4-layer boards: outer copper layer to its inner neighbour (mm); the default of the
                                # STACKUP_PREPREG_MM parameter (Board_Parameters.py, as ParameterRules.py)
+VIA_TYPE_VALUES = ("through", "blind")
+THROUGH_PAIR = ("F.Cu", "B.Cu")
+BLIND_VIA_MAX_DRILL_MM = 0.15  # blind vias are laser-drilled at most about this wide at common fabs (ConflictRules)
+
+
+def via_type(P):
+    """'through' or 'blind' for VIA_TYPE (any letter case; a missing line means through).  Raises ValueError for
+    anything else."""
+    t = str(getattr(P, "VIA_TYPE", "through")).strip().lower()
+    if t not in VIA_TYPE_VALUES:
+        raise ValueError('VIA_TYPE must be "through" or "blind"')
+    return t
+
+
+def via_pair(a, b):
+    """The two layers a via joins, top-most first (the order the file writes them in)."""
+    return tuple(sorted((a, b), key=LAYER_ORDER.index))
+
+
+def via_kind(pair):
+    """What a via joining `pair` is on a 4-layer board: "through" (Top + Bottom), "blind" (an outer layer and its
+    neighbour), "skip" (an outer layer and the far inner layer, not a one-step blind via) or "buried" (the two inner
+    layers)."""
+    n = sorted(LAYER_ORDER.index(l) + 1 for l in pair)
+    if n == [1, 4]:
+        return "through"
+    if n in ([1, 2], [3, 4]):
+        return "blind"
+    if n == [2, 3]:
+        return "buried"
+    return "skip"
 
 
 def layer_depth(layer, P, prepreg=STACKUP_PREPREG_MM):

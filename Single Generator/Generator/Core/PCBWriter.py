@@ -66,11 +66,18 @@ class KiCadBoard:
             f'  (segment (start {f(p[0])} {f(p[1])}) (end {f(q[0])} {f(q[1])}) '
             f'(width {f(width)}) (layer "{layer}") (net {self.net(net)}))')
 
-    def via(self, p, size, drill, net):
+    def via(self, p, size, drill, net, layers=None, blind=False):
+        """A via.  Through (the default) spans the board, written with the layers F.Cu and B.Cu whatever it joins.
+        With blind=True and `layers` = the two layers it joins, it is written as a blind via between them (KiCad's
+        `blind` token, used for buried vias too); a pair that is Top and Bottom is a through via all the same."""
         f = self._f
+        pair = tuple(layers) if blind and layers else ("F.Cu", "B.Cu")
+        kind = "" if set(pair) == {"F.Cu", "B.Cu"} else "blind "
+        if not kind:
+            pair = ("F.Cu", "B.Cu")
         self.body.append(
-            f'  (via (at {f(p[0])} {f(p[1])}) (size {f(size)}) (drill {f(drill)}) '
-            f'(layers "F.Cu" "B.Cu") (net {self.net(net)}))')
+            f'  (via {kind}(at {f(p[0])} {f(p[1])}) (size {f(size)}) (drill {f(drill)}) '
+            f'(layers "{pair[0]}" "{pair[1]}") (net {self.net(net)}))')
 
     def circle(self, c, radius, layer, width):
         f = self._f

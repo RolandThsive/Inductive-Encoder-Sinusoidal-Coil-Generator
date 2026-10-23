@@ -26,6 +26,7 @@ import sys
 import numpy as np
 
 from Generator.Stator.RX import RX_Fingers
+from Generator.Core import Layers
 from Generator.Core.Conflict import ParameterConflict
 from Generator.Core.Copper import Segment, Via
 from Generator.Core.Geometry import point_segments_distance, chord_tolerance
@@ -328,6 +329,6 @@ def emit_copper(rx, starts_of, q):
         for i, (p, qq, layer, n0, n1) in enumerate(em):
             rx.rx_segments.append(Segment(p, qq, layer, net=net, curve=k))
             if layer != em[i - 1][2] and n0 is not None and (k, n0) not in junction_nodes:
-                rx.rx_vias.append(Via(p, net=net, curve=k, node=n0))
+                rx.rx_vias.append(Via(p, net=net, curve=k, node=n0, layers=Layers.via_pair(em[i - 1][2], layer)))
             if n0 is None or n1 is None:
                 rx.tab_segments.append(rx.rx_segments[-1])

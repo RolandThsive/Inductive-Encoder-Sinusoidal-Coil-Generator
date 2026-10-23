@@ -156,7 +156,8 @@ def measure_terminal_via(tx, D, n_added):
         fix_rx = "raise TX_OFFSET_MM"
     else:
         fix_turn = f"change TX_INSIDE_VIA_DISTANCE_MM (now {D:g})"
-        # (a negative TX_INSIDE_VIA_DISTANCE_MM is not allowed, so at 0 only the offset is left)
+        # (a negative TX_INSIDE_VIA_DISTANCE_MM moves the via away from the centre, towards the turns: at 0 or
+        # below only the offset is suggested)
         fix_rx = (f"lower TX_INSIDE_VIA_DISTANCE_MM (now {D:g}) or raise TX_OFFSET_MM" if D > 0 else
                   "raise TX_OFFSET_MM")
     if g_via < clr - 1e-6:
@@ -266,7 +267,7 @@ def check_stator_clearances(stator):
     txa = np.array([[s.a[0], s.a[1]] for s in stator.tx_segments])
     txb = np.array([[s.b[0], s.b[1]] for s in stator.tx_segments])
     worst = (1e9, None)
-    for p, _net, k, j, _turn in stator.rx_vias:
+    for p, _net, k, j, _turn, _layers in stator.rx_vias:
         other = owner != k
         d = point_segments_distance(np.asarray(p), a[other], b[other]).min() - P.RX_TRACE_WIDTH_MM / 2.0
         dtx = point_segments_distance(np.asarray(p), txa, txb).min() - P.TX_TRACE_WIDTH_MM / 2.0
@@ -365,10 +366,17 @@ def check_design(P, stator, rotor=None):
     # inner hole against the inner tip vias
     clear = stator.inner_edge_clear()
     if clear is not None and clear < 0:
-        # the vias sit on the inner edge of the RX band, INNER_EDGE_INSET_MM from the hole: only the inset matters
-        rep.conflict(("INNER_EDGE_INSET_MM", "VIA_DIAMETER_MM"), f"the inner-tip vias run {-clear:.2f} mm over the "
-                     f"centre-hole edge: raise INNER_EDGE_INSET_MM (now {P.INNER_EDGE_INSET_MM:g}) to at least "
-                     f"{P.VIA_DIAMETER_MM / 2.0 + 0.3:g} mm (half a via plus 0.3 mm)")
+        if stator.band["inner_from"] == "both":
+            # the hole and the band are both given as they are: the inset is not used between them
+            rep.conflict(("INNER_EDGE_RADIUS_MM", "INSIDE_RADIUS_MM", "VIA_DIAMETER_MM"), f"the inner-tip vias run "
+                         f"{-clear:.2f} mm over the centre-hole edge: lower INNER_EDGE_RADIUS_MM (now "
+                         f"{P.INNER_EDGE_RADIUS_MM:g}) to at most {stator.ri - P.VIA_DIAMETER_MM / 2.0 - 0.3:.2f} mm "
+                         f"(half a via plus 0.3 mm inside the RX band), or move the RX band out")
+        else:
+            # the vias sit on the inner edge of the RX band, INNER_EDGE_INSET_MM from the hole: only the inset matters
+            rep.conflict(("INNER_EDGE_INSET_MM", "VIA_DIAMETER_MM"), f"the inner-tip vias run {-clear:.2f} mm over the "
+                         f"centre-hole edge: raise INNER_EDGE_INSET_MM (now {P.INNER_EDGE_INSET_MM:g}) to at least "
+                         f"{P.VIA_DIAMETER_MM / 2.0 + 0.3:g} mm (half a via plus 0.3 mm)")
 
     # copper touching copper
     if stator.min_via_clearance is not None and stator.min_via_clearance <= 0:

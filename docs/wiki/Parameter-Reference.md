@@ -27,9 +27,10 @@ under construction on the [`analyser_and_optimizer` branch](https://github.com/R
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
-| `PCB_LAYERS` | 2 | 2 or 4 | Copper layers of the stator. All vias are through-hole. Keep layers without a coil free of copper pours under the coil area: a plane there acts like an extra target. |
+| `PCB_LAYERS` | 2 | 2 or 4 | Copper layers of the stator. Keep layers without a coil free of copper pours under the coil area: a plane there acts like an extra target. |
 | `VIA_DIAMETER_MM` | 0.8 | > 0 | Via pad diameter. |
 | `VIA_DRILL_MM` | 0.4 | > 0, below the diameter | Via drill. |
+| `VIA_TYPE` | "through" | "through" or "blind" (optional) | What every via the generator places is. "through": a plated hole through the whole board. "blind" (4 layers only): each via is written as a blind via between the two copper layers it joins (an RX tip via the two RX layers; a TX via the two TX layers, or the TX layer and the layer of the inner tail and go-around brackets); a pair that is Top + Bottom stays a through via, a pair of the two inner layers is a buried via written with the same token. Set the via sizes to what the fab laser-drills (about 0.15 mm or less). The clearance checks treat every via as a through via. |
 | `MIN_CLEARANCE_MM` | 0.2 | > 0 | Copper-to-copper rule the generator must respect. |
 | `INNER_EDGE_INSET_MM` | 1.2 | ≥ 0 | Centre hole radius = RX band start minus this, when `INNER_EDGE_RADIUS_MM` is None. |
 | `INNER_EDGE_RADIUS_MM` | 15.0 | > 0 or None | Fixed centre-hole radius. When the RX band is given, both are used as given. |

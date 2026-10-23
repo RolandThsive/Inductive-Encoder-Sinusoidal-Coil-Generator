@@ -44,7 +44,7 @@ PAGE_SIZE_MM = (200, 200)           # smallest KiCad "User" page (width, height)
 #       (see RX_Parameters.py).
 # With either layer count the TX can use one or two layers (TX_Parameters.py; a 2-layer board
 # offers 1 and 4).
-# All vias are ordinary through-hole vias (no blind / buried vias needed).
+# VIA_TYPE says what the vias are (below).
 # Keep the layers that carry no coil free of copper pours under the coil area -
 # a plane there acts like an extra target and weakens the signal.
 PCB_LAYERS = 2
@@ -53,6 +53,19 @@ PCB_LAYERS = 2
 VIA_DIAMETER_MM   = 0.8
 VIA_DRILL_MM      = 0.4
 MIN_CLEARANCE_MM  = 0.2
+
+# VIA_TYPE = what every via the generator places is:
+#   "through" : a plated hole through the whole board (every via, on 2 and on 4 layers).
+#   "blind"   : 4-layer boards only.  Every via is written as a blind via between the two copper layers it
+#               actually joins (an RX tip via: the two RX layers; a TX via: the two TX layers, or the TX layer
+#               and the layer of the inner tail / the go-around brackets).  Common fabs laser-drill blind vias
+#               only between an outer layer and its neighbour (Top + Inner 1, Inner 2 + Bottom) and at most
+#               about 0.15 mm wide, so set VIA_DRILL_MM / VIA_DIAMETER_MM to such sizes; the checker warns about a
+#               pair that skips a layer (Top + Inner 2, Inner 1 + Bottom), tells when a pair is the two inner
+#               layers (a buried via, mechanically drilled) and when it is Top + Bottom (a through via after all).
+#               On a 2-layer board "blind" is an error.
+# The clearance checks treat every via as a through via on either setting.
+VIA_TYPE = "through"
 
 # ---- board outline (Edge.Cuts circles) --------------------------------------
 INNER_EDGE_INSET_MM   = 1.2         # centre hole radius = RX band start - this ...

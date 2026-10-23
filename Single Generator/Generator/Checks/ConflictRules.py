@@ -49,8 +49,8 @@ def _tx_layout(P, v, rep):
     for name in _LAYOUT_NAMES:
         if v.get(name) is not None:
             d[name] = v[name]
-        elif hasattr(P, name) and name in Layers.LAYER_SETTINGS:
-            # a TX layer setting that failed its own check (reported): leave the layout alone
+        elif name in Layers.LAYER_SETTINGS:
+            # a TX layer setting that is missing or failed its own check (either is reported): leave the layout alone
             active = next((s[4] for s in SPEC if s[1] == name), None)
             if active is None or active(P):
                 return None
@@ -133,6 +133,58 @@ def _check_tx_layout(P, v, rep, has, lay):
 
 
 
+def _via_pairs(v, lay):
+    """[(what the vias are for, (layer, layer))] of every via the generator places, from the layer settings: the RX tip
+    vias join the two RX layers; the TX vias the two TX layers, or (one TX layer) the TX layer and the layer of the
+    inner tail and the go-around brackets."""
+    pairs = []
+    if v.get("PCB_LAYERS") == 4 and v.get("RX_LAYER_A") is not None and v.get("RX_LAYER_B") is not None \
+            and v["RX_LAYER_A"] != v["RX_LAYER_B"]:
+        pairs.append(("the RX tip vias", Layers.via_pair(LAYER_NAME[v["RX_LAYER_A"]], LAYER_NAME[v["RX_LAYER_B"]])))
+    if lay:
+        if lay["mode"] == "single":
+            pairs.append(("the TX vias", Layers.via_pair(lay["base_layer"], lay["tail_layer"])))
+        else:
+            pairs.append(("the TX vias", Layers.via_pair(*lay["layers"])))
+    return pairs
+
+
+def _check_blind_vias(v, rep, has, lay):
+    """VIA_TYPE = "blind": only on 4 layers; what each via pair comes out as (Board_Parameters.py)."""
+    if v.get("PCB_LAYERS") == 2:
+        rep.conflict(("VIA_TYPE", "PCB_LAYERS"), 'VIA_TYPE = "blind" needs inner layers to stop at; a 2-layer board '
+                     'has only through vias - set PCB_LAYERS = 4, or VIA_TYPE = "through"')
+        return
+    if v.get("PCB_LAYERS") != 4:
+        return
+    pairs = _via_pairs(v, lay)
+    for what, pair in pairs:
+        kind = Layers.via_kind(pair)
+        names = ("VIA_TYPE", "RX_LAYER_A", "RX_LAYER_B") if what.startswith("the RX") else \
+            ("VIA_TYPE",) + tuple(Layers.LAYER_SETTINGS[1:3])
+        a, b = (Layers.LAYER_WORDS[l] for l in pair)
+        if kind == "through":
+            rep.conflict(names, f"{what} join {a} and {b}: they stay through vias", level="info")
+        elif kind == "buried":
+            rep.conflict(names, f"{what} join {a} and {b}: that is a buried via (mechanically drilled inside the "
+                                f"board), written with KiCad's blind via token; ask the fab whether it makes them",
+                         level="info")
+        elif kind == "skip":
+            rep.conflict(names, f"{what} join {a} and {b}, skipping the layer between: not a one-step blind via "
+                                f"(an outer layer and its neighbour), which is what common fabs laser-drill; ask "
+                                f"the fab, or move the coils to Top + Inner-1 or Inner-2 + Bottom", level="warning")
+        else:
+            rep.conflict(names, f"{what} are blind vias between {a} and {b}", level="info")
+    if pairs and all(Layers.via_kind(p) == "through" for _w, p in pairs):
+        rep.conflict(("VIA_TYPE", "PCB_LAYERS"), 'VIA_TYPE = "blind" changes nothing: every via joins Top and '
+                     'Bottom', level="warning")
+    if has("VIA_DRILL_MM") and v["VIA_DRILL_MM"] > Layers.BLIND_VIA_MAX_DRILL_MM:
+        rep.conflict(("VIA_TYPE", "VIA_DRILL_MM"), f"blind vias are laser-drilled, at most about "
+                     f"{Layers.BLIND_VIA_MAX_DRILL_MM:g} mm wide at common fabs; VIA_DRILL_MM = {v['VIA_DRILL_MM']:g} "
+                     f"is a mechanical drill - set VIA_DRILL_MM and VIA_DIAMETER_MM to blind via sizes, or use "
+                     f"through vias", level="warning")
+
+
 def check(P, v, rep):
     """Every rule between two or more parameters, on the checked values `v` (ParameterRules.load_values); findings go
     to `rep`.  The values themselves are never changed."""
@@ -151,6 +203,17 @@ def check(P, v, rep):
     band = None
     band_names = BoardLayout.RADII + BoardLayout.CENTRE + BoardLayout.EDGES + ("INNER_EDGE_INSET_MM",)
     band_ok = all(n in v for n in band_names) and v.get("INNER_EDGE_INSET_MM") is not None
+    band_from = {"INSIDE_RADIUS_MM": ("INSIDE_RADIUS_MM",), "OUTSIDE_RADIUS_MM": ("OUTSIDE_RADIUS_MM",)}
+    widen = "Widen the band"
+
+    def bn(*names):
+        """The names of a rule about the RX band, with the two radii replaced by what set them."""
+        out = []
+        for n in names:
+            for m in band_from.get(n, (n,)):
+                if m not in out:
+                    out.append(m)
+        return tuple(out)
     if band_ok:
         def _room():
             r = _outer_edge_room(v)
@@ -164,11 +227,24 @@ def check(P, v, rep):
         except ValueError as e:
             rep.add_exception(e)
             band = None
-        for n in BoardLayout.RADII:
-            v.pop(n, None)                              # every rule below sees the band actually used
         if band is not None:
+            for n in BoardLayout.RADII:
+                v.pop(n, None)                          # every rule below sees the band actually used
             v["INSIDE_RADIUS_MM"], v["OUTSIDE_RADIUS_MM"] = band["ri"], band["ro"]
             inner_derived, outer_derived = band["inner_from"] == "edge", band["outer_from"] == "edge"
+            # the rules below name the values that set the band: the edges when the band follows them, the
+            # centre and swing when it is given that way
+            if band["mode"] == "centre":
+                band_from = {"INSIDE_RADIUS_MM": BoardLayout.CENTRE, "OUTSIDE_RADIUS_MM": BoardLayout.CENTRE}
+            if inner_derived:
+                band_from["INSIDE_RADIUS_MM"] = ("INNER_EDGE_RADIUS_MM",)
+            if outer_derived:
+                band_from["OUTSIDE_RADIUS_MM"] = ("OUTER_EDGE_RADIUS_MM",)
+            if inner_derived or outer_derived:
+                widen = ("Enlarge the board (INNER_EDGE_RADIUS_MM, OUTER_EDGE_RADIUS_MM), or lower INNER_EDGE_INSET_MM and "
+                         "the room the TX takes (TX_TURNS, TX_PITCH_MM, OUTER_EDGE_OFFSET_MM)")
+            elif band["mode"] == "centre":
+                widen = "Raise RX_A_MM"
             if band["mode"] == "centre":
                 rep.info(f"RX_R_BASE_MM = {v['RX_R_BASE_MM']:g}, RX_A_MM = {v['RX_A_MM']:g}: the RX band runs from "
                          f"r = {band['ri']:g} to {band['ro']:g} mm")
@@ -191,11 +267,11 @@ def check(P, v, rep):
         if ri < ro:
             if has("VIA_DIAMETER_MM", "MIN_CLEARANCE_MM", "RX_TRACE_WIDTH_MM"):
                 width = ro - ri
-                band_names = ("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "VIA_DIAMETER_MM")
+                band_names = bn("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "VIA_DIAMETER_MM")
                 if width < v["VIA_DIAMETER_MM"]:
                     rep.conflict(band_names, f"the RX band ({width:g} mm wide) is narrower than one via "
                                              f"({v['VIA_DIAMETER_MM']:g} mm): the outer and inner tip vias would overlap. "
-                                             f"Widen the band or use smaller vias")
+                                             f"{widen}, or use smaller vias")
                 elif width < v["VIA_DIAMETER_MM"] + v["MIN_CLEARANCE_MM"] + v["RX_TRACE_WIDTH_MM"]:
                     rep.conflict(band_names, f"the RX band ({width:g} mm wide) is very narrow for {v['VIA_DIAMETER_MM']:g} "
                                              f"mm vias: outer and inner tip vias of the same curve will be crowded",
@@ -206,7 +282,7 @@ def check(P, v, rep):
         quarter = 2 * math.pi * v["INSIDE_RADIUS_MM"] / (4 * v["LOOPS"])
         need = v["RX_TRACE_WIDTH_MM"] + v["MIN_CLEARANCE_MM"]
         if quarter < 3 * need:
-            rep.conflict(("LOOPS", "INSIDE_RADIUS_MM"), f"at the inner radius a quarter of one loop is only {quarter:.2f} "
+            rep.conflict(bn("LOOPS", "INSIDE_RADIUS_MM"), f"at the inner radius a quarter of one loop is only {quarter:.2f} "
                          f"mm of arc for {v['LOOPS']} loops: the RX traces will be tightly packed (trace + clearance = "
                          f"{need:g} mm); check the clearance warnings printed while building", level="warning")
 
@@ -219,6 +295,10 @@ def check(P, v, rep):
             rep.conflict(("VIA_DRILL_MM", "VIA_DIAMETER_MM"), f"the via's annular ring is {(d - dr) / 2:.3f} mm; below "
                                                                f"about 0.1 mm many fabs cannot guarantee the pad around "
                                                                f"the drill", level="warning")
+
+    # ------------------------------------------------------------ via type (blind vias: 4 layers only)
+    if v.get("VIA_TYPE") == "blind":
+        _check_blind_vias(v, rep, has, lay)
 
     # ------------------------------------------------------------ layers
     rx_l, tx_l = _rx_layers(v), (lay["turn_layers"] if lay else None)
@@ -297,7 +377,7 @@ def check(P, v, rep):
         RX_Profiles.radius_law(probe)
         sag = RX_Coils.chord_error(probe, int(v["STEPS_PER_LOOP"]))
         if sag > 0.01:
-            rep.conflict(("STEPS_PER_LOOP", "LOOPS", "OUTSIDE_RADIUS_MM"), f"{v['STEPS_PER_LOOP']} chords per loop give "
+            rep.conflict(bn("STEPS_PER_LOOP", "LOOPS", "OUTSIDE_RADIUS_MM"), f"{v['STEPS_PER_LOOP']} chords per loop give "
                          f"about {sag:.3f} mm chord error on the RX curves for {v['LOOPS']} loops; use \"auto\" or a "
                          f"larger value", level="warning")
 
@@ -412,7 +492,7 @@ def check(P, v, rep):
             * v["TX_PITCH_MM"]
         sag = r * (1 - math.cos(math.pi / v["TX_STEPS"]))
         if sag > 0.01:
-            rep.conflict(("TX_STEPS", "OUTSIDE_RADIUS_MM"), f"{v['TX_STEPS']} points per turn give about {sag:.3f} mm chord "
+            rep.conflict(bn("TX_STEPS", "OUTSIDE_RADIUS_MM"), f"{v['TX_STEPS']} points per turn give about {sag:.3f} mm chord "
                          f"error on the outermost TX turn (r = {r:.2f} mm); raise TX_STEPS", level="warning")
 
     # ------------------------------------------------------------ nets
@@ -476,8 +556,8 @@ def check(P, v, rep):
             w_out = default if e_out is None else e_out
             band = v["OUTSIDE_RADIUS_MM"] - v["INSIDE_RADIUS_MM"]
             if band > 0 and band + w_in + w_out <= 0:        # (a band of no width is reported above)
-                rep.conflict(("ROTOR_AUTO_EXTENSION_INNER_MM", "ROTOR_AUTO_EXTENSION_OUTER_MM", "INSIDE_RADIUS_MM",
-                              "OUTSIDE_RADIUS_MM"),
+                rep.conflict(bn("ROTOR_AUTO_EXTENSION_INNER_MM", "ROTOR_AUTO_EXTENSION_OUTER_MM", "INSIDE_RADIUS_MM",
+                                "OUTSIDE_RADIUS_MM"),
                              f"the rotor copper would have no width: the RX band is {band:g} mm wide and the copper "
                              f"would reach {w_in:+g} mm (inner edge) and {w_out:+g} mm (outer edge) past it. Raise the "
                              f"extensions (or ROTOR_AUTO_EXTENSION_MM)")
@@ -529,8 +609,8 @@ def check(P, v, rep):
                                  level="warning")
                 if has("INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM"):
                     if ri_ > v["INSIDE_RADIUS_MM"] or ro_ < v["OUTSIDE_RADIUS_MM"]:
-                        rep.conflict(("ROTOR_CUSTOM_INNER_RADIUS_MM", "ROTOR_CUSTOM_OUTER_RADIUS_MM", "INSIDE_RADIUS_MM",
-                                      "OUTSIDE_RADIUS_MM"),
+                        rep.conflict(bn("ROTOR_CUSTOM_INNER_RADIUS_MM", "ROTOR_CUSTOM_OUTER_RADIUS_MM", "INSIDE_RADIUS_MM",
+                                        "OUTSIDE_RADIUS_MM"),
                                      f"the rotor copper ({ri_:g} ... {ro_:g} mm) does not cover the whole RX band "
                                      f"({v['INSIDE_RADIUS_MM']:g} ... {v['OUTSIDE_RADIUS_MM']:g} mm): the signal drops and "
                                      f"distorts near the uncovered edge", level="warning")

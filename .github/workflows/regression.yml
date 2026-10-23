@@ -1,0 +1,57 @@
+# Regression tests of both generators, on every pull request (opened, updated or reopened).
+# Each generator's suite runs on Ubuntu and on Windows, with the oldest and the newest supported Python, so the
+# boards come out the same on every machine the generator is used on.  A job fails when a test fails.
+#
+#   Single Generator/Regression Testing/run_regression.py
+#   Dual Generator/Regression Testing/run_regression.py
+#
+# The check names in a pull request read "Single Generator (ubuntu-latest, Python 3.13)" and so on.  A push to a
+# branch without a pull request runs nothing; a new push to a pull request cancels the run still going for it.
+
+name: Regression
+
+on:
+  pull_request:
+
+concurrency:
+  group: regression-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  single:
+    name: Single Generator (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install numpy
+        run: python -m pip install --upgrade pip numpy
+      - name: Run the Single Generator regression tests
+        run: python "Single Generator/Regression Testing/run_regression.py" -v
+
+  dual:
+    name: Dual Generator (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.9", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install numpy
+        run: python -m pip install --upgrade pip numpy
+      - name: Run the Dual Generator regression tests
+        run: python "Dual Generator/Regression Testing/run_regression.py" -v

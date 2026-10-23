@@ -1,0 +1,491 @@
+DUAL COIL GENERATION RECORD
+===========================
+
+files       Stator.kicad_pcb, Rotor.kicad_pcb
+name        DualCoil_45_75_4x16_3x3  = DualCoil_<bore radius>_<outline radius>_<set 1 loops>x<set 2 loops>_<set 1 TX turns>x<set 2 TX turns>
+set 1       turned by 146.06 deg so that its TX ends sit at 180 deg; its RX pattern's zero is at 146.06 deg
+set 2       turned by 358.46 deg so that its TX ends sit at 0 deg; its RX pattern's zero is at 358.46 deg
+
+LAYOUT (what the generator computed)
+------------------------------------
+layout: DUAL_MODE = 1: TRACK_GAP_MM and both board edges set, both RX bands None - the bands are fitted between the edges
+  RX1 band r = 46.2 ... 57.05 mm (RX_R_BASE_MM 51.625, RX_A_MM 5.425): placed by the generator
+  RX2 band r = 60.55 ... 71.4 mm (RX_R_BASE_MM 65.975, RX_A_MM 5.425): placed by the generator
+  bore r = 45 mm (INNER_EDGE_RADIUS_MM), outline r = 75 mm (OUTER_EDGE_RADIUS_MM)
+  TX1 ring reaches r = 59.75 mm; set 2 copper starts at r = 60.25 mm: gap 0.5 mm (TRACK_GAP_MM = 0.5)
+
+STATOR
+------
+Dual stator: set 1 (inner) 4 loop(s), set 2 (outer) 16 loop(s); bore r = 45 mm, outline r = 75 mm
+  layout: DUAL_MODE = 1: TRACK_GAP_MM and both board edges set, both RX bands None - the bands are fitted between the edges
+    RX1 band r = 46.2 ... 57.05 mm (RX_R_BASE_MM 51.625, RX_A_MM 5.425): placed by the generator
+    RX2 band r = 60.55 ... 71.4 mm (RX_R_BASE_MM 65.975, RX_A_MM 5.425): placed by the generator
+    bore r = 45 mm (INNER_EDGE_RADIUS_MM), outline r = 75 mm (OUTER_EDGE_RADIUS_MM)
+    TX1 ring reaches r = 59.75 mm; set 2 copper starts at r = 60.25 mm: gap 0.5 mm (TRACK_GAP_MM = 0.5)
+  on the built copper: set 1 r = 45.9 ... 59.75 mm, set 2 r = 60.25 ... 74.4 mm, 0.5 mm free between them
+Set 1 (inner), TX ends at 180 deg, RX pattern zero at 146.06 deg:
+  Stator: 4 loop(s) -> 4 electrical period(s) per turn, unique range 90 deg
+    RX band r = 46.2 ... 57.05 mm, profile = equal_area, 208 segments per period (RX chord tolerance 0.001 mm); TX 544 points per turn
+    PCB layers 4: RX rising edges on F.Cu, falling edges on In1.Cu, layer-swap vias at 90.0 electrical deg (RX_VIA_ELECTRICAL_DEG 90)
+    RX sub-coils per coil: 1
+    TX (parallel): 3 turns on In2.Cu and the same turns in parallel on F.Cu, stitched through vias around the TX terminal; inner tail on F.Cu, outer tail on In2.Cu; 6 TX vias besides the terminal via
+    TX steps: 45 deg to the turns (TX_STEPPED_ANGLE_DEG), 0.60 mm along the turn each, 0.224 mm between neighbouring steps
+    TX copper: smallest gap between different turns 0.229 mm, TX via to RX copper 0.953 mm
+    RX segments 3328, RX vias 36 (+7 TX), TX segments 3291
+    RX bridging fingers: none
+    TX ring r = 57.85 ... 59.05 mm (tail end 59.65 mm); terminal via 0.1 mm inside the first turn (TX_INSIDE_VIA_DISTANCE_MM), 0.221 mm from the other turns
+    board edge: bore r = 45 mm, outer r = 75 mm
+    TX terminal: found at 33.94 deg of the RX pattern (0.953 mm from the nearest RX copper); the board is turned by 146.06 deg so that it sits at 180 deg (the right, horizontal axis); the RX pattern's zero is at 146.06 deg
+    RX band = RX_R_BASE_MM 51.625 +- RX_A_MM 5.425; board bore and outer edge as given (RX band and board edge both set)
+    smallest via-to-copper clearance 0.202 mm
+Set 2 (outer), TX ends at 0 deg, RX pattern zero at 358.46 deg:
+  Stator: 16 loop(s) -> 16 electrical period(s) per turn, unique range 22.5 deg
+    RX band r = 60.55 ... 71.4 mm, profile = equal_area, 168 segments per period (RX chord tolerance 0.001 mm); TX 608 points per turn
+    PCB layers 4: RX rising edges on F.Cu, falling edges on In1.Cu, layer-swap vias at 90.0 electrical deg (RX_VIA_ELECTRICAL_DEG 90)
+    RX sub-coils per coil: 1
+    TX (parallel): 3 turns on In2.Cu and the same turns in parallel on F.Cu, stitched through vias around the TX terminal; inner tail on F.Cu, outer tail on In2.Cu; 6 TX vias besides the terminal via
+    TX steps: 45 deg to the turns (TX_STEPPED_ANGLE_DEG), 0.60 mm along the turn each, 0.224 mm between neighbouring steps
+    TX copper: smallest gap between different turns 0.229 mm, TX via to RX copper 0.760 mm
+    RX segments 10752, RX vias 132 (+7 TX), TX segments 3678
+    RX bridging fingers: none
+    TX ring r = 72.5 ... 73.7 mm (tail end 74.3 mm); terminal via 0.3 mm inside the first turn (TX_INSIDE_VIA_DISTANCE_MM), 0.235 mm from the other turns
+    board edge: bore r = 45 mm, outer r = 75 mm
+    TX terminal: found at 1.54 deg of the RX pattern (0.760 mm from the nearest RX copper); the board is turned by 358.46 deg so that it sits at 0 deg (the right, horizontal axis); the RX pattern's zero is at 358.46 deg
+    RX band = RX_R_BASE_MM 65.975 +- RX_A_MM 5.425; board bore and outer edge as given (RX band and board edge both set)
+    smallest via-to-copper clearance 0.338 mm
+
+ROTOR
+-----
+Dual rotor (according_to_stator): ring 1 4 sector(s), ring 2 16 sector(s); bore r = 45.0, outline r = 75.0; 3.00 mm bare between the rings
+  both rings start at their own set's RX pattern zero (ROTOR_START_ANGLE_ZERO = "rx_zero"), so the coarse and the fine track read 0 at the same shaft angle and turn the same way (no nominal zero shift: the coarse-to-fine decision tolerates at most +-180/LOOPS of set 2 degrees of it); the firmware still has to calibrate the residual at the nominal air gap
+Ring 1, sector start measured from set 1's RX pattern zero (146.06 deg, ROTOR_START_ANGLE_ZERO = "rx_zero"):
+  Rotor (according_to_stator): 4 sector(s), metal fraction 0.5 (45.00 deg mechanical each)
+    copper r = 45.52 ... 57.05 mm on F.Cu, 67 chords per arc
+    RX band r = 46.2 ... 57.05 mm: the copper reaches 0.68 mm past the band at the inner edge and 0.00 mm past the band at the outer edge
+    TX turns r = 57.75 ... 59.15 mm (copper): the rotor copper ends 0.70 mm inside the TX ring (it does not cover the TX turns)
+    solder mask: stays over the copper (ROTOR_SOLDER_MASK_EXPANSION_MM = -1), no mask openings
+    outline r = 75.0, bore r = 45.0
+    copper skin depth at 3 MHz = 38 um; 35 um copper (1 oz) screens the TX field by about 96-98 %, 70 um (2 oz) by about 98-99 % (thin-sheet estimate): thicker copper adds little signal
+    note: spatial period at mid radius 81.1 mm -> signal falls about exp(-2*pi*gap/period) = 0.93 at the nominal 1 mm gap
+Ring 2, sector start measured from set 2's RX pattern zero (358.46 deg, ROTOR_START_ANGLE_ZERO = "rx_zero"):
+  Rotor (according_to_stator): 16 sector(s), metal fraction 0.5 (11.25 deg mechanical each)
+    copper r = 60.05 ... 74.30 mm on F.Cu, 19 chords per arc
+    RX band r = 60.55 ... 71.4 mm: the copper reaches 0.50 mm past the band at the inner edge and 2.90 mm past the band at the outer edge
+    TX turns r = 72.4 ... 73.8 mm (copper): the rotor copper covers the TX turns and ends 0.50 mm past the outermost one
+    solder mask: stays over the copper (ROTOR_SOLDER_MASK_EXPANSION_MM = -1), no mask openings
+    outline r = 75.0, bore r = 45.0
+    copper skin depth at 4.3 MHz = 32 um; 35 um copper (1 oz) screens the TX field by about 97-99 %, 70 um (2 oz) by about 99-99 % (thin-sheet estimate): thicker copper adds little signal
+    note: spatial period at mid radius 25.9 mm -> signal falls about exp(-2*pi*gap/period) = 0.78 at the nominal 1 mm gap
+
+SET 1: ELECTRICAL ESTIMATE  (receiver IC IPS2550; model only, not checked on hardware)
+  TX coil     L = 2.984 uH with the rotor away
+              L = 2.402 uH with the rotor at the 1 mm air gap (-19.5 %: an upper estimate of the drop)
+              R = 1.39 ohm DC (3 turn(s), 2.19 m of 0.2 mm x 35 um copper, 0.56 m equivalent for the two layers in parallel), up to about 2x that at 3 MHz
+  tank        for 3 MHz with the rotor in place: 2 x 2.34 nF, from TX1 and from TX2 to ground (= 1.17 nF across the coil)
+              nearest standard C0G (E12): 2 x 2.2 nF -> 3.10 MHz (2.78 rotor away);  2 x 2.7 nF -> 2.79 MHz (2.51 rotor away)
+              oscillator with the exact capacitors: 2.69 MHz with the rotor away, 3.00 MHz with it  (IPS2550 range 2 ... 5.6 MHz: OK)
+              (the true frequency with the rotor lies between the two: the drop is an upper estimate)
+              Q = 16 ... 33, parallel resistance 738 ohm ... 1.48 kohm  (IPS2550 needs >= 250 ohm: OK)
+  (each set is estimated on its own: the other set's TX ring and rotor ring are not in the estimate)
+
+SET 2: ELECTRICAL ESTIMATE  (receiver IC IPS2550; model only, not checked on hardware)
+  TX coil     L = 3.917 uH with the rotor away
+              L = 3.131 uH with the rotor at the 1 mm air gap (-20.1 %: an upper estimate of the drop)
+              R = 1.73 ohm DC (3 turn(s), 2.74 m of 0.2 mm x 35 um copper, 0.70 m equivalent for the two layers in parallel), up to about 2x that at 4.3 MHz
+  tank        for 4.3 MHz with the rotor in place: 2 x 875 pF, from TX1 and from TX2 to ground (= 437 pF across the coil)
+              nearest standard C0G (E12): 2 x 820 pF -> 4.44 MHz (3.97 rotor away);  2 x 1 nF -> 4.02 MHz (3.60 rotor away)
+              oscillator with the exact capacitors: 3.84 MHz with the rotor away, 4.30 MHz with it  (IPS2550 range 2 ... 5.6 MHz: OK)
+              (the true frequency with the rotor lies between the two: the drop is an upper estimate)
+              Q = 24 ... 49, parallel resistance 2.07 kohm ... 4.14 kohm  (IPS2550 needs >= 250 ohm: OK)
+  (each set is estimated on its own: the other set's TX ring and rotor ring are not in the estimate)
+
+PARAMETER VALUES USED
+---------------------
+[Dual_Board_Parameters.py]
+  OUTPUT_DIR                     = '<output>'
+  STATOR_FILE                    = 'Stator.kicad_pcb'
+  ROTOR_FILE                     = 'Rotor.kicad_pcb'
+  GENERATOR_MODE                 = 'normal'
+  CENTER_X_MM                    = 100.0
+  CENTER_Y_MM                    = 100.0
+  PAGE_SIZE_MM                   = (200, 200)
+  VIA_DIAMETER_MM                = 0.6
+  VIA_DRILL_MM                   = 0.3
+  VIA_TYPE                       = 'through'
+  MIN_CLEARANCE_MM               = 0.2
+  INNER_EDGE_INSET_MM            = 1.2
+  INNER_EDGE_RADIUS_MM           = 45.0
+  OUTER_EDGE_OFFSET_MM           = 2.0
+  OUTER_EDGE_RADIUS_MM           = 75.0
+  OUTER_EDGE_TAIL_MARGIN_MM      = 0.7
+  EDGE_LINE_WIDTH_MM             = 0.05
+  AIR_GAP_MM                     = 1.0
+  PCB_THICKNESS_MM               = 1.6
+  COPPER_THICKNESS_UM            = 35
+  COPPER_CONDUCTIVITY_S_M        = 58000000.0
+  TX_AC_RESISTANCE_FACTOR        = 2.0
+  STACKUP_PREPREG_MM             = 0.2
+  TANK_CAP_SERIES                = 'E12'
+  ROTOR_MODE                     = 'according_to_stator'
+  ROTOR_AUTO_EDGE_CLEARANCE_MM   = 0.5
+  ROTOR_CUSTOM_OUTLINE_RADIUS_MM = 26.875
+  ROTOR_CUSTOM_BORE_RADIUS_MM    = 7.25
+  ROTOR_PCB_THICKNESS_MM         = None
+  ROTOR_ARC_STEPS_PER_SECTOR     = 'auto'
+  ROTOR_CHORD_TOLERANCE_MM       = 0.001
+  ROTOR_SOLDER_MASK_EXPANSION_MM = -1
+  DUAL_MODE                      = 1
+  TRACK_GAP_MM                   = 0.5
+  BAND_SPLIT                     = 0.5
+  LAYOUT_TOLERANCE_MM            = 0.05
+  TERMINAL_1_DEG                 = 180.0
+  TERMINAL_2_DEG                 = 0.0
+  TX_FREQ_SEPARATION_MIN         = 0.2
+  TX_FREQ_RATIO_MAX_ORDER        = 4
+  TX_FREQ_RATIO_TOLERANCE        = 0.02
+  ROTOR_START_ANGLE_ZERO         = 'rx_zero'
+  ROTOR_TRACK_GAP_MM             = 2.0
+  ROTOR_1_TO_RX2_MM              = 3.0
+  ROTOR_2_TO_RX1_MM              = 2.0
+
+[Dual_RX1_Parameters.py]
+  LOOPS                     = 4
+  INSIDE_RADIUS_MM          = None
+  OUTSIDE_RADIUS_MM         = None
+  RX_R_BASE_MM              = None
+  RX_A_MM                   = None
+  RX_TRACE_WIDTH_MM         = 0.2
+  RX_NET_PHASE_0_2          = 'SIN_1'
+  RX_NET_PHASE_1_3          = 'COS_1'
+  RX_PROFILE                = 'equal_area'
+  STEPS_PER_LOOP            = 'auto'
+  RX_CHORD_TOLERANCE_MM     = 0.001
+  RX_SUBCOILS               = 1
+  RX_SUBCOIL_SPLIT_ELEC_DEG = 45.0
+  RX_LAYER_A                = 1
+  RX_LAYER_B                = 2
+  RX_VIA_ELECTRICAL_DEG     = 90.0
+
+[Dual_RX2_Parameters.py]
+  LOOPS                     = 16
+  INSIDE_RADIUS_MM          = None
+  OUTSIDE_RADIUS_MM         = None
+  RX_R_BASE_MM              = None
+  RX_A_MM                   = None
+  RX_TRACE_WIDTH_MM         = 0.2
+  RX_NET_PHASE_0_2          = 'SIN_2'
+  RX_NET_PHASE_1_3          = 'COS_2'
+  RX_PROFILE                = 'equal_area'
+  STEPS_PER_LOOP            = 'auto'
+  RX_CHORD_TOLERANCE_MM     = 0.001
+  RX_SUBCOILS               = 1
+  RX_SUBCOIL_SPLIT_ELEC_DEG = 45.0
+  RX_LAYER_A                = 1
+  RX_LAYER_B                = 2
+  RX_VIA_ELECTRICAL_DEG     = 90.0
+
+[Dual_TX1_Parameters.py]
+  EXCITATION_FREQ_HZ        = 3000000.0
+  TX_NET                    = 'TX_1'
+  TX_WIRING                 = 'parallel'
+  TX_TURNS                  = 3
+  TX_OFFSET_MM              = 0.8
+  TX_PITCH_MM               = 0.6
+  TX_TRACE_WIDTH_MM         = 0.2
+  TX_STEPS                  = 'auto'
+  TX_CHORD_TOLERANCE_MM     = 0.001
+  TX_STEPPED_ANGLE_DEG      = 45
+  TX_INSIDE_VIA_DISTANCE_MM = 0.1
+  TX_LAYER_A                = 1
+  TX_LAYER_B                = 3
+
+[Dual_TX2_Parameters.py]
+  EXCITATION_FREQ_HZ        = 4300000.0
+  TX_NET                    = 'TX_2'
+  TX_WIRING                 = 'parallel'
+  TX_TURNS                  = 3
+  TX_OFFSET_MM              = 1.1
+  TX_PITCH_MM               = 0.6
+  TX_TRACE_WIDTH_MM         = 0.2
+  TX_STEPS                  = 'auto'
+  TX_CHORD_TOLERANCE_MM     = 0.001
+  TX_STEPPED_ANGLE_DEG      = 45
+  TX_INSIDE_VIA_DISTANCE_MM = 0.3
+  TX_LAYER_A                = 1
+  TX_LAYER_B                = 3
+
+[Dual_Rotor1_Parameters.py]
+  ROTOR_AUTO_DUTY               = 0.5
+  ROTOR_AUTO_START_ANGLE_DEG    = 0.0
+  ROTOR_AUTO_COVER_TX           = False
+  ROTOR_AUTO_TX_OVERHANG_MM     = 0.5
+  ROTOR_AUTO_EXTENSION_MM       = None
+  ROTOR_AUTO_EXTENSION_INNER_MM = None
+  ROTOR_AUTO_EXTENSION_OUTER_MM = 0.0
+  ROTOR_AUTO_TX_CLEARANCE_MM    = 0.1
+  ROTOR_AUTO_COPPER_LAYERS      = ['F.Cu']
+  ROTOR_CUSTOM_SECTORS          = 1
+  ROTOR_CUSTOM_DUTY             = 0.5
+  ROTOR_CUSTOM_START_ANGLE_DEG  = 0.0
+  ROTOR_CUSTOM_INNER_RADIUS_MM  = 7.77
+  ROTOR_CUSTOM_OUTER_RADIUS_MM  = 11.7
+  ROTOR_CUSTOM_COPPER_LAYERS    = ['F.Cu']
+
+[Dual_Rotor2_Parameters.py]
+  ROTOR_AUTO_DUTY               = 0.5
+  ROTOR_AUTO_START_ANGLE_DEG    = 0.0
+  ROTOR_AUTO_COVER_TX           = True
+  ROTOR_AUTO_TX_OVERHANG_MM     = 0.5
+  ROTOR_AUTO_EXTENSION_MM       = None
+  ROTOR_AUTO_EXTENSION_INNER_MM = 0.5
+  ROTOR_AUTO_EXTENSION_OUTER_MM = None
+  ROTOR_AUTO_TX_CLEARANCE_MM    = 0.1
+  ROTOR_AUTO_COPPER_LAYERS      = ['F.Cu']
+  ROTOR_CUSTOM_SECTORS          = 16
+  ROTOR_CUSTOM_DUTY             = 0.5
+  ROTOR_CUSTOM_START_ANGLE_DEG  = 0.0
+  ROTOR_CUSTOM_INNER_RADIUS_MM  = 17.5
+  ROTOR_CUSTOM_OUTER_RADIUS_MM  = 26.32
+  ROTOR_CUSTOM_COPPER_LAYERS    = ['F.Cu']
+
+[Dual_IC1_Parameters.py]
+  IC_NAME            = 'IPS2550'
+  IC_OSC_MIN_MHZ     = 2.0
+  IC_OSC_MAX_MHZ     = 5.6
+  IC_MIN_RP_OHM      = 250
+  IC_SPLIT_TANK_CAPS = True
+
+[Dual_IC2_Parameters.py]
+  IC_NAME            = 'IPS2550'
+  IC_OSC_MIN_MHZ     = 2.0
+  IC_OSC_MAX_MHZ     = 5.6
+  IC_MIN_RP_OHM      = 250
+  IC_SPLIT_TANK_CAPS = True
+
+[Dual_Fixed_Parameters.py]
+  PCB_LAYERS                = 4
+  RX_RISING_EDGE_LAYER      = 'F.Cu'
+  RX_TABS                   = 'none'
+  RX_TAB_LAYER              = 'auto'
+  RX_TAB_LENGTH_MM          = 0.0
+  RX_TAB_WIDTH_MM           = 1.0
+  TX_SHAPE                  = 'stepped_diagonal'
+  TX_TAIL_EXTRA_MM          = 0.0
+  TX_SERIES_UNDERPASS_LAYER = 'auto'
+  TX_PARALLEL_BREAK_STYLE   = 'stitched'
+  TX_STEPPED_ARC_RADIUS_MM  = 'auto'
+
+THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
+----------------------------------------------------------
+[set 1]
+  OUTPUT_DIR                     = '<output>'
+  STATOR_FILE                    = 'Stator.kicad_pcb'
+  ROTOR_FILE                     = 'Rotor.kicad_pcb'
+  CENTER_X_MM                    = 100.0
+  CENTER_Y_MM                    = 100.0
+  PAGE_SIZE_MM                   = (200, 200)
+  PCB_LAYERS                     = 4
+  VIA_DIAMETER_MM                = 0.6
+  VIA_DRILL_MM                   = 0.3
+  VIA_TYPE                       = 'through'
+  MIN_CLEARANCE_MM               = 0.2
+  INNER_EDGE_INSET_MM            = 1.2
+  INNER_EDGE_RADIUS_MM           = 45.0
+  OUTER_EDGE_OFFSET_MM           = 2.0
+  OUTER_EDGE_RADIUS_MM           = 75.0
+  OUTER_EDGE_TAIL_MARGIN_MM      = 0.7
+  EDGE_LINE_WIDTH_MM             = 0.05
+  AIR_GAP_MM                     = 1.0
+  PCB_THICKNESS_MM               = 1.6
+  EXCITATION_FREQ_HZ             = 3000000.0
+  COPPER_THICKNESS_UM            = 35
+  COPPER_CONDUCTIVITY_S_M        = 58000000.0
+  TX_AC_RESISTANCE_FACTOR        = 2.0
+  STACKUP_PREPREG_MM             = 0.2
+  TANK_CAP_SERIES                = 'E12'
+  GENERATOR_MODE                 = 'normal'
+  LOOPS                          = 4
+  INSIDE_RADIUS_MM               = None
+  OUTSIDE_RADIUS_MM              = None
+  RX_R_BASE_MM                   = 51.625
+  RX_A_MM                        = 5.425
+  RX_TRACE_WIDTH_MM              = 0.2
+  RX_NET_PHASE_0_2               = 'SIN_1'
+  RX_NET_PHASE_1_3               = 'COS_1'
+  RX_PROFILE                     = 'equal_area'
+  STEPS_PER_LOOP                 = 'auto'
+  RX_CHORD_TOLERANCE_MM          = 0.001
+  RX_SUBCOILS                    = 1
+  RX_SUBCOIL_SPLIT_ELEC_DEG      = 45.0
+  RX_LAYER_A                     = 1
+  RX_LAYER_B                     = 2
+  RX_RISING_EDGE_LAYER           = 'F.Cu'
+  RX_VIA_ELECTRICAL_DEG          = 90.0
+  RX_TABS                        = 'none'
+  RX_TAB_LENGTH_MM               = 0.0
+  RX_TAB_WIDTH_MM                = 1.0
+  RX_TAB_LAYER                   = 'auto'
+  TX_NET                         = 'TX_1'
+  TX_TURNS                       = 3
+  TX_OFFSET_MM                   = 0.8
+  TX_PITCH_MM                    = 0.6
+  TX_TRACE_WIDTH_MM              = 0.2
+  TX_STEPS                       = 'auto'
+  TX_CHORD_TOLERANCE_MM          = 0.001
+  TX_TAIL_EXTRA_MM               = 0.0
+  TX_SHAPE                       = 'stepped_diagonal'
+  TX_INSIDE_VIA_DISTANCE_MM      = 0.1
+  TX_STEPPED_ANGLE_DEG           = 45
+  TX_STEPPED_ARC_RADIUS_MM       = 'auto'
+  TX_WIRING                      = 'parallel'
+  TX_LAYER_A                     = 1
+  TX_LAYER_B                     = 3
+  TX_SERIES_UNDERPASS_LAYER      = 'auto'
+  TX_PARALLEL_BREAK_STYLE        = 'stitched'
+  ROTOR_MODE                     = 'according_to_stator'
+  ROTOR_AUTO_DUTY                = 0.5
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
+  ROTOR_AUTO_EXTENSION_MM        = None
+  ROTOR_AUTO_EXTENSION_INNER_MM  = None
+  ROTOR_AUTO_EXTENSION_OUTER_MM  = 0.0
+  ROTOR_AUTO_TX_CLEARANCE_MM     = 0.1
+  ROTOR_AUTO_COVER_TX            = False
+  ROTOR_AUTO_TX_OVERHANG_MM      = 0.5
+  ROTOR_AUTO_EDGE_CLEARANCE_MM   = 0.5
+  ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
+  ROTOR_CUSTOM_SECTORS           = 1
+  ROTOR_CUSTOM_DUTY              = 0.5
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
+  ROTOR_CUSTOM_INNER_RADIUS_MM   = 7.77
+  ROTOR_CUSTOM_OUTER_RADIUS_MM   = 11.7
+  ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
+  ROTOR_CUSTOM_OUTLINE_RADIUS_MM = 26.875
+  ROTOR_CUSTOM_BORE_RADIUS_MM    = 7.25
+  ROTOR_PCB_THICKNESS_MM         = None
+  ROTOR_ARC_STEPS_PER_SECTOR     = 'auto'
+  ROTOR_CHORD_TOLERANCE_MM       = 0.001
+  ROTOR_SOLDER_MASK_EXPANSION_MM = -1
+  IC_NAME                        = 'IPS2550'
+  IC_OSC_MIN_MHZ                 = 2.0
+  IC_OSC_MAX_MHZ                 = 5.6
+  IC_MIN_RP_OHM                  = 250
+  IC_SPLIT_TANK_CAPS             = True
+
+[set 2]
+  OUTPUT_DIR                     = '<output>'
+  STATOR_FILE                    = 'Stator.kicad_pcb'
+  ROTOR_FILE                     = 'Rotor.kicad_pcb'
+  CENTER_X_MM                    = 100.0
+  CENTER_Y_MM                    = 100.0
+  PAGE_SIZE_MM                   = (200, 200)
+  PCB_LAYERS                     = 4
+  VIA_DIAMETER_MM                = 0.6
+  VIA_DRILL_MM                   = 0.3
+  VIA_TYPE                       = 'through'
+  MIN_CLEARANCE_MM               = 0.2
+  INNER_EDGE_INSET_MM            = 1.2
+  INNER_EDGE_RADIUS_MM           = 45.0
+  OUTER_EDGE_OFFSET_MM           = 2.0
+  OUTER_EDGE_RADIUS_MM           = 75.0
+  OUTER_EDGE_TAIL_MARGIN_MM      = 0.7
+  EDGE_LINE_WIDTH_MM             = 0.05
+  AIR_GAP_MM                     = 1.0
+  PCB_THICKNESS_MM               = 1.6
+  EXCITATION_FREQ_HZ             = 4300000.0
+  COPPER_THICKNESS_UM            = 35
+  COPPER_CONDUCTIVITY_S_M        = 58000000.0
+  TX_AC_RESISTANCE_FACTOR        = 2.0
+  STACKUP_PREPREG_MM             = 0.2
+  TANK_CAP_SERIES                = 'E12'
+  GENERATOR_MODE                 = 'normal'
+  LOOPS                          = 16
+  INSIDE_RADIUS_MM               = None
+  OUTSIDE_RADIUS_MM              = None
+  RX_R_BASE_MM                   = 65.975
+  RX_A_MM                        = 5.425
+  RX_TRACE_WIDTH_MM              = 0.2
+  RX_NET_PHASE_0_2               = 'SIN_2'
+  RX_NET_PHASE_1_3               = 'COS_2'
+  RX_PROFILE                     = 'equal_area'
+  STEPS_PER_LOOP                 = 'auto'
+  RX_CHORD_TOLERANCE_MM          = 0.001
+  RX_SUBCOILS                    = 1
+  RX_SUBCOIL_SPLIT_ELEC_DEG      = 45.0
+  RX_LAYER_A                     = 1
+  RX_LAYER_B                     = 2
+  RX_RISING_EDGE_LAYER           = 'F.Cu'
+  RX_VIA_ELECTRICAL_DEG          = 90.0
+  RX_TABS                        = 'none'
+  RX_TAB_LENGTH_MM               = 0.0
+  RX_TAB_WIDTH_MM                = 1.0
+  RX_TAB_LAYER                   = 'auto'
+  TX_NET                         = 'TX_2'
+  TX_TURNS                       = 3
+  TX_OFFSET_MM                   = 1.1
+  TX_PITCH_MM                    = 0.6
+  TX_TRACE_WIDTH_MM              = 0.2
+  TX_STEPS                       = 'auto'
+  TX_CHORD_TOLERANCE_MM          = 0.001
+  TX_TAIL_EXTRA_MM               = 0.0
+  TX_SHAPE                       = 'stepped_diagonal'
+  TX_INSIDE_VIA_DISTANCE_MM      = 0.3
+  TX_STEPPED_ANGLE_DEG           = 45
+  TX_STEPPED_ARC_RADIUS_MM       = 'auto'
+  TX_WIRING                      = 'parallel'
+  TX_LAYER_A                     = 1
+  TX_LAYER_B                     = 3
+  TX_SERIES_UNDERPASS_LAYER      = 'auto'
+  TX_PARALLEL_BREAK_STYLE        = 'stitched'
+  ROTOR_MODE                     = 'according_to_stator'
+  ROTOR_AUTO_DUTY                = 0.5
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
+  ROTOR_AUTO_EXTENSION_MM        = None
+  ROTOR_AUTO_EXTENSION_INNER_MM  = 0.5
+  ROTOR_AUTO_EXTENSION_OUTER_MM  = None
+  ROTOR_AUTO_TX_CLEARANCE_MM     = 0.1
+  ROTOR_AUTO_COVER_TX            = True
+  ROTOR_AUTO_TX_OVERHANG_MM      = 0.5
+  ROTOR_AUTO_EDGE_CLEARANCE_MM   = 0.5
+  ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
+  ROTOR_CUSTOM_SECTORS           = 16
+  ROTOR_CUSTOM_DUTY              = 0.5
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
+  ROTOR_CUSTOM_INNER_RADIUS_MM   = 17.5
+  ROTOR_CUSTOM_OUTER_RADIUS_MM   = 26.32
+  ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
+  ROTOR_CUSTOM_OUTLINE_RADIUS_MM = 26.875
+  ROTOR_CUSTOM_BORE_RADIUS_MM    = 7.25
+  ROTOR_PCB_THICKNESS_MM         = None
+  ROTOR_ARC_STEPS_PER_SECTOR     = 'auto'
+  ROTOR_CHORD_TOLERANCE_MM       = 0.001
+  ROTOR_SOLDER_MASK_EXPANSION_MM = -1
+  IC_NAME                        = 'IPS2550'
+  IC_OSC_MIN_MHZ                 = 2.0
+  IC_OSC_MAX_MHZ                 = 5.6
+  IC_MIN_RP_OHM                  = 250
+  IC_SPLIT_TANK_CAPS             = True
+
+PARAMETER FILES (verbatim copies)
+---------------------------------
+Dual_Board_Parameters.py
+Dual_RX1_Parameters.py
+Dual_RX2_Parameters.py
+Dual_TX1_Parameters.py
+Dual_TX2_Parameters.py
+Dual_Rotor1_Parameters.py
+Dual_Rotor2_Parameters.py
+Dual_IC1_Parameters.py
+Dual_IC2_Parameters.py
+Dual_Fixed_Parameters.py
+LEAD CUTTING SILKSCREEN SUGGESTION
+----------------------------------
+  6 suggestion(s) drawn into the stator file: break each RX coil between its two dots (a via at each dot, down to the bottom layer); extend each TX end to the dot of its name
+  marks on F.SilkS and B.SilkS, colour #FFFFFF, labels on; a via of the suggestion keeps 0.2 mm from copper on every layer and 0.25 mm from the board edges
+  SIN1 (SIN_1): cut the Top trace at (51.1678, 97.5785) (r = 48.89 mm, 182.8 deg); vias SIN1_1 at (50.9769, 97.0097) and SIN1_2 at (51.3587, 98.1473), clearance 0.57 mm (at least 0.2 needed)
+  COS1 (COS_1): cut the Top trace at (53.9583, 116.4501) (r = 48.89 mm, 160.3 deg); vias COS1_1 at (53.5642, 115.9977) and COS1_2 at (54.3523, 116.9026), clearance 0.57 mm (at least 0.2 needed)
+  TX1 (TX_1): both ends at (40.35, 100) (r = 59.65 mm, 180.0 deg), Top and In2; extend the Top end to a via TX1_1 at (40.0422, 99.1543) and the In2 end to a via TX1_2 at (40.0422, 100.8457), clearance 0.28 mm (at least 0.2 needed)
+  SIN2 (SIN_2): cut the Top trace at (163.1976, 96.13) (r = 63.32 mm, 356.5 deg); vias SIN2_1 at (163.6842, 96.481) and SIN2_2 at (162.711, 95.779), clearance 0.36 mm (at least 0.2 needed)
+  COS2 (COS_2): cut the Top trace at (163.2727, 102.3431) (r = 63.32 mm, 2.1 deg); vias COS2_1 at (163.7225, 102.7401) and COS2_2 at (162.8228, 101.9461), clearance 0.36 mm (at least 0.2 needed)
+  TX2 (TX_2): both ends at (174.3, 100) (r = 74.30 mm, 0.0 deg), Top and In2; extend the Top end to a via TX2_1 at (174.3784, 100.8966) and the In2 end to a via TX2_2 at (174.3784, 99.1034), clearance 0.27 mm (at least 0.2 needed)
+
+Dual_SilkScreenSuggestion_Parameters.py

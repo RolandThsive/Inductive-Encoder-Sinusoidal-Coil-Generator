@@ -99,10 +99,11 @@ class Stator:
             board.segment(s.a, s.b, P.RX_TRACE_WIDTH_MM, s.layer, s.net)
         for s in self.tx_segments:
             board.segment(s.a, s.b, P.TX_TRACE_WIDTH_MM, s.layer, P.TX_NET)
+        blind = Layers.via_type(P) == "blind"                     # VIA_TYPE: blind vias join only their two layers
         for v in self.rx_vias:
-            board.via(v.at, P.VIA_DIAMETER_MM, P.VIA_DRILL_MM, v.net)
+            board.via(v.at, P.VIA_DIAMETER_MM, P.VIA_DRILL_MM, v.net, layers=v.layers, blind=blind)
         for v in self.tx_vias:
-            board.via(v.at, P.VIA_DIAMETER_MM, P.VIA_DRILL_MM, P.TX_NET)
+            board.via(v.at, P.VIA_DIAMETER_MM, P.VIA_DRILL_MM, P.TX_NET, layers=v.layers, blind=blind)
         board.circle((self.cx, self.cy), self.inner_edge_radius, "Edge.Cuts", P.EDGE_LINE_WIDTH_MM)
         board.circle((self.cx, self.cy), self.outer_edge_radius, "Edge.Cuts", P.EDGE_LINE_WIDTH_MM)
         board.save(path)

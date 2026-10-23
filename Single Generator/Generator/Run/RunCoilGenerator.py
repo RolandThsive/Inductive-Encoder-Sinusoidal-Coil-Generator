@@ -32,6 +32,8 @@ Steps (the chain: every step reads only what the steps before it made)
      SteppedDiagonal, SteppedArc or Spiral), with __1, __2, ... added when that name exists already, and writes Stator.kicad_pcb,
      Rotor.kicad_pcb and Parameters.txt (every value used, the summaries, the electrical estimate
      and copies of the parameter files) into it.  Nothing is ever overwritten.
+     Last, LeadCutting_SilkscreenSuggestion.py draws the suggestion for cutting the leads (where to break each RX
+     coil, where the TX ends get their vias) on the silkscreen of the written stator file and adds it to the record.
 
 All settings are in Board_Parameters.py, RX_Parameters.py, TX_Parameters.py, Rotor_Parameters.py and
 IC_Parameters.py (the Parameters folder).  Run it from any folder, e.g. from the "Single Generator" folder:
@@ -131,6 +133,7 @@ def main(argv=None):
     from Generator.Stator.RX import RX_Builder
     from Generator.Stator.TX import TX_Builder
     from Generator.Rotor import RotorBuilder as RB
+    from Generator.Stator import LeadCutting_SilkscreenSuggestion as LCS
     step(2, total, "Building the stator")
     buf = io.StringIO()
     try:
@@ -204,7 +207,7 @@ def main(argv=None):
 
     # ---------------------------------------------------------------- 6. write
     step(6, total, "Writing the files")
-    written, folder = [], None
+    written, folder, silk = [], None, None
     try:
         folder = OF.create_output_folder(stator, P)
         print(f"  folder  {folder}")
@@ -212,6 +215,7 @@ def main(argv=None):
             path = stator.write(os.path.join(folder, P.STATOR_FILE))
             written.append(path)
             print("  " + Colour.green(f"stator  -> {path}"))
+            silk = LCS.add_to_file(path, P)              # the lead-cutting silkscreen suggestion, drawn into the file
         if want_rotor:
             path = rotor.write(os.path.join(folder, P.ROTOR_FILE))
             written.append(path)
@@ -220,6 +224,8 @@ def main(argv=None):
                                 electrical_lines=el_record, warnings=warn_texts + list(el_warn),
                                 command="python Generator/Run/RunCoilGenerator.py "
                                         + " ".join(sys.argv[1:] if argv is None else argv))
+        if silk is not None:
+            LCS.append_record(path, silk)
         print("  " + Colour.green(f"record  -> {path}"))
     except OSError as e:
         print("  " + Colour.red(f"ERROR   cannot write: {e}"))
