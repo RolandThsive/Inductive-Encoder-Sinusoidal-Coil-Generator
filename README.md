@@ -7,16 +7,16 @@
 **An open generator for rotary inductive encoder coils, built for KiCad.**
 Set the parameters, get a stator and a rotor as KiCad boards, checked and with an estimate of how they will perform.
 
-[![Web Tool](https://img.shields.io/badge/Web_Tool-Try_in_browser-0078D6?style=for-the-badge&logoColor=white)](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
-[![Wiki](https://img.shields.io/badge/Wiki-Read_the_docs-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)
-[![Examples](https://img.shields.io/badge/Examples-Pictures-E95420?style=for-the-badge&logo=kicad&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples)
+[![Web Tool](https://img.shields.io/badge/Web_Tool-Try_in_browser-0078D6?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjkiLz48cGF0aCBkPSJNMyAxMmgxOCIvPjxwYXRoIGQ9Ik0xMiAzYzMgMyAzIDE1IDAgMTgiLz48cGF0aCBkPSJNMTIgM2MtMyAzLTMgMTUgMCAxOCIvPjwvc3ZnPgo%3D)](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
+[![Wiki](https://img.shields.io/badge/Wiki-Read_the_docs-333333?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMiA2djE0Ii8%2BPHBhdGggZD0iTTEyIDZDMTAgNC41IDYuNSA0IDMgNC41djE0YzMuNS0uNSA3IDAgOSAxLjUiLz48cGF0aCBkPSJNMTIgNmMyLTEuNTAwIDUuNTAwLTIgOS0xLjUwMHYxNGMtMy41MDAtLjUwMC03IDAtOSAxLjUwMCIvPjwvc3ZnPgo%3D)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)
+[![Examples](https://img.shields.io/badge/Examples-Pictures-E95420?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yIDEyYzIuNTAwLTggNS41MDAtOCA4IDBzNS41MDAgOCA4IDAgMi41MDAtNCA0LTQiLz48L3N2Zz4K)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples)
 
-[![Milestones](https://img.shields.io/badge/Milestones-Roadmap-8957E5?style=for-the-badge&logoColor=white)](MILESTONES.md)
-[![Contributing](https://img.shields.io/badge/Contributing-Get_involved-2EA44F?style=for-the-badge&logo=github&logoColor=white)](CONTRIBUTING.md)
-[![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logoColor=white)](LICENSE.md)
+[![Milestones](https://img.shields.io/badge/Milestones-Roadmap-8957E5?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik01IDIxVjQiLz48cGF0aCBkPSJNNSA0aDEybC0yLjUwMCA0IDIuNTAwIDRINSIvPjwvc3ZnPgo%3D)](MILESTONES.md)
+[![Contributing](https://img.shields.io/badge/Contributing-Get_involved-2EA44F?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEwIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik0zIDIxYzAtNCAzLTcgNy03czcgMyA3IDciLz48cGF0aCBkPSJNMTkgNHY2Ii8%2BPHBhdGggZD0iTTE2IDdoNiIvPjwvc3ZnPgo%3D)](CONTRIBUTING.md)
+[![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik02IDNoOWw0IDR2MTRINnoiLz48cGF0aCBkPSJNMTUgM3Y0aDQiLz48cGF0aCBkPSJNOSAxMmg3Ii8%2BPHBhdGggZD0iTTkgMTZoNyIvPjwvc3ZnPgo%3D)](LICENSE.md)
 
-![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)
-![KiCad](https://img.shields.io/badge/KiCad-7%20to%2010-314CB0?logo=kicad&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.8%2B-555555)
+![KiCad](https://img.shields.io/badge/KiCad-7%20to%2010-555555)
 ![Loops](https://img.shields.io/badge/RX_loops-1_to_16-blueviolet)
 ![Stars](https://img.shields.io/github/stars/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator?style=flat)
 ![Last commit](https://img.shields.io/github/last-commit/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator)
