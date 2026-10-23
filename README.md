@@ -11,9 +11,9 @@ Set the parameters, get a stator and a rotor as KiCad boards, checked and with a
 [![Wiki](https://img.shields.io/badge/Wiki-Read_the_docs-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)
 [![Examples](https://img.shields.io/badge/Examples-Pictures-E95420?style=for-the-badge&logo=kicad&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples)
 
-[![Milestones](https://img.shields.io/badge/Milestones-Roadmap-8957E5?style=for-the-badge&logo=trello&logoColor=white)](MILESTONES.md)
+[![Milestones](https://img.shields.io/badge/Milestones-Roadmap-8957E5?style=for-the-badge&logoColor=white)](MILESTONES.md)
 [![Contributing](https://img.shields.io/badge/Contributing-Get_involved-2EA44F?style=for-the-badge&logo=github&logoColor=white)](CONTRIBUTING.md)
-[![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE.md)
+[![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logoColor=white)](LICENSE.md)
 
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)
 ![KiCad](https://img.shields.io/badge/KiCad-7%20to%2010-314CB0?logo=kicad&logoColor=white)
