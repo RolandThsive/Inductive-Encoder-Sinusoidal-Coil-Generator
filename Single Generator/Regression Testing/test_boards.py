@@ -16,6 +16,7 @@ import harness as H
 import RegressionTools as RT
 
 FILES = ("Stator.kicad_pcb", "Rotor.kicad_pcb", "Parameters.txt")
+PICTURES = ("_Representative.svg", "_Actual.svg")   # resources/RepresentativeSVGMaker.py, ActualSVGMaker.py
 
 
 class BoardReferences(unittest.TestCase):
@@ -66,11 +67,12 @@ class BoardFolders(unittest.TestCase):
             with self.subTest(case=case):
                 self.assertEqual(os.path.basename(H.board(case).folder), name)
 
-    def test_every_case_writes_three_files(self):
+    def test_every_case_writes_its_files(self):
         for case in H.BOARD_CASES:
             with self.subTest(case=case):
                 res = H.board(case)
-                self.assertEqual(sorted(os.listdir(res.folder)), sorted(FILES))
+                name = os.path.basename(res.folder)
+                self.assertEqual(sorted(os.listdir(res.folder)), sorted(FILES + tuple(name + s for s in PICTURES)))
                 self.assertTrue(res.has(r"SUCCESS: 2 board file\(s\) \+ Parameters\.txt written"), res.out[-400:])
                 self.assertEqual(res.made, [os.path.basename(res.folder)], "exactly one folder per run")
 

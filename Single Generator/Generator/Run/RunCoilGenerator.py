@@ -34,6 +34,9 @@ Steps (the chain: every step reads only what the steps before it made)
      and copies of the parameter files) into it.  Nothing is ever overwritten.
      Last, LeadCutting_SilkscreenSuggestion.py draws the suggestion for cutting the leads (where to break each RX
      coil, where the TX ends get their vias) on the silkscreen of the written stator file and adds it to the record.
+     When both boards were written, resources/RepresentativeSVGMaker.py and resources/ActualSVGMaker.py draw them
+     as <folder name>_Representative.svg and <folder name>_Actual.svg in the same folder; a missing file or a failed
+     picture is only a warning.
 
 All settings are in Board_Parameters.py, RX_Parameters.py, TX_Parameters.py, Rotor_Parameters.py and
 IC_Parameters.py (the Parameters folder).  Run it from any folder, e.g. from the "Single Generator" folder:
@@ -57,6 +60,31 @@ from Generator.Checks import DesignChecks                               # noqa: 
 from Generator.Core.Conflict import Colour, Report                      # noqa: E402
 from Generator.Run import OutputFolders as OF                           # noqa: E402
 from Generator.Run.CheckParameters import check_parameters              # noqa: E402
+
+RESOURCES = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))),
+                         "resources")
+SVG_MAKERS = ("RepresentativeSVGMaker.py", "ActualSVGMaker.py")       # each has make_svg(folder)
+
+
+def draw_pictures(folder):
+    """The SVG pictures of the written board (resources/RepresentativeSVGMaker.py and ActualSVGMaker.py).  Extras: when
+    a file is missing or anything goes wrong, a yellow warning is printed and the run goes on.  Returns the number of
+    warnings printed."""
+    import importlib.util
+    warned = 0
+    for name in SVG_MAKERS:
+        try:
+            path = os.path.join(RESOURCES, name)
+            if not os.path.isfile(path):
+                raise FileNotFoundError(f"{name} not found in resources")
+            spec = importlib.util.spec_from_file_location(os.path.splitext(name)[0], path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            print("  " + Colour.green(f"picture -> {mod.make_svg(folder)}"))
+        except Exception as e:
+            print("  " + Colour.yellow(f"WARNING picture not made by {name}: {e}; the boards are not affected"))
+            warned += 1
+    return warned
 
 
 def step(n, total, text):
@@ -227,6 +255,8 @@ def main(argv=None):
         if silk is not None:
             LCS.append_record(path, silk)
         print("  " + Colour.green(f"record  -> {path}"))
+        if want_stator and want_rotor:
+            all_warn += draw_pictures(folder)
     except OSError as e:
         print("  " + Colour.red(f"ERROR   cannot write: {e}"))
         if not written:
