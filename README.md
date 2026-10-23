@@ -15,7 +15,7 @@ Set the parameters, get a stator and a rotor as KiCad boards, checked and with a
 [![Contributing](https://img.shields.io/badge/Contributing-Get_involved-2EA44F?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEwIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik0zIDIxYzAtNCAzLTcgNy03czcgMyA3IDciLz48cGF0aCBkPSJNMTkgNHY2Ii8%2BPHBhdGggZD0iTTE2IDdoNiIvPjwvc3ZnPgo%3D)](CONTRIBUTING.md)
 [![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik02IDNoOWw0IDR2MTRINnoiLz48cGF0aCBkPSJNMTUgM3Y0aDQiLz48cGF0aCBkPSJNOSAxMmg3Ii8%2BPHBhdGggZD0iTTkgMTZoNyIvPjwvc3ZnPgo%3D)](LICENSE.md)
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-555555)
+![Python](https://img.shields.io/badge/Python-3.9%2B-555555)
 ![KiCad](https://img.shields.io/badge/KiCad-7%20to%2010-555555)
 ![Loops](https://img.shields.io/badge/RX_loops-1_to_16-blueviolet)
 ![Stars](https://img.shields.io/github/stars/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator?style=flat)
@@ -49,7 +49,7 @@ Inductive position sensors measure angle with nothing more than copper traces on
 ## Quick Start
 
 ```bash
-pip install numpy
+python -m pip install -r requirements.txt
 
 cd "Single Generator"
 python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor

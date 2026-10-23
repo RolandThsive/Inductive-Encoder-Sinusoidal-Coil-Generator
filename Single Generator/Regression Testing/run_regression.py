@@ -12,7 +12,7 @@ run_regression.py  -  runs the regression tests of the Single Generator (from an
     python "Single Generator/Regression Testing/run_regression.py" --keep          keep the temporary output folder
                                                                                    (its path is printed)
 
-Exit code 0 when every test passed, 1 otherwise.  Needs Python 3.8 or newer and numpy, like the generator.
+Exit code 0 when every test passed, 1 otherwise.  Needs Python 3.9 or newer and numpy (see requirements.txt), like the generator.
 It writes nothing into the repository except, with --update-references, the References folder.
 """
 

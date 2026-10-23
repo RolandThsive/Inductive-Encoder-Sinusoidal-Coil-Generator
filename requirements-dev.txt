@@ -1,0 +1,2 @@
+# Test tooling: none beyond the runtime dependencies.  The regression suites use the standard library's unittest.
+-r requirements.txt

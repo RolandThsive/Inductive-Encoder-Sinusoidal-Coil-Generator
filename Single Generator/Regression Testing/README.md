@@ -9,7 +9,7 @@ it prints and what it writes.  The parameter files, the Output folder and the Si
     python "Single Generator/Regression Testing/run_regression.py" --update-references
                                                                             rewrite References/ from the generator as it is
 
-Needs what the generator needs: Python 3.8 or newer and numpy.  Exit code 0 when every test passed.
+Needs what the generator needs: Python 3.9 or newer and numpy (see requirements.txt).  Exit code 0 when every test passed.
 
 | file | what it tests |
 |---|---|
