@@ -11,7 +11,8 @@ a dual board has, and says where a name differs from the single one.
 
 > [!NOTE]
 > Defaults are those of the parameter files in `Dual Generator/Parameters/` on `main`. A name put in the wrong dual file
-> is ignored with a warning that names the file it belongs in.
+> is ignored with a warning that names the file it belongs in. The silkscreen names are the exception: in another file
+> the warning only says the name is not a parameter of this program, and it is ignored too.
 
 ## 22.1 The Files
 
@@ -62,7 +63,7 @@ pictures of each mode.
 | `OUTER_EDGE_TAIL_MARGIN_MM` | 0.7 | ≥ 0 | Outline = TX2 ring end plus this, at least (there is no tail: the ring ends one pitch outside its last turn) |
 | `EDGE_LINE_WIDTH_MM` | 0.05 | > 0 up to 1 | Line width of the `Edge.Cuts` circles |
 | `TRACK_GAP_MM` | None | > 0 or None | The copper-free ring between the sets, from the outermost copper of set 1 (its TX1 ring ends) to the innermost copper of set 2 (the RX2 band start minus half an RX trace or a via radius, whichever is larger). Modes 1 and 3: the gap to leave. Modes 2 and 4: must be `None`; the measured gap must be at least `MIN_CLEARANCE_MM` |
-| `LAYOUT_TOLERANCE_MM` | 0.05 | 0 to 1 | The rounding allowance: the built copper may differ from the layout formulas by this much before the run warns, and the outline gets this much extra room when ring 2 covers the TX2 turns. 0 = no allowance |
+| `LAYOUT_TOLERANCE_MM` | 0.05 | 0 to 1 | The rounding allowance: the built copper may differ from the layout formulas by this much before the run warns. In modes 1 to 3, when ring 2 covers the TX2 turns, it is also the room left between ring 2 and the outline beyond `ROTOR_AUTO_EDGE_CLEARANCE_MM` (half the edge line plus the polygon sag, when that is more). 0 = no allowance |
 | `BAND_SPLIT` | 0.5 | between 0 and 1, both excluded | Mode 1 only: set 1's share of the free radial width. 0.5 = equal band widths; a 1x / 16x board is usually near 0.5 |
 
 ### 22.2.4 TX Ends And Frequencies
@@ -103,10 +104,10 @@ each set has its own, in `Dual_TX1` / `Dual_TX2`.
 | `ROTOR_TRACK_GAP_MM` | 2.0 | ≥ 0 | Bare ring that must stay between ring 1's outer radius and ring 2's inner radius. Smaller is an error naming the extension to change |
 | `ROTOR_1_TO_RX2_MM` | 3.0 | ≥ 0 | Least distance from ring 1's outer radius to the innermost RX2 copper; smaller is a warning. Use 5.0 when the radius allows it |
 | `ROTOR_2_TO_RX1_MM` | 2.0 | ≥ 0 | Least distance from ring 2's inner radius to the outermost RX1 copper; smaller is a warning |
-| `ROTOR_PCB_THICKNESS_MM` | None | > 0 or None | Rotor thickness written into the KiCad file; None = `PCB_THICKNESS_MM` |
+| `ROTOR_PCB_THICKNESS_MM` | None | > 0 up to 20, or None | Rotor thickness written into the KiCad file; None = `PCB_THICKNESS_MM` |
 | `ROTOR_ARC_STEPS_PER_SECTOR` | `"auto"` | `"auto"` or 8 to 5000 | Points on every arc of a sector |
 | `ROTOR_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | How far the polygon may lie outside the true circle |
-| `ROTOR_SOLDER_MASK_EXPANSION_MM` | −1 | up to 5 | Mask opening over the rotor copper, the same for both rings (−1 = the mask stays over the copper) |
+| `ROTOR_SOLDER_MASK_EXPANSION_MM` | −1 | −1, or 0 to 5 | Mask opening over the rotor copper, the same for both rings (−1 = the mask stays over the copper) |
 
 ## 22.3 RX (`Dual_RX1_Parameters.py`, `Dual_RX2_Parameters.py`)
 

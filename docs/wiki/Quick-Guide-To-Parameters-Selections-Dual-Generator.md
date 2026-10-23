@@ -2,8 +2,8 @@
 
 A dual board is two coil sets on one board, so before it is built you choose how the radii are given: which of the two
 RX bands, the two board edges and the gap between the sets you set, and which the generator works out. That choice is
-`DUAL_MODE`, in `Dual_Board_Parameters.py`. This page shows the four modes, the two settings that only modes 1 and 3
-use (`BAND_SPLIT` and `TRACK_GAP_MM`), and a starting point for the rest. Every picture is a run of the Dual Generator
+`DUAL_MODE`, in `Dual_Board_Parameters.py`. This page shows the four modes, the two settings that only some modes
+use (`BAND_SPLIT` in mode 1, `TRACK_GAP_MM` in modes 1 and 3), and a starting point for the rest. Every picture is a run of the Dual Generator
 with only the named settings changed, silkscreen off; colour shows the copper layer (Top red, Inner-1 green, Inner-2
 dark yellow). Each parameter is described in full in the
 [Parameter Reference Dual Generator](Parameter-Reference-Dual-Generator.md).

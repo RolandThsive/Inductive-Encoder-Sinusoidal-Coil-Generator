@@ -48,7 +48,7 @@
 | **Set 1, set 2** | The two coil sets of a dual board: set 1 inside, set 2 outside. Each has its own RX pair, TX ring and IC, and its files end in 1 or 2 (`Dual_RX1_Parameters.py`, ...). |
 | **Coarse and fine track** | On a dual board, set 1 is the coarse track (1 loop by default): its absolute angle says which period of the fine track (set 2, 16 loops by default) the rotor is in, and the fine track gives the resolution. The coarse error must stay below 180 / `LOOPS` of set 2 degrees. |
 | **Ring 1, ring 2** | The two rings of copper sectors on the dual rotor disc, facing set 1 and set 2. |
-| **`DUAL_MODE`** | Which radii of a dual board you give and which the generator computes: 1 = edges and gap, 2 = both bands, 3 = one band and the gap, 4 = everything. |
+| **`DUAL_MODE`** | Which radii of a dual board you give and which the generator computes: 1 = edges and gap, 2 = both bands, 3 = one band and the gap, 4 = both bands and both edges (the gap is then measured, not given). |
 | **Track gap** | `TRACK_GAP_MM`: the copper-free ring between the two sets of a dual board. |
 | **Band split** | `BAND_SPLIT`: in `DUAL_MODE` 1, set 1's share of the free width for the two RX bands. |
 | **Terminal angle** | `TERMINAL_1_DEG`, `TERMINAL_2_DEG`: where each set's TX ends sit on a dual board; each set is turned to put them there. |

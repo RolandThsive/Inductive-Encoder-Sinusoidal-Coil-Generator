@@ -51,12 +51,17 @@ bore | RX1 band | TX1 ring | TRACK_GAP_MM | RX2 band | TX2 ring | outline
   outside the last turn) to the innermost copper of set 2 (the RX2 band start minus half an RX trace or a via radius,
   whichever is larger).
 - The outline leaves at least `OUTER_EDGE_OFFSET_MM` (2.0 mm) past the RX2 band and `OUTER_EDGE_TAIL_MARGIN_MM` (0.7 mm)
-  past the TX2 ring. When ring 2 of the rotor covers the TX2 turns, the outline gets `LAYOUT_TOLERANCE_MM` of extra room.
+  past the TX2 ring. In modes 1 to 3, when ring 2 of the rotor covers the TX2 turns (the default), the outline must also
+  hold ring 2: the outermost TX2 copper plus `ROTOR_AUTO_TX_OVERHANG_MM` (0.5 mm), `ROTOR_AUTO_EDGE_CLEARANCE_MM`
+  (0.5 mm) and `LAYOUT_TOLERANCE_MM` (0.05 mm, or half the edge line plus the sag of the ring's polygon when that is
+  more). On the default board this rule sets the outline: 25.825 + 0.5 + 0.5 + 0.05 = 26.875 mm, where the first two
+  rules ask for 25.9 and 26.8 mm.
 
 ![Dual Board 1: From The Centre Out](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/dual_board_1_layout.png)
 
 *Dual Board 1. The default board measured on the written files. Each stator bar is the copper of one coil (traces with
-their width, vias with their diameter); the rotor bars are the two rings. The arrows are the gap between the sets
+their width, vias with their diameter), grey because each coil spans two layers; the rotor bars are the two rings,
+red because the rotor copper is on Top. The arrows are the gap between the sets
 (3.725 mm) and the three rotor distances of [Rotor Features - Dual Generator](Rotor-Features-Dual-Generator.md#173-distances-between-the-rings).*
 
 The gap is **not** what isolates the two sets. A balanced RX band sees no net flux from a round TX ring, however close.

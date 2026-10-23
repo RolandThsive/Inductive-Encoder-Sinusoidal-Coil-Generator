@@ -56,8 +56,10 @@ stay below half an outer period, which is 180 / `LOOPS` of set 2 mechanical degr
 
 `RX_SUBCOILS` (1, 2 or 3) and `RX_SUBCOIL_SPLIT_ELEC_DEG` work for each set as on a single board. They are most useful
 on the 1-loop inner set, where the harmonics matter most. Each sub-coil adds junction vias, so the band needs room
-for them: on the default inner band (8.45 to 11.7 mm) the checker refuses two sub-coils ("LOOPS conflicts with
-RX_SUBCOILS, RX_TRACE_WIDTH_MM, VIA_DIAMETER_MM and MIN_CLEARANCE_MM"). Widen the inner band, or use smaller vias.
+for them: on the default inner band (8.45 to 11.7 mm) two sub-coils pass the checker, but the run stops while it
+builds set 1 ("RX_SUBCOILS conflicts with RX_SUBCOIL_SPLIT_ELEC_DEG, RX_VIA_ELECTRICAL_DEG and LOOPS", then "set 1: no
+crossing of neighbouring sub-coils is clear enough for the via that joins them"). Widen the inner band, or use smaller
+vias (0.45 mm builds, 0.5 mm does not).
 
 ![Dual Stator 2: RX Sub-Coils](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/dual_stator_2_subcoils.png)
 
@@ -90,7 +92,7 @@ the same in every picture.*
 | `TX_WIRING` | What It Builds |
 |---|---|
 | `"series"` (default) | The turns on the two TX layers in series, joined by one via at the inner end: 2 × `TX_TURNS` turns. The two ends sit on top of each other one pitch outside the last turn, one on each TX layer |
-| `"parallel"` | The same turns on both layers in parallel, stitched through vias at the terminal. About 6 % more receiver signal and twice the Q in the model, half the inductance. The inner end comes out on an inner tail that ends one pitch outside the last turn, no further |
+| `"parallel"` | The same turns on both layers in parallel, stitched through vias at the terminal: `TX_TURNS` turns, not 2 × `TX_TURNS`. In the estimate that is a quarter of the series ring's inductance and about the same Q (set 1 at pitch 0.45 mm: 2.81 µH and Q 10 to 21 in series, 0.70 µH and Q 9 to 19 in parallel). The inner end comes out on an inner tail that ends one pitch outside the last turn, no further |
 
 A parallel ring needs room for its stitching vias between the turns: with the default 0.6 mm vias the checker asks for
 a pitch of at least 0.43 mm, so the default pitch of 0.35 mm works only for a series ring.
@@ -103,8 +105,11 @@ both rows. Left: the whole board. Middle and right: the TX ends of the inner set
 
 ### 16.3.3 Where Each Set's TX Ends Go
 
-There is no TX terminal search on a dual board. Each set is turned on its own so that its TX ends sit at its own
-angle, `TERMINAL_1_DEG` for set 1 (default 180°, the left) and `TERMINAL_2_DEG` for set 2 (default 0°, the right).
+Each set looks for its TX terminal as a single board does, at the place with the largest gap from its own RX copper.
+Then, instead of turning the terminal to 0°, each set is turned on its own so that its TX ends sit at its own angle,
+`TERMINAL_1_DEG` for set 1 (default 180°, the left) and `TERMINAL_2_DEG` for set 2 (default 0°, the right). The run
+prints both, for set 1 on the default board: "TX terminal: found at 135.00 deg of the RX pattern (0.639 mm from the
+nearest RX copper); the board is turned by 45.00 deg so that it sits at 180 deg".
 Angles run from the +x axis of the page towards +y, down the KiCad page: 0 = right, 90 = bottom, 180 = left, 270 =
 top. Different angles keep the two sets' breakouts apart. Each set's RX pattern zero lands wherever its turn puts it;
 `Parameters.txt` prints both.

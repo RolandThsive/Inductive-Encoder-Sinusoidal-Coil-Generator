@@ -16,7 +16,7 @@
 
 The generators, their testing and their examples are also the project's milestones, listed in
 [`MILESTONES.md`](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/MILESTONES.md).
-When every milestone is done, the commercial fee stops and the project opens under a GPL-like license (see
+When every milestone is done, the commercial fee stops and the project opens under a new license, the same as the GPL (see
 [License](License.md#322-commercial-use)).
 
 | Previous | Next |

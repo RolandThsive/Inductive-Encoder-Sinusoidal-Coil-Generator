@@ -12,11 +12,13 @@
 
 The order of the work is set by the milestones in
 [`MILESTONES.md`](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/MILESTONES.md):
-the generators first (single, dual, arc and linear), then the testing of each, the corrections from the measurements,
+the generators first (the single and the dual generator are done, the arc and the linear one are next), then the
+testing of each, the corrections from the measurements,
 and working examples.
 
-If you can help with boards, equipment or measurements, please see [Licensing](License.md) for
-contact details.
+If you can help with boards, equipment or measurements, please see
+[Licensing in the README](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator#licensing) for
+the contact details.
 
 | Previous | Next |
 |:---|---:|

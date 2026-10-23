@@ -52,7 +52,9 @@ The two rings use the same edge settings as a single rotor, with different defau
 Ring 1 is the dangerous one. A 1-lobe target is a half moon, so any of its field that reaches the RX2 band modulates
 the fine signal once per turn: a first-harmonic error that no fine-track calibration removes. That is why ring 1 does
 not cover TX1 by default. Covering it would gain a few percent of coarse signal, which the IC's automatic gain control
-does not need, and would put the half moon about half a millimetre from the fine band; the generator warns about it.
+does not need, and would carry the half moon 0.5 mm past the outermost TX1 turn into the gap between the sets: on the
+default board it then reaches r = 14.12 mm and ends 3.57 mm inside the RX2 copper instead of 6.00 mm. The generator
+warns about it.
 
 ![Dual Rotor 2: Ring Edges And Metal Fraction](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/dual_rotor_2_edges.png)
 

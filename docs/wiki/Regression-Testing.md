@@ -18,6 +18,7 @@ python "Dual Generator/Regression Testing/run_regression.py"        # everything
 | `-v` | One line per test |
 | `-k <word>` | Only the tests whose name contains the word, for example `-k checker` or `-k silkscreen` |
 | `--update-references` | Rewrite `References/` from the generator as it is now |
+| `--keep` | Keep the temporary output folder the boards are written to |
 
 The exit code is 0 when every test passed.
 
