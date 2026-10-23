@@ -5,7 +5,7 @@
 | Human Language | English |
 | Programming Language | Pure Python 3 with numpy |
 | Generators | Single Generator: one coil set on a board. Dual Generator: two coil sets (a coarse inner track and a fine outer track, each with its own IC) on one 4-layer board, and one rotor disc with two rings, built with the Single Generator's own code |
-| Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
+| Output | Stator and rotor as `.kicad_pcb` files, a full record of every value used, and two SVG pictures of the boards: a Representative one to look at and an Actual one with the copper 1:1 in mm (see [Output Pictures](Output-Pictures.md)) |
 | RX Loops | 1 to 16 electrical periods per mechanical turn |
 | RX Phases | Four phases only: SIN and COS pairs, each with a positive and a negative half |
 | RX Profiles | `equal_area`, `cosine_r` (limaçon); a field-compensated profile is research underway |

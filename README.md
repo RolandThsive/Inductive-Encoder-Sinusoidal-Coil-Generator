@@ -59,7 +59,9 @@ python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor
 ```
 
 Edit only the files in `Single Generator/Parameters/`. Each run writes a new folder in `Single Generator/Output/`
-with `Stator.kicad_pcb`, `Rotor.kicad_pcb` and `Parameters.txt`, and never overwrites an earlier one. Prefer a
+with `Stator.kicad_pcb`, `Rotor.kicad_pcb`, `Parameters.txt` and two SVG pictures of the boards
+([Representative and Actual](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Output-Pictures)),
+and never overwrites an earlier one. Prefer a
 browser? Use the [Web Tool](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html). Full
 walk-through: [Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started).
 

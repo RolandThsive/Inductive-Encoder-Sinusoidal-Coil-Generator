@@ -33,6 +33,7 @@
 - [Electrical Estimate](Electrical-Estimate.md)
 - [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
 - [Project Output Organization](Project-Output-Organization.md)
+- [Output Pictures](Output-Pictures.md)
 - [KiCad Compatibility](KiCad-Compatibility.md)
 - [Regression Testing](Regression-Testing.md)
 

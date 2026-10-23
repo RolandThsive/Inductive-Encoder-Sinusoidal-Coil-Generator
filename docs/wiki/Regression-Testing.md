@@ -1,10 +1,10 @@
-# 28. Regression Testing
+# 29. Regression Testing
 
 Both generators have a regression test suite that runs the generator the way a user does, with parameter values set in
 memory, and checks what it prints and what it writes. The parameter files, the `Output` folders and the generators are
 never touched by a test run. The suites need what the generators need: Python 3.8 or newer and NumPy.
 
-## 28.1 Running The Tests
+## 29.1 Running The Tests
 
 From the root of the repository:
 
@@ -22,14 +22,14 @@ python "Dual Generator/Regression Testing/run_regression.py"        # everything
 
 The exit code is 0 when every test passed.
 
-## 28.2 What Is Tested
+## 29.2 What Is Tested
 
 Each suite has the same files:
 
 | File | Single Generator | Dual Generator |
 |---|---|---|
 | `test_checker.py` | One value of every kind set wrongly, missing and unknown names, inactive values left alone, the conflicts between values (vias, layers, nets, edges, fingers, rotor), the geometry that stops a run, strict mode. Each case states the return code and the lines the run must print | The four `DUAL_MODE` layouts and every way they can be set wrongly, the fixed file, the dual rules (nets, frequencies, layers, rings), the Single Generator's own checks on each set, strict mode |
-| `test_boards.py` | Every board case written and compared with `References/` (stator, rotor, record), numbers within 1e-5 | The same, for the dual board cases |
+| `test_boards.py` | Every board case written and compared with `References/` (stator, rotor, record), numbers within 1e-5; its folder must hold exactly these three files and the two [output pictures](Output-Pictures.md) | The same, for the dual board cases |
 | `test_invariants.py` | What every written board must obey: the file format, the layer table, the nets, copper inside the edges with the right widths, the clearance between nets, closed RX coils, the TX in one piece with its terminal at 0°, the rotor sectors, the record; the same values written twice are identical | The same for a dual board: four layers, six nets, set 1 inside set 2 by the recorded gap, the TX ends at `TERMINAL_1_DEG` / `TERMINAL_2_DEG`, the two rotor rings |
 | `test_silkscreen.py` | The lead-cutting silkscreen: three suggestions on both sides, via sites with room, lettering off the vias and mirrored on the bottom, the settings with their fallbacks, the font, the name placer | Six suggestions, names with the set number, breaks near each set's terminal, sides and labels options |
 | `test_cli.py` | The generator started as a script in a fresh Python process, from its folder and from elsewhere, with `--check`, `--help` and a bad option | The same, plus the checker on its own and the promise that a dual run leaves no `__pycache__` in the Single Generator |
@@ -42,14 +42,14 @@ The parsing and measuring code both suites share is `resources/RegressionTools.p
 back and measures it independently of the generator: the smallest clearance between nets on a cell grid, the
 connectivity of each net, the copper extent of each layer, and a token-by-token comparison with the references.
 
-## 28.3 On Every Pull Request
+## 29.3 On Every Pull Request
 
 The workflow `.github/workflows/regression.yml` runs both suites on every pull request (opened, updated or reopened), on
 Ubuntu and on Windows, with Python 3.9 and 3.13, so the boards come out the same on every machine the generators are used
 on. The checks read, for example, "Single Generator (ubuntu-latest, Python 3.13)". A push to a branch without a pull
 request runs nothing, and a new push to a pull request cancels the run still going for it.
 
-## 28.4 When A Test Fails
+## 29.4 When A Test Fails
 
 When a test in `test_boards.py` fails, the generator writes something different from what it wrote when the references
 were frozen. Read the printed differences; if the change is intended, run `--update-references` and commit the new

@@ -1,4 +1,4 @@
-# 29. Glossary
+# 30. Glossary
 
 | Term | Meaning |
 |---|---|
@@ -54,6 +54,8 @@
 | **Terminal angle** | `TERMINAL_1_DEG`, `TERMINAL_2_DEG`: where each set's TX ends sit on a dual board; each set is turned to put them there. |
 | **Silkscreen suggestion** | The marks the last step of a run draws on the stator's silkscreen: where to break each RX coil and where the TX ends get their vias, with the lead names. Guidance only; no copper is changed. |
 | **Lead name** | The name written next to a via site of the silkscreen suggestion: `SIN_1`, `COS_2`, `TX_1 TOP`, ... (on a dual board `SIN1_1`, `TX2_2 IN2`, ...). |
+| **Representative picture** | `<folder name>_Representative.svg`: a picture of the written boards for people, with a title, a legend, and the copper under Top drawn wider so it shows. See [Output Pictures](Output-Pictures.md). |
+| **Actual picture** | `<folder name>_Actual.svg`: the copper of the written boards at its true size, 1:1 in mm, one Inkscape layer per copper layer, with no text. See [Output Pictures](Output-Pictures.md). |
 | **Blind via** | A via between two neighbouring layers that does not go through the board (`VIA_TYPE = "blind"`, 4 layers only). A via between the two inner layers is a buried via. |
 | **Regression test** | A test that runs a generator and compares what it writes with frozen references, so a change that alters the boards is noticed. |
 

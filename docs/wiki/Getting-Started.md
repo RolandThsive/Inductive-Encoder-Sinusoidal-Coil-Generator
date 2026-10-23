@@ -59,9 +59,12 @@ folder name already exists, `__1`, `__2` and so on are added. See
 4. The [electrical estimate](Electrical-Estimate.md) is printed and checked against the receiver IC limits in `IC_Parameters.py`.
 5. The run decides: any error stops it (nothing is written); with `GENERATOR_MODE = "strict"` every warning about the finished boards counts as an error, and `--check` stops here on purpose.
 6. The boards and `Parameters.txt` (the summaries, every value used, and copies of the parameter files) are written.
-7. Last, a lead-cutting suggestion is drawn on the silkscreen of the stator: where to break each RX coil and where the
+7. Then a lead-cutting suggestion is drawn on the silkscreen of the stator: where to break each RX coil and where the
    TX ends get their vias. It changes no copper and never stops a run; the coordinates are printed and added to
    `Parameters.txt`. See [Silkscreen](Silkscreen.md).
+8. Last, two SVG pictures of the boards are drawn into the same folder: `<folder name>_Representative.svg` to look
+   at, and `<folder name>_Actual.svg` with the copper 1:1 in mm. A picture that cannot be made is only a warning; the
+   boards are not affected. See [Output Pictures](Output-Pictures.md).
 
 Every board carries a filled-in KiCad title block. There are no terminals or pads: you break the coils out yourself,
 where the silkscreen suggests or wherever you like.
@@ -87,7 +90,8 @@ python Dual_Generator/Run/Dual_RunCoilGenerator.py --check # Check only, write n
 ```
 
 The options `--stator`, `--rotor` and `--no-color` work as for the Single Generator. Each run writes a new
-`DualCoil_...` folder in `Dual Generator/Output/`. Start with the
+`DualCoil_...` folder in `Dual Generator/Output/`, with the boards, `Parameters.txt` and the two
+[output pictures](Output-Pictures.md). Start with the
 [Quick Guide To Parameters Selections - Dual Generator](Quick-Guide-To-Parameters-Selections-Dual-Generator.md).
 
 ## 3.6 Next

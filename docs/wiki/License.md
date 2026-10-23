@@ -1,7 +1,7 @@
-# 32. License
+# 33. License
 
 The project is open for research use and free for noncommercial use. It uses three licenses, one for each kind of
-content, an extra term on everything the tool produces (32.1), and commercial terms for companies (32.2).
+content, an extra term on everything the tool produces (33.1), and commercial terms for companies (33.2).
 
 | Content | License | What it allows |
 |---|---|---|
@@ -13,7 +13,7 @@ The Web Tool's license covers the tool and every aspect of it: its code, design,
 controls, icons, preview and measuring tools, wording, help texts, and pictures and recordings of it. It does not
 cover the core generator the tool runs, which stays under the code license above.
 
-Commercial use of anything here requires written permission from the author. The commercial terms in 32.2 are that
+Commercial use of anything here requires written permission from the author. The commercial terms in 33.2 are that
 permission, for everyone who accepts and follows them. See the
 [repository `LICENSE.md`](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/LICENSE.md)
 for an overview, the links to the full license texts and the contact details.
@@ -37,9 +37,9 @@ for an overview, the links to the full license texts and the contact details.
 > - **Leftover money is given away.** Whatever is not needed for the project is donated to a fund that supports
 >   innovation worldwide, chosen together by the author and the paying company.
 
-## 32.1 Output Of The Tool
+## 33.1 Output Of The Tool
 
-**No output of the tool may be used commercially unless you have accepted the commercial terms (32.2) or have the
+**No output of the tool may be used commercially unless you have accepted the commercial terms (33.2) or have the
 author's written permission.** This is an extra term, in addition to the licenses above, and it applies to everything
 the Single Generator, the Dual Generator, the analyser or the Web Tool produces, whether run unchanged or from a
 changed copy, whole or in part:
@@ -56,7 +56,7 @@ it was made with the Sinusoidal Coil Generator, with a link to the repository. T
 generators or the Web Tool, and using them means accepting it. The same term is in the
 [repository `LICENSE.md`](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/LICENSE.md#output-of-the-generator).
 
-## 32.2 Commercial Use
+## 33.2 Commercial Use
 
 Companies and startups may use this project, including its output, under these terms. They apply in addition to the
 licenses above, and using the project commercially means accepting them.
@@ -82,7 +82,7 @@ The fee is asked in good faith. It is the condition for commercial use, and comm
 permitted. Paying companies are thanked by name in the README. Please get in touch before you start, through the contact
 channels in the [README](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator#licensing).
 
-## 32.3 Contributions
+## 33.3 Contributions
 
 Contributions are welcome. This is the contributor agreement from the repository's
 [`CONTRIBUTING.md`](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/CONTRIBUTING.md#contributor-agreement).
@@ -108,20 +108,20 @@ the pull request description.
    the project, except the right to be named: contributors are credited in the history and may be listed in the
    README.
 6. **Same terms for output.** Your Contribution and everything made from it follow the project's terms, including the
-   rule that no output may be used commercially without written permission (32.1).
+   rule that no output may be used commercially without written permission (33.1).
 7. **No obligation.** The author may refuse, change or remove any Contribution. The Contribution is given as is, without
    warranty.
 8. **Public record.** Your name and email are kept in the public history of the repository.
 
 Contributions that do not carry the sign-off are not merged.
 
-## 32.4 KiCad
+## 33.4 KiCad
 
 The generator writes boards that open in KiCad. This section explains why the project may name KiCad and write
 KiCad's file format, and why that does not conflict with the terms above. It is the project's reading of KiCad's own
 published statements, listed at the end. It is not legal advice and is not a statement by the KiCad project.
 
-### 32.4.1 The Name "KiCad"
+### 33.4.1 The Name "KiCad"
 
 - **Who owns it.** "KICAD" is a registered United States trademark (registration 6568683, 23 November 2021) owned by
   LF Projects, LLC, for electronic design automation software and its documentation.
@@ -133,7 +133,7 @@ published statements, listed at the end. It is not legal advice and is not a sta
 - **No affiliation.** KiCad is a trademark of LF Projects, LLC. This project is not affiliated with, sponsored by or
   endorsed by KiCad or LF Projects, LLC.
 
-### 32.4.2 The File Format
+### 33.4.2 The File Format
 
 - **The format is published.** KiCad documents its file formats openly for developers, including the board format the
   generator writes (the s-expression `.kicad_pcb` format, used by every KiCad version from 6.0). The documentation sets
@@ -147,7 +147,7 @@ published statements, listed at the end. It is not legal advice and is not a sta
 - **Using `.kicad_pcb`.** The file extension and the format are what let KiCad open the board. Using them describes
   what the file is, and makes no claim that KiCad produced it.
 
-### 32.4.3 KiCad's License And The Generated Boards
+### 33.4.3 KiCad's License And The Generated Boards
 
 - **KiCad's license covers KiCad.** KiCad is licensed under the GNU General Public License version 3 or later. That
   license governs KiCad's own source code and copies of KiCad. It does not apply to a separate program that only
@@ -158,11 +158,11 @@ published statements, listed at the end. It is not legal advice and is not a sta
   that use them. The generator does not use those libraries at all, so nothing from KiCad is carried into its boards.
 - **So the terms of this project apply.** Because neither KiCad's license nor its libraries reach the generator's
   boards, the boards and files the generator makes are under this project's terms alone, including the extra term
-  on output in 32.1. Opening, editing or saving such a board in KiCad does not change that.
+  on output in 33.1. Opening, editing or saving such a board in KiCad does not change that.
 - **KiCad itself stays free.** Nothing here limits anyone's use of KiCad. The terms on this page apply to this
   project's code, documentation, Web Tool and output, not to KiCad.
 
-### 32.4.4 Sources
+### 33.4.4 Sources
 
 - KiCad trademark: United States trademark registration 6568683, "KICAD", owner LF Projects, LLC
   ([record](https://trademarks.justia.com/904/76/kicad-90476958.html)).
@@ -176,7 +176,7 @@ published statements, listed at the end. It is not legal advice and is not a sta
 - Designs and KiCad's license, as discussed by KiCad's maintainers and users:
   [KiCad forum, "License for project made with KiCad"](https://forum.kicad.info/t/license-for-project-made-with-kicad/6552).
 
-## 32.5 Disclaimer
+## 33.5 Disclaimer
 
 The author knows of no patent that this project infringes. This is not a guarantee.
 
