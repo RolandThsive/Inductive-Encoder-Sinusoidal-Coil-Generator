@@ -4,130 +4,47 @@
 
 # Sinusoidal Coil Generator
 
-**An Open Generator For Rotary Inductive Encoder Coils, Built For KiCad**
+**An open generator for rotary inductive encoder coils, built for KiCad.**
+Set the parameters, get a stator and a rotor as KiCad boards, checked and with an estimate of how they will perform.
 
-Python · KiCad 7, 8, 9 And 10 · Stator And Rotor PCBs · 1 To 16 Loops · Open For Research Use
+[![Web Tool](https://img.shields.io/badge/Web_Tool-Try_in_browser-0078D6?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjkiLz48cGF0aCBkPSJNMyAxMmgxOCIvPjxwYXRoIGQ9Ik0xMiAzYzMgMyAzIDE1IDAgMTgiLz48cGF0aCBkPSJNMTIgM2MtMyAzLTMgMTUgMCAxOCIvPjwvc3ZnPgo%3D)](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
+[![Wiki](https://img.shields.io/badge/Wiki-Read_the_docs-333333?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMiA2djE0Ii8%2BPHBhdGggZD0iTTEyIDZDMTAgNC41IDYuNSA0IDMgNC41djE0YzMuNS0uNSA3IDAgOSAxLjUiLz48cGF0aCBkPSJNMTIgNmMyLTEuNTAwIDUuNTAwLTIgOS0xLjUwMHYxNGMtMy41MDAtLjUwMC03IDAtOSAxLjUwMCIvPjwvc3ZnPgo%3D)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)
+[![Examples](https://img.shields.io/badge/Examples-Pictures-E95420?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yIDEyYzIuNTAwLTggNS41MDAtOCA4IDBzNS41MDAgOCA4IDAgMi41MDAtNCA0LTQiLz48L3N2Zz4K)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples)
 
-**[WEBUI TOOL](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WEBUIReadme.md)** can be found at [Ro-H-Bots/Inductive Encoder Sinusoidal Coil Generator](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
+[![Milestones](https://img.shields.io/badge/Milestones-Roadmap-8957E5?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik01IDIxVjQiLz48cGF0aCBkPSJNNSA0aDEybC0yLjUwMCA0IDIuNTAwIDRINSIvPjwvc3ZnPgo%3D)](MILESTONES.md)
+[![Contributing](https://img.shields.io/badge/Contributing-Get_involved-2EA44F?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEwIiBjeT0iOCIgcj0iNCIvPjxwYXRoIGQ9Ik0zIDIxYzAtNCAzLTcgNy03czcgMyA3IDciLz48cGF0aCBkPSJNMTkgNHY2Ii8%2BPHBhdGggZD0iTTE2IDdoNiIvPjwvc3ZnPgo%3D)](CONTRIBUTING.md)
+[![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik02IDNoOWw0IDR2MTRINnoiLz48cGF0aCBkPSJNMTUgM3Y0aDQiLz48cGF0aCBkPSJNOSAxMmg3Ii8%2BPHBhdGggZD0iTTkgMTZoNyIvPjwvc3ZnPgo%3D)](LICENSE.md)
 
-**[Wiki](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)** has better organized information on this tool. 
+![Python](https://img.shields.io/badge/Python-3.8%2B-555555)
+![KiCad](https://img.shields.io/badge/KiCad-7%20to%2010-555555)
+![Loops](https://img.shields.io/badge/RX_loops-1_to_16-blueviolet)
+![Stars](https://img.shields.io/github/stars/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator?style=flat)
+![Last commit](https://img.shields.io/github/last-commit/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator)
 
-Inductive position sensors measure angle with nothing more than copper traces on printed circuit
-boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration,
-stray magnetic fields and wide temperature swings. The difficult part has always been the coil
-design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator
-and the rotor from a small set of parameter files, checks the design, and estimates how it will
-perform. It is written for **roboticists and mechatronics engineers** who want high-resolution
-motor and joint encoders without buying expensive sealed units or designing coils by hand.
+Inductive position sensors measure angle with nothing more than copper traces on printed circuit boards. They have no magnets, no optics and no contact, so they tolerate dust, oil, vibration, stray magnetic fields and wide temperature swings. The difficult part has always been the coil design. This project automates it: it generates complete, ready-to-open KiCad boards for the stator and the rotor from a small set of parameter files, checks the design, and estimates how it will perform. It is written for roboticists and mechatronics engineers who want high-resolution motor and joint encoders without buying expensive sealed units or designing coils by hand.
 
 ![Stator on the left and rotor on the right: 4 loops, 3 TX turns, board radius 30 to 50 mm](docs/images/intro_2_stator_and_rotor.png)
 
+*A generated stator (left) and rotor (right): 4 loops, 3 TX turns, board radius 30 to 50 mm.*
+
 </div>
 
-## Contents
-
-1. [Disclaimer](#disclaimer)
-2. [Goal](#goal)
-3. [Working Principle](#working-principle)
-4. [Immediate Next Steps](#immediate-next-steps)
-5. [Project Capabilities](#project-capabilities)
-6. [Examples](#examples)
-7. [Quick Start](#quick-start)
-8. [Where To Read More](#where-to-read-more)
-9. [Licensing](#licensing)
-10. [About Me](#about-me)
-
----
-
-## Disclaimer
 
 > [!IMPORTANT]
-> **Hardware Validation Is Pending.** The first test boards have been ordered but have not yet been
-> measured. Every voltage, frequency, inductance and accuracy figure in this repository comes from
-> the project's own models. Treat these numbers as engineering estimates until measurements
-> confirm them.
+> **Hardware validation is pending.** The first test boards have been ordered but have not yet been measured.
+> Every voltage, frequency, inductance and accuracy figure in this repository comes from the project's own models.
+> Treat these numbers as engineering estimates until measurements confirm them.
 
-- This project is the result of three months of research and development, from July 2026 to
-  October 2026. Claude and Gemini were used as coding assistants.
-- Development will speed up as more information, hardware and contributors join the project.
-- Researchers, students, hobbyists and curious engineers are completely welcome to use this open tool.
-- This is a research project, open to researchers. The source code is free to read, use, study and
-  improve for non-commercial research purposes.
-- **Commercial use requires written permission.** If you would like to use this project in a
-  startup or a company, please get in touch (see [Licensing](#licensing)). Once terms are agreed,
-  your organisation will be added to the list of approved commercial users.
+## Documentation
 
----
-
-## Goal
-
-The goal is an **all-in-one, openly available coil generator for rotary inductive encoders**, one
-that anyone in the world can use to reach **20-bit and higher motor encoding** on demand, with
-nothing more than KiCad and a PCB order. Industrial absolute encoders with this kind of resolution
-and robustness cost hundreds to thousands of dollars each. This project aims to close that gap, and
-it is open to researchers, students, hobbyists and curious engineers who want to use it or add to it.
-
----
-## Working Principle
-![Introduction 1: Working Principle](docs/images/intro_1_working_principle.png)
-
-*Introduction 1. A: Side view of the sensor. B: A generated 1-loop stator with its rotor. C: The
-receiver signals over one rotor turn, from the project's analyser. D: The angle recovered from the
-two signals.* More in the wiki: [Working Principle](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Working-Principle).
-
-> [!NOTE]
-> The coil sets how many electrical periods there are per turn and how clean the signals are. The
-> final number of bits also depends on the receiver electronics, the ADC or interpolator, noise and
-> calibration. See [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator).
-
----
-
-## Immediate Next Steps
-
-- **Hardware Testing.** Funds are being collected to order a wide range of coil PCBs and the test
-  equipment to measure them.
-- **Model Validation.** Every measured board will be compared with the model's predictions, and the
-  models will be corrected wherever they disagree.
-- **Wider Coverage.** Test boards will cover different loop counts, sub-coils, TX layouts and rotor
-  shapes.
-
-See the wiki for [Immediate Next Steps](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Immediate-Next-Steps) and
-[Future Upgrades And Planning](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Future-Upgrades-And-Planning). If you can help with boards,
-equipment or measurements, please read [CONTRIBUTING.md](CONTRIBUTING.md) and see [Licensing](#licensing) for contact details.
-
----
-
-## Project Capabilities
-
-| Area | Capability |
+| I want to | Read |
 |---|---|
-| Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
-| RX | 1 to 16 loops, two profiles (`equal_area`, `cosine_r`; a field-compensated one is research underway), 1 to 3 sub-coils, bridging fingers |
-| TX | One or two layers, single, series or parallel wiring, stepped-diagonal, stepped-arc or spiral turns, terminal placed automatically |
-| Rotor | Generated from the stator, or fully custom |
-| Board | 2 or 4 copper layers, through vias only |
-| Checks And Estimate | Parameter and geometry checks with named conflicts (`GENERATOR_MODE` `normal` or `strict`), TX inductance, resistance, tank capacitors and oscillator frequency |
-| Analysis And Optimization | On the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer), under construction |
-
-Full details, board sizes and every parameter are in the wiki:
-[Project Capabilities](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Project-Capabilities),
-[Stator Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Stator-Features), [Rotor Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Rotor-Features) and
-[Board Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Board-Features).
-
----
-
-## Examples
-
-![Stator 1: Loops](docs/images/stator_1_loops.png)
-
-*Stator 1. The same board with 1, 2, 4, 8 and 16 loops.*
-
-![Rotor 1: Lobes](docs/images/rotor_1_lobes.png)
-
-*Rotor 1. Rotors with 1, 2, 3, 4, 6, 8, 12 and 16 lobes.* More pictures in the wiki:
-[Examples](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples).
-
----
+| Start | [Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started), [Web Tool](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Web-Tool), [Examples](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples) |
+| Understand it | [Working Principle](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Working-Principle), [RX Profiles](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/RX-Profiles), [TX Profiles](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/TX-Profiles) |
+| Design a board | [Choosing A Rotor And Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Choosing-A-Rotor-And-Stator), [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections), [Stator Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Stator-Features), [Rotor Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Rotor-Features), [Board Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Board-Features), [Silkscreen](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Silkscreen) |
+| Design a dual board | [Stator Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Stator-Features-Dual-Generator), [Rotor Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Rotor-Features-Dual-Generator), [Board Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Board-Features-Dual-Generator), [Silkscreen](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Silkscreen-Dual-Generator), [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections-Dual-Generator) |
+| Look something up | [Parameter Reference Single Generator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Parameter-Reference-Single-Generator), [Parameter Reference Dual Generator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Parameter-Reference-Dual-Generator), [Checks, Errors And Warnings](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Checks-Errors-And-Warnings), [Electrical Estimate](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Electrical-Estimate), [KiCad Compatibility](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/KiCad-Compatibility), [Regression Testing](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Regression-Testing), [Glossary](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Glossary) |
+| See what is next | [Immediate Next Steps](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Immediate-Next-Steps), [Future Upgrades And Planning](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Future-Upgrades-And-Planning), [Suggestive Analysis And Optimization](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Suggestive-Analysis-And-Optimization), [MILESTONES.md](MILESTONES.md) |
 
 ## Quick Start
 
@@ -141,68 +58,79 @@ python Generator/Run/RunCoilGenerator.py --stator     # Only the stator
 python Generator/Run/RunCoilGenerator.py --rotor      # Only the rotor
 ```
 
-Edit only the files in `Single Generator/Parameters/`: `RX_Parameters.py`, `TX_Parameters.py`, `Board_Parameters.py`,
-`Rotor_Parameters.py` and `IC_Parameters.py` (the limits of your receiver IC that the electrical estimate checks
-against). To treat every warning about the finished boards as an
-error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`. Each run writes a new folder in
-`Single Generator/Output/`
-(`Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>`)
-with `Stator.kicad_pcb`, `Rotor.kicad_pcb` and `Parameters.txt`, and never overwrites an earlier one.
-See [Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started) and [Project Output Organization](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Project-Output-Organization).
+Edit only the files in `Single Generator/Parameters/`. Each run writes a new folder in `Single Generator/Output/`
+with `Stator.kicad_pcb`, `Rotor.kicad_pcb` and `Parameters.txt`, and never overwrites an earlier one. Prefer a
+browser? Use the [Web Tool](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html). Full
+walk-through: [Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started).
 
-The analyser and optimizer are on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer) and are under construction.
+## What Works
 
----
+- **Stator:** 1 to 16 loops, two RX profiles, 1 to 3 sub-coils, bridging fingers; TX on one or two layers, single,
+  series or parallel, with stepped-diagonal, stepped-arc or spiral turns; the TX terminal is placed automatically.
+- **Rotor:** generated from the stator, or fully custom.
+- **Board:** 2 or 4 copper layers; through vias, or blind vias on 4-layer boards.
+- **Checks and estimate:** geometry and parameter checks that name the conflict (`normal` or `strict` mode), TX
+  inductance, resistance, tank capacitors and oscillator frequency against your receiver IC's limits.
+- **Dual Generator:** two coil sets on one stator with a two-ring rotor disc (`Dual Generator/`).
+- **Regression tests:** both generators are tested on every pull request.
+- **Analyser and optimizer:** under construction on the
+  [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
-## Where To Read More
+Every parameter and every board size is in the wiki:
+[Project Capabilities](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Project-Capabilities),
+[Stator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Stator-Features),
+[Rotor](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Rotor-Features) and
+[Board](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Board-Features) features.
 
-| Topic | Wiki Page |
-|---|---|
-| Start here | [Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started), [Web Tool](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Web-Tool), [Examples](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples) |
-| How it works | [Working Principle](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Working-Principle), [RX Profiles](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/RX-Profiles), [TX Profiles](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/TX-Profiles) |
-| Designing a board | [Stator Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Stator-Features), [Rotor Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Rotor-Features), [Board Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Board-Features), [Silkscreen](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Silkscreen), [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections) |
-| Designing a dual board | [Stator Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Stator-Features-Dual-Generator), [Rotor Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Rotor-Features-Dual-Generator), [Board Features](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Board-Features-Dual-Generator), [Silkscreen](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Silkscreen-Dual-Generator), [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections-Dual-Generator) |
-| Reference | [Parameter Reference Single Generator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Parameter-Reference-Single-Generator), [Parameter Reference Dual Generator](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Parameter-Reference-Dual-Generator), [Checks, Errors And Warnings](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Checks-Errors-And-Warnings), [Electrical Estimate](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Electrical-Estimate), [KiCad Compatibility](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/KiCad-Compatibility), [Regression Testing](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Regression-Testing), [Glossary](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Glossary) |
-| Analysis And Optimization | [Suggestive Analysis And Optimization](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Suggestive-Analysis-And-Optimization) |
+![Dual Generator: the stator with its rotor on top, outer set 1 to 16 loops, inner set 1 loop](docs/images/readmeWhatWorks.png)
 
----
+*The Dual Generator: one stator with two coil sets and its rotor on top. The outer set has 1, 2, 4, 8 and 16 loops, the inner set 1 loop.*
+
+## Status And Next Steps
+
+- **Hardware testing.** Funds are being collected to order a wide range of coil PCBs and the test equipment to
+  measure them.
+- **Model validation.** Every measured board will be compared with the model's predictions, and the models will be
+  corrected wherever they disagree.
+- **Wider coverage.** Test boards will cover different loop counts, sub-coils, TX layouts and rotor shapes.
+
+## Contributing
+
+Help with boards, equipment, measurements, code and documentation is welcome. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) to see how to get involved.
 
 ## Licensing
 
-**Licences:** [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/)
-for the source code, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) for
-the pictures and documentation, and [PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0/)
-for the Web UI. [LICENSE.md](LICENSE.md) says which one applies where. The full texts are in
-[PolyForm-Noncommercial-1.0.0](PolyForm-Noncommercial-1.0.0), [CC-BY-NC-SA-4.0](CC-BY-NC-SA-4.0) and
-[PolyForm-Strict-1.0.0](PolyForm-Strict-1.0.0).
+This repository is **open for research use** and free for non-commercial use: researchers, students, hobbyists and
+curious engineers are welcome. Three licenses apply: [PolyForm Noncommercial 1.0.0](PolyForm-Noncommercial-1.0.0)
+for the source code, [CC BY-NC-SA 4.0](CC-BY-NC-SA-4.0) for the pictures and documentation, and
+[PolyForm Strict 1.0.0](PolyForm-Strict-1.0.0) for the Web UI. [LICENSE.md](LICENSE.md) says which one applies where
+and what each allows.
 
-The table below is for the source code (PolyForm Noncommercial).
+**Commercial use requires written permission.** Companies and startups are welcome: you pay 0.2% of the net sale
+price of every unit sold and every paid service, reported in the public [LEDGER.md](LEDGER.md). The full terms are in
+[LICENSE.md](LICENSE.md#commercial-use). Approved organisations will be listed here.
 
-| You May | You Must | You May Not, Without Written Permission |
-|---|---|---|
-| Use, study and modify the code | Keep the licence and copyright notice in every copy | Use the project, or anything it outputs (KiCad files, Gerbers, boards), commercially without accepting the [commercial terms](LICENSE.md#commercial-use) (0.2% of the net sale price) |
-| Generate boards for personal, educational, research and hobby use | State clearly that your version is forked from or derived from this project, with a link to this repository | Use it inside a company or startup for its business |
-| Share your changes for non-commercial use | Share derived pictures and documents under the same terms | Remove or hide the attribution |
+**Thanks to our approved commercial users:** *None yet.*
 
-**Commercial Use.** Companies and startups are welcome to use this project and its output. You pay 0.2% of the net sale
-price of every unit sold and every paid service, to RolandThsive, reported by showing invoices against payments in the public
-[LEDGER.md](LEDGER.md). The full terms are in [LICENSE.md](LICENSE.md#commercial-use). Please make contact through one of
-the channels below. Approved organisations will be listed here.
-
-**Contact (Only Through These Channels):**
-
-- GitHub: the profile that hosts this repository
-- Email: [rolandthsive@yahoo.com](mailto:rolandthsive@yahoo.com)
-- MyAnimeList: [RolandThsive](https://myanimelist.net/profile/RolandThsive)
-- Instagram: [@ro_h_bots](https://www.instagram.com/ro_h_bots)
-
-**Thanks To Our Approved Commercial Users:** *None yet.* Every company that pays is thanked here by name, and
-appears in the public [LEDGER.md](LEDGER.md).
+**Contact (only through these channels):**
+[Email](mailto:rolandthsive@yahoo.com) ·
+[GitHub](https://github.com/RolandThsive) ·
+[MyAnimeList](https://myanimelist.net/profile/RolandThsive) ·
+[Instagram](https://www.instagram.com/ro_h_bots)
 
 ## Every Commercial Payment Goes Back Into The Project
 
 > [!IMPORTANT]
 > **100% ON RECORD. 100% INVESTED BACK. 100% DISCLOSED.**
+
+Any money accepted from commercial users goes back into this project in full, and all of it is on record. Nothing is
+taken out as profit. Every payment, expense and donation is in the public [LEDGER.md](LEDGER.md), with proof. The fee
+stops when every milestone in [MILESTONES.md](MILESTONES.md) is done, and the license then becomes the same as the GPL,
+truly open source.
+
+<details>
+<summary>The full pledge</summary>
 
 **Any money I accept from commercial users here will be invested back into this project in full, 100%, and all of it
 will be on record.** This is how the project works like a non-profit, in an extreme way: nothing is taken out as
@@ -226,7 +154,7 @@ This is an open project, so I expect it to be **open to the highest degree** and
 is broken.** And I see that there is **very little goodwill** in this world towards the people who are willing to free
 stuff.
 
-<p align="center"><big><b>Here is what I came up with. So, in sassy boy Seth's freedom intonation:</b></big></p>
+**Here is what I came up with. So, in sassy boy Seth's freedom intonation:**
 
 Here's the deal. This is **completely free** (as in freedom-units free), **except if you are a commercial user**. You
 have to **pay** to make this research even better. Yes, you. **Pay up.** That's called improving the stuff you used.
@@ -238,27 +166,28 @@ There is **no restriction on anything here** unless you are **not contributing b
 restriction just to profit from it. Again: **profit bad, investment for making this project good.** That will stop
 when this generator reaches its final stage, and a new license will apply, **the same as the GPL** - **truly open source**.
 
+</details>
+
 ---
 
 <div align="center">
 
 ## About Me
 
-A traveller and mechatronics engineer who loves building machines that move, from the mechanics
-to the electronics and the firmware. Trained in mechanical design and robotics, with a research
-master's in mechatronics, I have built robotic hands, a humanoid torso, industrial bin-picking
-cells and rocket electronics, designing PCBs in KiCad and firmware for STM32 and Espressif chips.
+A traveller and mechatronics engineer who loves building machines that move, from the mechanics to the electronics
+and the firmware. Trained in mechanical design and robotics, with a research master's in mechatronics, I have built
+robotic hands, a humanoid torso, industrial bin-picking cells and rocket electronics, designing PCBs in KiCad and
+firmware for STM32 and Espressif chips.
 
-I put my full time into building industrial-grade software and making
-well-researched but hard-to-find scientific knowledge free for everyone. I will keep maintaining
-this project until it becomes a highly capable rotary inductive sensor coil generator.
+I put my full time into building industrial-grade software and making well-researched but hard-to-find scientific
+knowledge free for everyone. I will keep maintaining this project until it becomes a highly capable rotary inductive
+sensor coil generator.
 
 **[Website](https://ro-h-bots.blogspot.com/)** ·
 **[Instagram](https://www.instagram.com/ro_h_bots)** ·
 **[MyAnimeList](https://myanimelist.net/profile/RolandThsive)** ·
 **[Email](mailto:rolandthsive@yahoo.com)**
 
-*Contributions of every kind are welcome. Together we can make this the reference tool for rotary
-inductive encoders.*
+*Contributions of every kind are welcome. Together we can make this the reference tool for rotary inductive encoders.*
 
 </div>
