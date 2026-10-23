@@ -41,6 +41,7 @@ builds two coil sets (a coarse and a fine track) on one board and one rotor with
 - [Electrical Estimate](Electrical-Estimate.md)
 - [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
 - [Project Output Organization](Project-Output-Organization.md)
+- [Output Pictures](Output-Pictures.md)
 - [KiCad Compatibility](KiCad-Compatibility.md)
 - [Regression Testing](Regression-Testing.md)
 

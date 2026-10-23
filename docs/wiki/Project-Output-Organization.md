@@ -31,7 +31,9 @@ Single Generator/
     └── Coil_<Inner Radius>_<Outer Radius>_<Loops>_<Sub-Coils>_<TX Turns>_<Single|Series|Parallel>_<SteppedDiagonal|SteppedArc|Spiral>/
         ├── Stator.kicad_pcb
         ├── Rotor.kicad_pcb
-        └── Parameters.txt
+        ├── Parameters.txt
+        ├── <Folder Name>_Representative.svg   The boards as a picture to look at
+        └── <Folder Name>_Actual.svg           The copper 1:1 in mm, one Inkscape layer per copper layer
 
 Dual Generator/
 ├── Parameters/                 Every dual setting: the only files you edit
@@ -54,11 +56,15 @@ Dual Generator/
     └── DualCoil_<Bore Radius>_<Outline Radius>_<Set 1 Loops>x<Set 2 Loops>_<Set 1 TX Turns>x<Set 2 TX Turns>/
         ├── Stator.kicad_pcb
         ├── Rotor.kicad_pcb
-        └── Parameters.txt
+        ├── Parameters.txt
+        ├── <Folder Name>_Representative.svg   The boards as a picture to look at
+        └── <Folder Name>_Actual.svg           The copper 1:1 in mm, one Inkscape layer per copper layer
 
 resources/                      Shared by both generators
 ├── SilkscreenFont.py             The stroke font of the silkscreen lead names
-└── RegressionTools.py            The parser and measuring code of both test suites
+├── RegressionTools.py            The parser and measuring code of both test suites
+├── RepresentativeSVGMaker.py     Draws <Folder Name>_Representative.svg from the written boards
+└── ActualSVGMaker.py             Draws <Folder Name>_Actual.svg from the written boards
 ```
 
 The Dual Generator imports the Single Generator's `Generator` package from the `Single Generator` folder next to it,
@@ -66,7 +72,7 @@ so the two folders must stay side by side. It changes nothing in the Single Gene
 Its folder name carries the radii, the loops of both sets and the TX turns of both sets, for example
 `DualCoil_7.25_26.875_1x16_4x4`.
 
-The Single Generator's folder name carries the board radii, the RX loops and sub-coils, the TX turns, the TX wiring and the TX shape, for example `Coil_15_27_1_1_3_Single_SteppedDiagonal`. A run never overwrites anything: if a folder name already exists, `__1`, `__2` and so on are added. `Parameters.txt` lists every value used, marks the parameters that this design does not use, and records the angle the board was turned by to put the TX terminal at 0°.
+The Single Generator's folder name carries the board radii, the RX loops and sub-coils, the TX turns, the TX wiring and the TX shape, for example `Coil_15_27_1_1_3_Single_SteppedDiagonal`. A run never overwrites anything: if a folder name already exists, `__1`, `__2` and so on are added. `Parameters.txt` lists every value used, marks the parameters that this design does not use, and records the angle the board was turned by to put the TX terminal at 0°. The two SVG pictures are drawn from the written boards at the end of the run; see [Output Pictures](Output-Pictures.md).
 
 The analyser and optimizer (`Analyser_And_Optimizer/` and `OptimizerParameters.py`) are not on main. They are under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
@@ -89,4 +95,4 @@ The generator runs from any folder; it finds the other folders itself. To treat 
 
 | Previous | Next |
 |:---|---:|
-| [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md) | [KiCad Compatibility](KiCad-Compatibility.md) |
+| [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md) | [Output Pictures](Output-Pictures.md) |

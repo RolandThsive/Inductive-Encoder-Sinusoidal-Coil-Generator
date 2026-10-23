@@ -24,8 +24,8 @@ estimates how it will perform.
 
 > [!IMPORTANT]
 > No output of the tool (boards, KiCad and manufacturing files, pictures) may be used commercially unless you accept
-> the [commercial terms](License.md#322-commercial-use) (0.2 % of the net sale price, all of it invested back into the
-> project and on record) or have the author's written permission. See [License](License.md#321-output-of-the-tool).
+> the [commercial terms](License.md#332-commercial-use) (0.2 % of the net sale price, all of it invested back into the
+> project and on record) or have the author's written permission. See [License](License.md#331-output-of-the-tool).
 
 > [!IMPORTANT]
 > Hardware validation is still pending. Every voltage, frequency, inductance and accuracy figure in this wiki is a

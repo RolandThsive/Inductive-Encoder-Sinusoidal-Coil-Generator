@@ -1,4 +1,4 @@
-# 27. KiCad Compatibility
+# 28. KiCad Compatibility
 
 | Item | Detail |
 |---|---|
@@ -25,4 +25,4 @@ A KiCad plugin built on the same code is planned (see [Future Upgrades](Future-U
 
 | Previous | Next |
 |:---|---:|
-| [Project Output Organization](Project-Output-Organization.md) | [Regression Testing](Regression-Testing.md) |
+| [Output Pictures](Output-Pictures.md) | [Regression Testing](Regression-Testing.md) |

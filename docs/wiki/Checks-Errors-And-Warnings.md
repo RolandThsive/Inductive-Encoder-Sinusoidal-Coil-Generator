@@ -52,6 +52,10 @@ The explanation says which value to change and, where it can be worked out, the 
 A third check, the generator's own **TX self-clearance** check, exists because all TX turns are one net, so KiCad's
 DRC cannot see a TX turn touching another TX turn.
 
+After the files are written, the two [output pictures](Output-Pictures.md) are drawn. A picture that cannot be made
+is a warning (`WARNING picture not made by <file>: <reason>; the boards are not affected`): it is counted in the
+run's warnings, but it never stops the run or removes a file, in either `GENERATOR_MODE`.
+
 ## 23.3 What Is Checked
 
 | Area | Examples of what the rules look for |

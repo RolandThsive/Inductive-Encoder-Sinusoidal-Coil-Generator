@@ -1,4 +1,4 @@
-# 31. Future Upgrades And Planning
+# 32. Future Upgrades And Planning
 
 | Upgrade | Description |
 |---|---|
@@ -17,7 +17,7 @@
 The generators, their testing and their examples are also the project's milestones, listed in
 [`MILESTONES.md`](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/MILESTONES.md).
 When every milestone is done, the commercial fee stops and the project opens under a new license, the same as the GPL (see
-[License](License.md#322-commercial-use)).
+[License](License.md#332-commercial-use)).
 
 [<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
 
