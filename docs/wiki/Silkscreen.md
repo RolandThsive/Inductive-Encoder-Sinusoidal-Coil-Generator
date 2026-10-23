@@ -78,6 +78,8 @@ raise `SILKSCREEN_TEXT_SIZE_MM` and `SILKSCREEN_TEXT_STROKE_MM` if the marks are
 - [Silkscreen - Dual Generator](Silkscreen-Dual-Generator.md): the same suggestion for both coil sets of a dual board.
 - [Board Features](Board-Features.md): what else the generator writes into the board.
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Board Features](Board-Features.md) | [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md) |

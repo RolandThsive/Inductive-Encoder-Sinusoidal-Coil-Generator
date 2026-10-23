@@ -67,6 +67,8 @@ A change that adds a feature brings its tests with it, in the same commit:
 
 The suite cannot notice a feature that arrived without a test; that part is the review's job.
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [KiCad Compatibility](KiCad-Compatibility.md) | [Glossary](Glossary.md) |

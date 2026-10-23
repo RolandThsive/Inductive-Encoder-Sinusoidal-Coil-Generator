@@ -188,6 +188,8 @@ The web tool is under the PolyForm Strict License 1.0.0, separate from the gener
 [WebGUI/LICENSE.md](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/WebUI/WebGUI/LICENSE.md). It may be used for noncommercial purposes only, and may not be changed or
 redistributed. The core generator it runs stays under the repository's own [LICENSE.md](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/blob/main/LICENSE.md).
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Getting Started](Getting-Started.md) | [Project Capabilities](Project-Capabilities.md) |
