@@ -57,6 +57,8 @@
 | **Blind via** | A via between two neighbouring layers that does not go through the board (`VIA_TYPE = "blind"`, 4 layers only). A via between the two inner layers is a buried via. |
 | **Regression test** | A test that runs a generator and compares what it writes with frozen references, so a change that alters the boards is noticed. |
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Regression Testing](Regression-Testing.md) | [Immediate Next Steps](Immediate-Next-Steps.md) |

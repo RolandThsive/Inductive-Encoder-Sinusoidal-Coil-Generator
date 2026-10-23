@@ -139,6 +139,8 @@ page shows how to search for the best duty for your board.
 - [Stator Features](Stator-Features.md) and [Rotor Features](Rotor-Features.md): every option in detail.
 - [Parameter Reference Single Generator](Parameter-Reference-Single-Generator.md): all parameters, defaults and ranges.
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Silkscreen](Silkscreen.md) | [Stator Features - Dual Generator](Stator-Features-Dual-Generator.md) |

@@ -33,6 +33,8 @@ over the outermost TX turn:
 *Analysis 1. The starting design, the optimizer's suggestion, and their angle error over one turn at
 the nominal air gap. Model results only.*
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Electrical Estimate](Electrical-Estimate.md) | [Project Output Organization](Project-Output-Organization.md) |

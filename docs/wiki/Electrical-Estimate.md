@@ -71,6 +71,8 @@ own `EXCITATION_FREQ_HZ` (`Dual_TX1` / `Dual_TX2`), its own rotor ring and its o
 The inner ring is small, so its inductance and tank resistance are low: with only 2 turns per layer at 3 MHz the inner
 tank falls below the IPS2550's 250 Ω, and the estimate says so.
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Checks, Errors And Warnings](Checks-Errors-And-Warnings.md) | [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md) |

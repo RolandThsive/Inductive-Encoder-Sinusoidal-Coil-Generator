@@ -234,6 +234,8 @@ generation: a wrong value falls back to its default with a warning, and a missin
 > [!NOTE]
 > **Under construction.** The optimizer and its parameter file are not on main. They live on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer).
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Quick Guide To Parameters Selections - Dual Generator](Quick-Guide-To-Parameters-Selections-Dual-Generator.md) | [Parameter Reference Dual Generator](Parameter-Reference-Dual-Generator.md) |

@@ -34,6 +34,8 @@ mechanical degrees (±11.25° for 16 loops). Keep the coarse rotor ring away fro
 once per turn that no fine-track calibration removes (see
 [Rotor Features - Dual Generator](Rotor-Features-Dual-Generator.md#173-distances-between-the-rings)).
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [TX Profiles](TX-Profiles.md) | [Stator Features](Stator-Features.md) |
