@@ -7,7 +7,7 @@
 **An open generator for rotary inductive encoder coils, built for KiCad.**
 Set the parameters, get a stator and a rotor as KiCad boards, checked and with an estimate of how they will perform.
 
-[![Web Tool](https://img.shields.io/badge/Web_Tool-Try_in_browser-0078D6?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
+[![Web Tool](https://img.shields.io/badge/Web_Tool-Try_in_browser-0078D6?style=for-the-badge&logoColor=white)](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
 [![Wiki](https://img.shields.io/badge/Wiki-Read_the_docs-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)
 [![Examples](https://img.shields.io/badge/Examples-Pictures-E95420?style=for-the-badge&logo=kicad&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples)
 
