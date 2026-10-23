@@ -29,9 +29,11 @@ resolve(P) returns a Layout (below) or raises ParameterConflict in the Single Ge
 settings to change, and what to change).  Nothing to edit here.
 """
 
+import math
 import types
 
 from Generator.Core import BoardLayout
+from Generator.Rotor import RotorBuilder as RB
 from Generator.Core.Conflict import ParameterConflict
 
 from Dual_Generator.Core import Dual_SetParameters as SP
@@ -127,8 +129,8 @@ def band_of(rx, k):
 
 
 def _placed(ri, ro):
-    return dict(ri=ri, ro=ro, how="placed", names={"RX_R_BASE_MM": round((ri + ro) / 2.0, 6),
-                                                    "RX_A_MM": round((ro - ri) / 2.0, 6)})
+    return dict(ri=ri, ro=ro, how="placed", names={"RX_R_BASE_MM": round((ri + ro) / 2.0, 9),
+                                                    "RX_A_MM": round((ro - ri) / 2.0, 9)})
 
 
 def _tx_namespace(tx, board):
@@ -146,20 +148,43 @@ def tx_room(tx, board):
     return max(ring["tail_end"] + float(tx.TX_TRACE_WIDTH_MM) / 2.0, ring["outer_copper_edge"])
 
 
-def outer_room(tx, board, rotor=None):
+def _setting(module, name, default):
+    """A rotor / board setting, the Single Generator's default when the line is missing or None."""
+    v = getattr(module, name, None)
+    return default if v is None else v
+
+
+def ring_vertex_sag(board, rotor, rx, r):
+    """How far the outermost polygon vertices of a rotor ring of radius r reach past r (mm): the ring's arcs are
+    chords whose vertices sit on a slightly larger circle (RotorBuilder.sector_polygon).  With
+    ROTOR_ARC_STEPS_PER_SECTOR = "auto" that is ROTOR_CHORD_TOLERANCE_MM; with a number of steps it follows from
+    the chord angle."""
+    steps = getattr(board, "ROTOR_ARC_STEPS_PER_SECTOR", "auto")
+    if isinstance(steps, str) and steps.strip().lower() == "auto":
+        return float(_setting(board, "ROTOR_CHORD_TOLERANCE_MM", 0.001))
+    half = float(rotor.ROTOR_AUTO_DUTY) * 2.0 * math.pi / int(rx.LOOPS) / max(8, int(steps)) / 2.0
+    return float(r) * (1.0 / math.cos(half) - 1.0)
+
+
+def outer_room(tx, board, rotor=None, rx=None):
     """From the RX2 band end to the outline (mm): the Single Generator's own rule (BoardLayout.outer_edge_room),
     and, when ring 2 of the rotor covers the TX2 turns (ROTOR_AUTO_COVER_TX, according_to_stator), also room for
-    its overhang past the outermost turn plus ROTOR_AUTO_EDGE_CLEARANCE_MM and LAYOUT_TOLERANCE_MM (the disc has
-    the stator's outline)."""
+    its overhang past the outermost turn as RotorBuilder limits the ring: ROTOR_AUTO_EDGE_CLEARANCE_MM inside
+    the outline, then LAYOUT_TOLERANCE_MM of slack or, when they need more, half the edge line plus the polygon
+    vertices (ring_vertex_sag), which the ring also keeps inside the outline (the disc has the stator's
+    outline).  The rotor settings default as in the Single Generator."""
     room = BoardLayout.outer_edge_room(_tx_namespace(tx, board))
     if rotor is not None and str(getattr(board, "ROTOR_MODE", "")).lower() == "according_to_stator" \
-            and bool(getattr(rotor, "ROTOR_AUTO_COVER_TX", False)):
+            and bool(_setting(rotor, "ROTOR_AUTO_COVER_TX", RB.DEFAULT_COVER_TX)):
         ring = BoardLayout.tx_ring(_tx_namespace(tx, board), 0.0)
-        overhang = getattr(rotor, "ROTOR_AUTO_TX_OVERHANG_MM", 0.0) or 0.0
-        clearance = getattr(board, "ROTOR_AUTO_EDGE_CLEARANCE_MM", 0.0) or 0.0
-        tol = getattr(board, "LAYOUT_TOLERANCE_MM", 0.0) or 0.0
+        overhang = _setting(rotor, "ROTOR_AUTO_TX_OVERHANG_MM", RB.DEFAULT_TX_OVERHANG_MM)
+        clearance = _setting(board, "ROTOR_AUTO_EDGE_CLEARANCE_MM", 0.0)
+        edge_line = _setting(board, "EDGE_LINE_WIDTH_MM", 0.0)
+        tol = _setting(board, "LAYOUT_TOLERANCE_MM", 0.0)
         try:
-            room = max(room, ring["outer_copper_edge"] + float(overhang) + float(clearance) + float(tol))
+            edge = ring["outer_copper_edge"] + float(overhang)
+            sag = ring_vertex_sag(board, rotor, rx, edge) if rx is not None else 0.0
+            room = max(room, edge + float(clearance) + max(float(tol), float(edge_line) / 2.0 + sag))
         except (TypeError, ValueError):
             pass                                   # a bad value: the Single Generator's checks report it
     return room
@@ -224,7 +249,8 @@ def check_mode(P, mode, gap, e_in, e_out, b1, b2):
                                  f"set its four values to None")
     if not wrong:
         return
-    match = mode_matching(gap is not None, e_in is not None and e_out is not None, n_set)
+    edges = e_in is not None if (e_in is None) == (e_out is None) else None     # one edge alone matches no mode
+    match = mode_matching(gap is not None, edges, n_set)
     hint = (f" What is set matches DUAL_MODE = {match} ({MODE_SHORT[match]}); choose that mode, or change the values."
             if match is not None and match != mode else " Change the values, or choose another DUAL_MODE.")
     raise ParameterConflict(("DUAL_MODE",) + tuple(dict.fromkeys(names)),
@@ -252,7 +278,7 @@ def resolve(P):
     clearance = float(B.MIN_CLEARANCE_MM)
     room1 = tx_room(P.TX1, B)                    # TX1 reach past the RX1 band end
     margin2 = inner_margin(P.RX2, B)             # set 2's copper inside its RX band start
-    room2 = outer_room(P.TX2, B, P.ROTOR2)       # from the RX2 band end to the outline (ring 2's overhang included)
+    room2 = outer_room(P.TX2, B, P.ROTOR2, P.RX2)   # from the RX2 band end to the outline (ring 2's overhang included)
 
     # ---- the bands (the mode is DUAL_MODE, checked above against what is set)
     if mode == 1:

@@ -331,7 +331,7 @@ class Record(unittest.TestCase):
                 rec = res.record
                 for s in self.SECTIONS:
                     self.assertIn(s, rec)
-                self.assertIn(f"files       Stator.kicad_pcb, Rotor.kicad_pcb", rec)
+                self.assertIn("files       Stator.kicad_pcb, Rotor.kicad_pcb", rec)
                 self.assertIn(f"folder      {res.folder}", rec)
                 for name, value in H.BOARD_CASES[case].items():
                     if "." in name or value is H.DELETE:

@@ -163,8 +163,8 @@ IC_Parameters.py
 LEAD CUTTING SILKSCREEN SUGGESTION
 ----------------------------------
   1 suggestion(s) drawn into the stator file: break each RX coil between its two dots (a via at each dot, down to the bottom layer); extend each TX end to the dot of its name
-  WARNING no spot on 2 within 30 deg of 0 deg, 4 mm from the other marks, has room for two vias (layers F.Cu, B.Cu); widen SILKSCREEN_SEARCH_SPAN_DEG, lower SILKSCREEN_BREAK_SEPARATION_MM, or cut the coil by hand
-  WARNING no spot on 1 within 30 deg of 0 deg, 4 mm from the other marks, has room for two vias (layers F.Cu, B.Cu); widen SILKSCREEN_SEARCH_SPAN_DEG, lower SILKSCREEN_BREAK_SEPARATION_MM, or cut the coil by hand
+  WARNING net '2' has no copper on F.Cu, B.Cu (SILKSCREEN_BREAK_LAYERS); the coil runs on In1.Cu, In2.Cu: set SILKSCREEN_BREAK_LAYERS to its layers. No break suggested for SIN
+  WARNING net '1' has no copper on F.Cu, B.Cu (SILKSCREEN_BREAK_LAYERS); the coil runs on In1.Cu, In2.Cu: set SILKSCREEN_BREAK_LAYERS to its layers. No break suggested for COS
   marks on F.SilkS and B.SilkS, colour #FFFFFF, labels on; a via of the suggestion keeps 0.2 mm from copper on every layer and 0.25 mm from the board edges
   TX (TX): both ends at (126.3, 100) (r = 26.30 mm, 0.0 deg), Top and Bottom; extend the Top end to a via TX_1 at (126.0153, 101.0625) and the Bottom end to a via TX_2 at (126.0153, 98.9375), clearance 0.51 mm (at least 0.2 needed)
 

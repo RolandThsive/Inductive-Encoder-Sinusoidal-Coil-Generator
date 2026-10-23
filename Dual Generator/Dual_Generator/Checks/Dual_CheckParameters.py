@@ -58,7 +58,17 @@ def check_parameters(P):
         rep.add_exception(e)
         return rep, None
     except (TypeError, ValueError, AttributeError) as e:
-        rep.error(f"the layout of the two sets cannot be worked out (a setting is not a number: {e})")
+        # a value the layout reads is not a number (None, a string): the Single Generator's per-set checks name
+        # it, on each set's own file values (the band and edge names are the layout's business, not reported here)
+        skip = set(SP.BAND_NAMES + SP.EDGE_NAMES)
+        named = False
+        for k in (1, 2):
+            for level, msg, names in single_check(SP.build(P, k)).items:
+                if level == "error" and not (set(names) & skip) and not msg.startswith(tuple(skip)):
+                    rep.add(level, f"set {k}: " + SP.rename_single_files(msg, k), names)
+                    named = True
+        if not named:
+            rep.error(f"the layout of the two sets cannot be worked out (a setting is not a number: {e})")
         return rep, None
     for line in layout.lines():
         rep.info(line)

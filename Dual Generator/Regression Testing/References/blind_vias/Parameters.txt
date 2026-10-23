@@ -350,7 +350,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   TX_PARALLEL_BREAK_STYLE        = 'stitched'
   ROTOR_MODE                     = 'according_to_stator'
   ROTOR_AUTO_DUTY                = 0.5
-  ROTOR_AUTO_START_ANGLE_DEG     = 45.55000000000041
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
   ROTOR_AUTO_EXTENSION_MM        = None
   ROTOR_AUTO_EXTENSION_INNER_MM  = None
   ROTOR_AUTO_EXTENSION_OUTER_MM  = 0.0
@@ -361,7 +361,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
   ROTOR_CUSTOM_SECTORS           = 1
   ROTOR_CUSTOM_DUTY              = 0.5
-  ROTOR_CUSTOM_START_ANGLE_DEG   = 45.55000000000041
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
   ROTOR_CUSTOM_INNER_RADIUS_MM   = 7.77
   ROTOR_CUSTOM_OUTER_RADIUS_MM   = 11.7
   ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
@@ -444,7 +444,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   TX_PARALLEL_BREAK_STYLE        = 'stitched'
   ROTOR_MODE                     = 'according_to_stator'
   ROTOR_AUTO_DUTY                = 0.5
-  ROTOR_AUTO_START_ANGLE_DEG     = 351.56
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
   ROTOR_AUTO_EXTENSION_MM        = None
   ROTOR_AUTO_EXTENSION_INNER_MM  = 0.5
   ROTOR_AUTO_EXTENSION_OUTER_MM  = None
@@ -455,7 +455,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
   ROTOR_CUSTOM_SECTORS           = 16
   ROTOR_CUSTOM_DUTY              = 0.5
-  ROTOR_CUSTOM_START_ANGLE_DEG   = 351.56
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
   ROTOR_CUSTOM_INNER_RADIUS_MM   = 17.5
   ROTOR_CUSTOM_OUTER_RADIUS_MM   = 26.32
   ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
@@ -487,11 +487,11 @@ LEAD CUTTING SILKSCREEN SUGGESTION
 ----------------------------------
   6 suggestion(s) drawn into the stator file: break each RX coil between its two dots (a via at each dot, down to the bottom layer); extend each TX end to the dot of its name
   marks on F.SilkS and B.SilkS, colour #FFFFFF, labels on; a via of the suggestion keeps 0.2 mm from copper on every layer and 0.25 mm from the board edges
-  SIN1 (SIN_1): cut the Top trace at (90.0085, 102.4284) (r = 10.28 mm, 193.7 deg); vias SIN1_1 at (89.7596, 101.8824) and SIN1_2 at (90.2575, 102.9743), clearance 0.38 mm (at least 0.2 needed)
-  COS1 (COS_1): cut the Top trace at (84.7327, 96.3131) (r = 15.71 mm, 166.4 deg); vias COS1_1 at (84.8286, 95.7208) and COS1_2 at (84.6368, 96.9054), clearance 0.40 mm (at least 0.2 needed)
+  SIN1 (SIN_1): cut the Top trace at (90.0085, 102.4284) (r = 10.28 mm, 166.3 deg); vias SIN1_1 at (89.7596, 101.8824) and SIN1_2 at (90.2575, 102.9743), clearance 0.38 mm (at least 0.2 needed)
+  COS1 (COS_1): cut the Top trace at (84.7327, 96.3131) (r = 15.71 mm, 193.6 deg); vias COS1_1 at (84.8286, 95.7208) and COS1_2 at (84.6368, 96.9054), clearance 0.40 mm (at least 0.2 needed)
   TX1 (TX_1): both ends at (81.3, 100) (r = 18.70 mm, 180.0 deg), Top and In2; extend the Top end to a via TX1_1 at (81, 99.4804) and the In2 end to a via TX1_2 at (81, 100.5196), clearance 0.25 mm (at least 0.2 needed)
-  SIN2 (SIN_2): cut the Top trace at (124.9445, 102.4557) (r = 25.07 mm, 354.4 deg); vias SIN2_1 at (125.3771, 102.8715) and SIN2_2 at (124.5119, 102.04), clearance 0.28 mm (at least 0.2 needed)
-  COS2 (COS_2): cut the Top trace at (124.5833, 95.109) (r = 25.07 mm, 11.3 deg); vias COS2_1 at (125.1179, 95.3812) and COS2_2 at (124.0486, 94.8367), clearance 0.28 mm (at least 0.2 needed)
+  SIN2 (SIN_2): cut the Top trace at (124.9445, 102.4557) (r = 25.07 mm, 5.6 deg); vias SIN2_1 at (125.3771, 102.8715) and SIN2_2 at (124.5119, 102.04), clearance 0.28 mm (at least 0.2 needed)
+  COS2 (COS_2): cut the Top trace at (124.5833, 95.109) (r = 25.07 mm, 348.7 deg); vias COS2_1 at (125.1179, 95.3812) and COS2_2 at (124.0486, 94.8367), clearance 0.28 mm (at least 0.2 needed)
   TX2 (TX_2): both ends at (128.8, 100) (r = 28.80 mm, 0.0 deg), Top and In2; extend the Top end to a via TX2_1 at (128.8784, 100.8966) and the In2 end to a via TX2_2 at (128.8784, 99.1034), clearance 0.36 mm (at least 0.2 needed)
 
 Dual_SilkScreenSuggestion_Parameters.py

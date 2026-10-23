@@ -153,6 +153,32 @@ CASES += [
      [r"ERROR", r"VIA_TYPE"]),
 ]
 
+CASES += [
+    # ------------------------------------------------------------------ the rules name what set the band
+    ("band_from_edges_names_the_edges", dict(H.FITTED, INNER_EDGE_RADIUS_MM=7.5, OUTER_EDGE_RADIUS_MM=15.0), 1,
+     [r"ERROR   INNER_EDGE_RADIUS_MM conflicts with OUTER_EDGE_RADIUS_MM and VIA_DIAMETER_MM\n\s+the RX band \(0\.7 mm wide\) "
+      r"is narrower than one via \(0\.8 mm\): the outer and inner tip vias would overlap\. Enlarge the board "
+      r"\(INNER_EDGE_RADIUS_MM, OUTER_EDGE_RADIUS_MM\), or lower INNER_EDGE_INSET_MM and the room the TX takes"],
+     [r"INSIDE_RADIUS_MM conflicts", r"Widen the band"]),
+    ("band_from_centre_names_the_centre", dict(H.FITTED, RX_R_BASE_MM=18.0, RX_A_MM=0.3, INNER_EDGE_RADIUS_MM=None,
+                                               OUTER_EDGE_RADIUS_MM=None), 1,
+     [r"ERROR   RX_R_BASE_MM conflicts with RX_A_MM and VIA_DIAMETER_MM\n\s+the RX band \(0\.6 mm wide\) is narrower than one "
+      r"via .* Raise RX_A_MM, or use smaller vias"], [r"INSIDE_RADIUS_MM conflicts"]),
+    ("band_rules_survive_a_bad_value_elsewhere", {"STEPS_PER_LOOP": 48, "LOOPS": 1, "TX_TURNS": "x"}, 1,
+     [r"ERROR   TX_TURNS = 'x'", r"WARNING STEPS_PER_LOOP conflicts with LOOPS and OUTSIDE_RADIUS_MM\n\s+48 chords per loop"], []),
+    ("tx_layer_missing_is_reported_once", {"TX_WIRING": "series", "TX_LAYER_B": D}, 1,
+     [r"ERROR   TX_LAYER_B is missing - add it to TX_Parameters\.py", r"FAILED: 1 parameter error"],
+     [r"has no attribute", r"SimpleNamespace"]),
+    ("hole_given_with_the_band_names_the_hole", {"INNER_EDGE_RADIUS_MM": 16.0, "INNER_EDGE_INSET_MM": 0.1}, 1,
+     [r"ERROR   INNER_EDGE_RADIUS_MM conflicts with INSIDE_RADIUS_MM and VIA_DIAMETER_MM\n\s+the inner-tip vias run 0\.20 mm "
+      r"over the centre-hole edge: lower INNER_EDGE_RADIUS_MM \(now 16\) to at most 15\.50 mm \(half a via plus 0\.3 mm "
+      r"inside the RX band\), or move the RX band out"], [r"raise INNER_EDGE_INSET_MM"]),
+    ("hole_from_the_inset_names_the_inset", dict(H.FITTED, INNER_EDGE_RADIUS_MM=16.0, INNER_EDGE_INSET_MM=0.1,
+                                                  OUTER_EDGE_RADIUS_MM=27.0), 1,
+     [r"ERROR   INNER_EDGE_INSET_MM conflicts with VIA_DIAMETER_MM\n\s+the inner-tip vias run .* raise INNER_EDGE_INSET_MM "
+      r"\(now 0\.1\) to at least 0\.7 mm"], [r"lower INNER_EDGE_RADIUS_MM"]),
+]
+
 
 class CheckerCases(unittest.TestCase):
     pass

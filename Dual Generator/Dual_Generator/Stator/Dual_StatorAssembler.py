@@ -18,7 +18,6 @@ Nothing to edit here.
 """
 
 import contextlib
-import math
 
 from Generator.Checks import DesignChecks
 from Generator.Core import Layers
@@ -118,10 +117,11 @@ class DualStator:
         lines = []
         for k, st in ((1, s1), (2, s2)):
             Pk = st.P
+            lay = st.tx_lay["layers"] if st.tx_mode == "parallel" else (st.tx_layer_p, st.tx_layer_q)
             lines.append(f"Set {k}: Loops: {st.N}, RX Band: {f(st.ri)} ... {f(st.ro)} mm, SIN: Net {Pk.RX_NET_PHASE_0_2}, "
                          f"COS: Net {Pk.RX_NET_PHASE_1_3}, Rising: {w(st.rising_layer)}, Falling: {w(st.falling_layer)}, "
                          f"TX: Net {Pk.TX_NET}, {str(Pk.TX_WIRING).strip().capitalize()}, Turns: {int(Pk.TX_TURNS)} "
-                         f"{w(st.tx_layer_p)} {int(Pk.TX_TURNS)} {w(st.tx_layer_q)}, Ends at {f(st.terminal_deg)} deg")
+                         f"{w(lay[0])} {int(Pk.TX_TURNS)} {w(lay[1])}, Ends at {f(st.terminal_deg)} deg")
         comments = [
             lines[0],                                                                          # Comment1 (bottom)
             lines[1],

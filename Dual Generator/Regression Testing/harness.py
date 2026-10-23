@@ -252,6 +252,15 @@ BOARD_CASES = {
     # the default layers (RX on 1 + 2, TX on 1 + 3): the RX vias come out as blind vias Top + Inner-1, each set's
     # TX via as Top + Inner-2 (the run warns that it skips a layer)
     "blind_vias": mode1(**{"BOARD.VIA_TYPE": "blind", "BOARD.VIA_DIAMETER_MM": 0.4, "BOARD.VIA_DRILL_MM": 0.15}),
+    # other board sizes, the bands fitted between the edges (mode 1): a small board and a large one with parallel
+    # TX wiring.  Representative sizes for now; a chosen set may replace them.
+    # the terminals off the horizontal axis (not 0 / 180): the breaks are searched on the terminal's side.  Set 2
+    # with 4 loops: a 16-loop set 2 on this board has no spot for a break at any angle
+    "terminals_90_270": mode1(**{"BOARD.TERMINAL_1_DEG": 90.0, "BOARD.TERMINAL_2_DEG": 270.0, "RX2.LOOPS": 4}),
+    "edges_30_60": mode1(**{"BOARD.INNER_EDGE_RADIUS_MM": 15.0, "BOARD.OUTER_EDGE_RADIUS_MM": 30.0}),
+    "edges_90_150_loops_4x16_parallel": mode1(**{"BOARD.INNER_EDGE_RADIUS_MM": 45.0, "BOARD.OUTER_EDGE_RADIUS_MM": 75.0,
+                                                 "RX1.LOOPS": 4, "TX1.TX_WIRING": "parallel",
+                                                 "TX2.TX_WIRING": "parallel"}),
 }
 
 _BOARDS = {}

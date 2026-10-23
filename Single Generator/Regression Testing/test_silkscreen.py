@@ -106,6 +106,18 @@ class DrawnIntoTheFile(unittest.TestCase):
         self.assertTrue(on_vias <= dot_at)
         self.assertIn(f"a dot on each of the {len(b.via)} vias of the board", res.record)
 
+    def test_break_layers_without_the_coil_are_named(self):
+        """RX coils on the inner layers of a 4-layer board, the break layers at their default (Top and Bottom): the
+        warning names SILKSCREEN_BREAK_LAYERS and the layers the coil runs on, not the search span."""
+        res = H.write({"PCB_LAYERS": 4, "RX_LAYER_A": 2, "RX_LAYER_B": 3, "TX_LAYER_A": 1, "TX_LAYER_B": 4,
+                       "TX_WIRING": "series", "RX_TABS": "none"}, subdir="rx_inner_layers")
+        self.assertEqual(res.rc, 0, res.out)
+        for net in ("1", "2"):
+            self.assertRegex(res.out, rf"WARNING net '{net}' has no copper on F\.Cu, B\.Cu \(SILKSCREEN_BREAK_LAYERS\); the coil "
+                                      rf"runs on In1\.Cu, In2\.Cu: set SILKSCREEN_BREAK_LAYERS to its layers")
+        self.assertNotIn("no spot on", res.out)
+        self.assertNotIn("widen SILKSCREEN_SEARCH_SPAN_DEG", res.out)
+
     def test_off_leaves_the_file_as_written(self):
         res = H.board("silkscreen_off")
         b = res.stator
@@ -239,6 +251,15 @@ class Parts(unittest.TestCase):
         self.assertEqual(len(b.seg), len(self.res.stator.seg))
         self.assertEqual(len(b.vias), len(self.res.stator.via))
         self.assertEqual(set(b.net_name.values()), {"", "TX", "1", "2"})
+
+    def test_angle_follows_the_generator(self):
+        """Board.angle_deg uses the generator's convention (x = cx + r cos a, y = cy + r sin a, the same as
+        TERMINAL_DEG), so the search centres on the terminal's side of the board."""
+        b = self.board
+        self.assertAlmostEqual(b.angle_deg((b.cx + 5.0, b.cy)), 0.0)
+        self.assertAlmostEqual(b.angle_deg((b.cx, b.cy + 5.0)), 90.0)
+        self.assertAlmostEqual(b.angle_deg((b.cx - 5.0, b.cy)), 180.0)
+        self.assertAlmostEqual(b.angle_deg((b.cx, b.cy - 5.0)), 270.0)
 
     def test_tx_end_is_the_terminal(self):
         p, layers = LCS.find_tx_end(self.board, self.board.net_id["TX"])

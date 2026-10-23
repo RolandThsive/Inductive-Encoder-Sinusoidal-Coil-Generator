@@ -58,7 +58,8 @@ def check_sets(P, layout, stator1, stator2):
     gap = inner2 - reach1
     required = layout.gap_required
     if gap < required - 1e-6:
-        rep.conflict(("TRACK_GAP_MM", "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM"),
+        rep.conflict(("TRACK_GAP_MM" if layout.gap_setting is not None else "MIN_CLEARANCE_MM",
+                      "INSIDE_RADIUS_MM", "OUTSIDE_RADIUS_MM", "RX_R_BASE_MM", "RX_A_MM"),
                      f"on the built copper set 1 reaches r = {reach1:.3f} mm and set 2 starts at r = {inner2:.3f} mm: "
                      f"{gap:.3f} mm apart, but {required:g} mm must stay free between the sets"
                      + (" (TRACK_GAP_MM)" if layout.gap_setting is not None else " (MIN_CLEARANCE_MM)")
@@ -139,5 +140,5 @@ def check_rings(P, layout, rotor1, rotor2, stator1=None, stator2=None):
     if rotor2.r_in < r1 - 1e-6:
         rep.warn(f"ring 2 starts at r = {rotor2.r_in:.2f} mm, over set 1's TX ring (which reaches r = {r1:.2f} mm): "
                  f"the fine target would modulate TX1 {rotor2.sectors} times per turn. Shorten ring 2's inner "
-                 f"extension (ROTOR_AUTO_EXTENSION_INNER_MM in Dual_Rotor2_Parameters.py)")
+                 f"extension ({(custom_names[2] if custom else auto_names[2])[0]} in Dual_Rotor2_Parameters.py)")
     return rep

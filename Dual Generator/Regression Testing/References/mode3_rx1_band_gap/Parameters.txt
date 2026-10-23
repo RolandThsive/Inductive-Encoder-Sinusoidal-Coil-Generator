@@ -345,7 +345,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   TX_PARALLEL_BREAK_STYLE        = 'stitched'
   ROTOR_MODE                     = 'according_to_stator'
   ROTOR_AUTO_DUTY                = 0.5
-  ROTOR_AUTO_START_ANGLE_DEG     = 45.000000000000455
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
   ROTOR_AUTO_EXTENSION_MM        = None
   ROTOR_AUTO_EXTENSION_INNER_MM  = None
   ROTOR_AUTO_EXTENSION_OUTER_MM  = 0.0
@@ -356,7 +356,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
   ROTOR_CUSTOM_SECTORS           = 1
   ROTOR_CUSTOM_DUTY              = 0.5
-  ROTOR_CUSTOM_START_ANGLE_DEG   = 45.000000000000455
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
   ROTOR_CUSTOM_INNER_RADIUS_MM   = 7.77
   ROTOR_CUSTOM_OUTER_RADIUS_MM   = 11.7
   ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
@@ -439,7 +439,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   TX_PARALLEL_BREAK_STYLE        = 'stitched'
   ROTOR_MODE                     = 'according_to_stator'
   ROTOR_AUTO_DUTY                = 0.5
-  ROTOR_AUTO_START_ANGLE_DEG     = 351.56
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
   ROTOR_AUTO_EXTENSION_MM        = None
   ROTOR_AUTO_EXTENSION_INNER_MM  = 0.5
   ROTOR_AUTO_EXTENSION_OUTER_MM  = None
@@ -450,7 +450,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
   ROTOR_CUSTOM_SECTORS           = 16
   ROTOR_CUSTOM_DUTY              = 0.5
-  ROTOR_CUSTOM_START_ANGLE_DEG   = 351.56
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
   ROTOR_CUSTOM_INNER_RADIUS_MM   = 17.5
   ROTOR_CUSTOM_OUTER_RADIUS_MM   = 26.32
   ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
@@ -484,8 +484,8 @@ LEAD CUTTING SILKSCREEN SUGGESTION
   WARNING set 2: no spot on SIN_2 within 30 deg of 0 deg, 4 mm from the other marks, has room for two vias (layers F.Cu, In1.Cu); widen SILKSCREEN_SEARCH_SPAN_DEG, lower SILKSCREEN_BREAK_SEPARATION_MM, or cut the coil by hand
   WARNING set 2: no spot on COS_2 within 30 deg of 0 deg, 4 mm from the other marks, has room for two vias (layers F.Cu, In1.Cu); widen SILKSCREEN_SEARCH_SPAN_DEG, lower SILKSCREEN_BREAK_SEPARATION_MM, or cut the coil by hand
   marks on F.SilkS and B.SilkS, colour #FFFFFF, labels on; a via of the suggestion keeps 0.2 mm from copper on every layer and 0.25 mm from the board edges
-  SIN1 (SIN_1): cut the Top trace at (90.2616, 102.9722) (r = 10.18 mm, 197.0 deg); vias SIN1_1 at (89.9835, 102.4406) and SIN1_2 at (90.5397, 103.5039), clearance 0.38 mm (at least 0.2 needed)
-  COS1 (COS_1): cut the Top trace at (87.5881, 106.717) (r = 14.11 mm, 208.4 deg); vias COS1_1 at (87.2115, 106.2499) and COS1_2 at (87.9647, 107.1841), clearance 0.47 mm (at least 0.2 needed)
+  SIN1 (SIN_1): cut the Top trace at (90.2616, 102.9722) (r = 10.18 mm, 163.0 deg); vias SIN1_1 at (89.9835, 102.4406) and SIN1_2 at (90.5397, 103.5039), clearance 0.38 mm (at least 0.2 needed)
+  COS1 (COS_1): cut the Top trace at (87.5881, 106.717) (r = 14.11 mm, 151.6 deg); vias COS1_1 at (87.2115, 106.2499) and COS1_2 at (87.9647, 107.1841), clearance 0.47 mm (at least 0.2 needed)
   TX1 (TX_1): both ends at (81.35, 100) (r = 18.65 mm, 180.0 deg), Top and In2; extend the Top end to a via TX1_1 at (81.2018, 98.3065) and the In2 end to a via TX1_2 at (81.2018, 101.6935), clearance 0.43 mm (at least 0.2 needed)
   TX2 (TX_2): both ends at (128.8, 100) (r = 28.80 mm, 0.0 deg), Top and In2; extend the Top end to a via TX2_1 at (128.8784, 100.8966) and the In2 end to a via TX2_2 at (128.8784, 99.1034), clearance 0.26 mm (at least 0.2 needed)
 

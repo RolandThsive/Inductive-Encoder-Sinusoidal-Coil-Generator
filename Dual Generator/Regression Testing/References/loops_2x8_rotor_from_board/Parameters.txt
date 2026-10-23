@@ -481,11 +481,11 @@ LEAD CUTTING SILKSCREEN SUGGESTION
 ----------------------------------
   6 suggestion(s) drawn into the stator file: break each RX coil between its two dots (a via at each dot, down to the bottom layer); extend each TX end to the dot of its name
   marks on F.SilkS and B.SilkS, colour #FFFFFF, labels on; a via of the suggestion keeps 0.15 mm from copper on every layer and 0.25 mm from the board edges
-  SIN1 (SIN_1): cut the Top trace at (90.6085, 98.098) (r = 9.58 mm, 168.6 deg); vias SIN1_1 at (90.5352, 97.5025) and SIN1_2 at (90.6819, 98.6935), clearance 0.33 mm (at least 0.15 needed)
-  COS1 (COS_1): cut the Top trace at (89.5622, 102.4148) (r = 10.71 mm, 193.0 deg); vias COS1_1 at (89.2866, 101.8819) and COS1_2 at (89.8379, 102.9477), clearance 0.31 mm (at least 0.15 needed)
+  SIN1 (SIN_1): cut the Top trace at (90.6085, 98.098) (r = 9.58 mm, 191.4 deg); vias SIN1_1 at (90.5352, 97.5025) and SIN1_2 at (90.6819, 98.6935), clearance 0.33 mm (at least 0.15 needed)
+  COS1 (COS_1): cut the Top trace at (89.5622, 102.4148) (r = 10.71 mm, 167.0 deg); vias COS1_1 at (89.2866, 101.8819) and COS1_2 at (89.8379, 102.9477), clearance 0.31 mm (at least 0.15 needed)
   TX1 (TX_1): both ends at (86.1, 100) (r = 13.90 mm, 180.0 deg), Top and In2; extend the Top end to a via TX1_1 at (85.1989, 99.3691) and the In2 end to a via TX1_2 at (85.1989, 100.6309), clearance 0.54 mm (at least 0.15 needed)
-  SIN2 (SIN_2): cut the Top trace at (122.0401, 103.3136) (r = 22.29 mm, 351.4 deg); vias SIN2_1 at (122.3725, 103.8132) and SIN2_2 at (121.7078, 102.8141), clearance 0.33 mm (at least 0.15 needed)
-  COS2 (COS_2): cut the Top trace at (122.039, 98.7347) (r = 22.08 mm, 3.3 deg); vias COS2_1 at (122.4802, 99.1414) and COS2_2 at (121.5978, 98.3281), clearance 0.30 mm (at least 0.15 needed)
+  SIN2 (SIN_2): cut the Top trace at (122.0401, 103.3136) (r = 22.29 mm, 8.6 deg); vias SIN2_1 at (122.3725, 103.8132) and SIN2_2 at (121.7078, 102.8141), clearance 0.33 mm (at least 0.15 needed)
+  COS2 (COS_2): cut the Top trace at (122.039, 98.7347) (r = 22.08 mm, 356.7 deg); vias COS2_1 at (122.4802, 99.1414) and COS2_2 at (121.5978, 98.3281), clearance 0.30 mm (at least 0.15 needed)
   TX2 (TX_2): both ends at (126.1, 100) (r = 26.10 mm, 0.0 deg), Top and In2; extend the Top end to a via TX2_1 at (126.291, 101.0833) and the In2 end to a via TX2_2 at (126.291, 98.9167), clearance 0.15 mm (at least 0.15 needed)
 
 Dual_SilkScreenSuggestion_Parameters.py

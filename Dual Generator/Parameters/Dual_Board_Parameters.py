@@ -97,7 +97,8 @@ TRACK_GAP_MM = None
 # LAYOUT_TOLERANCE_MM = the generator's rounding allowance: the built copper may differ from the layout formulas
 # above by this much before the run warns (the Single Generator rounds its radii), and the outline gets this
 # much extra room when ring 2 of the rotor covers the TX2 turns (so the disc's edge clearance is never a hair
-# short).  0.05 is enough for every board tried; 0 = no allowance.
+# short; when half the edge line plus the ring's polygon vertices need more than this, they get it).  0.05 is
+# enough for every board tried; 0 = no allowance.
 LAYOUT_TOLERANCE_MM = 0.05
 
 # BAND_SPLIT (DUAL_MODE = 1 only) = set 1's share of the free radial width: 0.5 = equal RX band widths (a 1x/16x board
@@ -111,7 +112,8 @@ BAND_SPLIT = 0.5
 # Each set is turned on its own so that its TX ends (there is no tail: the two ends of the series TX sit one
 # pitch outside the last turn, on TX_LAYER_A and TX_LAYER_B) end up at this angle.  Different angles keep the
 # two sets' breakouts apart.  The RX pattern's zero of each set lands wherever the turn puts it; the record
-# file prints both.
+# file prints both.  Angles run from the +x axis of the page towards +y (down the KiCad page), like every
+# other angle of the generators: 0 = the right, 90 = the bottom of the page, 180 = the left, 270 = the top.
 TERMINAL_1_DEG = 180.0              # set 1 (inner)
 TERMINAL_2_DEG = 0.0                # set 2 (outer)
 

@@ -1,0 +1,165 @@
+COIL GENERATION RECORD
+======================
+
+files       Stator.kicad_pcb, Rotor.kicad_pcb
+name        Coil_45_75_8_2_3_Single_SteppedDiagonal  = Coil_<board inside radius>_<board outside radius>_<RX loops>_<RX sub-coils>_<TX turns>_<TX wiring>_<TX shape>
+rotation    337.50 deg: the board is turned by this so that the TX terminal sits at 0 deg (the right); the RX pattern's zero is at this angle
+
+STATOR
+------
+Stator: 8 loop(s) -> 8 electrical period(s) per turn, unique range 45 deg
+  RX band r = 46.2 ... 69.4 mm, profile = equal_area, 272 segments per period (RX chord tolerance 0.001 mm); TX 600 points per turn
+  PCB layers 2: RX rising edges on F.Cu, falling edges on B.Cu, layer-swap vias at 90.0 electrical deg (RX_VIA_ELECTRICAL_DEG 90)
+  RX sub-coils per coil: 2, split 45 electrical deg (requested 45), 6 junctions
+  TX (single layer): 3 turns on B.Cu, inner tail on F.Cu, stepped_diagonal turns
+  TX steps: 45 deg to the turns (TX_STEPPED_ANGLE_DEG), 0.60 mm along the turn each, 0.224 mm between neighbouring steps
+  TX copper: gap between different turns not measured (no window or stitching via; the nominal pitch gives 0.400 mm), TX via to RX copper 0.931 mm
+  RX segments 17280, RX vias 140 (+1 TX), TX segments 1810
+  RX bridging fingers: 64 (3 segments each on F.Cu), tip radius 72.40 mm
+  TX ring r = 70.5 ... 71.7 mm (tail end 74.3 mm); terminal via 0.3 mm inside the first turn (TX_INSIDE_VIA_DISTANCE_MM), 0.220 mm from the other turns
+  board edge: bore r = 45 mm, outer r = 75 mm
+  TX terminal: found at 22.50 deg of the RX pattern (0.931 mm from the nearest RX copper); the board is turned by 337.50 deg so that it sits at 0 deg (the right, horizontal axis); the RX pattern's zero is at 337.50 deg
+  set from the board edge: the RX inside radius by INNER_EDGE_RADIUS_MM (+ INNER_EDGE_INSET_MM 1.2); the RX outside radius by OUTER_EDGE_RADIUS_MM (- 5.6 mm for the TX turns, tail and margins)
+  smallest via-to-copper clearance 0.348 mm
+
+ROTOR
+-----
+Rotor (according_to_stator): 8 sector(s), metal fraction 0.5 (22.50 deg mechanical each)
+  copper r = 45.52 ... 72.30 mm on F.Cu, 38 chords per arc
+  RX band r = 46.2 ... 69.4 mm: the copper reaches 0.68 mm past the band at the inner edge and 2.90 mm past the band at the outer edge
+  TX turns r = 70.4 ... 71.8 mm (copper): the rotor copper covers the TX turns and ends 0.50 mm past the outermost one
+  solder mask: stays over the copper (ROTOR_SOLDER_MASK_EXPANSION_MM = -1), no mask openings
+  outline r = 75.0, bore r = 45.0
+  copper skin depth at 3.5 MHz = 35 um; 35 um copper (1 oz) screens the TX field by about 96-99 %, 70 um (2 oz) by about 98-99 % (thin-sheet estimate): thicker copper adds little signal
+  note: spatial period at mid radius 45.4 mm -> signal falls about exp(-2*pi*gap/period) = 0.87 at the nominal 1 mm gap
+
+ELECTRICAL ESTIMATE  (receiver IC IPS2550; model only, not checked on hardware)
+  TX coil     L = 4.433 uH with the rotor away
+              L = 3.543 uH with the rotor at the 1 mm air gap (-20.1 %: an upper estimate of the drop)
+              R = 3.32 ohm DC (3 turn(s), 1.35 m of 0.2 mm x 35 um copper), up to about 2x that at 3.5 MHz
+  tank        for 3.5 MHz with the rotor in place: 2 x 1.17 nF, from TX1 and from TX2 to ground (= 584 pF across the coil)
+              nearest standard C0G (E12): 2 x 1 nF -> 3.78 MHz (3.38 rotor away);  2 x 1.2 nF -> 3.45 MHz (3.09 rotor away)
+              oscillator with the exact capacitors: 3.13 MHz with the rotor away, 3.50 MHz with it  (IPS2550 range 2 ... 5.6 MHz: OK)
+              (the true frequency with the rotor lies between the two: the drop is an upper estimate)
+              Q = 12 ... 23, parallel resistance 915 ohm ... 1.83 kohm  (IPS2550 needs >= 250 ohm: OK)
+
+PARAMETER VALUES USED
+---------------------
+[Board_Parameters.py]
+  OUTPUT_DIR                = '<output>'
+  STATOR_FILE               = 'Stator.kicad_pcb'
+  ROTOR_FILE                = 'Rotor.kicad_pcb'
+  CENTER_X_MM               = 100.0
+  CENTER_Y_MM               = 100.0
+  PAGE_SIZE_MM              = (200, 200)
+  PCB_LAYERS                = 2
+  VIA_DIAMETER_MM           = 0.8
+  VIA_DRILL_MM              = 0.4
+  VIA_TYPE                  = 'through'
+  MIN_CLEARANCE_MM          = 0.2
+  INNER_EDGE_INSET_MM       = 1.2
+  INNER_EDGE_RADIUS_MM      = 45.0
+  OUTER_EDGE_OFFSET_MM      = 4.0
+  OUTER_EDGE_RADIUS_MM      = 75.0
+  OUTER_EDGE_TAIL_MARGIN_MM = 0.7
+  EDGE_LINE_WIDTH_MM        = 0.05
+  AIR_GAP_MM                = 1.0
+  PCB_THICKNESS_MM          = 1.6
+  EXCITATION_FREQ_HZ        = 3500000.0
+  COPPER_THICKNESS_UM       = 35
+  COPPER_CONDUCTIVITY_S_M   = 58000000.0
+  TX_AC_RESISTANCE_FACTOR   = 2.0
+  STACKUP_PREPREG_MM        = 0.2   (not used with the current settings)
+  TANK_CAP_SERIES           = 'E12'
+  GENERATOR_MODE            = 'normal'
+
+[RX_Parameters.py]
+  LOOPS                     = 8
+  INSIDE_RADIUS_MM          = None   (the RX band starts at r = 46.2, from the board edges)
+  OUTSIDE_RADIUS_MM         = None   (the RX band ends at r = 69.4, from the board edges)
+  RX_R_BASE_MM              = None
+  RX_A_MM                   = None
+  RX_TRACE_WIDTH_MM         = 0.2
+  RX_NET_PHASE_0_2          = '2'
+  RX_NET_PHASE_1_3          = '1'
+  RX_PROFILE                = 'equal_area'
+  STEPS_PER_LOOP            = 'auto'
+  RX_CHORD_TOLERANCE_MM     = 0.001
+  RX_SUBCOILS               = 2
+  RX_SUBCOIL_SPLIT_ELEC_DEG = 45.0
+  RX_LAYER_A                = 1   (not used with the current settings)
+  RX_LAYER_B                = 2   (not used with the current settings)
+  RX_RISING_EDGE_LAYER      = 'F.Cu'
+  RX_VIA_ELECTRICAL_DEG     = 90.0
+  RX_TABS                   = 'all'
+  RX_TAB_LENGTH_MM          = 3.0
+  RX_TAB_WIDTH_MM           = 1.0
+  RX_TAB_LAYER              = 'auto'
+
+[TX_Parameters.py]
+  TX_NET                    = 'TX'
+  TX_TURNS                  = 3
+  TX_OFFSET_MM              = 1.1
+  TX_PITCH_MM               = 0.6
+  TX_TRACE_WIDTH_MM         = 0.2
+  TX_STEPS                  = 'auto'
+  TX_CHORD_TOLERANCE_MM     = 0.001
+  TX_TAIL_EXTRA_MM          = 2.0
+  TX_SHAPE                  = 'stepped_diagonal'
+  TX_INSIDE_VIA_DISTANCE_MM = 0.3
+  TX_STEPPED_ANGLE_DEG      = 45
+  TX_STEPPED_ARC_RADIUS_MM  = 'auto'   (not used with the current settings)
+  TX_WIRING                 = 'single'
+  TX_LAYER_A                = 4
+  TX_LAYER_B                = 1   (not used with the current settings)
+  TX_SERIES_UNDERPASS_LAYER = 'auto'
+  TX_PARALLEL_BREAK_STYLE   = 'stitched'   (not used with the current settings)
+
+[Rotor_Parameters.py]
+  ROTOR_MODE                     = 'according_to_stator'
+  ROTOR_AUTO_DUTY                = 0.5
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
+  ROTOR_AUTO_EXTENSION_MM        = None
+  ROTOR_AUTO_EXTENSION_INNER_MM  = None
+  ROTOR_AUTO_EXTENSION_OUTER_MM  = None   (not used with the current settings)
+  ROTOR_AUTO_TX_CLEARANCE_MM     = 0.1   (not used with the current settings)
+  ROTOR_AUTO_COVER_TX            = True
+  ROTOR_AUTO_TX_OVERHANG_MM      = 0.5
+  ROTOR_AUTO_EDGE_CLEARANCE_MM   = 0.5
+  ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
+  ROTOR_CUSTOM_SECTORS           = 1   (not used with the current settings)
+  ROTOR_CUSTOM_DUTY              = 0.5   (not used with the current settings)
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0   (not used with the current settings)
+  ROTOR_CUSTOM_INNER_RADIUS_MM   = 15.53   (not used with the current settings)
+  ROTOR_CUSTOM_OUTER_RADIUS_MM   = 24.3   (not used with the current settings)
+  ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']   (not used with the current settings)
+  ROTOR_CUSTOM_OUTLINE_RADIUS_MM = 27.0   (not used with the current settings)
+  ROTOR_CUSTOM_BORE_RADIUS_MM    = 15.0   (not used with the current settings)
+  ROTOR_PCB_THICKNESS_MM         = None
+  ROTOR_ARC_STEPS_PER_SECTOR     = 'auto'
+  ROTOR_CHORD_TOLERANCE_MM       = 0.001
+  ROTOR_SOLDER_MASK_EXPANSION_MM = -1
+
+[IC_Parameters.py]
+  IC_NAME            = 'IPS2550'
+  IC_OSC_MIN_MHZ     = 2.0
+  IC_OSC_MAX_MHZ     = 5.6
+  IC_MIN_RP_OHM      = 250
+  IC_SPLIT_TANK_CAPS = True
+
+PARAMETER FILES (verbatim copies)
+---------------------------------
+Board_Parameters.py
+RX_Parameters.py
+TX_Parameters.py
+Rotor_Parameters.py
+IC_Parameters.py
+LEAD CUTTING SILKSCREEN SUGGESTION
+----------------------------------
+  3 suggestion(s) drawn into the stator file: break each RX coil between its two dots (a via at each dot, down to the bottom layer); extend each TX end to the dot of its name
+  marks on F.SilkS and B.SilkS, colour #FFFFFF, labels on; a via of the suggestion keeps 0.2 mm from copper on every layer and 0.25 mm from the board edges
+  SIN (2): cut the Top trace at (157.3308, 101.8216) (r = 57.36 mm, 1.8 deg); vias SIN_1 at (157.8296, 102.155) and SIN_2 at (156.8319, 101.4882), clearance 0.47 mm (at least 0.2 needed)
+  COS (1): cut the Top trace at (156.8762, 107.4322) (r = 57.36 mm, 7.4 deg); vias COS_1 at (157.34, 107.8129) and COS_2 at (156.4124, 107.0515), clearance 0.47 mm (at least 0.2 needed)
+  TX (TX): both ends at (174.3, 100) (r = 74.30 mm, 0.0 deg), Top and Bottom; extend the Top end to a via TX_1 at (174.0153, 101.0625) and the Bottom end to a via TX_2 at (174.0153, 98.9375), clearance 0.53 mm (at least 0.2 needed)
+
+SilkScreenSuggestion_Parameters.py

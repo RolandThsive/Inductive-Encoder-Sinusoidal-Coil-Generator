@@ -345,7 +345,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   TX_PARALLEL_BREAK_STYLE        = 'stitched'
   ROTOR_MODE                     = 'according_to_stator'
   ROTOR_AUTO_DUTY                = 0.5
-  ROTOR_AUTO_START_ANGLE_DEG     = 45.000000000000455
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
   ROTOR_AUTO_EXTENSION_MM        = None
   ROTOR_AUTO_EXTENSION_INNER_MM  = None
   ROTOR_AUTO_EXTENSION_OUTER_MM  = 0.0
@@ -356,7 +356,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
   ROTOR_CUSTOM_SECTORS           = 1
   ROTOR_CUSTOM_DUTY              = 0.5
-  ROTOR_CUSTOM_START_ANGLE_DEG   = 45.000000000000455
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
   ROTOR_CUSTOM_INNER_RADIUS_MM   = 7.77
   ROTOR_CUSTOM_OUTER_RADIUS_MM   = 11.7
   ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
@@ -439,7 +439,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   TX_PARALLEL_BREAK_STYLE        = 'stitched'
   ROTOR_MODE                     = 'according_to_stator'
   ROTOR_AUTO_DUTY                = 0.5
-  ROTOR_AUTO_START_ANGLE_DEG     = 351.56
+  ROTOR_AUTO_START_ANGLE_DEG     = 0.0
   ROTOR_AUTO_EXTENSION_MM        = None
   ROTOR_AUTO_EXTENSION_INNER_MM  = 0.5
   ROTOR_AUTO_EXTENSION_OUTER_MM  = None
@@ -450,7 +450,7 @@ THE TWO SETS AS HANDED TO THE SINGLE GENERATOR (its names)
   ROTOR_AUTO_COPPER_LAYERS       = ['F.Cu']
   ROTOR_CUSTOM_SECTORS           = 16
   ROTOR_CUSTOM_DUTY              = 0.5
-  ROTOR_CUSTOM_START_ANGLE_DEG   = 351.56
+  ROTOR_CUSTOM_START_ANGLE_DEG   = 0.0
   ROTOR_CUSTOM_INNER_RADIUS_MM   = 17.5
   ROTOR_CUSTOM_OUTER_RADIUS_MM   = 26.32
   ROTOR_CUSTOM_COPPER_LAYERS     = ['F.Cu']
@@ -482,11 +482,11 @@ LEAD CUTTING SILKSCREEN SUGGESTION
 ----------------------------------
   6 suggestion(s) drawn into the stator file: break each RX coil between its two dots (a via at each dot, down to the bottom layer); extend each TX end to the dot of its name
   marks on B.SilkS, colour #FFFFFF, labels off; a via of the suggestion keeps 0.15 mm from copper on every layer and 0.25 mm from the board edges
-  SIN1 (SIN_1): cut the Top trace at (91.1058, 96.5691) (r = 9.53 mm, 158.9 deg); vias SIN1_1 at (91.235, 95.9832) and SIN1_2 at (90.9766, 97.1551), clearance 0.42 mm (at least 0.15 needed)
-  COS1 (COS_1): cut the Top trace at (90.1566, 104.3633) (r = 10.77 mm, 203.9 deg); vias COS1_1 at (89.8507, 103.8471) and COS1_2 at (90.4625, 104.8795), clearance 0.35 mm (at least 0.15 needed)
+  SIN1 (SIN_1): cut the Top trace at (91.1058, 96.5691) (r = 9.53 mm, 201.1 deg); vias SIN1_1 at (91.235, 95.9832) and SIN1_2 at (90.9766, 97.1551), clearance 0.42 mm (at least 0.15 needed)
+  COS1 (COS_1): cut the Top trace at (90.1566, 104.3633) (r = 10.77 mm, 156.1 deg); vias COS1_1 at (89.8507, 103.8471) and COS1_2 at (90.4625, 104.8795), clearance 0.35 mm (at least 0.15 needed)
   TX1 (TX_1): both ends at (86.1, 100) (r = 13.90 mm, 180.0 deg), Top and In2; extend the Top end to a via TX1_1 at (85.1989, 99.3691) and the In2 end to a via TX1_2 at (85.1989, 100.6309), clearance 0.54 mm (at least 0.15 needed)
-  SIN2 (SIN_2): cut the Top trace at (122.1345, 106.7134) (r = 23.13 mm, 343.1 deg); vias SIN2_1 at (122.4775, 107.2057) and SIN2_2 at (121.7916, 106.2211), clearance 0.20 mm (at least 0.15 needed)
-  COS2 (COS_2): cut the Top trace at (122.6856, 95.4865) (r = 23.13 mm, 11.3 deg); vias COS2_1 at (123.2201, 95.759) and COS2_2 at (122.151, 95.214), clearance 0.20 mm (at least 0.15 needed)
+  SIN2 (SIN_2): cut the Top trace at (122.1345, 106.7134) (r = 23.13 mm, 16.9 deg); vias SIN2_1 at (122.4775, 107.2057) and SIN2_2 at (121.7916, 106.2211), clearance 0.20 mm (at least 0.15 needed)
+  COS2 (COS_2): cut the Top trace at (122.6856, 95.4865) (r = 23.13 mm, 348.7 deg); vias COS2_1 at (123.2201, 95.759) and COS2_2 at (122.151, 95.214), clearance 0.20 mm (at least 0.15 needed)
   TX2 (TX_2): both ends at (126.1, 100) (r = 26.10 mm, 0.0 deg), Top and In2; extend the Top end to a via TX2_1 at (126.291, 101.0833) and the In2 end to a via TX2_2 at (126.291, 98.9167), clearance 0.15 mm (at least 0.15 needed)
   a dot on each of the 146 vias of the board (SILKSCREEN_DOT_ON_ALL_VIAS)
 

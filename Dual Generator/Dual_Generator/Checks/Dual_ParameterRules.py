@@ -12,6 +12,7 @@ import math
 import os
 
 from Generator.Checks import ParameterRules as SingleRules
+from Generator.Rotor import RotorBuilder as RB
 
 from Dual_Generator.Core import Dual_SetParameters as SP
 
@@ -114,8 +115,7 @@ def check_dual_values(P, rep):
     v = {}
     for name, kind, opt in DUAL_SPEC:
         if not hasattr(P.BOARD, name):
-            rep.error(f"{name} is missing - add it to {BOARD_FILE}")
-            continue
+            continue                                   # check_files reports it as missing
         val, err = SingleRules._check_value(name, getattr(P.BOARD, name), kind, opt)
         if err:
             rep.error(err + f"   ({BOARD_FILE})")
@@ -156,7 +156,6 @@ def dual_rules(P, v, rep):
     if all(isinstance(f, (int, float)) and not isinstance(f, bool) and f > 0 for f in (f1, f2)) and sep is not None:
         lo, hi = min(f1, f2), max(f1, f2)
         ratio = hi / lo
-        names = ("EXCITATION_FREQ_HZ", "TX_FREQ_SEPARATION_MIN")
         if ratio - 1.0 < sep - 1e-12:
             rep.warn(f"the two TX frequencies differ by {100 * (ratio - 1):.1f} % (EXCITATION_FREQ_HZ {f1 / 1e6:g} MHz in "
                      f"Dual_TX1_Parameters.py, {f2 / 1e6:g} MHz in Dual_TX2_Parameters.py), less than "
@@ -192,10 +191,13 @@ def dual_rules(P, v, rep):
                  "1 + 2, TX on 1 + 3")
     # ring 1 over its TX turns: allowed, but it puts the coarse target next to set 2's RX band
     _rx1, _tx1, ro1 = SP.modules(P, 1)
+    cover1 = getattr(ro1, "ROTOR_AUTO_COVER_TX", None)
     if str(getattr(B, "ROTOR_MODE", "")).lower() == "according_to_stator" \
-            and getattr(ro1, "ROTOR_AUTO_COVER_TX", False) is True:
+            and (RB.DEFAULT_COVER_TX if cover1 is None else cover1) is True:
         over = getattr(ro1, "ROTOR_AUTO_TX_OVERHANG_MM", None)
-        rep.warn(f"ROTOR_AUTO_COVER_TX = True in Dual_Rotor1_Parameters.py: ring 1 of the rotor reaches over the TX1 "
+        over = RB.DEFAULT_TX_OVERHANG_MM if over is None else over
+        rep.warn(f"ROTOR_AUTO_COVER_TX = True{'' if cover1 is not None else ' (the default)'} in "
+                 f"Dual_Rotor1_Parameters.py: ring 1 of the rotor reaches over the TX1 "
                  f"turns, ROTOR_AUTO_TX_OVERHANG_MM = {over!r} mm past the outermost one, into the gap next to set 2's "
                  f"RX band. The {getattr(_rx1, 'LOOPS', '?')}-sector coarse target that close to the fine band "
                  f"modulates the fine signal once per turn; the built rotor is checked against ROTOR_1_TO_RX2_MM "

@@ -202,6 +202,9 @@ def write(overrides=None, args=("--no-color",), subdir=None):
 # ---------------------------------------------------------------------------------------------- the board cases
 # Every case is written once per process and compared with References/<case>/ by test_boards.py; the other
 # board tests measure the same files.  A case is the overrides on top of the repository's parameter files.
+# the RX band fitted between the board edges (the four band names None)
+FITTED = {"INSIDE_RADIUS_MM": None, "OUTSIDE_RADIUS_MM": None, "RX_R_BASE_MM": None, "RX_A_MM": None}
+
 BOARD_CASES = {
     "default": {},
     "loops_4_subcoils_2": {"LOOPS": 4, "RX_SUBCOILS": 2, "RX_TABS": "none"},
@@ -229,6 +232,11 @@ BOARD_CASES = {
     "four_layer_blind_parallel_fingers": {"PCB_LAYERS": 4, "VIA_TYPE": "blind", "VIA_DIAMETER_MM": 0.4,
                                           "VIA_DRILL_MM": 0.15, "TX_WIRING": "parallel", "TX_LAYER_A": 3,
                                           "TX_LAYER_B": 4, "RX_LAYER_A": 1, "RX_LAYER_B": 2},
+    # other board sizes (the RX band fitted between the edges): a small board and a large one, so that the features
+    # are not only seen on the repository's own size.  Representative sizes for now; a chosen set may replace them.
+    "edges_20_40_loops_4": dict(FITTED, INNER_EDGE_RADIUS_MM=10.0, OUTER_EDGE_RADIUS_MM=20.0, LOOPS=4),
+    "edges_90_150_loops_8_subcoils_2": dict(FITTED, INNER_EDGE_RADIUS_MM=45.0, OUTER_EDGE_RADIUS_MM=75.0, LOOPS=8,
+                                            RX_SUBCOILS=2),
 }
 
 _BOARDS = {}

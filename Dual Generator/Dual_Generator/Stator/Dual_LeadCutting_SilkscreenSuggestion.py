@@ -183,7 +183,9 @@ class Board:
         return room
 
     def angle_deg(self, p):
-        return math.degrees(math.atan2(-(p[1] - self.cy), p[0] - self.cx)) % 360.0
+        """The angle of p about the centre, in the generator's convention (x = cx + r cos a, y = cy + r sin a, the
+        same as TERMINAL_DEG and the TX start angle)."""
+        return math.degrees(math.atan2(p[1] - self.cy, p[0] - self.cx)) % 360.0
 
 
 def _dang(a, b):
@@ -468,6 +470,12 @@ def suggest(text, P, settings, font=None):
             nid = board.net_id.get(net_name)
             if nid is None:
                 res.warnings.append(f"set {k}: net {net_name!r} is not in the stator file; no break suggested for {coil}{k}")
+                continue
+            on = sorted(set(board.layer[board.net == nid].tolist()))
+            if not any(l in on for l in s.SILKSCREEN_BREAK_LAYERS):
+                res.warnings.append(f"set {k}: net {net_name!r} has no copper on {', '.join(s.SILKSCREEN_BREAK_LAYERS)} "
+                                    f"(SILKSCREEN_BREAK_LAYERS); the coil runs on {', '.join(on)}: set "
+                                    f"SILKSCREEN_BREAK_LAYERS to its layers. No break suggested for {coil}{k}")
                 continue
             br = find_rx_break(board, nid, s.SILKSCREEN_BREAK_LAYERS, terminal[k], s.SILKSCREEN_SEARCH_SPAN_DEG, gap,
                                edge_clear, avoid, sep)

@@ -16,6 +16,7 @@ NAMES_BY_FILE says which Single Generator name lives in which dual file; the dua
 in the wrong file.  Nothing to edit here.
 """
 
+import re
 import types
 
 from Generator.Checks import ParameterRules as SingleRules          # read only: the Single Generator's table
@@ -157,8 +158,25 @@ def build(P, k, band=None, edges=None):
     return types.SimpleNamespace(**d)
 
 
+_FILE_AT_END = re.compile(r"\((Dual_\w+_Parameters\.py)\)\s*$")
+
+
+def dual_file_of(name, k):
+    """The dual file of set k that holds the parameter `name`, or None."""
+    for file, names in NAMES_BY_FILE.items():
+        if name in names and (file in ("Dual_Board_Parameters.py", FIXED_FILE) or f"{k}_" in file):
+            return file
+    return None
+
+
 def rename_single_files(text, k):
-    """A Single Generator message with its file names replaced by the dual files of set k."""
+    """A Single Generator message with its file names replaced by the dual files of set k.  A few names live in
+    another dual file than the Single's file suggests (EXCITATION_FREQ_HZ in the TX file, the rotor disc names in
+    the board file): the file named at the end of a message follows the name the message starts with."""
     for old, new in SINGLE_FILE_WORDS[k].items():
         text = text.replace(old, new)
+    m = re.match(r"([A-Z][A-Z0-9_]*)\b", text)
+    file = dual_file_of(m.group(1), k) if m else None
+    if file is not None:
+        text = _FILE_AT_END.sub(f"({file})", text)
     return text

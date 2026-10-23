@@ -159,8 +159,8 @@ LEAD CUTTING SILKSCREEN SUGGESTION
 ----------------------------------
   3 suggestion(s) drawn into the stator file: break each RX coil between its two dots (a via at each dot, down to the bottom layer); extend each TX end to the dot of its name
   marks on F.SilkS and B.SilkS, colour #FFFFFF, labels on; a via of the suggestion keeps 0.2 mm from copper on every layer and 0.25 mm from the board edges
-  SIN (2): cut the Top trace at (120.5813, 94.4856) (r = 21.31 mm, 15.0 deg); vias SIN_1 at (120.8015, 95.0438) and SIN_2 at (120.3612, 93.9274), clearance 0.53 mm (at least 0.2 needed)
-  COS (1): cut the Top trace at (121.125, 102.7815) (r = 21.31 mm, 352.5 deg); vias COS_1 at (121.1147, 103.3814) and COS_2 at (121.1352, 102.1816), clearance 0.53 mm (at least 0.2 needed)
+  SIN (2): cut the Top trace at (120.5813, 94.4856) (r = 21.31 mm, 345.0 deg); vias SIN_1 at (120.8015, 95.0438) and SIN_2 at (120.3612, 93.9274), clearance 0.53 mm (at least 0.2 needed)
+  COS (1): cut the Top trace at (121.125, 102.7815) (r = 21.31 mm, 7.5 deg); vias COS_1 at (121.1147, 103.3814) and COS_2 at (121.1352, 102.1816), clearance 0.53 mm (at least 0.2 needed)
   TX (TX): both ends at (126.3, 100) (r = 26.30 mm, 0.0 deg), Top and Bottom; extend the Top end to a via TX_1 at (126.0153, 101.0625) and the Bottom end to a via TX_2 at (126.0153, 98.9375), clearance 0.51 mm (at least 0.2 needed)
 
 SilkScreenSuggestion_Parameters.py

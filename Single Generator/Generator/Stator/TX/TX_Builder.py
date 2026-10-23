@@ -13,7 +13,6 @@ edit here.
 import math
 
 from Generator.Core import BoardLayout, Layers
-from Generator.Core import Layers
 from Generator.Core.Copper import Segment, Via
 from Generator.Stator.TX import TX_Shapes, TX_Terminal, TX_Windows, TX_Wiring
 

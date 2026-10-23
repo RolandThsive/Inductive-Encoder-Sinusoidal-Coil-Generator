@@ -17,6 +17,8 @@ rings' public geometry (sector_polygon, mask_polygon, layers, mask_layers), with
 RotorDesign.write uses.  Nothing to edit here.
 """
 
+import types
+
 from Generator.Core.PCBWriter import KiCadBoard, page_size
 from Generator.Rotor import RotorBuilder as RB
 
@@ -31,6 +33,7 @@ def build_ring(Pk, stator, zero="rx_zero"):
     if zero not in ZERO_CHOICES:
         raise ValueError(f"ROTOR_START_ANGLE_ZERO = {zero!r}: must be one of {', '.join(repr(z) for z in ZERO_CHOICES)}")
     turn = float(stator.rotation_deg) if zero == "rx_zero" else 0.0
+    Pk = types.SimpleNamespace(**vars(Pk))                 # a copy: the set's own values stay as given (the record)
     Pk.ROTOR_AUTO_START_ANGLE_DEG = float(Pk.ROTOR_AUTO_START_ANGLE_DEG) + turn
     Pk.ROTOR_CUSTOM_START_ANGLE_DEG = float(Pk.ROTOR_CUSTOM_START_ANGLE_DEG) + turn
     ring = RB.RotorDesign(Pk, stator=stator)

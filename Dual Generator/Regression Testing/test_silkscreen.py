@@ -40,18 +40,22 @@ class DrawnIntoTheFile(unittest.TestCase):
     def test_breaks_near_each_sets_terminal(self):
         """Set 1's RX breaks lie within SILKSCREEN_SEARCH_SPAN_DEG of TERMINAL_1_DEG (the left), set 2's of
         TERMINAL_2_DEG (the right): the record names the angles and the dots confirm them."""
-        res = H.board("default")
-        span = res.p("SILK", "SILKSCREEN_SEARCH_SPAN_DEG")
-        for k in (1, 2):
-            want = res.p("BOARD", f"TERMINAL_{k}_DEG")
-            for coil in ("SIN", "COS"):
-                m = None
-                for line in res.record.splitlines():
-                    if line.strip().startswith(f"{coil}{k} ("):
-                        m = line
-                self.assertIsNotNone(m, f"{coil}{k} in the record")
-                angle = float(m.split(" deg)")[0].rsplit(", ", 1)[1])
-                self.assertLessEqual(LCS._dang(angle, want), span, f"{coil}{k} at {angle} deg, terminal at {want}")
+        for case in ("default", "terminals_90_270"):
+            res = H.board(case)
+            span = res.p("SILK", "SILKSCREEN_SEARCH_SPAN_DEG")
+            for k in (1, 2):
+                want = res.p("BOARD", f"TERMINAL_{k}_DEG")
+                for coil in ("SIN", "COS", "TX"):
+                    m = None
+                    for line in res.record.splitlines():
+                        if line.strip().startswith(f"{coil}{k} ("):
+                            m = line
+                    self.assertIsNotNone(m, f"{coil}{k} in the record of {case}")
+                    angle = float(m.split(" deg)")[0].rsplit(", ", 1)[1])
+                    if coil == "TX":
+                        self.assertAlmostEqual(LCS._dang(angle, want), 0.0, 1, f"the TX{k} ends at the terminal ({case})")
+                    else:
+                        self.assertLessEqual(LCS._dang(angle, want), span, f"{coil}{k} at {angle} deg, terminal at {want} ({case})")
 
     def test_names_carry_the_set_number(self):
         res = H.board("default")
@@ -173,6 +177,12 @@ class Parts(unittest.TestCase):
         self.assertEqual((b.bore, b.outline), (7.25, 26.875))
         self.assertEqual(len(b.seg), len(self.res.stator.seg))
         self.assertEqual(set(b.net_name.values()), {"", "TX_1", "COS_1", "SIN_1", "TX_2", "COS_2", "SIN_2"})
+
+    def test_angle_follows_the_generator(self):
+        b = self.board
+        self.assertAlmostEqual(b.angle_deg((b.cx + 5.0, b.cy)), 0.0)
+        self.assertAlmostEqual(b.angle_deg((b.cx, b.cy + 5.0)), 90.0)
+        self.assertAlmostEqual(b.angle_deg((b.cx - 5.0, b.cy)), 180.0)
 
     def test_tx_ends_of_both_sets(self):
         p1, l1 = LCS.find_tx_end(self.board, self.board.net_id["TX_1"])

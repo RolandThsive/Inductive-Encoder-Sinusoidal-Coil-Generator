@@ -5,6 +5,7 @@ dual files supply every name the Single Generator's rule table knows.  Fast, no 
 """
 
 import os
+import re
 import tempfile
 import types
 import unittest
@@ -79,6 +80,15 @@ class SetParameters(unittest.TestCase):
         self.assertEqual(SP.rename_single_files(text, 2),
                          "LOOPS (Dual_RX2_Parameters.py) and TX_TURNS (Dual_TX2_Parameters.py), Dual_Board_Parameters.py, Dual_IC2_Parameters.py")
         self.assertIn("Dual_Rotor1_Parameters.py", SP.rename_single_files("Rotor_Parameters.py", 1))
+        # the file at the end follows the name the message starts with
+        self.assertEqual(SP.rename_single_files("EXCITATION_FREQ_HZ = 'x': must be a number   (Board_Parameters.py)", 2),
+                         "EXCITATION_FREQ_HZ = 'x': must be a number   (Dual_TX2_Parameters.py)")
+        self.assertEqual(SP.rename_single_files("ROTOR_MODE = 3: must be one of ...   (Rotor_Parameters.py)", 1),
+                         "ROTOR_MODE = 3: must be one of ...   (Dual_Board_Parameters.py)")
+        self.assertEqual(SP.dual_file_of("LOOPS", 2), "Dual_RX2_Parameters.py")
+        self.assertEqual(SP.dual_file_of("ROTOR_AUTO_DUTY", 1), "Dual_Rotor1_Parameters.py")
+        self.assertEqual(SP.dual_file_of("TX_SHAPE", 1), SP.FIXED_FILE)
+        self.assertIsNone(SP.dual_file_of("NOT_A_NAME", 1))
 
 
 class TrackLayout(unittest.TestCase):
@@ -144,6 +154,32 @@ class TrackLayout(unittest.TestCase):
         self.assertIn("matches DUAL_MODE = 2", str(cm.exception))
         self.assertIn("DUAL_MODE", cm.exception.names)
         self.assertIsNone(TL.check_mode(H.P, 2, None, None, None, {"names": {}}, {"names": {}}))
+        self.assertIsNone(TL.mode_matching(True, None, 0), "one edge alone matches no mode")
+
+    def test_outer_room_as_rotor_builder_limits_ring_2(self):
+        """With ring 2 over the TX2 turns the outline keeps: the overhang, ROTOR_AUTO_EDGE_CLEARANCE_MM, half the
+        edge line, the polygon vertices and LAYOUT_TOLERANCE_MM; the rotor settings default as in the Single."""
+        H.restore()
+        B, TX2, RX2, RO2 = H.P.BOARD, H.P.TX2, H.P.RX2, H.P.ROTOR2
+        ring = TL.BoardLayout.tx_ring(TL._tx_namespace(TX2, B), 0.0)
+        edge = ring["outer_copper_edge"] + RO2.ROTOR_AUTO_TX_OVERHANG_MM + B.ROTOR_AUTO_EDGE_CLEARANCE_MM
+        fine = B.EDGE_LINE_WIDTH_MM / 2.0 + B.ROTOR_CHORD_TOLERANCE_MM
+        self.assertLess(fine, B.LAYOUT_TOLERANCE_MM, "the repository's slack covers the edge line and the vertices")
+        want = edge + B.LAYOUT_TOLERANCE_MM
+        self.assertAlmostEqual(TL.outer_room(TX2, B, RO2, RX2), want, 9)
+        no_slack = types.SimpleNamespace(**dict({n: getattr(B, n) for n in dir(B) if n.isupper()}, LAYOUT_TOLERANCE_MM=0.0))
+        self.assertAlmostEqual(TL.outer_room(TX2, no_slack, RO2, RX2), edge + fine, 9, "no slack: what the ring needs")
+        wide_line = types.SimpleNamespace(**dict({n: getattr(B, n) for n in dir(B) if n.isupper()}, EDGE_LINE_WIDTH_MM=0.3))
+        self.assertAlmostEqual(TL.outer_room(TX2, wide_line, RO2, RX2), edge + 0.15 + B.ROTOR_CHORD_TOLERANCE_MM, 9)
+        no_rotor = types.SimpleNamespace(ROTOR_AUTO_COVER_TX=None, ROTOR_AUTO_TX_OVERHANG_MM=None)
+        self.assertAlmostEqual(TL.outer_room(TX2, B, no_rotor, RX2), want, 9, "None: the Single Generator's defaults")
+        self.assertAlmostEqual(TL.outer_room(TX2, B, types.SimpleNamespace(), RX2), want, 9, "missing: the same")
+        self.assertEqual(TL.ring_vertex_sag(B, RO2, RX2, 20.0), B.ROTOR_CHORD_TOLERANCE_MM, "auto steps")
+        steps = types.SimpleNamespace(ROTOR_ARC_STEPS_PER_SECTOR=8, ROTOR_CHORD_TOLERANCE_MM=0.001)
+        sag = TL.ring_vertex_sag(steps, types.SimpleNamespace(ROTOR_AUTO_DUTY=0.5), types.SimpleNamespace(LOOPS=16), 20.0)
+        self.assertAlmostEqual(sag, 20.0 * (1.0 / __import__("math").cos(0.5 * 2 * 3.141592653589793 / 16 / 8 / 2) - 1.0), 12)
+        self.assertLess(TL.outer_room(TX2, B, types.SimpleNamespace(ROTOR_AUTO_COVER_TX=False), RX2), want,
+                        "no overhang room when ring 2 stays inside the TX ring")
 
 
 class Assembler(unittest.TestCase):
@@ -180,6 +216,24 @@ class Assembler(unittest.TestCase):
             self.assertFalse(os.path.isdir(a))
         finally:
             H.restore()
+
+    def test_title_block_names_the_tx_layers_of_both_wirings(self):
+        for case, word in (("default", "Series"), ("parallel_both_sets", "Parallel")):
+            text = H.board(case).text("Stator.kicad_pcb")
+            comments = re.findall(r'\(comment \d "(Set \d:[^"]*)"\)', text)
+            self.assertEqual(len(comments), 2, case)
+            for c in comments:
+                self.assertIn(word, c)
+                self.assertNotIn("None", c, "the TX layers are named for parallel wiring too")
+                self.assertRegex(c, r"Turns: \d+ [\w-]+ \d+ [\w-]+, Ends at")
+
+    def test_record_keeps_the_sets_values_as_given(self):
+        """build_ring turns a copy of the set namespace: the record's set sections show the start angles as in
+        the files, not shifted by the set's RX pattern zero."""
+        rec = H.board("default").record
+        angles = re.findall(r"START_ANGLE_DEG\s+= (\S+)", rec)
+        self.assertGreaterEqual(len(angles), 4)
+        self.assertEqual(set(angles), {"0.0"}, angles)
 
     def test_copper_extent_of_a_built_set(self):
         H.restore()

@@ -204,7 +204,7 @@ class Nets(unittest.TestCase):
                     self.assertEqual(len(spots), 1, f"TX{k} free ends at {sorted(spots)}")
                     (x, y), = spots
                     want = res.p("BOARD", f"TERMINAL_{k}_DEG")
-                    angle = math.degrees(math.atan2(-(y - cy), x - cx)) % 360.0
+                    angle = math.degrees(math.atan2(y - cy, x - cx)) % 360.0      # the generator's convention
                     self.assertAlmostEqual(angle, want % 360.0, 2, f"TX{k} terminal at {angle:.3f} deg, wanted {want}")
                     self.assertEqual(len(c["loose_ends"]), 2, "one end on each TX layer")
 
