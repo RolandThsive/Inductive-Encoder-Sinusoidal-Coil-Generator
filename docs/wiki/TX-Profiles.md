@@ -4,7 +4,7 @@ The transmitter (TX) coil is a set of concentric turns around the RX band. This 
 the generator can lay it out: on one layer or two, wired in series or in parallel, and with the two
 styles it uses to make way for the RX fingers. In every picture below only the TX is drawn; the RX
 coils are not shown. Each picture is one run of the generator with only the named settings changed (TX pitch 1.0 mm, trace width 0.4 mm, three turns). Colour shows the copper layer, not the net: Top red, Inner-1 green, Inner-2 dark yellow, Bottom dark blue.
-For the settings themselves see the [Parameter Reference](Parameter-Reference.md); for a short
+For the settings themselves see the [Parameter Reference Single Generator](Parameter-Reference-Single-Generator.md); for a short
 decision guide see the [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md).
 
 ## 9.1 Series And Parallel
@@ -45,13 +45,16 @@ on a layer that carries TX turns, the turns make way for it. The three possible 
 
 ![TX Profiles 2: 2-layer board, TX on Top and Bottom](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/tx_profiles_2_two_layer_pair.png)
 
-*TX Profiles 2. A 2-layer board with the TX on Top and Bottom: series, parallel stitched and parallel staggered. Left: the whole board. Right: a to-scale close-up of the TX terminal (the RX fingers are not drawn, but the TX makes way for them where they would cross).*
+*TX Profiles 2. A 2-layer board with the TX on Top and Bottom and an RX finger on Top at every tip (`RX_TABS = "all"`): series, parallel stitched and parallel staggered. Left: the whole board. Right: a to-scale close-up at the top of the ring. The RX fingers are not drawn, but the TX makes way for them where they would cross: the series and the staggered TX go around each finger on Bottom, the stitched TX carries on along its Bottom turns between two vias.*
+
+With `RX_TABS = "single"` both fingers sit next to the TX terminal. A parallel TX is always stitched around its terminal,
+so there both fingers fall inside the stitched part and `TX_PARALLEL_BREAK_STYLE` changes nothing.
 
 ## 9.4 4-Layer Board: Combinations
 
 A 4-layer board has Top (1), Inner 1 (2), Inner 2 (3) and Bottom (4). The TX can use any one layer or any
 two different layers (`TX_LAYER_A`, `TX_LAYER_B`). The TX only has to make way for a finger when the
-finger's layer (`RX_TAB_LAYER`) carries TX turns, so in the picture below the fingers are set on Top.
+finger's layer (`RX_TAB_LAYER`) carries TX turns, so in the picture below the fingers are set on Top (`RX_TAB_LAYER = 1`), one at every tip.
 A TX that does not use the finger's layer is never interrupted.
 
 | Combination | Settings |
@@ -65,10 +68,10 @@ A TX that does not use the finger's layer is never interrupted.
 
 ![TX Profiles 3: 4-layer board combinations](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/tx_profiles_3_four_layer.png)
 
-*TX Profiles 3. Six TX combinations on a 4-layer board (RX on Top and Inner-1), a to-scale close-up beside the TX terminal. The TX on Bottom only has no turns on the finger layer, so it runs unbroken.*
+*TX Profiles 3. Six TX combinations on a 4-layer board (RX on Top and Inner-1, a finger on Top at every tip), a to-scale close-up at one finger at the top of the ring. The TX on Bottom only has no turns on the finger layer, so it runs unbroken. The TX on Top only goes around the finger on Inner-1, its underpass layer.*
 
 The recommended combination is described in the
-[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#1441-recommended-combination).
+[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#1541-recommended-combination).
 
 ## 9.5 Turn Shapes
 

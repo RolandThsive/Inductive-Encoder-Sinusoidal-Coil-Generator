@@ -24,7 +24,8 @@ contributions of every kind are welcome, from a measurement on a real board to a
 ## How Can You Get Involved?
 
 1. Read the [README](README.md) and the [Wiki](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki).
-2. Run the generator from the `Single Generator` folder (see the Quick Start in the README) and look at what it builds.
+2. Run a generator from the `Single Generator` or the `Dual Generator` folder (see the Quick Start in the README) and
+   look at what it builds.
 3. Open an issue on GitHub to report a problem, ask a question or propose a change before starting larger work.
 4. Send a pull request for a fix or improvement. Keep it focused, so that it is easy to review.
 5. For measurements, hardware, funding or commercial use, get in touch by email:
@@ -35,9 +36,13 @@ contributions of every kind are welcome, from a measurement on a real board to a
 - **Be honest about validation.** Say whether a number comes from a model or from a measurement, and keep the
   hardware-validation notice wherever figures are given.
 - **Keep changes small and clear.** One topic per pull request, with a short description of what changed and why.
-- **Check before you send.** Run the generator (`python Generator/Run/RunCoilGenerator.py --check` from the `Single
-  Generator` folder) and make sure the parameter and geometry checks still pass.
-- **Parameters stay in the parameter files.** The only files a user edits are in `Single Generator/Parameters/`.
+- **Check before you send.** Run the checks of the generator you changed (`python Generator/Run/RunCoilGenerator.py
+  --check` from the `Single Generator` folder, `python Dual_Generator/Run/Dual_RunCoilGenerator.py --check` from the
+  `Dual Generator` folder) and its regression tests (`python "Single Generator/Regression Testing/run_regression.py"`
+  and `python "Dual Generator/Regression Testing/run_regression.py"` from the repository root). Every pull request runs
+  both suites on GitHub.
+- **Parameters stay in the parameter files.** The only files a user edits are in `Single Generator/Parameters/` and
+  `Dual Generator/Parameters/`.
 - **Update the documentation with the code.** If a parameter, command or output changes, change the wiki and README to
   match.
 - **Do not include secrets or personal data** in issues, pull requests or measurement files.

@@ -11,9 +11,10 @@ pip install numpy
 
 ## 3.2 First Run
 
-1. Open `Single Generator/Parameters/` and look at the five files you can edit: `Board_Parameters.py`, `RX_Parameters.py`,
-   `TX_Parameters.py`, `Rotor_Parameters.py` and `IC_Parameters.py`. The [Parameter Reference](Parameter-Reference.md) explains every
-   setting. The defaults already build a board.
+1. Open `Single Generator/Parameters/` and look at the files you can edit: `Board_Parameters.py`, `RX_Parameters.py`,
+   `TX_Parameters.py`, `Rotor_Parameters.py`, `IC_Parameters.py` and `SilkScreenSuggestion_Parameters.py`. The
+   [Parameter Reference Single Generator](Parameter-Reference-Single-Generator.md) explains every setting. The defaults
+   already build a board.
 2. Go to the `Single Generator` folder and check the parameters without writing anything:
 
    ```bash
@@ -58,19 +59,43 @@ folder name already exists, `__1`, `__2` and so on are added. See
 4. The [electrical estimate](Electrical-Estimate.md) is printed and checked against the receiver IC limits in `IC_Parameters.py`.
 5. The run decides: any error stops it (nothing is written); with `GENERATOR_MODE = "strict"` every warning about the finished boards counts as an error, and `--check` stops here on purpose.
 6. The boards and `Parameters.txt` (the summaries, every value used, and copies of the parameter files) are written.
+7. Last, a lead-cutting suggestion is drawn on the silkscreen of the stator: where to break each RX coil and where the
+   TX ends get their vias. It changes no copper and never stops a run; the coordinates are printed and added to
+   `Parameters.txt`. See [Silkscreen](Silkscreen.md).
 
-Every board carries a filled-in KiCad title block. There is no silkscreen and there are no terminals or pads: you
-break the coils out where you like.
+Every board carries a filled-in KiCad title block. There are no terminals or pads: you break the coils out yourself,
+where the silkscreen suggests or wherever you like.
 
 > [!NOTE]
 > Every model and estimate in this project is unvalidated against hardware. Test boards are ordered and have not
 > been measured yet.
 
-## 3.5 Next
+## 3.5 The Dual Generator
+
+The Dual Generator builds two coil sets on one stator (a coarse inner set and a fine outer set, each with its own IC)
+and one rotor disc with two rings. It uses the Single Generator's own code, so both folders must stay next to each
+other. Its settings are the files in `Dual Generator/Parameters/` (`Dual_Board_Parameters.py`, `Dual_RX1` / `Dual_RX2`,
+`Dual_TX1` / `Dual_TX2`, `Dual_Rotor1` / `Dual_Rotor2`, `Dual_IC1` / `Dual_IC2` and
+`Dual_SilkScreenSuggestion_Parameters.py`; `Dual_Fixed_Parameters.py` is not to be changed). The defaults build a
+1x / 16x board.
+
+```bash
+cd "Dual Generator"
+python Dual_Generator/Checks/Dual_CheckParameters.py       # Check the parameters only
+python Dual_Generator/Run/Dual_RunCoilGenerator.py         # Check, then write Stator + Rotor
+python Dual_Generator/Run/Dual_RunCoilGenerator.py --check # Check only, write nothing
+```
+
+The options `--stator`, `--rotor` and `--no-color` work as for the Single Generator. Each run writes a new
+`DualCoil_...` folder in `Dual Generator/Output/`. Start with the
+[Quick Guide To Parameters Selections - Dual Generator](Quick-Guide-To-Parameters-Selections-Dual-Generator.md).
+
+## 3.6 Next
 
 - Pick the loop count for your use: [Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md).
 - Understand the features: [Stator Features](Stator-Features.md), [Rotor Features](Rotor-Features.md),
-  [Board Features](Board-Features.md).
+  [Board Features](Board-Features.md), [Silkscreen](Silkscreen.md), and the same for the
+  [Dual Generator](Stator-Features-Dual-Generator.md).
 - Check and improve a design (analysis and optimization are under construction): [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md).
 
 | Previous | Next |

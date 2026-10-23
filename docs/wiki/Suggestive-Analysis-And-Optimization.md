@@ -1,4 +1,4 @@
-# 18. Suggestive Analysis And Optimization
+# 25. Suggestive Analysis And Optimization
 
 > [!NOTE]
 > **Under construction.** The analyser and optimizer are not part of the main branch. They live on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer) and are still being built, so what is described here may change.

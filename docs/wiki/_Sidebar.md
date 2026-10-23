@@ -12,19 +12,29 @@
 - [TX Profiles](TX-Profiles.md)
 - [Choosing A Rotor And Stator](Choosing-A-Rotor-And-Stator.md)
 
-**Design Guide**
+**Design Guide - Single Generator**
 - [Stator Features](Stator-Features.md)
 - [Rotor Features](Rotor-Features.md)
 - [Board Features](Board-Features.md)
+- [Silkscreen](Silkscreen.md)
 - [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md)
 
+**Design Guide - Dual Generator**
+- [Stator Features](Stator-Features-Dual-Generator.md)
+- [Rotor Features](Rotor-Features-Dual-Generator.md)
+- [Board Features](Board-Features-Dual-Generator.md)
+- [Silkscreen](Silkscreen-Dual-Generator.md)
+- [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections-Dual-Generator.md)
+
 **Reference**
-- [Parameter Reference](Parameter-Reference.md)
+- [Parameter Reference Single Generator](Parameter-Reference-Single-Generator.md)
+- [Parameter Reference Dual Generator](Parameter-Reference-Dual-Generator.md)
 - [Checks, Errors And Warnings](Checks-Errors-And-Warnings.md)
 - [Electrical Estimate](Electrical-Estimate.md)
 - [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
 - [Project Output Organization](Project-Output-Organization.md)
 - [KiCad Compatibility](KiCad-Compatibility.md)
+- [Regression Testing](Regression-Testing.md)
 
 **Research And Community**
 - [Glossary](Glossary.md)
