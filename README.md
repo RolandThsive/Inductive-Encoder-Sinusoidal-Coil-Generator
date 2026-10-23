@@ -84,11 +84,6 @@ Every parameter and every board size is in the wiki:
 
 *The Dual Generator: one stator with two coil sets and its rotor on top. The outer set has 1, 2, 4, 8 and 16 loops, the inner set 1 loop.*
 
-![Stator 1: Loops](docs/images/stator_1_loops.png)
-
-*The same board with 1, 2, 4, 8 and 16 loops.* More pictures:
-[Examples](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples).
-
 ## Status And Next Steps
 
 - **Hardware testing.** Funds are being collected to order a wide range of coil PCBs and the test equipment to
