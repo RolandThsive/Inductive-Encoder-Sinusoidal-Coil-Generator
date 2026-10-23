@@ -5,24 +5,18 @@
 **An open generator for rotary inductive encoder coils, built for KiCad.**
 Set the parameters, get a stator and a rotor as KiCad boards, checked and with an estimate of how they will perform.
 
-[![Quick Start](https://img.shields.io/badge/Quick_Start-Wiki-2EA44F?style=for-the-badge&logo=readthedocs&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started)
 [![Web Tool](https://img.shields.io/badge/Web_Tool-Try_in_browser-0078D6?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)
 [![Wiki](https://img.shields.io/badge/Wiki-Read_the_docs-333333?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki)
 [![Examples](https://img.shields.io/badge/Examples-Pictures-E95420?style=for-the-badge&logo=kicad&logoColor=white)](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Examples)
 
-[Wiki](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki) ·
-[Getting Started](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Getting-Started) ·
-[Parameter Reference](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Parameter-Reference) ·
-[Working Principle](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Working-Principle) ·
-[Milestones](MILESTONES.md) ·
-[Contributing](CONTRIBUTING.md) ·
-[License](LICENSE.md) ·
-[Ledger](LEDGER.md)
+[![Milestones](https://img.shields.io/badge/Milestones-Roadmap-8957E5?style=for-the-badge&logo=trello&logoColor=white)](MILESTONES.md)
+[![Contributing](https://img.shields.io/badge/Contributing-Get_involved-2EA44F?style=for-the-badge&logo=github&logoColor=white)](CONTRIBUTING.md)
+[![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE.md)
+[![Ledger](https://img.shields.io/badge/Ledger-Public_record-0E8A8A?style=for-the-badge&logo=readme&logoColor=white)](LEDGER.md)
 
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)
 ![KiCad](https://img.shields.io/badge/KiCad-7%20to%2010-314CB0?logo=kicad&logoColor=white)
 ![Loops](https://img.shields.io/badge/RX_loops-1_to_16-blueviolet)
-![License](https://img.shields.io/badge/License-Open_for_research_use-orange)
 ![Stars](https://img.shields.io/github/stars/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator?style=flat)
 ![Last commit](https://img.shields.io/github/last-commit/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator)
 
