@@ -38,7 +38,7 @@ MARGIN_MM = 1.0                                            # around both
 
 N = r"(-?[\d.]+)"
 SEG = re.compile(rf'\(segment \(start {N} {N}\) \(end {N} {N}\) \(width {N}\) \(layer "([^"]+)"\)')
-VIA = re.compile(rf'\(via \(at {N} {N}\) \(size {N}\) \(drill {N}\) \(layers "([^"]+)" "([^"]+)"\)')
+VIA = re.compile(rf'\(via (?:blind |micro )?\(at {N} {N}\) \(size {N}\) \(drill {N}\) \(layers "([^"]+)" "([^"]+)"\)')
 POLY = re.compile(r'\(gr_poly \(pts ((?:\(xy -?[\d.]+ -?[\d.]+\) ?)+)\)(.*?)\(layer "([^"]+)"\)')
 XY = re.compile(rf'\(xy {N} {N}\)')
 CIRCLE = re.compile(rf'\(gr_circle \(center {N} {N}\) \(end {N} {N}\)(.*?)\(layer "([^"]+)"\)')

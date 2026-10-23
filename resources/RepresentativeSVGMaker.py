@@ -53,7 +53,7 @@ SVG_WIDTH_PX = 2240                                        # the size the SVG op
 # ---- what is read from the KiCad files --------------------------------------------------------------------
 SEG = re.compile(r'\(segment \(start ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\) \(width ([\d.]+)\) '
                  r'\(layer "([^"]+)"\) \(net (\d+)\)')
-VIA = re.compile(r'\(via \(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\)')
+VIA = re.compile(r'\(via (?:blind |micro )?\(at ([-\d.]+) ([-\d.]+)\) \(size ([\d.]+)\)')
 NET = re.compile(r'\(net (\d+) "([^"]*)"\)')
 CIRCLE = re.compile(r'\(gr_circle \(center ([-\d.]+) ([-\d.]+)\) \(end ([-\d.]+) ([-\d.]+)\) \(layer "([^"]+)"\)')
 POLY = re.compile(r'\(gr_poly \(pts ((?:\(xy [-\d.]+ [-\d.]+\) ?)+)\) \(layer "([^"]+)"\)')
