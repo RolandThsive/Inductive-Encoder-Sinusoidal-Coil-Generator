@@ -1,12 +1,12 @@
-# 14. Quick Guide To Parameters Selections
+# 15. Quick Guide To Parameters Selections
 
 This page shows, with pictures made by the generator itself, the choices you make before a board is
 built: how the RX band is defined, how many TX turns and how long a TX tail, how the TX is wired and
 how it makes way for the RX fingers, and how much of the rotor is metal. Every picture is one run of
 the generator with only the named setting changed, and colour shows the copper layer, not the net (Top red, Inner-1 green, Inner-2 dark yellow, Bottom dark blue). Each parameter is described in full in the
-[Parameter Reference](Parameter-Reference.md).
+[Parameter Reference Single Generator](Parameter-Reference-Single-Generator.md).
 
-## 14.1 Defining The RX Band
+## 15.1 Defining The RX Band
 
 The RX band is the ring of radii in which the RX curves weave. Three things can set it:
 
@@ -48,7 +48,7 @@ Use edges only when the board outline is fixed and you want the largest band tha
 the band radii matter (for example to match an existing housing); add the edges when the outline is also
 fixed. Use a pair alone when only the band matters and the board may grow to suit it.
 
-## 14.2 TX Turns
+## 15.2 TX Turns
 
 `TX_TURNS` is the number of complete TX turns **per layer**. The first turn sits `TX_OFFSET_MM` outside
 the RX band and each next turn `TX_PITCH_MM` further out. More turns raise the inductance and the
@@ -59,7 +59,7 @@ signal, and need a wider board edge.
 *Parameters 2. TX_TURNS = 1, 2, 3 and 5 on one layer (pitch 1.2 mm), close-up beside the TX terminal.
 Everything else is unchanged; only the outer edge moves out.*
 
-## 14.3 TX Tail
+## 15.3 TX Tail
 
 The tail is the short radial piece that carries the TX terminal out past the outermost turn.
 `TX_TAIL_EXTRA_MM` sets how far it reaches beyond the circle one `TX_PITCH_MM` outside the outermost turn; the default is 2 mm.
@@ -69,7 +69,7 @@ The tail is the short radial piece that carries the TX terminal out past the out
 *Parameters 3. TX_TAIL_EXTRA_MM = 0, 2 and 4 mm (pitch 1.2 mm). A longer tail makes it easier to solder or connect, and
 moves the outer board edge out with it.*
 
-## 14.4 TX Styles
+## 15.4 TX Styles
 
 `TX_WIRING` sets how the TX uses its layers: `"single"` (all turns on `TX_LAYER_A`), `"series"` (two spirals on
 `TX_LAYER_A` and `TX_LAYER_B` joined by a via, twice the turns) or `"parallel"` (the same turns on both layers,
@@ -98,7 +98,7 @@ A longer `TX_PITCH_MM` puts the outermost turn farther out and needs longer fing
 
 *Parameters 4. A single TX on Top (fingers on Inner-1), a series TX on Top + Inner-1 and a parallel stitched TX on Top + Inner-1, each shown as a to-scale close-up of one finger crossing the TX ring (4 loops, 3 turns per layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm).*
 
-### 14.4.1 Recommended Combination
+### 15.4.1 Recommended Combination
 
 The best combination is a **4-layer board** with the RX fingers (if you choose to have them) on
 **Inner 1** and a **series TX with stepped turns (`stepped_diagonal`) on Top and Inner 2**:
@@ -118,7 +118,7 @@ generator builds this setup without errors.
 
 *Parameters 5. The recommended combination, generated with the settings in the table above (4 loops, one finger per coil with `RX_TABS = "single"`, 3 turns per TX layer, pitch 1.2 mm, trace width 0.4 mm, board edges 30 / 50 mm). The TX turns on Inner-2 run directly below the Top turns at the same radii, so they are hidden by them in this view; only the steps beside the TX terminal show. The fingers are on Inner-1, away from every TX turn. Right: one finger.*
 
-## 14.5 Rotor Metal Fraction
+## 15.5 Rotor Metal Fraction
 
 `ROTOR_AUTO_DUTY` is the share of each period that is metal: 0.5 is half metal and half gap (180°
 electrical). With a 1-loop stator there is one metal sector, so the duty is simply the share of the full turn it covers (0.25 = 90°).
@@ -133,12 +133,12 @@ semi-transparent over the stator, so the RX and TX stay visible.*
 if the shaft turns fast. The [Suggestive Analysis And Optimization](Suggestive-Analysis-And-Optimization.md)
 page shows how to search for the best duty for your board.
 
-## 14.6 Related Pages
+## 15.6 Related Pages
 
 - [RX Profiles](RX-Profiles.md): the curve that the RX band is filled with.
 - [Stator Features](Stator-Features.md) and [Rotor Features](Rotor-Features.md): every option in detail.
-- [Parameter Reference](Parameter-Reference.md): all parameters, defaults and ranges.
+- [Parameter Reference Single Generator](Parameter-Reference-Single-Generator.md): all parameters, defaults and ranges.
 
 | Previous | Next |
 |:---|---:|
-| [Board Features](Board-Features.md) | [Parameter Reference](Parameter-Reference.md) |
+| [Silkscreen](Silkscreen.md) | [Stator Features - Dual Generator](Stator-Features-Dual-Generator.md) |

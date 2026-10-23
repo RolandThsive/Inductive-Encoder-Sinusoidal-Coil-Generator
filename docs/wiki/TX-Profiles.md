@@ -4,7 +4,7 @@ The transmitter (TX) coil is a set of concentric turns around the RX band. This 
 the generator can lay it out: on one layer or two, wired in series or in parallel, and with the two
 styles it uses to make way for the RX fingers. In every picture below only the TX is drawn; the RX
 coils are not shown. Each picture is one run of the generator with only the named settings changed (TX pitch 1.0 mm, trace width 0.4 mm, three turns). Colour shows the copper layer, not the net: Top red, Inner-1 green, Inner-2 dark yellow, Bottom dark blue.
-For the settings themselves see the [Parameter Reference](Parameter-Reference.md); for a short
+For the settings themselves see the [Parameter Reference Single Generator](Parameter-Reference-Single-Generator.md); for a short
 decision guide see the [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md).
 
 ## 9.1 Series And Parallel
@@ -68,7 +68,7 @@ A TX that does not use the finger's layer is never interrupted.
 *TX Profiles 3. Six TX combinations on a 4-layer board (RX on Top and Inner-1), a to-scale close-up beside the TX terminal. The TX on Bottom only has no turns on the finger layer, so it runs unbroken.*
 
 The recommended combination is described in the
-[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#1441-recommended-combination).
+[Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md#1541-recommended-combination).
 
 ## 9.5 Turn Shapes
 
