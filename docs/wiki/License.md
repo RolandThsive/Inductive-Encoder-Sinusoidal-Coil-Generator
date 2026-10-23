@@ -5,7 +5,7 @@ content, an extra term on everything the tool produces (32.1), and commercial te
 
 | Content | License | What it allows |
 |---|---|---|
-| Generator code (`Single Generator/`: `Generator/` and `Parameters/`, on `main`; the `analyser_and_optimizer` branch) | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) | Use, change and share, for noncommercial purposes |
+| Generator code (`Single Generator/` and `Dual Generator/` with their parameter files and regression tests, and `resources/`, on `main`; the `analyser_and_optimizer` branch) | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) | Use, change and share, for noncommercial purposes |
 | Documentation and images (`docs/images/` except the Web Tool pictures, `docs/wiki/` and this wiki, `README.md`, `CONTRIBUTING.md`) | [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) | Share and adapt with credit, noncommercial, under the same license |
 | Web Tool (`WebGUI/` and `.github/workflows/WebGUI-Pages.yml` on the `WebUI` branch, the published tool, its design, and the `docs/images/webui_*.png` pictures) | [PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0/) | Noncommercial use only; no changes and no redistribution |
 
