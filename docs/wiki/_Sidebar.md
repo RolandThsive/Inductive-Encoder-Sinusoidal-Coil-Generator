@@ -1,3 +1,9 @@
+<div align="center">
+
+[<img src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo" width="120">](Home.md)
+
+</div>
+
 **[Home](Home.md)** · **[Contents](Contents.md)**
 
 **Start Here**

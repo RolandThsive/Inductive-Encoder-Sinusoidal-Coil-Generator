@@ -1,3 +1,9 @@
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_200px.gif" alt="Sinusoidal Coil Generator logo: a rotor turning over stator coils" width="200">
+
+</div>
+
 # 1. Inductive Encoder Sinusoidal Coil Generator Wiki
 
 An open, all-in-one coil generator for rotary inductive encoders: set the parameters, get a stator and rotor as KiCad boards, and, once finished, check them with the analyser and optimizer (under construction on the [`analyser_and_optimizer` branch](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/tree/analyser_and_optimizer)).
