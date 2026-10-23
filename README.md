@@ -12,7 +12,6 @@ Set the parameters, get a stator and a rotor as KiCad boards, checked and with a
 [![Milestones](https://img.shields.io/badge/Milestones-Roadmap-8957E5?style=for-the-badge&logo=trello&logoColor=white)](MILESTONES.md)
 [![Contributing](https://img.shields.io/badge/Contributing-Get_involved-2EA44F?style=for-the-badge&logo=github&logoColor=white)](CONTRIBUTING.md)
 [![License](https://img.shields.io/badge/License-Open_for_research-F28C28?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE.md)
-[![Ledger](https://img.shields.io/badge/Ledger-Public_record-0E8A8A?style=for-the-badge&logo=readme&logoColor=white)](LEDGER.md)
 
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)
 ![KiCad](https://img.shields.io/badge/KiCad-7%20to%2010-314CB0?logo=kicad&logoColor=white)
