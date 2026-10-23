@@ -177,12 +177,14 @@ The table below is for the source code (PolyForm Noncommercial).
 
 | You May | You Must | You May Not, Without Written Permission |
 |---|---|---|
-| Use, study and modify the code | Keep the licence and copyright notice in every copy | Use the project, or anything it outputs (KiCad files, Gerbers, boards), in a commercial product or service. This is an explicit term, see [LICENSE.md](LICENSE.md#output-of-the-generator) |
+| Use, study and modify the code | Keep the licence and copyright notice in every copy | Use the project, or anything it outputs (KiCad files, Gerbers, boards), commercially without accepting the [commercial terms](LICENSE.md#commercial-use) (0.2% of the net sale price) |
 | Generate boards for personal, educational, research and hobby use | State clearly that your version is forked from or derived from this project, with a link to this repository | Use it inside a company or startup for its business |
 | Share your changes for non-commercial use | Share derived pictures and documents under the same terms | Remove or hide the attribution |
 
-**Commercial Use.** Companies and startups are welcome to use this project once terms are agreed.
-Please make contact through one of the channels below. Approved organisations will be listed here.
+**Commercial Use.** Companies and startups are welcome to use this project and its output. You pay 0.2% of the net sale
+price of every unit sold and every paid service, to RolandThsive, reported by showing invoices against payments in the public
+[LEDGER.md](LEDGER.md). The full terms are in [LICENSE.md](LICENSE.md#commercial-use). Please make contact through one of
+the channels below. Approved organisations will be listed here.
 
 **Contact (Only Through These Channels):**
 
@@ -191,7 +193,47 @@ Please make contact through one of the channels below. Approved organisations wi
 - MyAnimeList: [RolandThsive](https://myanimelist.net/profile/RolandThsive)
 - Instagram: [@ro_h_bots](https://www.instagram.com/ro_h_bots)
 
-**Approved Commercial Users:** *None yet.*
+**Thanks To Our Approved Commercial Users:** *None yet.* Every company that pays is thanked here by name, and
+appears in the public [LEDGER.md](LEDGER.md).
+
+## Every Commercial Payment Goes Back Into The Project
+
+> [!IMPORTANT]
+> **100% ON RECORD. 100% INVESTED BACK. 100% DISCLOSED.**
+
+**Any money I accept from commercial users here will be invested back into this project in full, 100%, and all of it
+will be on record.** This is how the project works like a non-profit, in an extreme way: nothing is taken out as
+profit.
+
+- **100% invested back.** Boards, test equipment, measurements, research and development of this project.
+- **Leftovers are donated.** Whatever is left over goes to a fund that supports innovation worldwide, chosen
+  together by me and the paying company.
+- **100% on record.** Every payment, every expense and every donation is written in the public
+  [LEDGER.md](LEDGER.md) of this repository, with proof.
+- **Completely disclosed.** Everyone who can see this repository can see the ledger. Nothing is hidden.
+- **Non-profit, exclusively.** Every fee, investment and contribution is used only for the equipment and services
+  used to build this project, and for nothing else. No profit means no profit.
+- **No opaque portions.** The transparency is absolute. Every cent that comes in and every cent that goes out is in
+  the ledger, with proof. Money that is not in the ledger does not exist for this project, and none is accepted outside
+  it, even a single cent. To protect confidentiality, a contributor's name may be struck out, but never the receipt
+  or the transaction details.
+
+This is an open project, so I expect it to be **open to the highest degree** and **completely functioning**, with a
+**stern warning**. I went through a bunch of licenses and saw how things work in the "Open Source Stuff". **That stuff
+is broken.** And I see that there is **very little goodwill** in this world towards the people who are willing to free
+stuff.
+
+<p align="center"><big><b>Here is what I came up with. So, in sassy boy Seth's freedom intonation:</b></big></p>
+
+Here's the deal. This is **completely free** (as in freedom-units free), **except if you are a commercial user**. You
+have to **pay** to make this research even better. Yes, you. **Pay up.** That's called improving the stuff you used.
+Tax stuff. Everything has it. This too has it. It's **completely non-profit**. There is **no "commercialization",
+absolutely none.** **0.2%** is the maximum allowable transaction per unit sale, and it stops after the fulfillment of
+**all the milestones**.
+
+There is **no restriction on anything here** unless you are **not contributing back** appropriately. Especially no
+restriction just to profit from it. Again: **profit bad, investment for making this project good.** That will stop
+when this generator reaches its final stage, and a new license will apply, **the same as the GPL** - **truly open source**.
 
 ---
 
@@ -204,7 +246,7 @@ to the electronics and the firmware. Trained in mechanical design and robotics, 
 master's in mechatronics, I have built robotic hands, a humanoid torso, industrial bin-picking
 cells and rocket electronics, designing PCBs in KiCad and firmware for STM32 and Espressif chips.
 
-Without a job at the moment, I put my full time into building industrial-grade software and making
+I put my full time into building industrial-grade software and making
 well-researched but hard-to-find scientific knowledge free for everyone. I will keep maintaining
 this project until it becomes a highly capable rotary inductive sensor coil generator.
 

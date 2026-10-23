@@ -35,7 +35,7 @@ The oscillator frequency and the tank resistance are checked against the receive
 
 ## 17.4 Receiver IC Limits
 
-The limits are set in `IC_Parameters.py`. The defaults are those of the IPS2550, from its datasheet. Take the values
+The limits are set in `IC_Parameters.py`. The defaults are an example, the IPS2550. Take the values
 from the datasheet of your IC and check your revision.
 
 | Setting | Default | Meaning |

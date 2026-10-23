@@ -84,7 +84,7 @@ two values of a pair go together. See [Web Tool](Web-Tool.md) for the None switc
 
 | Name | Default | Range | Meaning |
 |---|---|---|---|
-| `RX_SUBCOILS` | 1 | 1, 2 or 3 | Sub-coils per coil (distributed winding, as in the receiver makers' reference designs). Each coil stays one closed series loop. |
+| `RX_SUBCOILS` | 1 | 1, 2 or 3 | Sub-coils per coil (distributed winding). Each coil stays one closed series loop. |
 | `RX_SUBCOIL_SPLIT_ELEC_DEG` | 45.0 | > 0 (*only if* sub-coils ≥ 2) | Electrical angle between sub-coils. Use 45 for 2, and 30 for 3. Two sub-coils give signal × 2·cos(d/2) (1.85× at 45°); harmonic *h* × 2·cos(h·d/2) (3rd and 5th down about 59 % at 45°, 3rd removed at 60°, 5th removed at 36°). |
 
 ### 15.2.4 Layers and vias
@@ -122,7 +122,7 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 | `TX_STEPS` | `"auto"` | "auto" or a whole number, 12 to 20000 | Polyline points per TX turn. "auto" = as many as `TX_CHORD_TOLERANCE_MM` needs on the outermost full turn (the worst case; a `spiral` uses the end of its last turn, one pitch farther out), rounded up to a multiple of 8, at least 48. A whole number is used exactly. |
 | `TX_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | How far a straight chord of a TX turn may lie from the true circle, in mm (1 micron, also the smallest value allowed). |
 | `TX_TAIL_EXTRA_MM` | 2.0 | ≥ 0 | Radial tail that carries the TX terminal. |
-| `TX_SHAPE` | `"stepped_diagonal"` | `stepped_diagonal`, `stepped_arc`, `spiral` | Concentric circles joined by straight steps, concentric circles joined by arcs centred on the terminal via (as on the receiver makers' reference boards), or one smooth Archimedean spiral (use it when the pitch is tight). The spiral's last turn ends one pitch farther out, so the fingers must reach farther: with the defaults `RX_TAB_LENGTH_MM` must be at least 3.5. Capitals do not matter. |
+| `TX_SHAPE` | `"stepped_diagonal"` | `stepped_diagonal`, `stepped_arc`, `spiral` | Concentric circles joined by straight steps, concentric circles joined by arcs centred on the terminal via, or one smooth Archimedean spiral (use it when the pitch is tight). The spiral's last turn ends one pitch farther out, so the fingers must reach farther: with the defaults `RX_TAB_LENGTH_MM` must be at least 3.5. Capitals do not matter. |
 | `TX_STEPPED_ARC_RADIUS_MM` | `"auto"` | "auto" or a number above 0, up to 20 (*only if* stepped_arc) | Radius of the innermost arc, from the centre of the terminal via. Arc `n` has the radius this + n × `TX_PITCH_MM`. "auto" = the larger of `TX_PITCH_MM` and via radius + half a TX trace + `MIN_CLEARANCE_MM`, plus 0.02 mm and the chord sag (0.72 mm on the example board). A number must be larger than `TX_PITCH_MM` and smaller than `TX_PITCH_MM + TX_TAIL_EXTRA_MM` (errors otherwise); below the via clearance radius it warns. |
 | `TX_STEPPED_ANGLE_DEG` | 45 | 5 to 90 (*only if* stepped_diagonal) | Angle of the steps, measured from the turn: 90 = radial, smaller = a longer slope. Neighbouring steps have a gap of pitch × cos(angle) − width; above about 45° with the defaults that is below `MIN_CLEARANCE_MM`, and the steps are staggered automatically. |
 | `TX_INSIDE_VIA_DISTANCE_MM` | 0.3 | −3 to 3 (*not used by* stepped_arc) | Moves the TX terminal via towards the centre (negative = outwards). 0 = on the trace ends, which is closer to the next turn than the clearance allows with the default via and pitch. Keep below `TX_OFFSET_MM` − via radius − half an RX trace − clearance (0.4 mm with the defaults). |
@@ -138,9 +138,8 @@ Layers are numbered 1 = Top, 2 = Inner-1, 3 = Inner-2, 4 = Bottom (a 2-layer boa
 | `TX_PARALLEL_BREAK_STYLE` | `"stitched"` | `stitched`, `staggered` (*only if* parallel) | How the turns make way for a finger. `stitched`: the turns stop at vias on each side of the finger and the other layer carries the current past it. `staggered`: go-around, with brackets on the other layer. |
 
 Examples: TX on Bottom with the tail on Top is the original layout (the default). TX on Top gives about 15 % (0.8 mm
-board) to 30 % (1.6 mm board) more receiver signal per TX volt in the model. Series on layers 1 and 4 is the 2-layer
-layout of Hoxha et al. 2022 (Fig. 2); series on 1 and 3 follows the receiver makers' reference designs (4-layer board, RX on 1
-and 2).
+board) to 30 % (1.6 mm board) more receiver signal per TX volt in the model. Series on layers 1 and 4 suits a 2-layer
+board; series on 1 and 3 suits a 4-layer board with the RX on layers 1 and 2.
 
 A series TX always makes way for fingers by going around them ("staggered"). All TX turns are one net, so KiCad's DRC
 cannot see a TX turn touching another: the generator checks the clearance itself and warns.
@@ -157,7 +156,7 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 |---|---|---|---|
 | `ROTOR_AUTO_DUTY` | 0.5 | 0 to 1, exclusive | Metal fraction of each period. A fraction k/h has no h-th harmonic in the pattern, but copper edges crowd the field, which moves the best value; finding it needs an eddy-current model or a test rotor. |
 | `ROTOR_AUTO_START_ANGLE_DEG` | 0.0 | number | Mechanical angle of the first sector edge. |
-| `ROTOR_AUTO_COVER_TX` | True | True or False | True: the copper runs over the TX turns and ends `ROTOR_AUTO_TX_OVERHANG_MM` past the outermost turn, as in the receiver makers' reference designs (5 to 8 % more signal in the model). False: the older rule below. |
+| `ROTOR_AUTO_COVER_TX` | True | True or False | True: the copper runs over the TX turns and ends `ROTOR_AUTO_TX_OVERHANG_MM` past the outermost turn (5 to 8 % more signal in the model). False: the older rule below. |
 | `ROTOR_AUTO_TX_OVERHANG_MM` | 0.5 | −20 to 20 (*only if* cover) | Millimetres past the outer edge of the outermost TX turn (negative = ends over the TX turns). |
 | `ROTOR_AUTO_EXTENSION_MM` | None | number or None | How far the copper reaches past the RX band on the inner edge, and also on the outer edge when `ROTOR_AUTO_COVER_TX` is False. None = `AIR_GAP_MM`. |
 | `ROTOR_AUTO_EXTENSION_INNER_MM` | None | number or None | Inner edge only. None = `ROTOR_AUTO_EXTENSION_MM`. |
@@ -185,12 +184,12 @@ cannot see a TX turn touching another: the generator checks the clearance itself
 | `ROTOR_PCB_THICKNESS_MM` | None | > 0 up to 20, or None | Thickness of the rotor board written into the KiCad file. None = the stator's `PCB_THICKNESS_MM`. It changes nothing in the copper. |
 | `ROTOR_ARC_STEPS_PER_SECTOR` | `"auto"` | "auto" or a whole number, 8 to 5000 | Chords (polygon segments) on every circular arc of a sector. "auto" = as many as `ROTOR_CHORD_TOLERANCE_MM` needs (at least 8). A whole number is used exactly. |
 | `ROTOR_CHORD_TOLERANCE_MM` | 0.001 | ≥ 0.001 | The largest overshoot of the polygon beyond the true circle, in mm (1 micron, also the smallest value allowed). The vertices sit slightly outside the nominal radius, so the outer edge of the copper is never smaller than requested. On the inner arc the same shift puts the copper edge up to the chord sag outside the nominal inner radius, so the copper can be that much narrower there. |
-| `ROTOR_SOLDER_MASK_EXPANSION_MM` | 0.05 | up to 5 | Mask opening over the rotor copper: above 0 = opening that much wider than the copper; 0 = exactly the copper outline; −1 = no opening (mask stays over the copper). No other negative value is accepted. |
+| `ROTOR_SOLDER_MASK_EXPANSION_MM` | −1 | up to 5 | Mask opening over the rotor copper: −1 = no opening, the mask stays over the copper (default, recommended: it keeps the copper pristine and protected against oxidation, though some signal may be lost); above 0 = opening that much wider than the copper (for example 0.05); 0 = exactly the copper outline. No other negative value is accepted. |
 
 ## 15.5 IC (`IC_Parameters.py`)
 
 The receiver IC the TX tank is checked against in the [electrical estimate](Electrical-Estimate.md). These values never
-change a board. The defaults are those of the IPS2550, from its datasheet. A missing line, or a missing file, uses the
+change a board. The defaults are an example, the IPS2550. A missing line, or a missing file, uses the
 default.
 
 | Name | Default | Range | Meaning |
