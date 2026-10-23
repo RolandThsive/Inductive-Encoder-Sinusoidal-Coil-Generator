@@ -2,8 +2,9 @@
 
 Design the stator and rotor boards of a sinusoidal inductive encoder in your browser, see them straight away,
 and download them as KiCad files. No installation and no account: everything runs on your own computer, and
-nothing is sent to a server. The web tool runs the same generator as the desktop version, so the same settings
-give the same boards.
+nothing is sent to a server. The web tool runs the Single Generator unchanged, so the same settings give the same
+boards. It runs the copy on the `WebUI` branch, which is older than `main`: it has no silkscreen suggestion and no blind
+vias.
 
 **[Open The Web Tool](https://ro-h-bots.blogspot.com/p/inductive-encoder-sinusoidal-coil.html)**
 
@@ -25,7 +26,7 @@ The tool adapts to both landscape and portrait monitors. Both pictures show a ge
 
 ## 4.2 Features
 
-- **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter except the output settings and the two that only feed the electrical estimate. Both use the same
+- **Basic and Advanced modes.** Basic has the main settings; Advanced has every parameter except the output settings and the ten that only feed the electrical estimate. Both use the same
   four tabs: Board, RX, TX and Rotor, and a change in one mode shows in the other.
 - **Live board preview** of the stator, the rotor, or both together, with each copper layer in its own colour
   (Top red, Bottom blue, Inner-1 green, Inner-2 dark yellow), the same colours as the pictures in this wiki except a lighter blue for Bottom.
@@ -63,7 +64,7 @@ Every Basic setting is also in Advanced, under the same name.
 
 ### 4.4.2 Advanced
 
-Every parameter of the generator, grouped as in the parameter files, with two exceptions. The Output block of `Board_Parameters.py` (folder, file names, board centre, page size and `GENERATOR_MODE`, which is the **Strict** switch) is not shown. Neither are `RECEIVER_IC` and `COPPER_THICKNESS_UM`, which only feed the electrical estimate. Each one shows its parameter name, and the
+Every parameter of the generator, grouped as in the parameter files, with two exceptions. The Output block of `Board_Parameters.py` (folder, file names, board centre, page size and `GENERATOR_MODE`, which is the **Strict** switch) is not shown. Neither are the ten settings that only feed the electrical estimate: `COPPER_THICKNESS_UM`, `COPPER_CONDUCTIVITY_S_M`, `TX_AC_RESISTANCE_FACTOR`, `STACKUP_PREPREG_MM`, `TANK_CAP_SERIES` and the five of `IC_Parameters.py` (`IC_NAME`, `IC_OSC_MIN_MHZ`, `IC_OSC_MAX_MHZ`, `IC_MIN_RP_OHM`, `IC_SPLIT_TANK_CAPS`). Each one shows its parameter name, and the
 **↺** button puts it back to its starting value. Settings the current design does not use are greyed out and
 marked "not used now". A changed setting gets a dot before its name.
 
@@ -91,7 +92,7 @@ The RX band is the ring the receiver coils swing across. You can give it in one 
 - **Strict** (`GENERATOR_MODE = "strict"`) turns every warning about the finished boards into an error, so such a design is not generated.
 - **Checks** lists the errors and warnings. Turn on **Info** to also see the generator's notes.
 - **Summary** shows the generator's full report on the stator and the rotor.
-- **Download Zip** gives both boards, `Parameters.txt` and the four parameter files. **Download Stator** and
+- **Download Zip** gives both boards, `Parameters.txt` and the five parameter files (Board, RX, TX, Rotor and IC). **Download Stator** and
   **Download Rotor** give one `.kicad_pcb` each.
 
 ## 4.6 Errors And Warnings
@@ -134,7 +135,7 @@ The preview tools only change what you see, never the boards.
 
 ## 4.8 Saving, Sharing And Starting Over
 
-- **Export Parameters** downloads the four parameter files, ready for the desktop version.
+- **Export Parameters** downloads the five parameter files, ready for the desktop version.
 - **Import Parameters** loads a `Parameters.txt` from any run (web or desktop) or your own parameter files.
 - **Share Link** copies a link that opens the tool with your design. Only your changes are in the link, and
   nothing is uploaded.
@@ -142,7 +143,7 @@ The preview tools only change what you see, never the boards.
 
 ## 4.9 What The Web Tool Does Not Include
 
-The web tool makes the boards only. The receiver IC support, the electrical estimate, the optimizer and the analyser of the desktop project are not part of it.
+The web tool makes the boards only. The receiver IC support, the electrical estimate, the optimizer and the analyser of the desktop project are not part of it, and neither are the silkscreen suggestion, blind vias (`VIA_TYPE`) and the Dual Generator.
 
 ## 4.10 How It Runs
 
@@ -150,7 +151,7 @@ The Web Tool is a static site (`WebGUI/` on the `WebUI` branch): `index.html`, `
 `BoardPreview.js`, `Tooltips.js`, `PyodideWorker.js` and `WebGenerator.py`. There is no server. The browser loads
 Pyodide (Python and numpy compiled to WebAssembly) from the jsDelivr CDN, fetches the generator (`Single Generator/Generator/` and `Single Generator/Parameters/`)
 from the same site, and runs them unchanged in a Web Worker. For the same settings the KiCad output is
-byte-identical to the desktop run. The generator is never modified for the web.
+byte-identical to a desktop run of the same generator copy. The generator is never modified for the web.
 
 The tool is published with GitHub Pages and embedded in a page on the blog. Visitors' browsers fetch the
 generator's `.py` files from Pages, so a new release updates the tool.

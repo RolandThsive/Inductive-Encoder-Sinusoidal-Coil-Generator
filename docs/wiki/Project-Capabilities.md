@@ -4,6 +4,7 @@
 |---|---|
 | Human Language | English |
 | Programming Language | Pure Python 3 with numpy |
+| Generators | Single Generator: one coil set on a board. Dual Generator: two coil sets (a coarse inner track and a fine outer track, each with its own IC) on one 4-layer board, and one rotor disc with two rings, built with the Single Generator's own code |
 | Output | Stator and rotor as `.kicad_pcb` files, plus a full record of every value used |
 | RX Loops | 1 to 16 electrical periods per mechanical turn |
 | RX Phases | Four phases only: SIN and COS pairs, each with a positive and a negative half |
@@ -16,17 +17,20 @@
 | TX Break Style | Go-around (staggered) or stitched windows where a finger crosses the TX ring |
 | TX Terminal | Placed automatically where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, as close to the two fingers as the clearance allows); the board is turned so it sits at 0° |
 | Rotor | Generated from the stator, or fully custom |
-| Board | 2 or 4 copper layers, through vias only, fixed or automatic board edges |
+| Board | 2 or 4 copper layers (always 4 on a dual board), through or blind vias (`VIA_TYPE`), fixed or automatic board edges |
+| Dual Layout | Four `DUAL_MODE`s: the bands fitted between fixed edges, the edges from the bands, one band placed across a gap, or everything given; the gap between the sets and the rotor rings measured and checked |
+| Silkscreen | A lead-cutting suggestion on the stator's silkscreen: where to break each RX coil and where the TX ends get their vias, with the lead names; no copper changed |
 | Checks | Parameter rules, finished-geometry rules and the generator's own TX self-clearance check, with named conflicts; `GENERATOR_MODE` `normal` or `strict` |
-| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and tank resistance against the IC limits in `IC_Parameters.py` (no receiver voltage) |
+| Electrical Estimate | TX inductance, resistance, Q, tank capacitors, oscillator frequency and tank resistance against the IC limits in `IC_Parameters.py` (no receiver voltage); on a dual board for each set against its own IC |
+| Regression Testing | A test suite for each generator, run on every pull request on Ubuntu and Windows (see [Regression Testing](Regression-Testing.md)) |
 | Analysis | Under construction on the `analyser_and_optimizer` branch: angle error, signal, harmonics and a tolerance window (air gap, eccentricity, tilt, etching) |
 | Optimization | Under construction on the `analyser_and_optimizer` branch: searches profile, sub-coils, split, rotor metal fraction and rotor outer edge |
 
-Most of these are shown with pictures on the [Stator Features](Stator-Features.md), [Rotor Features](Rotor-Features.md) and [Board Features](Board-Features.md) pages.
+Most of these are shown with pictures on the [Stator Features](Stator-Features.md), [Rotor Features](Rotor-Features.md) and [Board Features](Board-Features.md) pages, and for the Dual Generator on [Stator Features - Dual Generator](Stator-Features-Dual-Generator.md) and the pages after it.
 
 ## 5.1 Board Size Range
 
-The table below gives the board sizes that build without any error or warning for 1, 4 and 16
+The table below gives the Single Generator board sizes that build without any error or warning for 1, 4 and 16
 loops. It was found by running the generator's own checks (parameters, finished boards, rotor and
 electrical estimate) over a grid of board radii in 1 mm steps, up to an outer radius of 40 mm, with
 these settings: 4 layers, series TX on Top + Inner-1 with 3 turns per layer, 0.6 mm pitch, 0.2 mm

@@ -6,7 +6,7 @@ stops when every milestone below is done.
 | Serial | Milestone | Success factor |
 |---|---|---|
 | ~~1~~ | ~~Making of the single board rotary generator~~ | ~~The single generator is in the repository, runs from the parameter files and writes KiCad files that pass its own checks.~~ |
-| 2 | Making of the dual board rotary generator | The dual generator is in the repository, runs from the parameter files and writes KiCad files that pass its own checks. |
+| ~~2~~ | ~~Making of the dual board rotary generator~~ | ~~The dual generator is in the repository, runs from the parameter files and writes KiCad files that pass its own checks.~~ |
 | 3 | Making of the arc board rotary generator | The arc generator is in the repository, runs from the parameter files and writes KiCad files that pass its own checks. |
 | 4 | Making of the linear board generator | The linear generator is in the repository, runs from the parameter files and writes KiCad files that pass its own checks. |
 | 5 | Extensive testing of the single board rotary generator | Boards from the single generator are built and measured, and the results are published with the measured values and the model values side by side. |

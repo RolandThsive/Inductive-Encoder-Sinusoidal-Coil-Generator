@@ -10,7 +10,8 @@
 | TX Terminal | Placed by the generator where it keeps the largest gap from the RX copper (with `RX_TABS = "single"`, as close to the two fingers as the clearance allows); the board is then turned so the terminal sits at 0° (to the right) |
 | Title Block | Filled in `Keyword: Value` style: TX, SIN/COS nets and phases, RX layers, radii, RX band |
 | Page Size | Chosen automatically so the title block never overlaps the board |
-| Silkscreen And Pads | None, on purpose: the coils are broken out by hand |
+| Silkscreen | A lead-cutting suggestion, drawn on `F.SilkS` and `B.SilkS` as the last step of a run: where to break each RX coil and where the two TX ends get their vias, with the lead names. It is guidance only and changes no copper (see [Silkscreen](Silkscreen.md)) |
+| Pads | None, on purpose: the coils are broken out by hand |
 
 ![Board 1: 2-Layer And 4-Layer Stators](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/board_1_layers.png)
 
@@ -22,4 +23,4 @@ extra target and weakens the signal.
 
 | Previous | Next |
 |:---|---:|
-| [Rotor Features](Rotor-Features.md) | [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md) |
+| [Rotor Features](Rotor-Features.md) | [Silkscreen](Silkscreen.md) |

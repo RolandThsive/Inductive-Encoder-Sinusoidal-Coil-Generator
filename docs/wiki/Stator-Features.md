@@ -32,7 +32,7 @@ most.
 
 ![Stator 2: RX Sub-Coils](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/images/stator_2_subcoils.png)
 
-*Stator 2. A miniature 1-loop stator (bore radius 16.8 mm, outer radius 34 mm) with 1 sub-coil and with 2 sub-coils split by 45° (RX only, the TX is not drawn).*
+*Stator 2. A 1-loop stator (bore radius 16.8 mm, outer radius 34 mm) with 1 sub-coil and with 2 sub-coils split by 45° (RX only, the TX is not drawn).*
 
 ### 11.1.3 Finger Styles
 

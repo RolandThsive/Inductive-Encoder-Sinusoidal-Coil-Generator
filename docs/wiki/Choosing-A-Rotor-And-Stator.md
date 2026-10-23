@@ -25,8 +25,14 @@ within one period, and the turn count must be tracked from a homing or index pos
 **Motor Commutation.** Match the loop count to the motor's pole-pair count, so that each electrical
 period of the sensor lines up with one electrical period of the motor.
 
-**Absolute And High Resolution Together.** Combine a 1-loop track with a multi-loop track
-(vernier or coarse/fine). This needs two receiver ICs and is planned as the dual-IC version.
+**Absolute And High Resolution Together.** Combine a 1-loop track with a multi-loop track (coarse / fine). The
+[Dual Generator](Stator-Features-Dual-Generator.md) builds exactly this: a coarse inner set (1 loop by default) and a
+fine outer set (16 loops by default) on one stator, each read by its own receiver IC, and one rotor disc with a ring for
+each set. The coarse angle says which period of the fine track the rotor is in, and the fine track gives the
+resolution. This works as long as the coarse angle error stays below half a fine period: 180 / `LOOPS` of the fine set
+mechanical degrees (±11.25° for 16 loops). Keep the coarse rotor ring away from the fine RX band, or it adds an error
+once per turn that no fine-track calibration removes (see
+[Rotor Features - Dual Generator](Rotor-Features-Dual-Generator.md#173-distances-between-the-rings)).
 
 | Previous | Next |
 |:---|---:|
