@@ -183,6 +183,8 @@ The author knows of no patent that this project infringes. This is not a guarant
 This page is a plain-language summary to help you find your way. It is not legal advice. If it differs from the full
 license texts, the full texts and the notices in the repository's `LICENSE.md` apply.
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Future Upgrades And Planning](Future-Upgrades-And-Planning.md) |  |

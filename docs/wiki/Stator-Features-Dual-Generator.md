@@ -137,6 +137,8 @@ layer, pitch 0.35 mm, trace 0.15 mm). The inner set follows the same rule.*
   four `DUAL_MODE`s.
 - [Parameter Reference Dual Generator](Parameter-Reference-Dual-Generator.md): every dual parameter and its default.
 
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+
 | Previous | Next |
 |:---|---:|
 | [Quick Guide To Parameters Selections](Quick-Guide-To-Parameters-Selections.md) | [Rotor Features - Dual Generator](Rotor-Features-Dual-Generator.md) |
