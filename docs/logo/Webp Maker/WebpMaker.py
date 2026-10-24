@@ -1,13 +1,15 @@
 """
-GifMaker.py  -  makes the looping GIF of the logo with only the rotor turning.  Settings: GifMaker_Parameters.py.
+WebpMaker.py  -  makes the looping animated WebP (or APNG) of the logo with only the rotor turning.
+Settings: WebpMaker_Parameters.py.
 
 How it works: the rotor is rotated about ROTOR_PIVOT in a copy of the SVG for every frame, each copy is drawn by a
 headless Chromium (transparent background, so text on arcs renders exactly as in a browser), and Pillow joins
-the frames into one GIF.  One full turn takes 360 / ROTATION_DEG_PER_SEC seconds.  The number of frames is a whole
-number, so the last frame leads straight into the first and the loop has no jump; when the turn does not divide
+the frames into one animated WebP or APNG, with full colour and soft transparent edges.  One full turn takes
+360 / ROTATION_DEG_PER_SEC seconds.  The number of frames is a whole number, so the last frame leads straight into the first and the loop has no jump; when the turn does not divide
 evenly into frames, the speed is rounded to the nearest whole frame count and the real speed is printed.
 
-Needs: Python 3.9+, Pillow (pip install pillow), and a Chromium based browser (Chrome, Chromium or Edge).
+Needs: Python 3.9+, Pillow (pip install pillow) with WebP support, and a Chromium based browser (Chrome, Chromium or
+Edge).
 """
 
 import re
@@ -20,20 +22,22 @@ from pathlib import Path
 
 from PIL import Image
 
-import GifMaker_Parameters as P
+import WebpMaker_Parameters as P
 
 HERE = Path(__file__).resolve().parent
 
 
 def check_parameters():
-    if not (isinstance(P.GIF_WIDTH_PX, int) and 16 <= P.GIF_WIDTH_PX <= 4096):
-        sys.exit("GIF_WIDTH_PX must be a whole number from 16 to 4096")
+    if not (isinstance(P.WIDTH_PX, int) and 16 <= P.WIDTH_PX <= 4096):
+        sys.exit("WIDTH_PX must be a whole number from 16 to 4096")
     if not P.ROTATION_DEG_PER_SEC:
         sys.exit("ROTATION_DEG_PER_SEC must not be 0")
     if not 1 <= P.FRAMES_PER_SECOND <= 50:
         sys.exit("FRAMES_PER_SECOND must be from 1 to 50")
-    if not 2 <= P.GIF_COLORS <= 255:
-        sys.exit("GIF_COLORS must be from 2 to 255")
+    if P.OUTPUT_FORMAT not in ("webp", "apng"):
+        sys.exit('OUTPUT_FORMAT must be "webp" or "apng"')
+    if not 1 <= P.WEBP_QUALITY <= 100:
+        sys.exit("WEBP_QUALITY must be from 1 to 100")
     if not (isinstance(P.WORKERS, int) and P.WORKERS >= 1):
         sys.exit("WORKERS must be a whole number, 1 or more")
 
@@ -53,7 +57,7 @@ def find_browser():
                  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"):
         if Path(path).exists():
             return path
-    sys.exit("No Chromium based browser found; install Chrome or Chromium, or set BROWSER in GifMaker_Parameters.py")
+    sys.exit("No Chromium based browser found; install Chrome or Chromium, or set BROWSER in WebpMaker_Parameters.py")
 
 
 def rotor_element(svg):
@@ -79,14 +83,8 @@ def render(browser, svg_path, png_path, width):
         sys.exit(f"The browser produced no image for {svg_path.name}")
 
 
-def to_gif_frame(png_path):
-    rgba = Image.open(png_path).convert("RGBA")
-    alpha = rgba.getchannel("A")
-    flat = Image.new("RGB", rgba.size, P.EDGE_COLOR)
-    flat.paste(rgba, mask=alpha)
-    frame = flat.quantize(colors=min(P.GIF_COLORS, 255), method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
-    frame.paste(255, mask=alpha.point(lambda v: 255 if v < 128 else 0))     # palette index 255 = transparent
-    return frame
+def load_frame(png_path):
+    return Image.open(png_path).convert("RGBA")
 
 
 def main():
@@ -103,22 +101,29 @@ def main():
     print(f"{frames} frames, {step:+.3f} deg per frame, one turn in {frames / P.FRAMES_PER_SECOND:.2f} s "
           f"({real_speed:.2f} deg/s)")
 
+    suffix = "webp" if P.OUTPUT_FORMAT == "webp" else "png"
     out_path = Path(P.OUTPUT_FILE) if P.OUTPUT_FILE else svg_path.with_name(
-        f"{svg_path.stem}_rotor_spin_{P.GIF_WIDTH_PX}px.gif")
+        f"{svg_path.stem}_rotor_spin_{P.WIDTH_PX}px.{suffix}")
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
         jobs = []
         for i in range(frames):
             svg_i = tmp / f"f{i:04d}.svg"
-            svg_i.write_text(frame_svg(svg, rotor, step * i, P.GIF_WIDTH_PX), encoding="utf-8")
+            svg_i.write_text(frame_svg(svg, rotor, step * i, P.WIDTH_PX), encoding="utf-8")
             jobs.append((svg_i, svg_i.with_suffix(".png")))
         with ThreadPoolExecutor(max_workers=P.WORKERS) as pool:
-            list(pool.map(lambda j: render(browser, j[0], j[1], P.GIF_WIDTH_PX), jobs))
-        gif = [to_gif_frame(png) for _, png in jobs]
+            list(pool.map(lambda j: render(browser, j[0], j[1], P.WIDTH_PX), jobs))
+        images = [load_frame(png) for _, png in jobs]
 
-    gif[0].save(out_path, save_all=True, append_images=gif[1:], duration=round(1000 / P.FRAMES_PER_SECOND),
-                loop=0, disposal=2, transparency=255)
+    duration = round(1000 / P.FRAMES_PER_SECOND)
+    if P.OUTPUT_FORMAT == "webp":
+        images[0].save(out_path, format="WEBP", save_all=True, append_images=images[1:], duration=duration, loop=0,
+                       lossless=P.WEBP_LOSSLESS, quality=100 if P.WEBP_LOSSLESS else P.WEBP_QUALITY, method=4,
+                       exact=True)
+    else:
+        images[0].save(out_path, format="PNG", save_all=True, append_images=images[1:], duration=duration, loop=0,
+                       disposal=1, optimize=True)
     print(f"Wrote {out_path} ({out_path.stat().st_size / 1e6:.1f} MB)")
 
 
