@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo/Logo_1_V2_rotor_spin_200px.gif" alt="Sinusoidal Coil Generator logo: a rotor turning over stator coils" width="200">
+<img src="docs/logo/Logo_1_V2_rotor_spin_200px.webp" alt="Sinusoidal Coil Generator logo: a rotor turning over stator coils" width="200">
 
 # Sinusoidal Coil Generator
 
