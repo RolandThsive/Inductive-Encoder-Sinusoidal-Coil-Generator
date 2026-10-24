@@ -32,8 +32,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install numpy
-        run: python -m pip install --upgrade pip numpy
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip -r requirements.txt
       - name: Run the Single Generator regression tests
         run: python "Single Generator/Regression Testing/run_regression.py" -v
 
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install numpy
-        run: python -m pip install --upgrade pip numpy
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip -r requirements.txt
       - name: Run the Dual Generator regression tests
         run: python "Dual Generator/Regression Testing/run_regression.py" -v

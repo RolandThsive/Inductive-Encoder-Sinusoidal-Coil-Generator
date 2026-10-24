@@ -2,7 +2,7 @@
 
 Both generators have a regression test suite that runs the generator the way a user does, with parameter values set in
 memory, and checks what it prints and what it writes. The parameter files, the `Output` folders and the generators are
-never touched by a test run. The suites need what the generators need: Python 3.8 or newer and NumPy.
+never touched by a test run. The suites need what the generators need: Python 3.9 or newer and NumPy (see requirements.txt).
 
 ## 29.1 Running The Tests
 
