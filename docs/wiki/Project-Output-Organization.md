@@ -91,7 +91,7 @@ python Dual_Generator/Run/Dual_RunCoilGenerator.py    # The Dual Generator: chec
 
 The generator runs from any folder; it finds the other folders itself. To treat every warning about the finished boards (clearances, the board edge, the page, the rotor) as an error, set `GENERATOR_MODE = "strict"` in `Board_Parameters.py`.
 
-[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.webp)
 
 | Previous | Next |
 |:---|---:|

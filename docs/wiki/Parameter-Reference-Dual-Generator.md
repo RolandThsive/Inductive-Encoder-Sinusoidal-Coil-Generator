@@ -198,7 +198,7 @@ differences: `SILKSCREEN_BREAK_LAYERS` is `["F.Cu", "In1.Cu"]`, and `SILKSCREEN_
 set's own terminal angle (`TERMINAL_1_DEG`, `TERMINAL_2_DEG`). The lead names are `SIN1_1`, `SIN1_2`, `COS1_1`, ...,
 `TX1_1 TOP`, `TX1_2 IN2` for set 1 and the same with 2 for set 2. See [Silkscreen - Dual Generator](Silkscreen-Dual-Generator.md).
 
-[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.gif)
+[<img align="right" src="https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2.png" alt="Sinusoidal Coil Generator logo, click to see it spin" width="72">](https://raw.githubusercontent.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/main/docs/logo/Logo_1_V2_rotor_spin_400px.webp)
 
 | Previous | Next |
 |:---|---:|
