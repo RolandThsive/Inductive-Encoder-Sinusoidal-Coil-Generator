@@ -6,7 +6,7 @@ The generator is pure Python 3 and needs only numpy. There is also a
 ## 3.1 Install
 
 ```bash
-pip install numpy
+python -m pip install -r requirements.txt
 ```
 
 ## 3.2 First Run

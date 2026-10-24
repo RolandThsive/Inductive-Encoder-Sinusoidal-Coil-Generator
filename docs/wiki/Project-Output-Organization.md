@@ -79,7 +79,7 @@ The analyser and optimizer (`Analyser_And_Optimizer/` and `OptimizerParameters.p
 ## 26.1 Quick Start
 
 ```bash
-pip install numpy
+python -m pip install -r requirements.txt
 
 cd "Single Generator"
 python Generator/Run/RunCoilGenerator.py              # Check, then write Stator + Rotor
