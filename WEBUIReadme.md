@@ -119,7 +119,7 @@ The preview tools only change what you see, never the boards.
 ## Saving, Sharing And Starting Over
 
 - **Export Parameters** downloads the parameter files (Board, RX, TX, Rotor and IC), ready for the desktop version.
-- **Help / Tutorial** opens the [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Inductive-Encoder-Sinusoidal-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections) guide on the project wiki in a new tab.
+- **Help / Tutorial** opens the [Quick Guide To Parameters Selections](https://github.com/RolandThsive/Sinusoidal-Inductive-Encoders-Coil-Generator/wiki/Quick-Guide-To-Parameters-Selections) guide on the project wiki in a new tab.
 - **Import Parameters** loads a `Parameters.txt` from any run (web or desktop) or your own parameter files. Files of
   version 17 or older name settings this version no longer has (for example `TX_LAYERS`, `TX_SERIES`,
   `TX_START_ANGLE_DEG`); those are left out and the page lists them.
@@ -137,7 +137,7 @@ estimate of the desktop project are not part of it.
 1. Merge the web tool into `main`.
 2. On GitHub: Settings > Pages > Source: **GitHub Actions**.
 3. Actions > **Web GUI On GitHub Pages** > Run workflow. It runs again on every published release.
-   The tool is then at `https://rolandthsive.github.io/Inductive-Encoder-Sinusoidal-Coil-Generator/WebGUI/`.
+   The tool is then at `https://rolandthsive.github.io/Sinusoidal-Inductive-Encoders-Coil-Generator/WebGUI/`.
 4. On Blogger: Pages > New Page, switch the editor to **HTML view**, paste all of `WebGUI/BloggerPage.html`,
    and publish.
 
